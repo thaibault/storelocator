@@ -1,0 +1,53 @@
+# -*- coding: utf-8 -*-
+
+## Generic
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+.sass-cache
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Vim temporary file
+*.swp
+.ropeproject
+
+# PHPStorm and other IDE Files
+*.idea
+*.project
+*.pydevproject
+*.settings
+*.externalToolBuilders
+
+# Gedit autosave backups.
+*~
+
+# region vim modline
+
+# vim: set tabstop=4 shiftwidth=4 expandtab:
+# vim: foldmethod=marker foldmarker=region,endregion:
+
+# endregion

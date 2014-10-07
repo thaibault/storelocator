@@ -1,0 +1,30 @@
+{
+    "name": "storeLocator",
+    "version": "1.0.0",
+    "title": "jQuery storeLocator",
+    "author": {
+        "name": "Torben Sickert",
+        "email": "t.sickert@gmail.com",
+        "url": "http://thaibault.github.com"
+    },
+    "licenses": [{
+        "type": "creativecommons",
+        "url": "http://creativecommons.org/licenses/by/3.0/deed.de"
+    }],
+    "dependencies": {
+        "jquery": ">=1.10.2",
+        "jquery-tools": ">=1.0"
+    },
+    "description": "google maps store locator",
+    "keywords": ["map", "google", "storeLocator", "locator"],
+    "homepage": "http://thaibault.github.com/jQuery-storeLocator",
+    "docs": "http://thaibault.github.com/jQuery-storeLocator/api",
+    "demo": "http://thaibault.github.com/jQuery-storeLocator",
+    "download": "http://thaibault.github.com/jQuery-storeLocator/distributionBundle.zip",
+    "bugs": "https://github.com/thaibault/jQuery-storeLocator/issues",
+    "maintainers": [{
+        "name": "Torben Sickert",
+        "email": "t.sickert@gmail.com",
+        "url": "http://thaibault.github.com"
+    }]
+}
