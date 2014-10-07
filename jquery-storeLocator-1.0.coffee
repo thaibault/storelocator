@@ -44,7 +44,7 @@ main = ($) ->
 
             Expected store data format:
 
-            {latitude: float, longitude: float, iconFileName: string}
+            {latitude: float, longitude: float}
         ###
         __name__: 'StoreLocator'
         initialize: (options={}) ->
@@ -139,8 +139,10 @@ main = ($) ->
             marker = new window.google.maps.Marker
                 position: new window.google.maps.LatLng(
                     store.latitude, store.longitude)
-                map: this.map, title: ''
-                icon: this._options.iconPath + store.iconFileName
+                map: this.map
+            marker.title = store.title if store.title
+            if store.iconFileName
+                marker.icon = this._options.iconPath + store.iconFileName
             infoWindow = new window.google.maps.InfoWindow
                 content: this.makeInfoWindow store
             window.google.maps.event.addListener marker, 'click', =>

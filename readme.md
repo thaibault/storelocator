@@ -50,7 +50,9 @@ Usage
         $(function($) {
             $('body div[store-locator]').StoreLocator({
                 // URL or list of stores.
-                stores: '/StoreLocatorData.json',
+                stores: [{
+                    latitude: 1.0, langitude: 1.0
+                }],
                 // Function or string returning or representing the infoBox
                 infoBox: null,
                 // Path prefix to search for marker icons.
