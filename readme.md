@@ -48,7 +48,7 @@ Usage
     </style>
     <script type="text/javascript">
         $(function($) {
-            $('body div[store-locator]).StoreLocator({
+            $('body div[store-locator]').StoreLocator({
                 // URL or list of stores.
                 stores: '/StoreLocatorData.json',
                 // Function or string returning or representing the infoBox
