@@ -30,8 +30,8 @@ Usage
 
     #!HTML
 
-    <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js”></script>
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places”></script>
+    <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"></script>
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places"></script>
 
     <script type="text/javascript" src="distributionBundle/jquery-2.1.1.js"></script>
     <script type="text/javascript" src="distributionBundle/jquery-tools-1.0.js"></script>
