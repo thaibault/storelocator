@@ -49,7 +49,7 @@ Version
       
           Expected store data format:
       
-          {latitude: float, longitude: float, iconFileName: string}
+          {latitude: float, longitude: float}
        */
 
       StoreLocator.prototype.__name__ = 'StoreLocator';
@@ -157,10 +157,14 @@ Version
         var infoWindow, marker;
         marker = new window.google.maps.Marker({
           position: new window.google.maps.LatLng(store.latitude, store.longitude),
-          map: this.map,
-          title: '',
-          icon: this._options.iconPath + store.iconFileName
+          map: this.map
         });
+        if (store.title) {
+          marker.title = store.title;
+        }
+        if (store.iconFileName) {
+          marker.icon = this._options.iconPath + store.iconFileName;
+        }
         infoWindow = new window.google.maps.InfoWindow({
           content: this.makeInfoWindow(store)
         });

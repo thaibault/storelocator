@@ -12837,7 +12837,9 @@ endregion -->
 41
 42
 43
-44</pre></div></td><td class="code"><div class="codehilite"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;http://maps.googleapis.com/maps/api/js?v=3&amp;sensor=false&amp;libraries=places&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+44
+45
+46</pre></div></td><td class="code"><div class="codehilite"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;http://maps.googleapis.com/maps/api/js?v=3&amp;sensor=false&amp;libraries=places&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 
 <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;distributionBundle/jquery-2.1.1.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
@@ -12857,7 +12859,9 @@ endregion -->
     <span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;body div[store-locator]&#39;</span><span class="p">).</span><span class="nx">StoreLocator</span><span class="p">({</span>
             <span class="c1">// URL or list of stores.</span>
-            <span class="nx">stores</span><span class="o">:</span> <span class="s1">&#39;/StoreLocatorData.json&#39;</span><span class="p">,</span>
+            <span class="nx">stores</span><span class="o">:</span> <span class="p">[{</span>
+                <span class="nx">latitude</span><span class="o">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="nx">langitude</span><span class="o">:</span> <span class="mf">1.0</span>
+            <span class="p">}],</span>
             <span class="c1">// Function or string returning or representing the infoBox</span>
             <span class="nx">infoBox</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
             <span class="c1">// Path prefix to search for marker icons.</span>
