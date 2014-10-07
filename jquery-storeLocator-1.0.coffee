@@ -51,16 +51,27 @@ main = ($) ->
             ###Entry point for object orientated jQuery plugin.###
             this.currentlyOpenWindow = null
             this._options =
+                # URL or list of stores.
                 stores: '/StoreLocatorData.json'
-                infoBox: null, iconPath: '/webAsset/image/storeLocator/'
-                # Initialize map with center in current location determined by
-                # internet protocol address.
+                # Function or string returning or representing the infoBox
+                infoBox: null
+                # Path prefix to search for marker icons.
+                iconPath: '/webAsset/image/storeLocator/'
+                # If not provided we initialize the map with center in current
+                # location determined by internet protocol address.
                 startLocation: null
+                # Determine ip dynamically
                 ip: null
+                # IP to location determination api url. {1} and {2} represents
+                # currently used protocoll and potentially given ip.
                 ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}'
+                # Initial view properties.
                 map: zoom: 11
+                # Function to call if map is fully initialized.
                 onLoaded: $.noop
+                # Delay before we show search input field.
                 showInputAfterLoadedDelayInMilliseconds: 4000
+                # Transition to show search input field.
                 inputFadeInOption: duration: 'fast'
             # Merges given options with default options recursively.
             super options
