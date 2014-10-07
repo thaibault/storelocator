@@ -12855,21 +12855,21 @@ endregion -->
 <span class="nt">&lt;/style&gt;</span>
 <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
     <span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;body div[store-locator]).StoreLocator({</span>
-<span class="s1">            // URL or list of stores.</span>
-<span class="s1">            stores: &#39;</span><span class="o">/</span><span class="nx">StoreLocatorData</span><span class="p">.</span><span class="nx">json</span><span class="s1">&#39;,</span>
-<span class="s1">            // Function or string returning or representing the infoBox</span>
-<span class="s1">            infoBox: null,</span>
-<span class="s1">            // Path prefix to search for marker icons.</span>
-<span class="s1">            iconPath: &#39;</span><span class="o">/</span><span class="nx">webAsset</span><span class="o">/</span><span class="nx">image</span><span class="o">/</span><span class="nx">storeLocator</span><span class="o">/</span><span class="s1">&#39;,</span>
-<span class="s1">            // If not provided we initialize the map with center in current</span>
-<span class="s1">            // location determined by internet protocol address.</span>
-<span class="s1">            startLocation: null,</span>
-<span class="s1">            // Determine ip dynamically</span>
-<span class="s1">            ip: null,</span>
-<span class="s1">            // IP to location determination api url. {1} and {2} represents</span>
-<span class="s1">            // currently used protocoll and potentially given ip.</span>
-<span class="s1">            ipToLocationAPIURL: &#39;</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="o">:</span><span class="c1">//freegeoip.net/json/{2}&#39;,</span>
+        <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;body div[store-locator]&#39;</span><span class="p">).</span><span class="nx">StoreLocator</span><span class="p">({</span>
+            <span class="c1">// URL or list of stores.</span>
+            <span class="nx">stores</span><span class="o">:</span> <span class="s1">&#39;/StoreLocatorData.json&#39;</span><span class="p">,</span>
+            <span class="c1">// Function or string returning or representing the infoBox</span>
+            <span class="nx">infoBox</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+            <span class="c1">// Path prefix to search for marker icons.</span>
+            <span class="nx">iconPath</span><span class="o">:</span> <span class="s1">&#39;/webAsset/image/storeLocator/&#39;</span><span class="p">,</span>
+            <span class="c1">// If not provided we initialize the map with center in current</span>
+            <span class="c1">// location determined by internet protocol address.</span>
+            <span class="nx">startLocation</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+            <span class="c1">// Determine ip dynamically</span>
+            <span class="nx">ip</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+            <span class="c1">// IP to location determination api url. {1} and {2} represents</span>
+            <span class="c1">// currently used protocoll and potentially given ip.</span>
+            <span class="nx">ipToLocationAPIURL</span><span class="o">:</span> <span class="s1">&#39;{1}://freegeoip.net/json/{2}&#39;</span><span class="p">,</span>
             <span class="c1">// Initial view properties.</span>
             <span class="nx">map</span><span class="o">:</span> <span class="p">{</span><span class="nx">zoom</span><span class="o">:</span> <span class="mi">11</span><span class="p">},</span>
             <span class="c1">// Function to call if map is fully initialized.</span>
