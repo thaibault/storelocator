@@ -525,7 +525,7 @@ main = ($) ->
             ###
             while true
                 uniqueName = prefix + window.parseInt window.Math.random(
-                ) * 10 ** 10
+                ) * window.Math.pow 10, 10
                 break if not scope[uniqueName]?
             uniqueName
 
