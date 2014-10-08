@@ -49,7 +49,10 @@ main = ($) ->
         __name__: 'StoreLocator'
         initialize: (options={}) ->
             ###Entry point for object orientated jQuery plugin.###
+            # Saves currently opened window instance.
             this.currentlyOpenWindow = null
+            # Saves all seen locations to recognize duplicates.
+            this.seenLocations = []
             this._options =
                 # URL to retrieve stores, list of stores or object describing
                 # bounds to create random stores within.
@@ -81,6 +84,13 @@ main = ($) ->
                 showInputAfterLoadedDelayInMilliseconds: 4000
                 # Transition to show search input field.
                 inputFadeInOption: duration: 'fast'
+                # Distance to move if stores are determined with same latitude
+                # and longitude.
+                distanceToMoveByDuplicatedEntries: 0.0001
+                # Options passed to the marker cluster.
+                markerCluster:
+                    gridSize: 100
+                    maxZoom : 14
             # Merges given options with default options recursively.
             super options
             # Grab dom nodes
@@ -109,7 +119,8 @@ main = ($) ->
             this.map = new window.google.maps.Map $('<div>').appendTo(
                 this.$domNode
             )[0], this._options.map
-            markerCluster = new window.MarkerClusterer this.map
+            markerCluster = new window.MarkerClusterer(
+                this.map, [], this._options.markerCluster)
             # Add a marker for each retrieved store.
             if $.isArray this._options.stores
                 for store in this._options.stores
@@ -157,7 +168,18 @@ main = ($) ->
             this
         addStore: (store) ->
             ###Registers given store to the google maps canvas.###
-            marker = new window.google.maps.Marker
+            index = 0
+            while "#{store.latitude}-#{store.longitude}" in this.seenLocations
+                console.log store.name + 'moved'
+                if index % 2
+                    store.latitude +=
+                        this._options.distanceToMoveByDuplicatedEntries
+                else
+                    store.longitude +=
+                        this._options.distanceToMoveByDuplicatedEntries
+                index += 1
+            this.seenLocations.push "#{store.latitude}-#{store.longitude}"
+            marker =
                 position: new window.google.maps.LatLng(
                     store.latitude, store.longitude)
                 map: this.map
@@ -166,10 +188,10 @@ main = ($) ->
             else if this._options.defaultMarkerIconFileName
                 marker.icon = this._options.iconPath +
                     this._options.defaultMarkerIconFileName
-            console.log marker.icon
             marker.title = store.title if store.title
             infoWindow = new window.google.maps.InfoWindow
                 content: this.makeInfoWindow store
+            marker = new window.google.maps.Marker marker
             window.google.maps.event.addListener marker, 'click', =>
                 this.currentlyOpenWindow.close() if this.currentlyOpenWindow?
                 this.currentlyOpenWindow = infoWindow
