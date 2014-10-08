@@ -98,6 +98,8 @@ main = ($) ->
             if this._options.startLocation?
                 this.initializeMap()
             else
+                this._options.startLocation = this._options.fallbackLocation
+                console.log 'AA'
                 $.ajax {
                     url: this.stringFormat(
                         this._options.ipToLocationAPIURL
@@ -105,14 +107,12 @@ main = ($) ->
                             0, document.location.protocol.length - 1
                         ), this._options.ip or ''
                     )
-                    jsonp: 'callback', dataType: 'jsonp'
+                    dataType: 'jsonp', crossDomain: true
                     success: (currentLocation) =>
-                        this._options.startLocation = currentLocation
-                    error: =>
-                        this._options.startLocation =
-                            this._options.fallbackLocation
-                    complete: =>
                         console.log 'A'
+                        this._options.startLocation = currentLocation
+                    complete: =>
+                        console.log 'B'
                         this.initializeMap()
                 }
             this.$domNode or this
