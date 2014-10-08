@@ -120,6 +120,7 @@ Version
             })(this),
             complete: (function(_this) {
               return function() {
+                console.log('A');
                 return _this.initializeMap();
               };
             })(this)
