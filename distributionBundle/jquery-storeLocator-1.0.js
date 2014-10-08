@@ -70,7 +70,8 @@ Version
             northEast: {
               latitude: 53.969012,
               longitude: 14.344482
-            }
+            },
+            number: 100
           },
           infoBox: null,
           iconPath: '/webAsset/image/storeLocator/',
@@ -110,7 +111,7 @@ Version
       StoreLocator.prototype.initializeMap = function() {
 
         /*Initializes cluster, info windows and marker. */
-        var markerCluster, northEast, searchBox, searchInputDomNode, southWest, store, _i, _j, _len, _len1, _ref;
+        var index, markerCluster, northEast, searchBox, searchInputDomNode, southWest, store, _i, _j, _len, _ref;
         this._options.map.center = new window.google.maps.LatLng(this._options.startLocation.latitude, this._options.startLocation.longitude);
         this.map = new window.google.maps.Map($('<div>').appendTo(this.$domNode)[0], this._options.map);
         markerCluster = new window.MarkerClusterer(this.map);
@@ -135,8 +136,7 @@ Version
         } else {
           southWest = new window.google.maps.LatLng(this._options.stores.southWest.latitude, this._options.stores.southWest.longitude);
           northEast = new window.google.maps.LatLng(this._options.stores.northEast.latitude, this._options.stores.northEast.latitude);
-          for (_j = 0, _len1 = stores.length; _j < _len1; _j++) {
-            store = stores[_j];
+          for (index = _j = 1; _j <= 100; index = ++_j) {
             markerCluster.addMarker(this.addStore({
               latitude: southWest.lat() + northEast.lat() - southWest.lat() * window.Math.random(),
               longitude: southWest.lng() + northEast.lng() - southWest.lng() * window.Math.random()
