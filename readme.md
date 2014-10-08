@@ -51,15 +51,13 @@ Usage
         }
     </style>
 
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places"></script>
     <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"></script>
-
     <script type="text/javascript" src="distributionBundle/jquery-2.1.1.js"></script>
     <script type="text/javascript" src="distributionBundle/jquery-tools-1.0.js"></script>
     <script type="text/javascript" src="distributionBundle/jquery-storeLocator-1.0.js"></script>
 
     <script type="text/javascript">
-        $(function($) {
+        window.initialize = function() {$(function($) {
             $('body div[store-locator]').StoreLocator({
                 // URL, list of stores or object describing bounds to create
                 // random string within.
@@ -92,8 +90,10 @@ Usage
                 // Transition to show search input field.
                 inputFadeInOption: {duration: 'fast'}
             });
-        });
+        });};
     </script>
+
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places&callback=initialize"></script>
 
     <div store-locator><input type="text" class="form-control" /></div>
 
