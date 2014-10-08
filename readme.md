@@ -79,7 +79,7 @@ Usage
                 // location determined by internet protocol address.
                 startLocation: null,
                 // Fallback location if automatic detection fails.
-                fallbackLocation: latitude:51.124213, longitude: 10.147705,
+                fallbackLocation: {latitude:51.124213, longitude: 10.147705},
                 // Determine ip dynamically
                 ip: null,
                 // IP to location determination api url. {1} and {2} represents
