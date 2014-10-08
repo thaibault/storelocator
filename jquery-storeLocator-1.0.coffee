@@ -170,7 +170,6 @@ main = ($) ->
             ###Registers given store to the google maps canvas.###
             index = 0
             while "#{store.latitude}-#{store.longitude}" in this.seenLocations
-                console.log store.name + 'moved'
                 if index % 2
                     store.latitude +=
                         this._options.distanceToMoveByDuplicatedEntries
