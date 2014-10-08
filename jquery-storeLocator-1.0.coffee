@@ -51,8 +51,8 @@ main = ($) ->
             ###Entry point for object orientated jQuery plugin.###
             this.currentlyOpenWindow = null
             this._options =
-                # URL, list of stores or object describing bounds to create
-                # random string within.
+                # URL to retrieve stores, list of stores or object describing
+                # bounds to create random stores within.
                 stores: {
                     northEast: {latitude: 85, longitude: 180},
                     southWest: {latitude: -85, longitude: -180},

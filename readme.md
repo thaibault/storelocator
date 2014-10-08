@@ -60,8 +60,8 @@ Usage
     <script type="text/javascript">
         window.initialize = function() {$(function($) {
             $('body div[store-locator]').StoreLocator({
-                // URL, list of stores or object describing bounds to create
-                // random string within.
+                // URL to retrieve stores, list of stores or object describing
+                // bounds to create random stores within.
                 stores: {
                     northEast: {latitude: 85, longitude: 180},
                     southWest: {latitude: -85, longitude: -180},
