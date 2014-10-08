@@ -67,7 +67,7 @@ Usage
                     southWest: {latitude: -85, longitude: -180},
                     number: 100
                 },
-                // Function or string returning or representing the infoBox
+                // Function or string returning or representing the info box
                 infoBox: null,
                 // Path prefix to search for marker icons.
                 iconPath: '/image/',
