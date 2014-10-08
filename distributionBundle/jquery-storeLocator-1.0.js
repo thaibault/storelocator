@@ -113,12 +113,16 @@ Version
                 return _this._options.startLocation = currentLocation;
               };
             })(this),
-            error: function() {
-              return this._options.startLocation = this._options.fallbackLocation;
-            },
-            complete: function() {
-              return this.initializeMap();
-            }
+            error: (function(_this) {
+              return function() {
+                return _this._options.startLocation = _this._options.fallbackLocation;
+              };
+            })(this),
+            complete: (function(_this) {
+              return function() {
+                return _this.initializeMap();
+              };
+            })(this)
           });
         }
         return this.$domNode || this;
