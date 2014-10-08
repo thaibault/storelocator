@@ -71,7 +71,7 @@ Version
               latitude: 53.969012,
               longitude: 14.344482
             },
-            number: 100
+            number: 50
           },
           infoBox: null,
           iconPath: '/webAsset/image/storeLocator/',
@@ -111,7 +111,7 @@ Version
       StoreLocator.prototype.initializeMap = function() {
 
         /*Initializes cluster, info windows and marker. */
-        var index, markerCluster, northEast, searchBox, searchInputDomNode, southWest, store, _i, _j, _len, _ref;
+        var index, markerCluster, northEast, searchBox, searchInputDomNode, southWest, store, _i, _j, _len, _ref, _ref1;
         this._options.map.center = new window.google.maps.LatLng(this._options.startLocation.latitude, this._options.startLocation.longitude);
         this.map = new window.google.maps.Map($('<div>').appendTo(this.$domNode)[0], this._options.map);
         markerCluster = new window.MarkerClusterer(this.map);
@@ -135,11 +135,11 @@ Version
           })(this));
         } else {
           southWest = new window.google.maps.LatLng(this._options.stores.southWest.latitude, this._options.stores.southWest.longitude);
-          northEast = new window.google.maps.LatLng(this._options.stores.northEast.latitude, this._options.stores.northEast.latitude);
-          for (index = _j = 1; _j <= 100; index = ++_j) {
+          northEast = new window.google.maps.LatLng(this._options.stores.northEast.latitude, this._options.stores.northEast.longitude);
+          for (index = _j = 0, _ref1 = this._options.stores.number; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; index = 0 <= _ref1 ? ++_j : --_j) {
             markerCluster.addMarker(this.addStore({
-              latitude: southWest.lat() + northEast.lat() - southWest.lat() * window.Math.random(),
-              longitude: southWest.lng() + northEast.lng() - southWest.lng() * window.Math.random()
+              latitude: southWest.lat() + (northEast.lat() - southWest.lat()) * window.Math.random(),
+              longitude: southWest.lng() + (northEast.lng() - southWest.lng()) * window.Math.random()
             }));
           }
         }
