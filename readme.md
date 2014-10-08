@@ -70,13 +70,16 @@ Usage
                 // Function or string returning or representing the info box
                 infoBox: null,
                 // Path prefix to search for marker icons.
-                iconPath: '/image/',
+                iconPath: '/webAsset/image/storeLocator/',
                 // Specifies a fallback marker icon (if no store specific icon
-                // was set)
-                defaultMarkerIconFileName: 'defaultMarkerIcon.png',
+                // was set). If set to "null" google will place a fallback
+                // icon.
+                defaultMarkerIconFileName: null,
                 // If not provided we initialize the map with center in current
                 // location determined by internet protocol address.
                 startLocation: null,
+                // Fallback location if automatic detection fails.
+                fallbackLocation: latitude:51.124213, longitude: 10.147705,
                 // Determine ip dynamically
                 ip: null,
                 // IP to location determination api url. {1} and {2} represents
@@ -87,9 +90,17 @@ Usage
                 // Function to call if map is fully initialized.
                 onLoaded: $.noop,
                 // Delay before we show search input field.
-                showInputAfterLoadedDelayInMilliseconds: 2000,
+                showInputAfterLoadedDelayInMilliseconds: 4000,
                 // Transition to show search input field.
-                inputFadeInOption: {duration: 'fast'}
+                inputFadeInOption: {duration: 'fast'},
+                // Distance to move if stores are determined with same latitude
+                // and longitude.
+                distanceToMoveByDuplicatedEntries: 0.0001,
+                // Options passed to the marker cluster.
+                markerCluster: {
+                    gridSize: 100
+                    maxZoom : 14
+                }
             });
         });};
     </script>

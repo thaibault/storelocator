@@ -71,6 +71,8 @@ main = ($) ->
                 # If not provided we initialize the map with center in current
                 # location determined by internet protocol address.
                 startLocation: null
+                # Fallback location if automatic detection fails.
+                fallbackLocation: latitude:51.124213, longitude: 10.147705
                 # Determine ip dynamically
                 ip: null
                 # IP to location determination api url. {1} and {2} represents
@@ -108,7 +110,10 @@ main = ($) ->
                     jsonp: 'callback', dataType: 'jsonp'
                     success: (currentLocation) =>
                         this._options.startLocation = currentLocation
-                        this.initializeMap()
+                    error: ->
+                        this._options.startLocation =
+                            this._options.fallbackLocation
+                    complete: ->  this.initializeMap()
                 }
             this.$domNode or this
         initializeMap: ->
