@@ -111,7 +111,9 @@ main = ($) ->
                     error: =>
                         this._options.startLocation =
                             this._options.fallbackLocation
-                    complete: =>  this.initializeMap()
+                    complete: =>
+                        console.log 'A'
+                        this.initializeMap()
                 }
             this.$domNode or this
         initializeMap: ->
