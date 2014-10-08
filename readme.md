@@ -40,8 +40,9 @@ Usage
         body div[store-locator] > div {
             height: 100%;
         }
-        body div[store-locator] input {
-            margin-top: 34px;
+        body div[store-locator] input.form-control {
+            margin-top: 27px;
+            width: 230px;
             display: none;
         }
         body div[store-locator] div.gm-style-iw > div {
