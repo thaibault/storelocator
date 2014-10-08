@@ -49,7 +49,7 @@ Version
       
           Expected store data format:
       
-          {latitude: float, longitude: float}
+          {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}
        */
 
       StoreLocator.prototype.__name__ = 'StoreLocator';
@@ -62,9 +62,19 @@ Version
         /*Entry point for object orientated jQuery plugin. */
         this.currentlyOpenWindow = null;
         this._options = {
-          stores: '/StoreLocatorData.json',
+          stores: {
+            southWest: {
+              latitude: 47.44295,
+              longitude: 5.906982
+            },
+            northEast: {
+              latitude: 53.969012,
+              longitude: 14.344482
+            }
+          },
           infoBox: null,
           iconPath: '/webAsset/image/storeLocator/',
+          defaultMarkerIconFileName: 'defaultMarkerIcon.png',
           startLocation: null,
           ip: null,
           ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}',
@@ -100,7 +110,7 @@ Version
       StoreLocator.prototype.initializeMap = function() {
 
         /*Initializes cluster, info windows and marker. */
-        var markerCluster, searchBox, searchInputDomNode, store, _i, _len, _ref;
+        var markerCluster, northEast, searchBox, searchInputDomNode, southWest, store, _i, _j, _len, _len1, _ref;
         this._options.map.center = new window.google.maps.LatLng(this._options.startLocation.latitude, this._options.startLocation.longitude);
         this.map = new window.google.maps.Map($('<div>').appendTo(this.$domNode)[0], this._options.map);
         markerCluster = new window.MarkerClusterer(this.map);
@@ -110,7 +120,7 @@ Version
             store = _ref[_i];
             markerCluster.addMarker(this.addStore(store));
           }
-        } else {
+        } else if ($.type(this._options.stores) === 'string') {
           $.getJSON(this._options.stores, (function(_this) {
             return function(stores) {
               var _j, _len1, _results;
@@ -122,6 +132,16 @@ Version
               return _results;
             };
           })(this));
+        } else {
+          southWest = new window.google.maps.LatLng(this._options.stores.southWest.latitude, this._options.stores.southWest.longitude);
+          northEast = new window.google.maps.LatLng(this._options.stores.northEast.latitude, this._options.stores.northEast.latitude);
+          for (_j = 0, _len1 = stores.length; _j < _len1; _j++) {
+            store = stores[_j];
+            markerCluster.addMarker(this.addStore({
+              latitude: southWest.lat() + northEast.lat() - southWest.lat() * window.Math.random(),
+              longitude: southWest.lng() + northEast.lng() - southWest.lng() * window.Math.random()
+            }));
+          }
         }
         searchInputDomNode = this.$domNode.find('input')[0];
         this.map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(searchInputDomNode);
@@ -159,11 +179,12 @@ Version
           position: new window.google.maps.LatLng(store.latitude, store.longitude),
           map: this.map
         });
+        marker.icon = this._options.iconPath + this._options.defaultMarkerIconFileName;
+        if (store.markerIconFileName) {
+          marker.icon = this._options.iconPath + store.markerIconFileName;
+        }
         if (store.title) {
           marker.title = store.title;
-        }
-        if (store.iconFileName) {
-          marker.icon = this._options.iconPath + store.iconFileName;
         }
         infoWindow = new window.google.maps.InfoWindow({
           content: this.makeInfoWindow(store)
