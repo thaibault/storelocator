@@ -79,6 +79,10 @@ Version
           iconPath: '/webAsset/image/storeLocator/',
           defaultMarkerIconFileName: null,
           startLocation: null,
+          fallbackLocation: {
+            latitude: 51.124213,
+            longitude: 10.147705
+          },
           ip: null,
           ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}',
           map: {
@@ -106,10 +110,15 @@ Version
             dataType: 'jsonp',
             success: (function(_this) {
               return function(currentLocation) {
-                _this._options.startLocation = currentLocation;
-                return _this.initializeMap();
+                return _this._options.startLocation = currentLocation;
               };
-            })(this)
+            })(this),
+            error: function() {
+              return this._options.startLocation = this._options.fallbackLocation;
+            },
+            complete: function() {
+              return this.initializeMap();
+            }
           });
         }
         return this.$domNode || this;
