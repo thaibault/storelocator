@@ -54,9 +54,9 @@ main = ($) ->
                 # URL, list of stores or object describing bounds to create
                 # random string within.
                 stores: {
-                    southWest: latitude: 47.44295, longitude: 5.906982
-                    northEast: latitude: 53.969012, longitude: 14.344482
-                    number: 50
+                    northEast: {latitude: 85, longitude: 180},
+                    southWest: {latitude: -85, longitude: -180},
+                    number: 100
                 },
                 # Function or string returning or representing the infoBox
                 infoBox: null
@@ -74,7 +74,7 @@ main = ($) ->
                 # currently used protocoll and potentially given ip.
                 ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}'
                 # Initial view properties.
-                map: zoom: 11
+                map: zoom: 3
                 # Function to call if map is fully initialized.
                 onLoaded: $.noop
                 # Delay before we show search input field.

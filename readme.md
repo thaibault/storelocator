@@ -41,7 +41,8 @@ Usage
             height: 100%;
         }
         body div[store-locator] input {
-            border: 1px solid red;
+            margin-top: 34px;
+            display: none;
         }
         body div[store-locator] div.gm-style-iw > div {
             width: 225px;
@@ -63,8 +64,8 @@ Usage
                 // URL, list of stores or object describing bounds to create
                 // random string within.
                 stores: {
-                    southWest: {latitude: 47.44295, longitude: 5.906982},
-                    northEast: {latitude: 53.969012, longitude: 14.344482},
+                    northEast: {latitude: 85, longitude: 180},
+                    southWest: {latitude: -85, longitude: -180},
                     number: 100
                 },
                 // Function or string returning or representing the infoBox
@@ -83,18 +84,18 @@ Usage
                 // currently used protocoll and potentially given ip.
                 ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}',
                 // Initial view properties.
-                map: {zoom: 8},
+                map: {zoom: 3},
                 // Function to call if map is fully initialized.
                 onLoaded: $.noop,
                 // Delay before we show search input field.
-                showInputAfterLoadedDelayInMilliseconds: 4000,
+                showInputAfterLoadedDelayInMilliseconds: 2000,
                 // Transition to show search input field.
                 inputFadeInOption: {duration: 'fast'}
             });
         });
     </script>
 
-    <div store-locator><input type="text" /></div>
+    <div store-locator><input type="text" class="form-control" /></div>
 
 <!-- region modline
 
