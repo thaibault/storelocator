@@ -63,15 +63,15 @@ Version
         this.currentlyOpenWindow = null;
         this._options = {
           stores: {
-            southWest: {
-              latitude: 47.44295,
-              longitude: 5.906982
-            },
             northEast: {
-              latitude: 53.969012,
-              longitude: 14.344482
+              latitude: 85,
+              longitude: 180
             },
-            number: 50
+            southWest: {
+              latitude: -85,
+              longitude: -180
+            },
+            number: 100
           },
           infoBox: null,
           iconPath: '/webAsset/image/storeLocator/',
@@ -80,7 +80,7 @@ Version
           ip: null,
           ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}',
           map: {
-            zoom: 11
+            zoom: 3
           },
           onLoaded: $.noop,
           showInputAfterLoadedDelayInMilliseconds: 4000,
