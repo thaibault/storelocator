@@ -63,8 +63,8 @@ main = ($) ->
                 # Path prefix to search for marker icons.
                 iconPath: '/webAsset/image/storeLocator/'
                 # Specifies a fallback marker icon (if no store specific icon
-                # was set)
-                defaultMarkerIconFileName: 'defaultMarkerIcon.png'
+                # was set). If set to "null" google will place a fallback icon.
+                defaultMarkerIconFileName: null
                 # If not provided we initialize the map with center in current
                 # location determined by internet protocol address.
                 startLocation: null
@@ -161,10 +161,12 @@ main = ($) ->
                 position: new window.google.maps.LatLng(
                     store.latitude, store.longitude)
                 map: this.map
-            marker.icon =
-            this._options.iconPath + this._options.defaultMarkerIconFileName
             if store.markerIconFileName
                 marker.icon = this._options.iconPath + store.markerIconFileName
+            else if this._options.defaultMarkerIconFileName
+                marker.icon = this._options.iconPath +
+                    this._options.defaultMarkerIconFileName
+            console.log marker.icon
             marker.title = store.title if store.title
             infoWindow = new window.google.maps.InfoWindow
                 content: this.makeInfoWindow store
