@@ -57,8 +57,8 @@ main = ($) ->
                 # URL to retrieve stores, list of stores or object describing
                 # bounds to create random stores within.
                 stores: {
-                    northEast: {latitude: 85, longitude: 180},
-                    southWest: {latitude: -85, longitude: -180},
+                    northEast: latitude: 85, longitude: 180
+                    southWest: latitude: -85, longitude: -180
                     number: 100
                 },
                 # Function or string returning or representing the info box
@@ -90,9 +90,7 @@ main = ($) ->
                 # and longitude.
                 distanceToMoveByDuplicatedEntries: 0.0001
                 # Options passed to the marker cluster.
-                markerCluster:
-                    gridSize: 100
-                    maxZoom : 14
+                markerCluster: gridSize: 100, maxZoom : 14
             # Merges given options with default options recursively.
             super options
             # Grab dom nodes

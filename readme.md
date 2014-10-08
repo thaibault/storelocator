@@ -97,9 +97,7 @@ Usage
                 // and longitude.
                 distanceToMoveByDuplicatedEntries: 0.0001,
                 // Options passed to the marker cluster.
-                markerCluster: {
-                    gridSize: 100
-                    maxZoom : 14
+                markerCluster: {gridSize: 100, maxZoom : 14
                 }
             });
         });};
