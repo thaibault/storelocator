@@ -56,7 +56,7 @@ main = ($) ->
                 stores: {
                     southWest: latitude: 47.44295, longitude: 5.906982
                     northEast: latitude: 53.969012, longitude: 14.344482
-                    number: 100
+                    number: 50
                 },
                 # Function or string returning or representing the infoBox
                 infoBox: null
@@ -124,13 +124,13 @@ main = ($) ->
                     this._options.stores.southWest.longitude)
                 northEast = new window.google.maps.LatLng(
                     this._options.stores.northEast.latitude
-                    this._options.stores.northEast.latitude)
-                for index in [1..100]
+                    this._options.stores.northEast.longitude)
+                for index in [0...this._options.stores.number]
                     markerCluster.addMarker this.addStore
-                        latitude: southWest.lat() + northEast.lat(
-                        ) - southWest.lat() * window.Math.random()
-                        longitude: southWest.lng() + northEast.lng(
-                        ) - southWest.lng() * window.Math.random()
+                        latitude: southWest.lat() + (northEast.lat(
+                        ) - southWest.lat()) * window.Math.random()
+                        longitude: southWest.lng() + (northEast.lng(
+                        ) - southWest.lng()) * window.Math.random()
             # Create the search box and link it to the UI element.
             searchInputDomNode = this.$domNode.find('input')[0]
             this.map.controls[window.google.maps.ControlPosition.TOP_LEFT]
