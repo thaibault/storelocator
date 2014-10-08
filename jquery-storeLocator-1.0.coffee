@@ -108,10 +108,10 @@ main = ($) ->
                     jsonp: 'callback', dataType: 'jsonp'
                     success: (currentLocation) =>
                         this._options.startLocation = currentLocation
-                    error: ->
+                    error: =>
                         this._options.startLocation =
                             this._options.fallbackLocation
-                    complete: ->  this.initializeMap()
+                    complete: =>  this.initializeMap()
                 }
             this.$domNode or this
         initializeMap: ->
