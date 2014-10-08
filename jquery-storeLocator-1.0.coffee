@@ -99,22 +99,17 @@ main = ($) ->
                 this.initializeMap()
             else
                 this._options.startLocation = this._options.fallbackLocation
-                console.log 'AA'
-                $.ajax {
+                $.ajax({
                     url: this.stringFormat(
                         this._options.ipToLocationAPIURL
                         document.location.protocol.substring(
                             0, document.location.protocol.length - 1
                         ), this._options.ip or ''
                     )
-                    dataType: 'jsonp', crossDomain: true
-                    success: (currentLocation) =>
-                        console.log 'A'
-                        this._options.startLocation = currentLocation
-                    complete: =>
-                        console.log 'B'
-                        this.initializeMap()
-                }
+                    dataType: 'jsonp'
+                }).done((currentLocation) =>
+                    this._options.startLocation = currentLocation
+                ).complete => this.initializeMap()
             this.$domNode or this
         initializeMap: ->
             ###Initializes cluster, info windows and marker.###
