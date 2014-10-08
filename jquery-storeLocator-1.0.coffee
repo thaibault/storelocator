@@ -54,8 +54,9 @@ main = ($) ->
                 # URL, list of stores or object describing bounds to create
                 # random string within.
                 stores: {
-                    southWest: {latitude: 47.44295, longitude: 5.906982},
-                    northEast: {latitude: 53.969012, longitude: 14.344482}
+                    southWest: latitude: 47.44295, longitude: 5.906982
+                    northEast: latitude: 53.969012, longitude: 14.344482
+                    number: 100
                 },
                 # Function or string returning or representing the infoBox
                 infoBox: null
@@ -124,7 +125,7 @@ main = ($) ->
                 northEast = new window.google.maps.LatLng(
                     this._options.stores.northEast.latitude
                     this._options.stores.northEast.latitude)
-                for store in stores
+                for index in [1..100]
                     markerCluster.addMarker this.addStore
                         latitude: southWest.lat() + northEast.lat(
                         ) - southWest.lat() * window.Math.random()

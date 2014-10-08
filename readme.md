@@ -30,6 +30,26 @@ Usage
 
     #!HTML
 
+    <style type="text/css">
+        body div[store-locator] {
+            width: 100%;
+            height: 400px;
+            margin: 0px;
+            padding: 0px
+        }
+        body div[store-locator] > div {
+            height: 100%;
+        }
+        body div[store-locator] input {
+            border: 1px solid red;
+        }
+        body div[store-locator] div.gm-style-iw > div {
+            width: 225px;
+            height: 60px;
+            padding: 5px;
+        }
+    </style>
+
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places"></script>
     <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"></script>
 
@@ -37,26 +57,23 @@ Usage
     <script type="text/javascript" src="distributionBundle/jquery-tools-1.0.js"></script>
     <script type="text/javascript" src="distributionBundle/jquery-storeLocator-1.0.js"></script>
 
-    <div store-locator><input type="text" /></div>
-    <style type="text/css">
-        body div[store-locator] {
-            border: 1px solid blue;
-        }
-        body div[store-locator] input {
-            border: 1px solid red;
-        }
-    </style>
     <script type="text/javascript">
         $(function($) {
             $('body div[store-locator]').StoreLocator({
-                // URL or list of stores.
-                stores: [{
-                    latitude: 1.0, langitude: 1.0
-                }],
+                // URL, list of stores or object describing bounds to create
+                // random string within.
+                stores: {
+                    southWest: {latitude: 47.44295, longitude: 5.906982},
+                    northEast: {latitude: 53.969012, longitude: 14.344482},
+                    number: 100
+                },
                 // Function or string returning or representing the infoBox
                 infoBox: null,
                 // Path prefix to search for marker icons.
-                iconPath: '/webAsset/image/storeLocator/',
+                iconPath: '/image/',
+                // Specifies a fallback marker icon (if no store specific icon
+                // was set)
+                defaultMarkerIconFileName: 'defaultMarkerIcon.png',
                 // If not provided we initialize the map with center in current
                 // location determined by internet protocol address.
                 startLocation: null,
@@ -66,7 +83,7 @@ Usage
                 // currently used protocoll and potentially given ip.
                 ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}',
                 // Initial view properties.
-                map: {zoom: 11},
+                map: {zoom: 8},
                 // Function to call if map is fully initialized.
                 onLoaded: $.noop,
                 // Delay before we show search input field.
@@ -76,6 +93,8 @@ Usage
             });
         });
     </script>
+
+    <div store-locator><input type="text" /></div>
 
 <!-- region modline
 
