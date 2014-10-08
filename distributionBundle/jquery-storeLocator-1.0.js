@@ -32,7 +32,8 @@ Version
 (function() {
   var main,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   main = function($) {
     var StoreLocator;
@@ -61,6 +62,7 @@ Version
 
         /*Entry point for object orientated jQuery plugin. */
         this.currentlyOpenWindow = null;
+        this.seenLocations = [];
         this._options = {
           stores: {
             northEast: {
@@ -86,6 +88,11 @@ Version
           showInputAfterLoadedDelayInMilliseconds: 4000,
           inputFadeInOption: {
             duration: 'fast'
+          },
+          distanceToMoveByDuplicatedEntries: 0.0001,
+          markerCluster: {
+            gridSize: 100,
+            maxZoom: 14
           }
         };
         StoreLocator.__super__.initialize.call(this, options);
@@ -114,7 +121,7 @@ Version
         var index, markerCluster, northEast, searchBox, searchInputDomNode, southWest, store, _i, _j, _len, _ref, _ref1;
         this._options.map.center = new window.google.maps.LatLng(this._options.startLocation.latitude, this._options.startLocation.longitude);
         this.map = new window.google.maps.Map($('<div>').appendTo(this.$domNode)[0], this._options.map);
-        markerCluster = new window.MarkerClusterer(this.map);
+        markerCluster = new window.MarkerClusterer(this.map, [], this._options.markerCluster);
         if ($.isArray(this._options.stores)) {
           _ref = this._options.stores;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -174,23 +181,34 @@ Version
       StoreLocator.prototype.addStore = function(store) {
 
         /*Registers given store to the google maps canvas. */
-        var infoWindow, marker;
-        marker = new window.google.maps.Marker({
+        var index, infoWindow, marker, _ref;
+        index = 0;
+        while (_ref = "" + store.latitude + "-" + store.longitude, __indexOf.call(this.seenLocations, _ref) >= 0) {
+          console.log(store.name + 'moved');
+          if (index % 2) {
+            store.latitude += this._options.distanceToMoveByDuplicatedEntries;
+          } else {
+            store.longitude += this._options.distanceToMoveByDuplicatedEntries;
+          }
+          index += 1;
+        }
+        this.seenLocations.push("" + store.latitude + "-" + store.longitude);
+        marker = {
           position: new window.google.maps.LatLng(store.latitude, store.longitude),
           map: this.map
-        });
+        };
         if (store.markerIconFileName) {
           marker.icon = this._options.iconPath + store.markerIconFileName;
         } else if (this._options.defaultMarkerIconFileName) {
           marker.icon = this._options.iconPath + this._options.defaultMarkerIconFileName;
         }
-        console.log(marker.icon);
         if (store.title) {
           marker.title = store.title;
         }
         infoWindow = new window.google.maps.InfoWindow({
           content: this.makeInfoWindow(store)
         });
+        marker = new window.google.maps.Marker(marker);
         window.google.maps.event.addListener(marker, 'click', (function(_this) {
           return function() {
             if (_this.currentlyOpenWindow != null) {
