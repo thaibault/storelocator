@@ -184,7 +184,6 @@ Version
         var index, infoWindow, marker, _ref;
         index = 0;
         while (_ref = "" + store.latitude + "-" + store.longitude, __indexOf.call(this.seenLocations, _ref) >= 0) {
-          console.log(store.name + 'moved');
           if (index % 2) {
             store.latitude += this._options.distanceToMoveByDuplicatedEntries;
           } else {
