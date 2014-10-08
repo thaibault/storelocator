@@ -75,7 +75,7 @@ Version
           },
           infoBox: null,
           iconPath: '/webAsset/image/storeLocator/',
-          defaultMarkerIconFileName: 'defaultMarkerIcon.png',
+          defaultMarkerIconFileName: null,
           startLocation: null,
           ip: null,
           ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}',
@@ -179,10 +179,12 @@ Version
           position: new window.google.maps.LatLng(store.latitude, store.longitude),
           map: this.map
         });
-        marker.icon = this._options.iconPath + this._options.defaultMarkerIconFileName;
         if (store.markerIconFileName) {
           marker.icon = this._options.iconPath + store.markerIconFileName;
+        } else if (this._options.defaultMarkerIconFileName) {
+          marker.icon = this._options.iconPath + this._options.defaultMarkerIconFileName;
         }
+        console.log(marker.icon);
         if (store.title) {
           marker.title = store.title;
         }
