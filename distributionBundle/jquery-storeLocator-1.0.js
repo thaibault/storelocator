@@ -105,24 +105,18 @@ Version
           this.initializeMap();
         } else {
           this._options.startLocation = this._options.fallbackLocation;
-          console.log('AA');
           $.ajax({
             url: this.stringFormat(this._options.ipToLocationAPIURL, document.location.protocol.substring(0, document.location.protocol.length - 1), this._options.ip || ''),
-            dataType: 'jsonp',
-            crossDomain: true,
-            success: (function(_this) {
-              return function(currentLocation) {
-                console.log('A');
-                return _this._options.startLocation = currentLocation;
-              };
-            })(this),
-            complete: (function(_this) {
-              return function() {
-                console.log('B');
-                return _this.initializeMap();
-              };
-            })(this)
-          });
+            dataType: 'jsonp'
+          }).done((function(_this) {
+            return function(currentLocation) {
+              return _this._options.startLocation = currentLocation;
+            };
+          })(this)).complete((function(_this) {
+            return function() {
+              return _this.initializeMap();
+            };
+          })(this));
         }
         return this.$domNode || this;
       };
