@@ -104,23 +104,21 @@ Version
         if (this._options.startLocation != null) {
           this.initializeMap();
         } else {
+          this._options.startLocation = this._options.fallbackLocation;
+          console.log('AA');
           $.ajax({
             url: this.stringFormat(this._options.ipToLocationAPIURL, document.location.protocol.substring(0, document.location.protocol.length - 1), this._options.ip || ''),
-            jsonp: 'callback',
             dataType: 'jsonp',
+            crossDomain: true,
             success: (function(_this) {
               return function(currentLocation) {
+                console.log('A');
                 return _this._options.startLocation = currentLocation;
-              };
-            })(this),
-            error: (function(_this) {
-              return function() {
-                return _this._options.startLocation = _this._options.fallbackLocation;
               };
             })(this),
             complete: (function(_this) {
               return function() {
-                console.log('A');
+                console.log('B');
                 return _this.initializeMap();
               };
             })(this)
