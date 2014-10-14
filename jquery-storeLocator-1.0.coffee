@@ -53,6 +53,9 @@ main = ($) ->
             this.currentlyOpenWindow = null
             # Saves all seen locations to recognize duplicates.
             this.seenLocations = []
+            # Saves all recognized markers.
+            this.markers = []
+            # Saves all plugin interface options.
             this._options =
                 # URL to retrieve stores, list of stores or object describing
                 # bounds to create random stores within.
@@ -80,10 +83,8 @@ main = ($) ->
                 ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}'
                 # Initial view properties.
                 map: zoom: 3
-                # Function to call if map is fully initialized.
-                onLoaded: $.noop
                 # Delay before we show search input field.
-                showInputAfterLoadedDelayInMilliseconds: 4000
+                showInputAfterLoadedDelayInMilliseconds: 500
                 # Transition to show search input field.
                 inputFadeInOption: duration: 'fast'
                 # Distance to move if stores are determined with same latitude
@@ -91,6 +92,22 @@ main = ($) ->
                 distanceToMoveByDuplicatedEntries: 0.0001
                 # Options passed to the marker cluster.
                 markerCluster: gridSize: 100, maxZoom : 14
+                # Search result precision tolerance (smaller means less
+                # precision).
+                searchResultPrecisionTolerance: 2
+                # Specifies a zoom value wich will be adjusted after
+                # successfully picked a search result. If set to "null" no zoom
+                # change happens.
+                successfulSearchZoom: 13
+                # Additional move to bottom relative to the marker if an info
+                # window has been opened.
+                infoWindowAdditionalMoveToBottomInPixel: 100
+                # Function to call if map is fully initialized.
+                onLoaded: $.noop
+                # Triggers if a marker info window will be opened.
+                onInfoWindowOpen: $.noop
+                # Triggers if a marker info window has finished opening.
+                onInfoWindowOpened: $.noop
             # Merges given options with default options recursively.
             super options
             # Grab dom nodes
@@ -124,11 +141,11 @@ main = ($) ->
             # Add a marker for each retrieved store.
             if $.isArray this._options.stores
                 for store in this._options.stores
-                    markerCluster.addMarker this.addStore store
+                    markerCluster.addMarker this.createMarker store
             else if $.type(this._options.stores) is 'string'
                 $.getJSON this._options.stores, (stores) =>
                     for store in stores
-                        markerCluster.addMarker this.addStore store
+                        markerCluster.addMarker this.createMarker store
             else
                 southWest = new window.google.maps.LatLng(
                     this._options.stores.southWest.latitude
@@ -137,7 +154,7 @@ main = ($) ->
                     this._options.stores.northEast.latitude
                     this._options.stores.northEast.longitude)
                 for index in [0...this._options.stores.number]
-                    markerCluster.addMarker this.addStore
+                    markerCluster.addMarker this.createMarker
                         latitude: southWest.lat() + (northEast.lat(
                         ) - southWest.lat()) * window.Math.random()
                         longitude: southWest.lng() + (northEast.lng(
@@ -151,8 +168,39 @@ main = ($) ->
             # Listen for the event fired when the user selects an item from the
             # pick list. Retrieve the matching places for that item.
             window.google.maps.event.addListener(
-                searchBox, 'places_changed', => this.map.setCenter(
-                    searchBox.getPlaces()[0].geometry.location))
+                searchBox, 'places_changed', =>
+                    foundPlaces = searchBox.getPlaces()
+                    if foundPlaces.length
+                        foundPlace = foundPlaces[0]
+                        for marker in this.markers
+                            if(this.round(marker.position.lat(
+                            ) * window.Math.pow(
+                                10
+                                this._options.searchResultPrecisionTolerance
+                            )) is this.round(foundPlace.geometry.location.lat(
+                            ) * window.Math.pow(
+                                10
+                                this._options.searchResultPrecisionTolerance
+                            )) and this.round(marker.position.lng(
+                            ) * window.Math.pow(
+                                10
+                                this._options.searchResultPrecisionTolerance
+                            )) is this.round(foundPlace.geometry.location.lng(
+                            ) * window.Math.pow(
+                                10
+                                this._options.searchResultPrecisionTolerance
+                            )))
+                                if this._options.successfulSearchZoom?
+                                    this.map.setZoom(
+                                        this._options.successfulSearchZoom)
+                                return this.openMarker(
+                                    foundPlace, this.openMarker, marker)
+                        if this.currentlyOpenWindow?
+                            this.currentlyOpenWindow.close()
+                        this.map.setCenter foundPlace.geometry.location
+                        if this._options.successfulSearchZoom?
+                            this.map.setZoom this._options.successfulSearchZoom
+            )
             # Bias the search box results towards places that are within the
             # bounds of the current map's viewport.
             window.google.maps.event.addListener this.map, 'bounds_changed', =>
@@ -166,7 +214,7 @@ main = ($) ->
                     this._options.inputFadeInOption)
             ), this._options.showInputAfterLoadedDelayInMilliseconds
             this
-        addStore: (store) ->
+        createMarker: (store) ->
             ###Registers given store to the google maps canvas.###
             index = 0
             while "#{store.latitude}-#{store.longitude}" in this.seenLocations
@@ -182,20 +230,36 @@ main = ($) ->
                 position: new window.google.maps.LatLng(
                     store.latitude, store.longitude)
                 map: this.map
+                data: store
             if store.markerIconFileName
                 marker.icon = this._options.iconPath + store.markerIconFileName
             else if this._options.defaultMarkerIconFileName
                 marker.icon = this._options.iconPath +
                     this._options.defaultMarkerIconFileName
             marker.title = store.title if store.title
-            infoWindow = new window.google.maps.InfoWindow
-                content: this.makeInfoWindow store
-            marker = new window.google.maps.Marker marker
-            window.google.maps.event.addListener marker, 'click', =>
-                this.currentlyOpenWindow.close() if this.currentlyOpenWindow?
-                this.currentlyOpenWindow = infoWindow
-                infoWindow.open this.map, marker
-            marker
+            marker.infoWindow = new window.google.maps.InfoWindow content: ''
+            marker.googleMarker = new window.google.maps.Marker marker
+            window.google.maps.event.addListener(
+                marker.googleMarker, 'click', this.getMethod(
+                    'openMarker', this, marker))
+            this.markers.push marker
+            marker.googleMarker
+        openMarker: (place, thisFunction, marker) ->
+            ###
+                Opens given marker info window. And closes a potential opened
+                windows.
+            ###
+            this.fireEvent 'infoWindowOpen', marker
+            infoWindow = this.makeInfoWindow marker.data
+            marker.infoWindow.setContent infoWindow
+            this.currentlyOpenWindow.close() if this.currentlyOpenWindow?
+            this.currentlyOpenWindow = marker.infoWindow
+            marker.infoWindow.open this.map, marker.googleMarker
+            this.map.panTo marker.googleMarker.position
+            this.map.panBy(
+                0, -this._options.infoWindowAdditionalMoveToBottomInPixel)
+            this.fireEvent 'infoWindowOpened', marker
+            this
         makeInfoWindow: (store) ->
             ###
                 Takes the info window data for a store and creates the HTML

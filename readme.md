@@ -63,41 +63,55 @@ Usage
                 // URL to retrieve stores, list of stores or object describing
                 // bounds to create random stores within.
                 stores: {
-                    northEast: {latitude: 85, longitude: 180},
-                    southWest: {latitude: -85, longitude: -180},
+                    northEast: latitude: 85, longitude: 180
+                    southWest: latitude: -85, longitude: -180
                     number: 100
                 },
                 // Function or string returning or representing the info box
-                infoBox: null,
+                infoBox: null
                 // Path prefix to search for marker icons.
-                iconPath: '/webAsset/image/storeLocator/',
+                iconPath: '/webAsset/image/storeLocator/'
                 // Specifies a fallback marker icon (if no store specific icon
                 // was set). If set to "null" google will place a fallback
                 // icon.
-                defaultMarkerIconFileName: null,
+                defaultMarkerIconFileName: null
                 // If not provided we initialize the map with center in current
                 // location determined by internet protocol address.
-                startLocation: null,
+                startLocation: null
                 // Fallback location if automatic detection fails.
-                fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
+                fallbackLocation: latitude: 51.124213, longitude: 10.147705
                 // Determine ip dynamically
-                ip: null,
+                ip: null
                 // IP to location determination api url. {1} and {2} represents
                 // currently used protocoll and potentially given ip.
-                ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}',
+                ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}'
                 // Initial view properties.
-                map: {zoom: 3},
-                // Function to call if map is fully initialized.
-                onLoaded: $.noop,
+                map: zoom: 3
                 // Delay before we show search input field.
-                showInputAfterLoadedDelayInMilliseconds: 4000,
+                showInputAfterLoadedDelayInMilliseconds: 500
                 // Transition to show search input field.
-                inputFadeInOption: {duration: 'fast'},
+                inputFadeInOption: duration: 'fast'
                 // Distance to move if stores are determined with same latitude
                 // and longitude.
-                distanceToMoveByDuplicatedEntries: 0.0001,
+                distanceToMoveByDuplicatedEntries: 0.0001
                 // Options passed to the marker cluster.
-                markerCluster: {gridSize: 100, maxZoom : 14}
+                markerCluster: gridSize: 100, maxZoom : 14
+                // Search result precision tolerance (smaller means less
+                // precision).
+                searchResultPrecisionTolerance: 2
+                // Specifies a zoom value wich will be adjusted after
+                // successfully picked a search result. If set to "null" no
+                // zoom change happens.
+                successfulSearchZoom: 13
+                // Additional move to bottom relative to the marker if an info
+                // window has been opened.
+                infoWindowAdditionalMoveToBottomInPixel: 100
+                // Function to call if map is fully initialized.
+                onLoaded: $.noop
+                // Triggers if a marker info window will be opened.
+                onInfoWindowOpen: $.noop
+                // Triggers if a marker info window has finished opening.
+                onInfoWindowOpened: $.noop
             });
         });};
     </script>
