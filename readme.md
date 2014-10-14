@@ -63,8 +63,8 @@ Usage
                 // URL to retrieve stores, list of stores or object describing
                 // bounds to create random stores within.
                 stores: {
-                    northEast: latitude: 85, longitude: 180,
-                    southWest: latitude: -85, longitude: -180,
+                    northEast: {latitude: 85, longitude: 180},
+                    southWest: {latitude: -85, longitude: -180},
                     number: 100
                 },
                 // Function or string returning or representing the info box
