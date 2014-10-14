@@ -205,53 +205,53 @@
             <span class="c1">// URL to retrieve stores, list of stores or object describing</span>
             <span class="c1">// bounds to create random stores within.</span>
             <span class="nx">stores</span><span class="o">:</span> <span class="p">{</span>
-                <span class="nx">northEast</span><span class="o">:</span> <span class="nx">latitude</span><span class="o">:</span> <span class="mi">85</span><span class="p">,</span> <span class="nx">longitude</span><span class="o">:</span> <span class="mi">180</span>
-                <span class="nx">southWest</span><span class="o">:</span> <span class="nx">latitude</span><span class="o">:</span> <span class="o">-</span><span class="mi">85</span><span class="p">,</span> <span class="nx">longitude</span><span class="o">:</span> <span class="o">-</span><span class="mi">180</span>
+                <span class="nx">northEast</span><span class="o">:</span> <span class="nx">latitude</span><span class="o">:</span> <span class="mi">85</span><span class="p">,</span> <span class="nx">longitude</span><span class="o">:</span> <span class="mi">180</span><span class="p">,</span>
+                <span class="nx">southWest</span><span class="o">:</span> <span class="nx">latitude</span><span class="o">:</span> <span class="o">-</span><span class="mi">85</span><span class="p">,</span> <span class="nx">longitude</span><span class="o">:</span> <span class="o">-</span><span class="mi">180</span><span class="p">,</span>
                 <span class="nx">number</span><span class="o">:</span> <span class="mi">100</span>
             <span class="p">},</span>
             <span class="c1">// Function or string returning or representing the info box</span>
-            <span class="nx">infoBox</span><span class="o">:</span> <span class="kc">null</span>
+            <span class="nx">infoBox</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
             <span class="c1">// Path prefix to search for marker icons.</span>
-            <span class="nx">iconPath</span><span class="o">:</span> <span class="s1">&#39;/webAsset/image/storeLocator/&#39;</span>
+            <span class="nx">iconPath</span><span class="o">:</span> <span class="s1">&#39;/webAsset/image/storeLocator/&#39;</span><span class="p">,</span>
             <span class="c1">// Specifies a fallback marker icon (if no store specific icon</span>
             <span class="c1">// was set). If set to &quot;null&quot; google will place a fallback</span>
             <span class="c1">// icon.</span>
-            <span class="nx">defaultMarkerIconFileName</span><span class="o">:</span> <span class="kc">null</span>
+            <span class="nx">defaultMarkerIconFileName</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
             <span class="c1">// If not provided we initialize the map with center in current</span>
             <span class="c1">// location determined by internet protocol address.</span>
-            <span class="nx">startLocation</span><span class="o">:</span> <span class="kc">null</span>
+            <span class="nx">startLocation</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
             <span class="c1">// Fallback location if automatic detection fails.</span>
-            <span class="nx">fallbackLocation</span><span class="o">:</span> <span class="nx">latitude</span><span class="o">:</span> <span class="mf">51.124213</span><span class="p">,</span> <span class="nx">longitude</span><span class="o">:</span> <span class="mf">10.147705</span>
+            <span class="nx">fallbackLocation</span><span class="o">:</span> <span class="p">{</span><span class="nx">latitude</span><span class="o">:</span> <span class="mf">51.124213</span><span class="p">,</span> <span class="nx">longitude</span><span class="o">:</span> <span class="mf">10.147705</span><span class="p">},</span>
             <span class="c1">// Determine ip dynamically</span>
-            <span class="nx">ip</span><span class="o">:</span> <span class="kc">null</span>
+            <span class="nx">ip</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
             <span class="c1">// IP to location determination api url. {1} and {2} represents</span>
             <span class="c1">// currently used protocoll and potentially given ip.</span>
-            <span class="nx">ipToLocationAPIURL</span><span class="o">:</span> <span class="s1">&#39;{1}://freegeoip.net/json/{2}&#39;</span>
+            <span class="nx">ipToLocationAPIURL</span><span class="o">:</span> <span class="s1">&#39;{1}://freegeoip.net/json/{2}&#39;</span><span class="p">,</span>
             <span class="c1">// Initial view properties.</span>
-            <span class="nx">map</span><span class="o">:</span> <span class="nx">zoom</span><span class="o">:</span> <span class="mi">3</span>
+            <span class="nx">map</span><span class="o">:</span> <span class="p">{</span><span class="nx">zoom</span><span class="o">:</span> <span class="mi">3</span><span class="p">},</span>
             <span class="c1">// Delay before we show search input field.</span>
-            <span class="nx">showInputAfterLoadedDelayInMilliseconds</span><span class="o">:</span> <span class="mi">500</span>
+            <span class="nx">showInputAfterLoadedDelayInMilliseconds</span><span class="o">:</span> <span class="mi">500</span><span class="p">,</span>
             <span class="c1">// Transition to show search input field.</span>
-            <span class="nx">inputFadeInOption</span><span class="o">:</span> <span class="nx">duration</span><span class="o">:</span> <span class="s1">&#39;fast&#39;</span>
+            <span class="nx">inputFadeInOption</span><span class="o">:</span> <span class="nx">duration</span><span class="o">:</span> <span class="s1">&#39;fast&#39;</span><span class="p">,</span>
             <span class="c1">// Distance to move if stores are determined with same latitude</span>
             <span class="c1">// and longitude.</span>
-            <span class="nx">distanceToMoveByDuplicatedEntries</span><span class="o">:</span> <span class="mf">0.0001</span>
+            <span class="nx">distanceToMoveByDuplicatedEntries</span><span class="o">:</span> <span class="mf">0.0001</span><span class="p">,</span>
             <span class="c1">// Options passed to the marker cluster.</span>
-            <span class="nx">markerCluster</span><span class="o">:</span> <span class="nx">gridSize</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nx">maxZoom</span> <span class="o">:</span> <span class="mi">14</span>
+            <span class="nx">markerCluster</span><span class="o">:</span> <span class="p">{</span><span class="nx">gridSize</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nx">maxZoom</span> <span class="o">:</span> <span class="mi">14</span><span class="p">},</span>
             <span class="c1">// Search result precision tolerance (smaller means less</span>
             <span class="c1">// precision).</span>
-            <span class="nx">searchResultPrecisionTolerance</span><span class="o">:</span> <span class="mi">2</span>
+            <span class="nx">searchResultPrecisionTolerance</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
             <span class="c1">// Specifies a zoom value wich will be adjusted after</span>
             <span class="c1">// successfully picked a search result. If set to &quot;null&quot; no</span>
             <span class="c1">// zoom change happens.</span>
-            <span class="nx">successfulSearchZoom</span><span class="o">:</span> <span class="mi">13</span>
+            <span class="nx">successfulSearchZoom</span><span class="o">:</span> <span class="mi">13</span><span class="p">,</span>
             <span class="c1">// Additional move to bottom relative to the marker if an info</span>
             <span class="c1">// window has been opened.</span>
-            <span class="nx">infoWindowAdditionalMoveToBottomInPixel</span><span class="o">:</span> <span class="mi">100</span>
+            <span class="nx">infoWindowAdditionalMoveToBottomInPixel</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span>
             <span class="c1">// Function to call if map is fully initialized.</span>
-            <span class="nx">onLoaded</span><span class="o">:</span> <span class="nx">$</span><span class="p">.</span><span class="nx">noop</span>
+            <span class="nx">onLoaded</span><span class="o">:</span> <span class="nx">$</span><span class="p">.</span><span class="nx">noop</span><span class="p">,</span>
             <span class="c1">// Triggers if a marker info window will be opened.</span>
-            <span class="nx">onInfoWindowOpen</span><span class="o">:</span> <span class="nx">$</span><span class="p">.</span><span class="nx">noop</span>
+            <span class="nx">onInfoWindowOpen</span><span class="o">:</span> <span class="nx">$</span><span class="p">.</span><span class="nx">noop</span><span class="p">,</span>
             <span class="c1">// Triggers if a marker info window has finished opening.</span>
             <span class="nx">onInfoWindowOpened</span><span class="o">:</span> <span class="nx">$</span><span class="p">.</span><span class="nx">noop</span>
         <span class="p">});</span>
