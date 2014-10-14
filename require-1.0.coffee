@@ -140,7 +140,7 @@ header in level "j" if "j < i" is valid.
 Author
 ------
 
-t.sickert@gmail.com (Torben Sickert)
+t.sickert["~at~"]gmail.com (Torben Sickert)
 
 Version
 -------
