@@ -21,7 +21,7 @@ For conventions see require on https://github.com/thaibault/require
 Author
 ------
 
-t.sickert@gmail.com (Torben Sickert)
+t.sickert["~at~"]gmail.com (Torben Sickert)
 
 Version
 -------
