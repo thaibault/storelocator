@@ -90,7 +90,7 @@ Usage
                 // Delay before we show search input field.
                 showInputAfterLoadedDelayInMilliseconds: 500,
                 // Transition to show search input field.
-                inputFadeInOption: duration: 'fast',
+                inputFadeInOption: {duration: 'fast'},
                 // Distance to move if stores are determined with same latitude
                 // and longitude.
                 distanceToMoveByDuplicatedEntries: 0.0001,
