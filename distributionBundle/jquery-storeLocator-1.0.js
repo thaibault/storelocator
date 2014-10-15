@@ -96,7 +96,7 @@ Version
           distanceToMoveByDuplicatedEntries: 0.0001,
           markerCluster: {
             gridSize: 100,
-            maxZoom: 14
+            maxZoom: 11
           },
           searchResultPrecisionTolerance: 2,
           successfulSearchZoom: 12,
@@ -255,7 +255,15 @@ Version
          */
         var infoWindow;
         this.fireEvent('infoWindowOpen', marker);
-        infoWindow = this.makeInfoWindow(marker.data);
+        marker.refreshSize = function() {
+
+          /*
+              Simulates a content update to enforce info box size
+              adjusting.
+           */
+          return marker.infoWindow.setContent(marker.infoWindow.getContent());
+        };
+        infoWindow = this.makeInfoWindow(marker);
         marker.infoWindow.setContent(infoWindow);
         if (this.currentlyOpenWindow != null) {
           this.currentlyOpenWindow.close();
@@ -268,22 +276,23 @@ Version
         return this;
       };
 
-      StoreLocator.prototype.makeInfoWindow = function(store) {
+      StoreLocator.prototype.makeInfoWindow = function(marker) {
 
         /*
             Takes the info window data for a store and creates the HTML
             content of the info window.
          */
-        var content, name, value;
+        var content, name, value, _ref;
         if ($.isFunction(this._options.infoBox)) {
-          return this._options.infoBox(store);
+          return this._options.infoBox(marker);
         }
         if (this._options.infoBox != null) {
           return this._options.infoBox;
         }
         content = '<div>';
-        for (name in store) {
-          value = store[name];
+        _ref = marker.data;
+        for (name in _ref) {
+          value = _ref[name];
           content += "" + name + ": " + value + "<br />";
         }
         return "" + content + "</div>";
