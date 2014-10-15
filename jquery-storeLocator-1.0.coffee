@@ -91,7 +91,7 @@ main = ($) ->
                 # and longitude.
                 distanceToMoveByDuplicatedEntries: 0.0001
                 # Options passed to the marker cluster.
-                markerCluster: gridSize: 100, maxZoom : 14
+                markerCluster: gridSize: 100, maxZoom : 11
                 # Search result precision tolerance (smaller means less
                 # precision).
                 searchResultPrecisionTolerance: 2
@@ -250,7 +250,13 @@ main = ($) ->
                 windows.
             ###
             this.fireEvent 'infoWindowOpen', marker
-            infoWindow = this.makeInfoWindow marker.data
+            marker.refreshSize = ->
+                ###
+                    Simulates a content update to enforce info box size
+                    adjusting.
+                ###
+                marker.infoWindow.setContent marker.infoWindow.getContent()
+            infoWindow = this.makeInfoWindow marker
             marker.infoWindow.setContent infoWindow
             this.currentlyOpenWindow.close() if this.currentlyOpenWindow?
             this.currentlyOpenWindow = marker.infoWindow
@@ -260,17 +266,17 @@ main = ($) ->
                 0, -this._options.infoWindowAdditionalMoveToBottomInPixel)
             this.fireEvent 'infoWindowOpened', marker
             this
-        makeInfoWindow: (store) ->
+        makeInfoWindow: (marker) ->
             ###
                 Takes the info window data for a store and creates the HTML
                 content of the info window.
             ###
             if $.isFunction this._options.infoBox
-                return this._options.infoBox store
+                return this._options.infoBox marker
             if this._options.infoBox?
                 return this._options.infoBox
             content = '<div>'
-            for name, value of store
+            for name, value of marker.data
                 content += "#{name}: #{value}<br />"
             "#{content}</div>"
 
