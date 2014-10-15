@@ -102,7 +102,7 @@ Usage
                 // Specifies a zoom value wich will be adjusted after
                 // successfully picked a search result. If set to "null" no
                 // zoom change happens.
-                successfulSearchZoom: 13,
+                successfulSearchZoom: 12,
                 // Additional move to bottom relative to the marker if an info
                 // window has been opened.
                 infoWindowAdditionalMoveToBottomInPixel: 100,
