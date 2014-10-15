@@ -99,7 +99,7 @@ Version
             maxZoom: 14
           },
           searchResultPrecisionTolerance: 2,
-          successfulSearchZoom: 13,
+          successfulSearchZoom: 12,
           infoWindowAdditionalMoveToBottomInPixel: 100,
           onLoaded: $.noop,
           onInfoWindowOpen: $.noop,
