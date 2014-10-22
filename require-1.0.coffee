@@ -622,7 +622,7 @@ class Require
                                     module, parameters, urls)
                             else
                                 self::_log(
-                                    'Loading resource failed with all known '
+                                    'Loading resource failed with all known ' +
                                     'base paths.')
                 ajaxObject.send null
                 type = 'asynchron request'
