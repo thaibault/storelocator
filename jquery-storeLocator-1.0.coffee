@@ -80,7 +80,9 @@ main = ($) ->
                 ip: null
                 # IP to location determination api url. {1} and {2} represents
                 # currently used protocoll and potentially given ip.
-                ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}'
+                ipToLocation:
+                    apiURL: '{1}://freegeoip.net/json/{2}'
+                    timeoutInMilliseconds: 5000
                 # Initial view properties.
                 map: zoom: 3
                 # Delay before we show search input field.
@@ -118,11 +120,12 @@ main = ($) ->
                 this._options.startLocation = this._options.fallbackLocation
                 $.ajax({
                     url: this.stringFormat(
-                        this._options.ipToLocationAPIURL
+                        this._options.ipToLocation.apiURL
                         document.location.protocol.substring(
                             0, document.location.protocol.length - 1
                         ), this._options.ip or ''
-                    )
+                    ),
+                    timeout: this._options.ipToLocation.timeoutInMilliseconds
                     dataType: 'jsonp'
                 }).done((currentLocation) =>
                     this._options.startLocation = currentLocation

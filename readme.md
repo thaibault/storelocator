@@ -84,7 +84,10 @@ Usage
                 ip: null,
                 // IP to location determination api url. {1} and {2} represents
                 // currently used protocoll and potentially given ip.
-                ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}',
+                ipToLocation: {
+                    apiURL: '{1}://freegeoip.net/json/{2}',
+                    timeoutInMilliseconds: 5000
+                },
                 // Initial view properties.
                 map: {zoom: 3},
                 // Delay before we show search input field.
