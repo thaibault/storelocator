@@ -85,7 +85,10 @@ Version
             longitude: 10.147705
           },
           ip: null,
-          ipToLocationAPIURL: '{1}://freegeoip.net/json/{2}',
+          ipToLocation: {
+            apiURL: '{1}://freegeoip.net/json/{2}',
+            timeoutInMilliseconds: 5000
+          },
           map: {
             zoom: 3
           },
@@ -112,7 +115,8 @@ Version
         } else {
           this._options.startLocation = this._options.fallbackLocation;
           $.ajax({
-            url: this.stringFormat(this._options.ipToLocationAPIURL, document.location.protocol.substring(0, document.location.protocol.length - 1), this._options.ip || ''),
+            url: this.stringFormat(this._options.ipToLocation.apiURL, document.location.protocol.substring(0, document.location.protocol.length - 1), this._options.ip || ''),
+            timeout: this._options.ipToLocation.timeoutInMilliseconds,
             dataType: 'jsonp'
           }).done((function(_this) {
             return function(currentLocation) {
