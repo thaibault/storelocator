@@ -1,4 +1,4 @@
-#!/usr/bin/env coffee
+#!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
 # region header
