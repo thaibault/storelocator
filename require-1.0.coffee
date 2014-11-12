@@ -286,7 +286,7 @@ class Require
             fileName = module[1].substr module[1].lastIndexOf('/') + 1
             coffeeScriptCompilerOptions =
                 header: '// Generated with require.js'
-                sourceMap: false
+                sourceMap: true
                 dirname: localSourceRootPath
                 filename: fileName
                 modulename: fileName.substr 0, fileName.lastIndexOf '.'
