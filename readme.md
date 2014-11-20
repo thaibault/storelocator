@@ -99,9 +99,9 @@ Usage
                 distanceToMoveByDuplicatedEntries: 0.0001,
                 // Options passed to the marker cluster.
                 markerCluster: {gridSize: 100, maxZoom : 14},
-                // Search result precision tolerance (smaller means less
-                // precision).
-                searchResultPrecisionTolerance: 2,
+                // Search result precision tolerance to identify a marker as
+                // search result.
+                searchResultDistanceToleranceInMeter: 50
                 // Specifies a zoom value wich will be adjusted after
                 // successfully picked a search result. If set to "null" no
                 // zoom change happens.
@@ -119,7 +119,7 @@ Usage
         });};
     </script>
 
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places&callback=initialize"></script>
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places,geometry&callback=initialize"></script>
 
     <div store-locator><input type="text" class="form-control" /></div>
 

@@ -94,9 +94,9 @@ main = ($) ->
                 distanceToMoveByDuplicatedEntries: 0.0001
                 # Options passed to the marker cluster.
                 markerCluster: gridSize: 100, maxZoom : 11
-                # Search result precision tolerance (smaller means less
-                # precision).
-                searchResultPrecisionTolerance: 2
+                # Search result precision tolerance to identify a marker as
+                # search result.
+                searchResultDistanceToleranceInMeter: 50
                 # Specifies a zoom value wich will be adjusted after
                 # successfully picked a search result. If set to "null" no zoom
                 # change happens.
@@ -175,30 +175,22 @@ main = ($) ->
                     foundPlaces = searchBox.getPlaces()
                     if foundPlaces.length
                         foundPlace = foundPlaces[0]
+                        shortestDistanceInMeter = window.Number.MAX_VALUE
+                        matchingMarker = null
                         for marker in this.markers
-                            if(this.round(marker.position.lat(
-                            ) * window.Math.pow(
-                                10
-                                this._options.searchResultPrecisionTolerance
-                            )) is this.round(foundPlace.geometry.location.lat(
-                            ) * window.Math.pow(
-                                10
-                                this._options.searchResultPrecisionTolerance
-                            )) and this.round(marker.position.lng(
-                            ) * window.Math.pow(
-                                10
-                                this._options.searchResultPrecisionTolerance
-                            )) is this.round(foundPlace.geometry.location.lng(
-                            ) * window.Math.pow(
-                                10
-                                this._options.searchResultPrecisionTolerance
-                            )))
-                                # TODO use best match
-                                if this._options.successfulSearchZoom?
-                                    this.map.setZoom(
-                                        this._options.successfulSearchZoom)
-                                return this.openMarker(
-                                    foundPlace, this.openMarker, marker)
+                            distanceInMeter = window.google.maps.geometry
+                            .spherical.computeDistanceBetween(
+                                foundPlace.geometry.location, marker.position)
+                            if distanceInMeter < shortestDistanceInMeter
+                                shortestDistanceInMeter = distanceInMeter
+                                matchingMarker = marker
+                        if(matchingMarker and shortestDistanceInMeter <=
+                           this._options.searchResultDistanceToleranceInMeter)
+                            if this._options.successfulSearchZoom?
+                                this.map.setZoom(
+                                    this._options.successfulSearchZoom)
+                            return this.openMarker(
+                                foundPlace, this.openMarker, matchingMarker)
                         if this.currentlyOpenWindow?
                             this.currentlyOpenWindow.close()
                         this.map.setCenter foundPlace.geometry.location
