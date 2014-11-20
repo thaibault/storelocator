@@ -101,7 +101,7 @@ Version
             gridSize: 100,
             maxZoom: 11
           },
-          searchResultPrecisionTolerance: 2,
+          searchResultDistanceToleranceInMeter: 50,
           successfulSearchZoom: 12,
           infoWindowAdditionalMoveToBottomInPixel: 100,
           onLoaded: $.noop,
@@ -171,19 +171,26 @@ Version
         searchBox = new window.google.maps.places.SearchBox(searchInputDomNode);
         window.google.maps.event.addListener(searchBox, 'places_changed', (function(_this) {
           return function() {
-            var foundPlace, foundPlaces, marker, _k, _len1, _ref2;
+            var distanceInMeter, foundPlace, foundPlaces, marker, matchingMarker, shortestDistanceInMeter, _k, _len1, _ref2;
             foundPlaces = searchBox.getPlaces();
             if (foundPlaces.length) {
               foundPlace = foundPlaces[0];
+              shortestDistanceInMeter = window.Number.MAX_VALUE;
+              matchingMarker = null;
               _ref2 = _this.markers;
               for (_k = 0, _len1 = _ref2.length; _k < _len1; _k++) {
                 marker = _ref2[_k];
-                if (_this.round(marker.position.lat() * window.Math.pow(10, _this._options.searchResultPrecisionTolerance)) === _this.round(foundPlace.geometry.location.lat() * window.Math.pow(10, _this._options.searchResultPrecisionTolerance)) && _this.round(marker.position.lng() * window.Math.pow(10, _this._options.searchResultPrecisionTolerance)) === _this.round(foundPlace.geometry.location.lng() * window.Math.pow(10, _this._options.searchResultPrecisionTolerance))) {
-                  if (_this._options.successfulSearchZoom != null) {
-                    _this.map.setZoom(_this._options.successfulSearchZoom);
-                  }
-                  return _this.openMarker(foundPlace, _this.openMarker, marker);
+                distanceInMeter = window.google.maps.geometry.spherical.computeDistanceBetween(foundPlace.geometry.location, marker.position);
+                if (distanceInMeter < shortestDistanceInMeter) {
+                  shortestDistanceInMeter = distanceInMeter;
+                  matchingMarker = marker;
                 }
+              }
+              if (matchingMarker && shortestDistanceInMeter <= _this._options.searchResultDistanceToleranceInMeter) {
+                if (_this._options.successfulSearchZoom != null) {
+                  _this.map.setZoom(_this._options.successfulSearchZoom);
+                }
+                return _this.openMarker(foundPlace, _this.openMarker, matchingMarker);
               }
               if (_this.currentlyOpenWindow != null) {
                 _this.currentlyOpenWindow.close();
