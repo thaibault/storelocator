@@ -193,6 +193,7 @@ main = ($) ->
                                 10
                                 this._options.searchResultPrecisionTolerance
                             )))
+                                # TODO use best match
                                 if this._options.successfulSearchZoom?
                                     this.map.setZoom(
                                         this._options.successfulSearchZoom)
