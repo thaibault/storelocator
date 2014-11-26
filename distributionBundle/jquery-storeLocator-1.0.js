@@ -65,6 +65,11 @@ Version
         this.seenLocations = [];
         this.markers = [];
         this._options = {
+
+          /*
+              URL to retrieve stores, list of stores or object describing
+              bounds to create random stores within.
+           */
           stores: {
             northEast: {
               latitude: 85,
@@ -76,17 +81,43 @@ Version
             },
             number: 100
           },
-          infoBox: null,
           iconPath: '/webAsset/image/storeLocator/',
+
+          /*
+              Specifies a fallback marker icon (if no store specific icon
+              was set). If set to "null" google will place a fallback
+              icon.
+           */
           defaultMarkerIconFileName: null,
+
+          /*
+              If not provided we initialize the map with center in
+              current location determined by internet protocol address.
+           */
           startLocation: null,
           fallbackLocation: {
             latitude: 51.124213,
             longitude: 10.147705
           },
+
+          /*
+              Current ip. If set to "null" ip will be determined
+              dynamically
+           */
           ip: null,
           ipToLocation: {
+
+            /*
+                IP to location determination api url. {1} and {2}
+                represents currently used protocol and potentially
+                given ip.
+             */
             apiURL: '{1}://freegeoip.net/json/{2}',
+
+            /*
+                Time to wait for ip resolve. If time is up initialize
+                on given fallback location.
+             */
             timeoutInMilliseconds: 5000
           },
           map: {
@@ -96,14 +127,53 @@ Version
           inputFadeInOption: {
             duration: 'fast'
           },
+
+          /*
+              Distance to move if stores are determined with same
+              latitude and longitude.
+           */
           distanceToMoveByDuplicatedEntries: 0.0001,
           markerCluster: {
             gridSize: 100,
             maxZoom: 11
           },
+
+          /*
+              Search result precision tolerance to identify a marker as
+              search result.
+           */
           searchResultDistanceToleranceInMeter: 50,
+
+          /*
+              Specifies a zoom value wich will be adjusted after
+              successfully picked a search result. If set to "null" no
+              zoom change happens.
+           */
           successfulSearchZoom: 12,
-          infoWindowAdditionalMoveToBottomInPixel: 100,
+          infoWindow: {
+
+            /*
+                Function or string returning or representing the info
+                box. If a function is given and a promise is returned
+                the info box will be filled with the given loading
+                content and updated with the resolved data. If nothing
+                is provided all available data will be listed in a
+                generic info window.
+             */
+            content: null,
+
+            /*
+                Additional move to bottom relative to the marker if an
+                info window has been opened.
+             */
+            additionalMoveToBottomInPixel: 100,
+
+            /*
+                Content to show in the info window during info window
+                load.
+             */
+            loadingContent: 'loading...'
+          },
           onLoaded: $.noop,
           onInfoWindowOpen: $.noop,
           onInfoWindowOpened: $.noop
@@ -122,7 +192,7 @@ Version
             return function(currentLocation) {
               return _this._options.startLocation = currentLocation;
             };
-          })(this)).complete((function(_this) {
+          })(this)).always((function(_this) {
             return function() {
               return _this.initializeMap();
             };
@@ -275,14 +345,21 @@ Version
           return marker.infoWindow.setContent(marker.infoWindow.getContent());
         };
         infoWindow = this.makeInfoWindow(marker);
-        marker.infoWindow.setContent(infoWindow);
+        if ($.type(infoWindow) === 'string') {
+          marker.infoWindow.setContent(infoWindow);
+        } else {
+          marker.infoWindow.setContent(this._options.infoWindow.loadingContent);
+          infoWindow.then(function(infoWindow) {
+            return marker.infoWindow.setContent(infoWindow);
+          });
+        }
         if (this.currentlyOpenWindow != null) {
           this.currentlyOpenWindow.close();
         }
         this.currentlyOpenWindow = marker.infoWindow;
         marker.infoWindow.open(this.map, marker.googleMarker);
         this.map.panTo(marker.googleMarker.position);
-        this.map.panBy(0, -this._options.infoWindowAdditionalMoveToBottomInPixel);
+        this.map.panBy(0, -this._options.infoWindow.additionalMoveToBottomInPixel);
         this.fireEvent('infoWindowOpened', marker);
         return this;
       };
@@ -294,11 +371,11 @@ Version
             content of the info window.
          */
         var content, name, value, _ref;
-        if ($.isFunction(this._options.infoBox)) {
-          return this._options.infoBox(marker);
+        if ($.isFunction(this._options.infoWindow.content)) {
+          return this._options.infoWindow.content(marker);
         }
-        if (this._options.infoBox != null) {
-          return this._options.infoBox;
+        if (this._options.infoWindow.content != null) {
+          return this._options.infoWindow.content;
         }
         content = '<div>';
         _ref = marker.data;
