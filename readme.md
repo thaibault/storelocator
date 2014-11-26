@@ -60,32 +60,46 @@ Usage
     <script type="text/javascript">
         window.initialize = function() {$(function($) {
             $('body div[store-locator]').StoreLocator({
-                // URL to retrieve stores, list of stores or object describing
-                // bounds to create random stores within.
+                /*
+                    URL to retrieve stores, list of stores or object describing
+                    bounds to create random stores within.
+                */
                 stores: {
                     northEast: {latitude: 85, longitude: 180},
                     southWest: {latitude: -85, longitude: -180},
                     number: 100
                 },
-                // Function or string returning or representing the info box
-                infoBox: null,
                 // Path prefix to search for marker icons.
                 iconPath: '/webAsset/image/storeLocator/',
-                // Specifies a fallback marker icon (if no store specific icon
-                // was set). If set to "null" google will place a fallback
-                // icon.
+                /*
+                    Specifies a fallback marker icon (if no store specific icon
+                    was set). If set to "null" google will place a fallback
+                    icon.
+                */
                 defaultMarkerIconFileName: null,
-                // If not provided we initialize the map with center in current
-                // location determined by internet protocol address.
+                /*
+                    If not provided we initialize the map with center in
+                    current location determined by internet protocol address.
+                */
                 startLocation: null,
                 // Fallback location if automatic detection fails.
                 fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
-                // Determine ip dynamically
+                /*
+                    Current ip. If set to "null" ip will be determined
+                    dynamically
+                */
                 ip: null,
-                // IP to location determination api url. {1} and {2} represents
-                // currently used protocoll and potentially given ip.
                 ipToLocation: {
+                    /*
+                        IP to location determination api url. {1} and {2}
+                        epresents currently used protocol and potentially given
+                        ip.
+                    */
                     apiURL: '{1}://freegeoip.net/json/{2}',
+                    /*
+                        Time to wait for ip resolve. If time is up initialize
+                        on given fallback location.
+                    */
                     timeoutInMilliseconds: 5000
                 },
                 // Initial view properties.
@@ -94,21 +108,45 @@ Usage
                 showInputAfterLoadedDelayInMilliseconds: 500,
                 // Transition to show search input field.
                 inputFadeInOption: {duration: 'fast'},
-                // Distance to move if stores are determined with same latitude
-                // and longitude.
+                /*
+                    Distance to move if stores are determined with same
+                    latitude and longitude.
+                */
                 distanceToMoveByDuplicatedEntries: 0.0001,
                 // Options passed to the marker cluster.
-                markerCluster: {gridSize: 100, maxZoom : 14},
-                // Search result precision tolerance to identify a marker as
-                // search result.
-                searchResultDistanceToleranceInMeter: 50
-                // Specifies a zoom value wich will be adjusted after
-                // successfully picked a search result. If set to "null" no
-                // zoom change happens.
+                markerCluster: {gridSize: 100, maxZoom : 11},
+                /*
+                    Search result precision tolerance to identify a marker as
+                    search result.
+                */
+                searchResultDistanceToleranceInMeter: 50,
+                /*
+                    Specifies a zoom value wich will be adjusted after
+                    successfully picked a search result. If set to "null" no
+                    zoom change happens.
+                */
                 successfulSearchZoom: 12,
-                // Additional move to bottom relative to the marker if an info
-                // window has been opened.
-                infoWindowAdditionalMoveToBottomInPixel: 100,
+                infoWindow: {
+                    /*
+                        Function or string returning or representing the info
+                        box. If a function is given and a promise is returned
+                        the info box will be filled with the given loading
+                        content and updated with the resolved data. If nothing
+                        is provided all available data will be listed in a
+                        generic info window.
+                    */
+                    content: null,
+                    /*
+                        Additional move to bottom relative to the marker if an
+                        info window has been opened.
+                    */
+                    additionalMoveToBottomInPixel: 100,
+                    /*
+                        Content to show in the info window during info window
+                        load.
+                    */
+                    loadingContent: 'loading...'
+                },
                 // Function to call if map is fully initialized.
                 onLoaded: $.noop,
                 // Triggers if a marker info window will be opened.
