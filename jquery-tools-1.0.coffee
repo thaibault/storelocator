@@ -504,7 +504,6 @@ main = ($) ->
             ###
             domNodes = {}
             if domNodeSelectors?
-                # TODO test new branches.
                 if wrapperDomNode?
                     wrapperDomNode = $ wrapperDomNode
                     $.each domNodeSelectors, (key, value) ->
