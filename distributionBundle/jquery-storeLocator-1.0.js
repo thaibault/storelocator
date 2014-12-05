@@ -3,7 +3,7 @@
 /*
 [Project page](https://thaibault.github.com/jQuery-storeLocator)
 
-This plugin provides a google api based store locator.
+This plugin provides a google application interface based store locator.
 
 Copyright Torben Sickert 16.12.2012
 
@@ -108,11 +108,11 @@ Version
           ipToLocation: {
 
             /*
-                IP to location determination api url. {1} and {2}
-                represents currently used protocol and potentially
-                given ip.
+                IP to location determination application interface url.
+                {1} and {2} represents currently used protocol and
+                potentially given ip.
              */
-            apiURL: '{1}://freegeoip.net/json/{2}',
+            aplicationInterfaceURL: '{1}://freegeoip.net/json/{2}',
 
             /*
                 Time to wait for ip resolve. If time is up initialize
@@ -185,7 +185,7 @@ Version
         } else {
           this._options.startLocation = this._options.fallbackLocation;
           $.ajax({
-            url: this.stringFormat(this._options.ipToLocation.apiURL, document.location.protocol.substring(0, document.location.protocol.length - 1), this._options.ip || ''),
+            url: this.stringFormat(this._options.ipToLocation.applicationInterfaceURL, document.location.protocol.substring(0, document.location.protocol.length - 1), this._options.ip || ''),
             timeout: this._options.ipToLocation.timeoutInMilliseconds,
             dataType: 'jsonp'
           }).done((function(_this) {
