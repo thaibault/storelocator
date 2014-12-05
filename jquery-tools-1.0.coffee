@@ -159,7 +159,7 @@ main = ($) ->
             # The selector prefix should be parsed after extending options
             # because the selector would be overwritten otherwise.
             this._options.domNodeSelectorPrefix = this.stringFormat(
-                this._options.domNodeSelectorPrefix,
+                this._options.domNodeSelectorPrefix
                 this.stringCamelCaseToDelimited this.__name__)
             this
 
