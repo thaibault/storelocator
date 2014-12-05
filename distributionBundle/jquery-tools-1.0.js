@@ -134,6 +134,13 @@ Version
             This method should be overwritten normally. It is triggered if
             current object is created via the "new" keyword.
         
+            The dom node selector prefix enforces to not globally select
+            any dom nodes which aren't in the expected scope of this
+            plugin. "{1}" will be automatically replaced with this plugin
+            name suffix ("incrementer"). You don't have to use "{1}" but it
+            can help you to write code which is more reconcilable with the
+            dry concept.
+        
             **returns {$.Tools}** Returns the current instance.
          */
         _ref = this._consoleMethods;
