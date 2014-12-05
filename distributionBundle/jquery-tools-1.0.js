@@ -550,10 +550,10 @@ Version
         /*
             Determines the dom node name of a given dom node string.
         
-            **domNode {String}** - A given to dom node selector to
-                                   determine its name.
+            **domNodeSelector {String}** - A given to dom node selector to
+                                           determine its name.
         
-            **returns {String}** - Returns the dom node name.
+            **returns {String}**         - Returns the dom node name.
         
             **examples**
         
@@ -569,7 +569,7 @@ Version
         return domNodeSelector.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1];
       };
 
-      Tools.prototype.grabDomNode = function(domNodeSelectors) {
+      Tools.prototype.grabDomNode = function(domNodeSelectors, wrapperDomNode) {
 
         /*
             Converts an object of dom selectors to an array of $ wrapped
@@ -579,6 +579,10 @@ Version
             **domNodeSelectors {Object}** - An object with dom node
                                             selectors.
         
+            **wrapperDomNode {DomNode}**  - A dom node to be the parent or
+                                            wrapper of all retrieved dom
+                                            nodes.
+        
             **returns {Object}**          - Returns all $ wrapped dom nodes
                                             corresponding to given
                                             selectors.
@@ -586,22 +590,29 @@ Version
         var domNodes;
         domNodes = {};
         if (domNodeSelectors != null) {
-          $.each(domNodeSelectors, (function(_this) {
-            return function(key, value) {
-              var match;
-              match = value.match(', *');
-              if (match) {
-                $.each(value.split(match[0]), function(key, valuePart) {
-                  if (key) {
-                    return value += ", " + _this._grabDomNodeHelper(key, valuePart, domNodeSelectors);
-                  } else {
-                    return value = valuePart;
-                  }
-                });
-              }
-              return domNodes[key] = $(_this._grabDomNodeHelper(key, value, domNodeSelectors));
-            };
-          })(this));
+          if (wrapperDomNode != null) {
+            wrapperDomNode = $(wrapperDomNode);
+            $.each(domNodeSelectors, function(key, value) {
+              return domNodes[key] = wrapperDomNode.find(value);
+            });
+          } else {
+            $.each(domNodeSelectors, (function(_this) {
+              return function(key, value) {
+                var match;
+                match = value.match(', *');
+                if (match) {
+                  $.each(value.split(match[0]), function(key, valuePart) {
+                    if (key) {
+                      return value += ', ' + _this._grabDomNodeHelper(key, valuePart, domNodeSelectors);
+                    } else {
+                      return value = valuePart;
+                    }
+                  });
+                }
+                return domNodes[key] = $(_this._grabDomNodeHelper(key, value, domNodeSelectors));
+              };
+            })(this));
+          }
         }
         if (this._options.domNodeSelectorPrefix) {
           domNodes.parent = $(this._options.domNodeSelectorPrefix);
