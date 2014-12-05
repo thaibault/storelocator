@@ -468,10 +468,10 @@ main = ($) ->
             ###
                 Determines the dom node name of a given dom node string.
 
-                **domNode {String}** - A given to dom node selector to
-                                       determine its name.
+                **domNodeSelector {String}** - A given to dom node selector to
+                                               determine its name.
 
-                **returns {String}** - Returns the dom node name.
+                **returns {String}**         - Returns the dom node name.
 
                 **examples**
 
@@ -485,7 +485,7 @@ main = ($) ->
                 'br'
             ###
             domNodeSelector.match(new RegExp('^<?([a-zA-Z]+).*>?.*'))[1]
-        grabDomNode: (domNodeSelectors) ->
+        grabDomNode: (domNodeSelectors, wrapperDomNode) ->
             ###
                 Converts an object of dom selectors to an array of $ wrapped
                 dom nodes. Note if selector description as one of "class" or
@@ -494,24 +494,33 @@ main = ($) ->
                 **domNodeSelectors {Object}** - An object with dom node
                                                 selectors.
 
+                **wrapperDomNode {DomNode}**  - A dom node to be the parent or
+                                                wrapper of all retrieved dom
+                                                nodes.
+
                 **returns {Object}**          - Returns all $ wrapped dom nodes
                                                 corresponding to given
                                                 selectors.
             ###
             domNodes = {}
             if domNodeSelectors?
-                $.each(domNodeSelectors, (key, value) =>
-                    match = value.match ', *'
-                    if match
-                        $.each value.split(match[0]), (key, valuePart) =>
-                            if key
-                                value += ", " + this._grabDomNodeHelper(
-                                    key, valuePart, domNodeSelectors)
-                            else
-                                value = valuePart
-                    domNodes[key] = $ this._grabDomNodeHelper(
-                        key, value, domNodeSelectors)
-                )
+                # TODO test new branches.
+                if wrapperDomNode?
+                    wrapperDomNode = $ wrapperDomNode
+                    $.each domNodeSelectors, (key, value) ->
+                        domNodes[key] = wrapperDomNode.find value
+                else
+                    $.each domNodeSelectors, (key, value) =>
+                        match = value.match ', *'
+                        if match
+                            $.each value.split(match[0]), (key, valuePart) =>
+                                if key
+                                    value += ', ' + this._grabDomNodeHelper(
+                                        key, valuePart, domNodeSelectors)
+                                else
+                                    value = valuePart
+                        domNodes[key] = $ this._grabDomNodeHelper(
+                            key, value, domNodeSelectors)
             if this._options.domNodeSelectorPrefix
                 domNodes.parent = $ this._options.domNodeSelectorPrefix
             domNodes.window = $ window
