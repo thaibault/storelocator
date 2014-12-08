@@ -213,7 +213,13 @@
 127
 128
 129
-130</pre></div></td><td class=code><div class=codehilite><pre><span class="nt">&lt;style </span><span class="na">type=</span><span class="s">&quot;text/css&quot;</span><span class="nt">&gt;</span>
+130
+131
+132
+133
+134
+135
+136</pre></div></td><td class=code><div class=codehilite><pre><span class="nt">&lt;style </span><span class="na">type=</span><span class="s">&quot;text/css&quot;</span><span class="nt">&gt;</span>
     <span class="nt">body</span> <span class="nt">div</span><span class="o">[</span><span class="nt">store-locator</span><span class="o">]</span> <span class="p">{</span>
         <span class="k">width</span><span class="o">:</span> <span class="m">100%</span><span class="p">;</span>
         <span class="k">height</span><span class="o">:</span> <span class="m">400px</span><span class="p">;</span>
@@ -245,12 +251,18 @@
         <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;body div[store-locator]&#39;</span><span class="p">).</span><span class="nx">StoreLocator</span><span class="p">({</span>
             <span class="cm">/*</span>
 <span class="cm">                URL to retrieve stores, list of stores or object describing</span>
-<span class="cm">                bounds to create random stores within.</span>
+<span class="cm">                bounds to create random stores within. If a</span>
+<span class="cm">                &quot;generateProperties&quot; function is given it will be called to</span>
+<span class="cm">                retrieve additional properties for each store. The</span>
+<span class="cm">                specified store will be given to the function.</span>
+
 <span class="cm">            */</span>
             <span class="nx">stores</span><span class="o">:</span> <span class="p">{</span>
                 <span class="nx">northEast</span><span class="o">:</span> <span class="p">{</span><span class="nx">latitude</span><span class="o">:</span> <span class="mi">85</span><span class="p">,</span> <span class="nx">longitude</span><span class="o">:</span> <span class="mi">180</span><span class="p">},</span>
                 <span class="nx">southWest</span><span class="o">:</span> <span class="p">{</span><span class="nx">latitude</span><span class="o">:</span> <span class="o">-</span><span class="mi">85</span><span class="p">,</span> <span class="nx">longitude</span><span class="o">:</span> <span class="o">-</span><span class="mi">180</span><span class="p">},</span>
-                <span class="nx">number</span><span class="o">:</span> <span class="mi">100</span>
+                <span class="nx">number</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nx">generateProperties</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">store</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">return</span> <span class="p">{};</span>
+                <span class="p">}</span>
             <span class="p">},</span>
             <span class="c1">// Path prefix to search for marker icons.</span>
             <span class="nx">iconPath</span><span class="o">:</span> <span class="s1">&#39;/webAsset/image/storeLocator/&#39;</span><span class="p">,</span>

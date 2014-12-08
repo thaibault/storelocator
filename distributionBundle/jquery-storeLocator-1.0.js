@@ -68,7 +68,10 @@ Version
 
           /*
               URL to retrieve stores, list of stores or object describing
-              bounds to create random stores within.
+              bounds to create random stores within. If a
+              "generateProperties" function is given it will be called to
+              retrieve additional properties for each store. The
+              specified store will be given to the function.
            */
           stores: {
             northEast: {
@@ -79,7 +82,10 @@ Version
               latitude: -85,
               longitude: -180
             },
-            number: 100
+            number: 100,
+            generateProperties: function(store) {
+              return {};
+            }
           },
           iconPath: '/webAsset/image/storeLocator/',
 
@@ -112,7 +118,7 @@ Version
                 {1} and {2} represents currently used protocol and
                 potentially given ip.
              */
-            aplicationInterfaceURL: '{1}://freegeoip.net/json/{2}',
+            applicationInterfaceURL: '{1}://freegeoip.net/json/{2}',
 
             /*
                 Time to wait for ip resolve. If time is up initialize
@@ -230,10 +236,11 @@ Version
           southWest = new window.google.maps.LatLng(this._options.stores.southWest.latitude, this._options.stores.southWest.longitude);
           northEast = new window.google.maps.LatLng(this._options.stores.northEast.latitude, this._options.stores.northEast.longitude);
           for (index = _j = 0, _ref1 = this._options.stores.number; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; index = 0 <= _ref1 ? ++_j : --_j) {
-            markerCluster.addMarker(this.createMarker({
+            store = {
               latitude: southWest.lat() + (northEast.lat() - southWest.lat()) * window.Math.random(),
               longitude: southWest.lng() + (northEast.lng() - southWest.lng()) * window.Math.random()
-            }));
+            };
+            markerCluster.addMarker(this.createMarker($.extend(store, this._options.stores.generateProperties(store))));
           }
         }
         searchInputDomNode = this.$domNode.find('input')[0];
