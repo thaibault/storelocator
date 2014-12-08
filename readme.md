@@ -62,12 +62,18 @@ Usage
             $('body div[store-locator]').StoreLocator({
                 /*
                     URL to retrieve stores, list of stores or object describing
-                    bounds to create random stores within.
+                    bounds to create random stores within. If a
+                    "generateProperties" function is given it will be called to
+                    retrieve additional properties for each store. The
+                    specified store will be given to the function.
+
                 */
                 stores: {
                     northEast: {latitude: 85, longitude: 180},
                     southWest: {latitude: -85, longitude: -180},
-                    number: 100
+                    number: 100, generateProperties: function(store) {
+                        return {};
+                    }
                 },
                 // Path prefix to search for marker icons.
                 iconPath: '/webAsset/image/storeLocator/',

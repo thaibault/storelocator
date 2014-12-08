@@ -45,6 +45,9 @@ nosetests.xml
 # Gedit autosave backups.
 *~
 
+# Node Modules
+*node_modules/
+
 # region vim modline
 
 # vim: set tabstop=4 shiftwidth=4 expandtab:

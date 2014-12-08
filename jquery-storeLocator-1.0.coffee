@@ -62,13 +62,16 @@ main = ($) ->
             this._options =
                 ###
                     URL to retrieve stores, list of stores or object describing
-                    bounds to create random stores within.
+                    bounds to create random stores within. If a
+                    "generateProperties" function is given it will be called to
+                    retrieve additional properties for each store. The
+                    specified store will be given to the function.
                 ###
                 stores: {
                     northEast: latitude: 85, longitude: 180
                     southWest: latitude: -85, longitude: -180
-                    number: 100
-                },
+                    number: 100, generateProperties: (store) -> {}
+                }
                 # Path prefix to search for marker icons.
                 iconPath: '/webAsset/image/storeLocator/'
                 ###
@@ -95,7 +98,7 @@ main = ($) ->
                         {1} and {2} represents currently used protocol and
                         potentially given ip.
                     ###
-                    aplicationInterfaceURL: '{1}://freegeoip.net/json/{2}'
+                    applicationInterfaceURL: '{1}://freegeoip.net/json/{2}'
                     ###
                         Time to wait for ip resolve. If time is up initialize
                         on given fallback location.
@@ -202,11 +205,13 @@ main = ($) ->
                     this._options.stores.northEast.latitude
                     this._options.stores.northEast.longitude)
                 for index in [0...this._options.stores.number]
-                    markerCluster.addMarker this.createMarker
+                    store =
                         latitude: southWest.lat() + (northEast.lat(
                         ) - southWest.lat()) * window.Math.random()
                         longitude: southWest.lng() + (northEast.lng(
                         ) - southWest.lng()) * window.Math.random()
+                    markerCluster.addMarker this.createMarker $.extend(
+                        store, this._options.stores.generateProperties store)
             # Create the search box and link it to the UI element.
             searchInputDomNode = this.$domNode.find('input')[0]
             this.map.controls[window.google.maps.ControlPosition.TOP_LEFT]
