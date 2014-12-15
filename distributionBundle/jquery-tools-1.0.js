@@ -1013,6 +1013,94 @@ Version
         return variables;
       };
 
+      Tools.prototype.sendToIFrame = function(target, url, data, requestType, removeAfterLoad) {
+        var form, name, value;
+        if (requestType == null) {
+          requestType = 'post';
+        }
+        if (removeAfterLoad == null) {
+          removeAfterLoad = false;
+        }
+
+        /*
+            Send given data to a given iframe.
+        
+            **target {String|DomNode}**   - Name of the target iframe or
+                                            the target iframe itself.
+        
+            **url {String}**              - URL to send to data to.
+        
+            **data {Object}**             - Data holding object to send
+                                            data to.
+        
+            **requestType {String}**      - The forms action attribute
+                                            value. If nothing is provided
+                                            "post" will be used as default.
+        
+            **removeAfterLoad {Boolean}** - Indicates if created iframe
+                                            should be removed right after
+                                            load event. Only works if an
+                                            iframe object is given instead
+                                            of a simple target name.
+        
+            **returns {String|DomNode}**  - Returns the given target.
+         */
+        form = $('<form>').attr({
+          action: url,
+          method: requestType,
+          target: $.type(target) === 'string' ? target : target.attr('name')
+        });
+        for (name in data) {
+          value = data[name];
+          form.append($('<input>').attr({
+            type: 'hidden',
+            name: name,
+            value: value
+          }));
+        }
+        form.submit().remove();
+        return typeof target.on === "function" ? target.on('load', function() {
+          if (removeAfterLoad) {
+            return target.remove();
+          }
+        }) : void 0;
+      };
+
+      Tools.prototype.sendToExternalURL = function(url, data, requestType, removeAfterLoad) {
+        var iFrame;
+        if (requestType == null) {
+          requestType = 'post';
+        }
+        if (removeAfterLoad == null) {
+          removeAfterLoad = true;
+        }
+
+        /*
+            Send given data to a temporary created iframe.
+        
+            **url {String}**              - URL to send to data to.
+        
+            **data {Object}**             - Data holding object to send
+                                            data to.
+        
+            **requestType {String}**      - The forms action attribute
+                                            value. If nothing is provided
+                                            "post" will be used as default.
+        
+            **removeAfterLoad {Boolean}** - Indicates if created iframe
+                                            should be removed right after
+                                            load event.
+        
+            **returns {DomNode}**         - Returns the dynamically created
+                                            iframe.
+         */
+        iFrame = $('<iframe>').attr({
+          name: this.__name__.charAt(0).toLowerCase() + this.__name__.substring(1) + (new Date).getTime()
+        }).hide();
+        this.$domNode.after(iFrame);
+        return this.sendToIFrame(iFrame, url, data, requestType, removeAfterLoad);
+      };
+
       Tools.prototype._bindHelper = function(parameter, removeEvent, eventFunctionName) {
         var $domNode;
         if (removeEvent == null) {
