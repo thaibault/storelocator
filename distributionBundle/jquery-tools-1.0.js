@@ -730,7 +730,7 @@ Version
           var timeoutID;
           if (!lock) {
             lock = true;
-            timeoutID = setTimeout((function() {
+            timeoutID = window.setTimeout((function() {
               return lock = false;
             }), thresholdInMilliseconds);
             return eventFunction.apply(this, additionalArguments);
