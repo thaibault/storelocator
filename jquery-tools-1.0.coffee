@@ -623,7 +623,7 @@ main = ($) ->
             ->
                 if not lock
                     lock = true
-                    timeoutID = setTimeout(
+                    timeoutID = window.setTimeout(
                         (-> lock = false), thresholdInMilliseconds)
                     eventFunction.apply this, additionalArguments
         fireEvent: (
