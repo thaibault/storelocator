@@ -218,13 +218,18 @@ main = ($) ->
             .push searchInputDomNode
             searchBox = new window.google.maps.places.SearchBox(
                 searchInputDomNode)
+            # Bias the search box results towards places that are within the
+            # bounds of the current map's viewport.
+            window.google.maps.event.addListener this.map, 'bounds_changed', =>
+                searchBox.setBounds this.map.getBounds()
             # Listen for the event fired when the user selects an item from the
             # pick list. Retrieve the matching places for that item.
             window.google.maps.event.addListener(
                 searchBox, 'places_changed', =>
                     foundPlaces = searchBox.getPlaces()
                     if foundPlaces.length
-                        foundPlace = foundPlaces[0]
+                        foundPlace = this.determineBestSearchResult(
+                            foundPlaces)
                         shortestDistanceInMeter = window.Number.MAX_VALUE
                         matchingMarker = null
                         for marker in this.markers
@@ -247,12 +252,24 @@ main = ($) ->
                         if this._options.successfulSearchZoom?
                             this.map.setZoom this._options.successfulSearchZoom
             )
-            # Bias the search box results towards places that are within the
-            # bounds of the current map's viewport.
-            window.google.maps.event.addListener this.map, 'bounds_changed', =>
-                searchBox.setBounds this.map.getBounds()
             this.fireEvent 'loaded'
             this
+        determineBestSearchResult: (candidates) ->
+            ###
+                Determines the best search result from given list of
+                candidates. Currently the nearest result to current viewport
+                will be preferred.
+            ###
+            shortestDistanceInMeter = window.Number.MAX_VALUE
+            bestMatch = candidates[0]
+            for candidate in candidates
+                distanceInMeter = window.google.maps.geometry
+                .spherical.computeDistanceBetween(
+                    candidate.geometry.location, this.map.getCenter())
+                if distanceInMeter < shortestDistanceInMeter
+                    bestMatch = candidate
+                    shortestDistanceInMeter = distanceInMeter
+            return bestMatch
         onLoaded: ->
             ###Is triggered if the complete map ist loaded.###
             window.setTimeout (=>
