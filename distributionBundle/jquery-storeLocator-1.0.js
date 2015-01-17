@@ -246,12 +246,17 @@ Version
         searchInputDomNode = this.$domNode.find('input')[0];
         this.map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(searchInputDomNode);
         searchBox = new window.google.maps.places.SearchBox(searchInputDomNode);
+        window.google.maps.event.addListener(this.map, 'bounds_changed', (function(_this) {
+          return function() {
+            return searchBox.setBounds(_this.map.getBounds());
+          };
+        })(this));
         window.google.maps.event.addListener(searchBox, 'places_changed', (function(_this) {
           return function() {
             var distanceInMeter, foundPlace, foundPlaces, marker, matchingMarker, shortestDistanceInMeter, _k, _len1, _ref2;
             foundPlaces = searchBox.getPlaces();
             if (foundPlaces.length) {
-              foundPlace = foundPlaces[0];
+              foundPlace = _this.determineBestSearchResult(foundPlaces);
               shortestDistanceInMeter = window.Number.MAX_VALUE;
               matchingMarker = null;
               _ref2 = _this.markers;
@@ -279,13 +284,29 @@ Version
             }
           };
         })(this));
-        window.google.maps.event.addListener(this.map, 'bounds_changed', (function(_this) {
-          return function() {
-            return searchBox.setBounds(_this.map.getBounds());
-          };
-        })(this));
         this.fireEvent('loaded');
         return this;
+      };
+
+      StoreLocator.prototype.determineBestSearchResult = function(candidates) {
+
+        /*
+            Determines the best search result from given list of
+            candidates. Currently the nearest result to current viewport
+            will be preferred.
+         */
+        var bestMatch, candidate, distanceInMeter, shortestDistanceInMeter, _i, _len;
+        shortestDistanceInMeter = window.Number.MAX_VALUE;
+        bestMatch = candidates[0];
+        for (_i = 0, _len = candidates.length; _i < _len; _i++) {
+          candidate = candidates[_i];
+          distanceInMeter = window.google.maps.geometry.spherical.computeDistanceBetween(candidate.geometry.location, this.map.getCenter());
+          if (distanceInMeter < shortestDistanceInMeter) {
+            bestMatch = candidate;
+            shortestDistanceInMeter = distanceInMeter;
+          }
+        }
+        return bestMatch;
       };
 
       StoreLocator.prototype.onLoaded = function() {
