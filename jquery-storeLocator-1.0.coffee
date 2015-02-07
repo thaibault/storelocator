@@ -72,6 +72,9 @@ main = ($) ->
                     southWest: latitude: -85, longitude: -180
                     number: 100, generateProperties: (store) -> {}
                 }
+                # Additional static store properties which will be available to
+                # each store.
+                addtionalStoreProperties: {}
                 # Path prefix to search for marker icons.
                 iconPath: '/webAsset/image/storeLocator/'
                 ###
@@ -192,10 +195,15 @@ main = ($) ->
             # Add a marker for each retrieved store.
             if $.isArray this._options.stores
                 for store in this._options.stores
+                    $.extend(
+                        true, store, this._options.addtionalStoreProperties)
                     markerCluster.addMarker this.createMarker store
             else if $.type(this._options.stores) is 'string'
                 $.getJSON this._options.stores, (stores) =>
                     for store in stores
+                        $.extend(
+                            true, store
+                            this._options.addtionalStoreProperties)
                         markerCluster.addMarker this.createMarker store
             else
                 southWest = new window.google.maps.LatLng(
@@ -205,11 +213,12 @@ main = ($) ->
                     this._options.stores.northEast.latitude
                     this._options.stores.northEast.longitude)
                 for index in [0...this._options.stores.number]
-                    store =
+                    store = $.extend {
                         latitude: southWest.lat() + (northEast.lat(
                         ) - southWest.lat()) * window.Math.random()
                         longitude: southWest.lng() + (northEast.lng(
                         ) - southWest.lng()) * window.Math.random()
+                    }, this._options.addtionalStoreProperties
                     markerCluster.addMarker this.createMarker $.extend(
                         store, this._options.stores.generateProperties store)
             # Create the search box and link it to the UI element.
@@ -226,10 +235,9 @@ main = ($) ->
             # pick list. Retrieve the matching places for that item.
             window.google.maps.event.addListener(
                 searchBox, 'places_changed', =>
-                    foundPlaces = searchBox.getPlaces()
-                    if foundPlaces.length
-                        foundPlace = this.determineBestSearchResult(
-                            foundPlaces)
+                    foundPlace = this.determineBestSearchResult(
+                        searchBox.getPlaces())
+                    if foundPlace?
                         shortestDistanceInMeter = window.Number.MAX_VALUE
                         matchingMarker = null
                         for marker in this.markers
@@ -260,16 +268,23 @@ main = ($) ->
                 candidates. Currently the nearest result to current viewport
                 will be preferred.
             ###
-            shortestDistanceInMeter = window.Number.MAX_VALUE
-            bestMatch = candidates[0]
-            for candidate in candidates
-                distanceInMeter = window.google.maps.geometry
-                .spherical.computeDistanceBetween(
-                    candidate.geometry.location, this.map.getCenter())
-                if distanceInMeter < shortestDistanceInMeter
-                    bestMatch = candidate
-                    shortestDistanceInMeter = distanceInMeter
-            return bestMatch
+            result = null
+            if candidates.length
+                shortestDistanceInMeter = window.Number.MAX_VALUE
+                for candidate in candidates
+                    if candidate.geometry?.location?
+                        distanceInMeter = window.google.maps.geometry
+                        .spherical.computeDistanceBetween(
+                            candidate.geometry.location, this.map.getCenter())
+                        if distanceInMeter < shortestDistanceInMeter
+                            result = candidate
+                            shortestDistanceInMeter = distanceInMeter
+                    else
+                        this.critical(
+                            'Found place "{1}" doesn\'t have a location. ' +
+                            'Full object:', candidate.name)
+                        this.critical candidate
+            return result
         onLoaded: ->
             ###Is triggered if the complete map ist loaded.###
             window.setTimeout (=>

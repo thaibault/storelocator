@@ -193,11 +193,9 @@ main = ($) ->
                 object = new object $domNode
                 if not object.__tools__?
                     object = $.extend true, new Tools, object
-            if $domNode?
-                if $domNode.data object.__name__
-                    object = $domNode.data object.__name__
-                else
-                    $domNode.data object.__name__, object
+            if $domNode? and not $domNode.data object.__name__
+                # Attach extended object to the associated dom node.
+                $domNode.data object.__name__, object
             if object[parameter[0]]?
                 return object[parameter[0]].apply object, parameter.slice 1
             else if not parameter.length or $.type(parameter[0]) is 'object'
@@ -324,7 +322,7 @@ main = ($) ->
 
                 **returns {$.Tools}**         - Returns the current instance.
             ###
-            if this._options.logging or force
+            if this._options.logging or force or level in ['error', 'critical']
                 if avoidAnnotation
                     message = object
                 else if $.type(object) is 'string'
@@ -332,10 +330,7 @@ main = ($) ->
                     message = (
                         "#{this.__name__} (#{level}): " +
                         this.stringFormat.apply this, additionalArguments)
-                else if $.isNumeric object
-                    message = (
-                        "#{this.__name__} (#{level}): #{object.toString()}")
-                else if $.type(object) is 'boolean'
+                else if $.isNumeric(object) or $.type(object) is 'boolean'
                     message = (
                         "#{this.__name__} (#{level}): #{object.toString()}")
                 else
@@ -343,7 +338,10 @@ main = ($) ->
                     this.log object, force, true
                     this.log "'--------------------------------------------'"
                 if message
-                    if window.console?[level]? is $.noop() and force
+                    if(
+                        not window.console?[level]? or
+                        window.console[level] is $.noop()
+                    )
                         window.alert message
                     window.console[level] message
             this
@@ -387,7 +385,21 @@ main = ($) ->
                 **returns {$.Tools}** - Returns the current instance.
             ###
             this.log.apply(
-                this, [object, false, false, 'error'].concat(
+                this, [object, true, false, 'error'].concat(
+                    additionalArguments))
+        critical: (object, additionalArguments...) ->
+            ###
+                Wrapper method for the native console method usually provided
+                by interpreter.
+
+                **object {Mixed}**    - Any object to print.
+
+                Additional arguments are used for string formating.
+
+                **returns {$.Tools}** - Returns the current instance.
+            ###
+            this.log.apply(
+                this, [object, true, false, 'warn'].concat(
                     additionalArguments))
         warn: (object, additionalArguments...) ->
             ###
@@ -400,9 +412,8 @@ main = ($) ->
 
                 **returns {$.Tools}** - Returns the current instance.
             ###
-            this.log.apply(
-                this, [object, false, false, 'warn'].concat(
-                    additionalArguments))
+            this.log.apply this, [object, false, false, 'warn'].concat(
+                additionalArguments)
         show: (object) ->
             ###
                 Dumps a given object in a human readable format.
@@ -437,7 +448,8 @@ main = ($) ->
                 **return {String}**        - Returns generated selector
             ###
             delimitedName = this.stringCamelCaseToDelimited directiveName
-            "#{delimitedName}, [#{delimitedName}], .#{delimitedName}"
+            "#{delimitedName}, [#{delimitedName}], [data-#{delimitedName}], " +
+            ".#{delimitedName}"
         removeDirective: (directiveName) ->
             ###
                 Removes a directive name corresponding class or attribute.
@@ -447,7 +459,9 @@ main = ($) ->
                 **return {DomNode}**       - Returns current dom node
             ###
             delimitedName = this.stringCamelCaseToDelimited directiveName
-            this.$domNode.removeClass(delimitedName).removeAttr delimitedName
+            this.$domNode.removeClass(delimitedName).removeAttr(
+                delimitedName
+            ).removeAttr "data-#{delimitedName}"
         sliceDomNodeSelectorPrefix: (domNodeSelector) ->
             ###
                 Removes a selector prefix from a given selector. This methods
