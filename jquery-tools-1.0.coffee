@@ -448,8 +448,9 @@ main = ($) ->
                 **return {String}**        - Returns generated selector
             ###
             delimitedName = this.stringCamelCaseToDelimited directiveName
-            "#{delimitedName}, [#{delimitedName}], [data-#{delimitedName}], " +
-            ".#{delimitedName}"
+            "#{delimitedName}, .#{delimitedName}, [#{delimitedName}], " +
+            "[data-#{delimitedName}], [x-#{delimitedName}], " +
+            "[#{delimitedName.replace '-', '\\:'}]"
         removeDirective: (directiveName) ->
             ###
                 Removes a directive name corresponding class or attribute.
@@ -461,7 +462,26 @@ main = ($) ->
             delimitedName = this.stringCamelCaseToDelimited directiveName
             this.$domNode.removeClass(delimitedName).removeAttr(
                 delimitedName
-            ).removeAttr "data-#{delimitedName}"
+            ).removeAttr("data-#{delimitedName}").removeAttr(
+                "x-#{delimitedName}"
+            ).removeAttr delimitedName.replace '-', ':'
+        getDirectiveValue: (directiveName) ->
+            ###
+                Determines a directive attribute value.
+
+                **directiveName {String}** - The directive name
+
+                **return {String|Null}**   - Returns the corresponding
+                                             attribute value or "null" if no
+                                             attribute value exists.
+            ###
+            delimitedName = this.stringCamelCaseToDelimited directiveName
+            for attributeName in [
+                delimitedName, "data-#{delimitedName}", "x-#{delimitedName}"
+                delimitedName.replace '-', '\\:'
+            ]
+                value = this.$domNode.attr attributeName
+                return value if value?
         sliceDomNodeSelectorPrefix: (domNodeSelector) ->
             ###
                 Removes a selector prefix from a given selector. This methods

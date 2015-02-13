@@ -234,33 +234,67 @@ main = ($) ->
             # Listen for the event fired when the user selects an item from the
             # pick list. Retrieve the matching places for that item.
             window.google.maps.event.addListener(
-                searchBox, 'places_changed', =>
-                    foundPlace = this.determineBestSearchResult(
-                        searchBox.getPlaces())
-                    if foundPlace?
-                        shortestDistanceInMeter = window.Number.MAX_VALUE
-                        matchingMarker = null
-                        for marker in this.markers
-                            distanceInMeter = window.google.maps.geometry
-                            .spherical.computeDistanceBetween(
-                                foundPlace.geometry.location, marker.position)
-                            if distanceInMeter < shortestDistanceInMeter
-                                shortestDistanceInMeter = distanceInMeter
-                                matchingMarker = marker
-                        if(matchingMarker and shortestDistanceInMeter <=
-                           this._options.searchResultDistanceToleranceInMeter)
+                searchBox, 'places_changed', => this.ensurePlaceLocations(
+                    searchBox.getPlaces(), (places) =>
+                        foundPlace = this.determineBestSearchResult places
+                        if foundPlace?
+                            shortestDistanceInMeter = window.Number.MAX_VALUE
+                            matchingMarker = null
+                            for marker in this.markers
+                                distanceInMeter = window.google.maps.geometry
+                                .spherical.computeDistanceBetween(
+                                    foundPlace.geometry.location
+                                    marker.position)
+                                if distanceInMeter < shortestDistanceInMeter
+                                    shortestDistanceInMeter = distanceInMeter
+                                    matchingMarker = marker
+                            if(
+                                matchingMarker and shortestDistanceInMeter <=
+                                this._options
+                                .searchResultDistanceToleranceInMeter
+                            )
+                                if this._options.successfulSearchZoom?
+                                    this.map.setZoom(
+                                        this._options.successfulSearchZoom)
+                                return this.openMarker(
+                                    foundPlace, this.openMarker
+                                    matchingMarker)
+                            if this.currentlyOpenWindow?
+                                this.currentlyOpenWindow.close()
+                            this.map.setCenter foundPlace.geometry.location
                             if this._options.successfulSearchZoom?
                                 this.map.setZoom(
                                     this._options.successfulSearchZoom)
-                            return this.openMarker(
-                                foundPlace, this.openMarker, matchingMarker)
-                        if this.currentlyOpenWindow?
-                            this.currentlyOpenWindow.close()
-                        this.map.setCenter foundPlace.geometry.location
-                        if this._options.successfulSearchZoom?
-                            this.map.setZoom this._options.successfulSearchZoom
+                )
             )
             this.fireEvent 'loaded'
+            this
+        ensurePlaceLocations: (places, onSuccess) ->
+            ###Ensures that every given place have a location property.###
+            runningGeocodes = 0
+            for place in places
+                if not place.geometry?.location?
+                    this.warn(
+                        'Found place "{1}" doesn\'t have a location. ' +
+                        'Full object:', place.name)
+                    this.warn place
+                    this.info 'Geocode will be determined separately.'
+                    if not geocoder?
+                        geocoder = new window.google.maps.Geocoder()
+                    runningGeocodes += 1
+                    geocoder.geocode {address: place.name}, (
+                        results, status
+                    ) ->
+                        runningGeocodes -= 1
+                        if status is window.google.maps.GeocoderStatus.OK
+                            place.geometry = results[0].geometry
+                        else
+                            delete places[places.indexOf place]
+                            this.warn(
+                                'Found place "{1}" couldn\'t be geocoded by '
+                                'google. Removing it from the places list.')
+                        if runningGeocodes is 0
+                            onSuccess places
             this
         determineBestSearchResult: (candidates) ->
             ###
@@ -272,19 +306,13 @@ main = ($) ->
             if candidates.length
                 shortestDistanceInMeter = window.Number.MAX_VALUE
                 for candidate in candidates
-                    if candidate.geometry?.location?
-                        distanceInMeter = window.google.maps.geometry
-                        .spherical.computeDistanceBetween(
-                            candidate.geometry.location, this.map.getCenter())
-                        if distanceInMeter < shortestDistanceInMeter
-                            result = candidate
-                            shortestDistanceInMeter = distanceInMeter
-                    else
-                        this.critical(
-                            'Found place "{1}" doesn\'t have a location. ' +
-                            'Full object:', candidate.name)
-                        this.critical candidate
-            return result
+                    distanceInMeter = window.google.maps.geometry
+                    .spherical.computeDistanceBetween(
+                        candidate.geometry.location, this.map.getCenter())
+                    if distanceInMeter < shortestDistanceInMeter
+                        result = candidate
+                        shortestDistanceInMeter = distanceInMeter
+            result
         onLoaded: ->
             ###Is triggered if the complete map ist loaded.###
             window.setTimeout (=>
