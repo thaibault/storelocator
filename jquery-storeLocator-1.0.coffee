@@ -52,6 +52,9 @@ main = ($) ->
 
     # region properties
 
+            # Saves currently opened results dom node or null if no results
+            # exists yet.
+            this.resultsDomNode = null
             # Saves currently opened window instance.
             this.currentlyOpenWindow = null
             # Saves all seen locations to recognize duplicates.
@@ -121,11 +124,6 @@ main = ($) ->
                 # Options passed to the marker cluster.
                 markerCluster: gridSize: 100, maxZoom : 11
                 ###
-                    Search result precision tolerance to identify a marker as
-                    search result.
-                ###
-                searchResultDistanceToleranceInMeter: 50
-                ###
                     Specifies a zoom value wich will be adjusted after
                     successfully picked a search result. If set to "null" no
                     zoom change happens.
@@ -136,9 +134,11 @@ main = ($) ->
                         Function or string returning or representing the info
                         box. If a function is given and a promise is returned
                         the info box will be filled with the given loading
-                        content and updated with the resolved data. If nothing
-                        is provided all available data will be listed in a
-                        generic info window.
+                        content and updated with the resolved data. The
+                        function becomes the corresponding marker as first
+                        argument and the store locator instance as second
+                        argument. If nothing is provided all available data
+                        will be listed in a generic info window.
                     ###
                     content: null
                     ###
@@ -157,6 +157,27 @@ main = ($) ->
                 onInfoWindowOpen: $.noop
                 # Triggers if a marker info window has finished opening.
                 onInfoWindowOpened: $.noop
+                ###
+                    If a number is given a generic search will be provided and
+                    given number will be interpret as search result precision
+                    tolerance to identify a marker as search result.
+                    If an object is given it indicates what should be search
+                    for. The object can hold four keys. "properties" to
+                    specify which store data should contain given search text,
+                    "maximumNumberOfResults" to limit the auto complete result,
+                    "loadingContent" to display while the results are loading
+                    and "content" to render the search results. "content" can
+                    be a function or string returning or representing the
+                    search results. If a function is given and a promise is
+                    returned the info box will be filled with the given loading
+                    content and updated with the resolved data. The function
+                    becomes search results as first argument, a boolean
+                    value as second argument indicating if the maximum number
+                    of search results was reached and the store locator
+                    instance as third argument. If nothing is provided all
+                    available data will be listed in a generic info window.
+                ###
+                searchBox: 50
 
     # endregion
 
@@ -222,11 +243,77 @@ main = ($) ->
                     markerCluster.addMarker this.createMarker $.extend(
                         store, this._options.stores.generateProperties store)
             # Create the search box and link it to the UI element.
-            searchInputDomNode = this.$domNode.find('input')[0]
+            searchInputDomNode = this.$domNode.find 'input'
             this.map.controls[window.google.maps.ControlPosition.TOP_LEFT]
-            .push searchInputDomNode
+            .push searchInputDomNode[0]
+            if $.type(this._options.searchBox) is 'number'
+                this.initializeGenericSearchBox searchInputDomNode
+            else
+                this._options.searchBox = $.extend {
+                    maximumNumberOfResults: 50
+                    loadingContent: this._options.infoWindow.loadingContent
+                }, this._options.searchBox
+                this.initializeDataSourceSearchBox searchInputDomNode
+            this.fireEvent 'loaded'
+            this
+        initializeDataSourceSearchBox: (searchInputDomNode) ->
+            ###
+                Initializes a data source based search box to open and focus
+                them matching marker.
+            ###
+            this.on searchInputDomNode, 'keyup', =>
+                searchResults = []
+                searchText = searchInputDomNode.val()
+                limitReached = false
+                for marker in this.markers
+                    for key in this._options.searchBox.properties
+                        if (
+                            marker.data[key] or marker.data[key] is 0
+                        ) and "#{marker.data[key]}".toLowerCase().indexOf(
+                            searchText.toLowerCase()
+                        ) isnt -1
+                            if searchResults.length is this._options.searchBox
+                            .maximumNumberOfResults
+                                limitReached = true
+                                break
+                            do (marker) => marker.open = => this.openMarker(
+                                null, this.openMarker, marker)
+                            searchResults.push marker
+                            break
+                    break if limitReached
+                this.closeSearchResults()
+                cssProperties = {}
+                for propertyName in [
+                    'position', 'width', 'top', 'left', 'border'
+                ]
+                    cssProperties[propertyName] = searchInputDomNode.css(
+                        propertyName)
+                cssProperties.marginTop = searchInputDomNode.outerHeight true
+                resultsDomNode = $('<div>').css cssProperties
+                resultsRepresentation = this.makeSearchResults(
+                    searchResults, limitReached)
+                if $.type(resultsRepresentation) is 'string'
+                    resultsDomNode.html resultsRepresentation
+                else
+                    resultsDomNode.html this._options.searchBox.loadingContent
+                    resultsRepresentation.then (resultsRepresentation) ->
+                        resultsDomNode.html resultsRepresentation
+                searchInputDomNode.after resultsDomNode
+                this.resultsDomNode = resultsDomNode
+            this
+        closeSearchResults: (event) ->
+            event?.stopPropagation()
+            if this.resultsDomNode
+                this.resultsDomNode.remove()
+                this.resultsDomNode = null
+            this
+        initializeGenericSearchBox: (searchInputDomNode) ->
+            ###
+                Initializes googles generic search box and tries to match to
+                open and focus them.
+            ###
             searchBox = new window.google.maps.places.SearchBox(
-                searchInputDomNode)
+                searchInputDomNode[0])
             # Bias the search box results towards places that are within the
             # bounds of the current map's viewport.
             window.google.maps.event.addListener this.map, 'bounds_changed', =>
@@ -250,8 +337,7 @@ main = ($) ->
                                     matchingMarker = marker
                             if(
                                 matchingMarker and shortestDistanceInMeter <=
-                                this._options
-                                .searchResultDistanceToleranceInMeter
+                                this._options.searchBox
                             )
                                 if this._options.successfulSearchZoom?
                                     this.map.setZoom(
@@ -267,7 +353,6 @@ main = ($) ->
                                     this._options.successfulSearchZoom)
                 )
             )
-            this.fireEvent 'loaded'
             this
         ensurePlaceLocations: (places, onSuccess) ->
             ###Ensures that every given place have a location property.###
@@ -278,7 +363,9 @@ main = ($) ->
                         'Found place "{1}" doesn\'t have a location. ' +
                         'Full object:', place.name)
                     this.warn place
-                    this.info 'Geocode will be determined separately.'
+                    this.info(
+                        'Geocode will be determined separately. With ' +
+                        'address "{1}".', place.name)
                     if not geocoder?
                         geocoder = new window.google.maps.Geocoder()
                     runningGeocodes += 1
@@ -355,6 +442,8 @@ main = ($) ->
                 Opens given marker info window. And closes a potential opened
                 windows.
             ###
+            this.closeSearchResults()
+            return this if this.currentlyOpenWindow is marker.infoWindow
             this.fireEvent 'infoWindowOpen', marker
             marker.refreshSize = ->
                 ###
@@ -380,17 +469,33 @@ main = ($) ->
             this
         makeInfoWindow: (marker) ->
             ###
-                Takes the info window data for a store and creates the HTML
-                content of the info window.
+                Takes the marker for a store and creates the HTML content of
+                the info window.
             ###
             if $.isFunction this._options.infoWindow.content
-                return this._options.infoWindow.content marker
+                return this._options.infoWindow.content.apply this, arguments
             if this._options.infoWindow.content?
                 return this._options.infoWindow.content
             content = '<div>'
             for name, value of marker.data
                 content += "#{name}: #{value}<br />"
             "#{content}</div>"
+        makeSearchResults: (searchResults) ->
+            ###
+                Takes the search results and creates the HTML content of the
+                search results.
+            ###
+            if $.isFunction this._options.searchBox.content
+                return this._options.searchBox.content.apply this, arguments
+            if this._options.searchBox.content?
+                return this._options.searchBox.content
+            content = ''
+            for result in searchResults
+                content += '<div>'
+                for name, value of result.data
+                    content += "#{name}: #{value}<br />"
+                content += '</div>'
+            content
 
     $.fn.StoreLocator = -> $.Tools().controller StoreLocator, arguments, this
 

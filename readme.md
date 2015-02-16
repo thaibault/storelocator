@@ -122,11 +122,6 @@ Usage
                 // Options passed to the marker cluster.
                 markerCluster: {gridSize: 100, maxZoom : 11},
                 /*
-                    Search result precision tolerance to identify a marker as
-                    search result.
-                */
-                searchResultDistanceToleranceInMeter: 50,
-                /*
                     Specifies a zoom value wich will be adjusted after
                     successfully picked a search result. If set to "null" no
                     zoom change happens.
@@ -137,9 +132,11 @@ Usage
                         Function or string returning or representing the info
                         box. If a function is given and a promise is returned
                         the info box will be filled with the given loading
-                        content and updated with the resolved data. If nothing
-                        is provided all available data will be listed in a
-                        generic info window.
+                        content and updated with the resolved data. The
+                        function becomes the corresponding marker as first
+                        argument and the store locator instance as second
+                        argument. If nothing is provided all available data
+                        will be listed in a generic info window.
                     */
                     content: null,
                     /*
@@ -158,7 +155,28 @@ Usage
                 // Triggers if a marker info window will be opened.
                 onInfoWindowOpen: $.noop,
                 // Triggers if a marker info window has finished opening.
-                onInfoWindowOpened: $.noop
+                onInfoWindowOpened: $.noop,
+                /*
+                    If a number is given a generic search will be provided and
+                    given number will be interpret as search result precision
+                    tolerance to identify a marker as search result.
+                    If an object is given it indicates what should be search
+                    for. The object can hold four keys. "properties" to
+                    specify which store data should contain given search text,
+                    "maximumNumberOfResults" to limit the auto complete result,
+                    "loadingContent" to display while the results are loading
+                    and "content" to render the search results. "content" can
+                    be a function or string returning or representing the
+                    search results. If a function is given and a promise is
+                    returned the info box will be filled with the given loading
+                    content and updated with the resolved data. The function
+                    becomes search results as first argument, a boolean
+                    value as second argument indicating if the maximum number
+                    of search results was reached and the store locator
+                    instance as third argument. If nothing is provided all
+                    available data will be listed in a generic info window.
+                */
+                searchBox: 50
             });
         });};
     </script>
