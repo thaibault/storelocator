@@ -26,38 +26,53 @@ A jQuery plugin to serve a store locator with google maps API.
 Usage
 -----
 
-### Simple example
+### Adding some style to our store locator examples
 
 <!--showExample-->
 
     #!HTML
 
     <style type="text/css">
-        body div[store-locator] {
+        body div.simple-store-locator, body div.advanced-store-locator {
             width: 100%;
             height: 400px;
             margin: 0px;
             padding: 0px
         }
-        body div[store-locator] > div {
+        body div.simple-store-locator > div,
+        body div.advanced-store-locator > div {
             height: 100%;
         }
-        body div[store-locator] input.form-control {
+        body div.simple-store-locator input.form-control,
+        body div.advanced-store-locator input.form-control {
             margin-top: 27px;
             width: 230px;
             display: none;
         }
-        body div[store-locator] div.gm-style-iw > div {
+        body div.simple-store-locator div.gm-style-iw > div,
+        body div.advanced-store-locator div.gm-style-iw > div {
             width: 225px;
             height: 60px;
             padding: 5px;
         }
     </style>
 
+### Loading some needed resources
+
+<!--showExample-->
+
+    #!HTML
+
     <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.1.2/src/markerclusterer_packed.js"></script>
     <script type="text/javascript" src="distributionBundle/jquery-2.1.1.js"></script>
     <script type="text/javascript" src="distributionBundle/jquery-tools-1.0.js"></script>
     <script type="text/javascript" src="distributionBundle/jquery-storeLocator-1.0.js"></script>
+
+### Simple example
+
+<!--showExample-->
+
+    #!HTML
 
     <script type="text/javascript">
         window.initializeSimple = function() {
@@ -221,7 +236,7 @@ Usage
         <input type="text" class="form-control" />
     </div>
 
-### Initialize both store locator
+### Initialize both store locator examples
 
 <!--showExample-->
 
