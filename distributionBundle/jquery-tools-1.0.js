@@ -737,7 +737,7 @@ Version
       };
 
       Tools.prototype.debounce = function() {
-        var additionalArguments, eventFunction, lock, thresholdInMilliseconds;
+        var additionalArguments, eventFunction, lock, self, thresholdInMilliseconds, waitingCallArguments;
         eventFunction = arguments[0], thresholdInMilliseconds = arguments[1], additionalArguments = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
         if (thresholdInMilliseconds == null) {
           thresholdInMilliseconds = 600;
@@ -760,14 +760,25 @@ Version
                                                    method
          */
         lock = false;
+        waitingCallArguments = null;
+        self = this;
         return function() {
-          var timeoutID;
-          if (!lock) {
+          var parameter, timeoutID;
+          parameter = self.argumentsObjectToArray(arguments);
+          if (lock) {
+            return waitingCallArguments = parameter.concat(additionalArguments || []);
+          } else {
             lock = true;
-            timeoutID = window.setTimeout((function() {
-              return lock = false;
-            }), thresholdInMilliseconds);
-            return eventFunction.apply(this, additionalArguments);
+            timeoutID = window.setTimeout(((function(_this) {
+              return function() {
+                lock = false;
+                if (waitingCallArguments) {
+                  eventFunction.apply(_this, waitingCallArguments);
+                  return waitingCallArguments = null;
+                }
+              };
+            })(this)), thresholdInMilliseconds);
+            return eventFunction.apply(this, parameter.concat(additionalArguments || []));
           }
         };
       };
@@ -786,7 +797,7 @@ Version
             Searches for internal event handler methods and runs them by
             default. In addition this method searches for a given event
             method by the options object. Additional arguments are
-            forwareded to respective event functions.
+            forwarded to respective event functions.
         
             **eventName {String}                - An event name.
         

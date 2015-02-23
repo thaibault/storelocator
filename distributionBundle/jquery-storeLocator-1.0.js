@@ -61,7 +61,10 @@ Version
         }
 
         /*Entry point for object orientated jQuery plugin. */
+        this.currentSearchResults = null;
+        this.currentSearchText = null;
         this.resultsDomNode = null;
+        this.currentSearchResultsDomNode = null;
         this.currentlyOpenWindow = null;
         this.seenLocations = [];
         this.markers = [];
@@ -176,7 +179,7 @@ Version
                 Content to show in the info window during info window
                 load.
              */
-            loadingContent: 'loading...'
+            loadingContent: '<div class="idle">loading...</div>'
           },
           onLoaded: $.noop,
           onInfoWindowOpen: $.noop,
@@ -187,18 +190,30 @@ Version
               given number will be interpret as search result precision
               tolerance to identify a marker as search result.
               If an object is given it indicates what should be search
-              for. The object can hold four keys. "properties" to
+              for. The object can hold up to nine keys. "properties" to
               specify which store data should contain given search text,
               "maximumNumberOfResults" to limit the auto complete result,
-              "loadingContent" to display while the results are loading
-              and "content" to render the search results. "content" can
-              be a function or string returning or representing the
-              search results. If a function is given and a promise is
-              returned the info box will be filled with the given loading
-              content and updated with the resolved data. The function
-              becomes search results as first argument, a boolean
-              value as second argument indicating if the maximum number
-              of search results was reached and the store locator
+              "loadingContent" to display while the results are loading,
+              "numberOfAdditionalGenericPlaces" a tuple describing a
+              range of minimal to maximal limits of additional generic
+              google suggestions depending on number of local search
+              results, "maximalDistanceInMeter" to specify maximal
+              distance from current position to search suggestions,
+              "genericPlaceFilter" specifies a function which gets a
+              relevant place to decide if the place should be included
+              (returns a boolean value), "prefereGenericResults"
+              specifies a boolean value indicating if generic search
+              results should be the first results,
+              "genericPlaceSearchOptions" specifies how a generic place
+              search should be done (google maps request object
+              specification) and "content" to render the search results.
+              "content" can be a function or string returning or
+              representing the search results. If a function is given and
+              a promise is returned the info box will be filled with the
+              given loading content and updated with the resolved data.
+              The function becomes search results as first argument, a
+              boolean value as second argument indicating if the maximum
+              number of search results was reached and the store locator
               instance as third argument. If nothing is provided all
               available data will be listed in a generic info window.
            */
@@ -230,7 +245,7 @@ Version
       StoreLocator.prototype.initializeMap = function() {
 
         /*Initializes cluster, info windows and marker. */
-        var index, markerCluster, northEast, searchInputDomNode, southWest, store, _i, _j, _len, _ref, _ref1;
+        var index, markerCluster, northEast, southWest, store, _i, _j, _len, _ref, _ref1;
         this._options.map.center = new window.google.maps.LatLng(this._options.startLocation.latitude, this._options.startLocation.longitude);
         this.map = new window.google.maps.Map($('<div>').appendTo(this.$domNode)[0], this._options.map);
         markerCluster = new window.MarkerClusterer(this.map, [], this._options.markerCluster);
@@ -265,101 +280,284 @@ Version
             markerCluster.addMarker(this.createMarker($.extend(store, this._options.stores.generateProperties(store))));
           }
         }
-        searchInputDomNode = this.$domNode.find('input');
-        this.map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(searchInputDomNode[0]);
+        this.map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(this.$domNode.find('input')[0]);
         if ($.type(this._options.searchBox) === 'number') {
-          this.initializeGenericSearchBox(searchInputDomNode);
+          this.initializeGenericSearchBox();
         } else {
-          this._options.searchBox = $.extend({
+          window.google.maps.event.addListener(this.map, 'click', (function(_this) {
+            return function() {
+              return _this.closeSearchResults();
+            };
+          })(this));
+          this._options.searchBox = $.extend(true, {
             maximumNumberOfResults: 50,
-            loadingContent: this._options.infoWindow.loadingContent
+            numberOfAdditionalGenericPlaces: [2, 5],
+            maximalDistanceInMeter: 1000000,
+            loadingContent: this._options.infoWindow.loadingContent,
+            genericPlaceFilter: function(place) {
+              return place.formatted_address.indexOf(' Deutschland') !== -1 || place.formatted_address.indexOf(' Germany') !== -1;
+            },
+            prefereGenericResults: true,
+            genericPlaceSearchOptions: {
+              radius: '50000',
+              types: ['locality', 'political', 'postal_code']
+            }
           }, this._options.searchBox);
-          this.initializeDataSourceSearchBox(searchInputDomNode);
+          this.initializeDataSourceSearchBox();
         }
+        google.maps.event.addListener(this.map, 'zoom_changed', (function(_this) {
+          return function() {
+            if ((_this.currentlyOpenWindow != null) && _this.currentlyOpenWindow.isOpen && _this.map.getZoom() <= _this._options.markerCluster.maxZoom) {
+              _this.currentlyOpenWindow.close();
+              return _this.currentlyOpenWindow.isOpen = false;
+            }
+          };
+        })(this));
         this.fireEvent('loaded');
         return this;
       };
 
-      StoreLocator.prototype.initializeDataSourceSearchBox = function(searchInputDomNode) {
+      StoreLocator.prototype.initializeDataSourceSearchResultsBox = function() {
+
+        /*Position search results right below the search input field. */
+        var cssProperties, propertyName, _i, _len, _ref;
+        cssProperties = {};
+        _ref = ['position', 'width', 'top', 'left', 'border'];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          propertyName = _ref[_i];
+          cssProperties[propertyName] = this.$domNode.find('input').css(propertyName);
+        }
+        cssProperties.marginTop = this.$domNode.find('input').outerHeight(true);
+        this.resultsDomNode = $('<div>').addClass(this.stringCamelCaseToDelimited(this.__name__ + "SearchResults")).css(cssProperties);
+        return this.$domNode.find('input').after(this.resultsDomNode);
+      };
+
+      StoreLocator.prototype.initializeDataSourceSearchBox = function() {
 
         /*
             Initializes a data source based search box to open and focus
             them matching marker.
          */
-        this.on(searchInputDomNode, 'keyup', (function(_this) {
+        var placesService;
+        placesService = new google.maps.places.PlacesService(this.map);
+        this.on(this.$domNode.find('input'), 'focus', (function(_this) {
           return function() {
-            var cssProperties, key, limitReached, marker, propertyName, resultsDomNode, resultsRepresentation, searchResults, searchText, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
-            searchResults = [];
-            searchText = searchInputDomNode.val();
-            limitReached = false;
-            _ref = _this.markers;
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              marker = _ref[_i];
-              _ref1 = _this._options.searchBox.properties;
-              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                key = _ref1[_j];
-                if ((marker.data[key] || marker.data[key] === 0) && ("" + marker.data[key]).toLowerCase().indexOf(searchText.toLowerCase()) !== -1) {
-                  if (searchResults.length === _this._options.searchBox.maximumNumberOfResults) {
-                    limitReached = true;
-                    break;
-                  }
-                  (function(marker) {
-                    return marker.open = function() {
-                      return _this.openMarker(null, _this.openMarker, marker);
-                    };
-                  })(marker);
-                  searchResults.push(marker);
-                  break;
-                }
-              }
-              if (limitReached) {
-                break;
-              }
+            if (_this.currentSearchText) {
+              return _this.openSearchResults();
             }
-            _this.closeSearchResults();
-            cssProperties = {};
-            _ref2 = ['position', 'width', 'top', 'left', 'border'];
-            for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-              propertyName = _ref2[_k];
-              cssProperties[propertyName] = searchInputDomNode.css(propertyName);
-            }
-            cssProperties.marginTop = searchInputDomNode.outerHeight(true);
-            resultsDomNode = $('<div>').css(cssProperties);
-            resultsRepresentation = _this.makeSearchResults(searchResults, limitReached);
-            if ($.type(resultsRepresentation) === 'string') {
-              resultsDomNode.html(resultsRepresentation);
-            } else {
-              resultsDomNode.html(_this._options.searchBox.loadingContent);
-              resultsRepresentation.then(function(resultsRepresentation) {
-                return resultsDomNode.html(resultsRepresentation);
-              });
-            }
-            searchInputDomNode.after(resultsDomNode);
-            return _this.resultsDomNode = resultsDomNode;
           };
         })(this));
+        this.on(this.$domNode.find('input'), 'input', this.debounce(((function(_this) {
+          return function(event) {
+            return _this.acquireLock(_this.__name__ + "Search", function() {
+              var loadingDomNode, searchText, _ref;
+              searchText = $.trim($(event.target).val());
+              if (_this.currentSearchText === searchText) {
+                return _this.releaseLock(_this.__name__ + "Search");
+              }
+              if (!_this.resultsDomNode) {
+                _this.initializeDataSourceSearchResultsBox();
+              }
+              if (!searchText) {
+                _this.currentSearchText = '';
+                _this.currentSearchResults = [];
+                _this.resultsDomNode.html('');
+                _this.currentSearchResultsDomNode = null;
+                _this.closeSearchResults();
+                return _this.releaseLock(_this.__name__ + "Search");
+              }
+              _this.openSearchResults();
+              loadingDomNode = $(_this._options.searchBox.loadingContent);
+              if (!_this.fireEvent('addSearchResults', false, _this, loadingDomNode, _this.resultsDomNode, _this.currentSearchResultsDomNode || [])) {
+                _this.resultsDomNode.html(loadingDomNode);
+              }
+              if ((_ref = _this.currentSearchResultsDomNode) != null ? _ref.length : void 0) {
+                _this.fireEvent('removeSearchResults', false, _this, _this.currentSearchResultsDomNode);
+              }
+              _this.currentSearchResultsDomNode = loadingDomNode;
+              if (_this._options.searchBox.numberOfAdditionalGenericPlaces) {
+                return placesService.textSearch($.extend({
+                  query: searchText,
+                  location: _this.map.getCenter()
+                }, _this._options.searchBox.genericPlaceSearchOptions), function(places) {
+                  if (places) {
+                    return _this.handleGenericSearchResults(places, searchText);
+                  }
+                });
+              } else {
+                return _this.performLocalSearch(searchText);
+              }
+            });
+          };
+        })(this)), 1000));
+        return this;
+      };
+
+      StoreLocator.prototype.handleGenericSearchResults = function(places, searchText) {
+
+        /*Sorts and filters search results given by the google api. */
+        var distance, index, place, result, searchResults, _ref;
+        searchResults = [];
+        _ref = places.sort((function(_this) {
+          return function(firstPlace, secondPlace) {
+            return window.google.maps.geometry.spherical.computeDistanceBetween(_this.map.getCenter(), firstPlace.geometry.location) - window.google.maps.geometry.spherical.computeDistanceBetween(_this.map.getCenter(), secondPlace.geometry.location);
+          };
+        })(this));
+        for (index in _ref) {
+          place = _ref[index];
+          distance = window.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(), place.geometry.location);
+          if (distance > this._options.searchBox.maximalDistanceInMeter) {
+            break;
+          }
+          if (this._options.searchBox.genericPlaceFilter(place)) {
+            result = {
+              data: $.extend(place, {
+                logoFilePath: place.icon.replace(/^http:(\/\/)/, document.location.protocol + "$1"),
+                address: place.formatted_address,
+                distance: distance
+              }),
+              position: place.geometry.location,
+              open: (function(_this) {
+                return function(place) {
+                  return function(event) {
+                    if (event != null) {
+                      event.stopPropagation();
+                    }
+                    _this.closeSearchResults(event);
+                    if (_this.currentlyOpenWindow != null) {
+                      _this.currentlyOpenWindow.close();
+                      _this.currentlyOpenWindow.isOpen = false;
+                    }
+                    _this.map.setCenter(place.geometry.location);
+                    return _this.map.setZoom(_this._options.successfulSearchZoom);
+                  };
+                };
+              })(this)(place)
+            };
+            searchResults.push(result);
+            if (this._options.searchBox.numberOfAdditionalGenericPlaces[1] < window.parseInt(index) + 2) {
+              break;
+            }
+          }
+        }
+        return this.performLocalSearch(searchText, searchResults);
+      };
+
+      StoreLocator.prototype.performLocalSearch = function(searchText, searchResults) {
+        var key, limitReached, marker, numberOfGenericSearchResults, resultsRepresentation, resultsRepresentationDomNode, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+        if (searchResults == null) {
+          searchResults = [];
+        }
+
+        /*Performs a search on locally given store data. */
+        numberOfGenericSearchResults = searchResults.length;
+        _ref = this.markers;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          marker = _ref[_i];
+          _ref1 = this._options.searchBox.properties;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            key = _ref1[_j];
+            if ((marker.data[key] || marker.data[key] === 0) && ("" + marker.data[key]).toLowerCase().indexOf(searchText.toLowerCase()) !== -1) {
+              (function(_this) {
+                return (function(marker) {
+                  return marker.open = function(event) {
+                    return _this.openMarker(null, _this.openMarker, marker, event);
+                  };
+                });
+              })(this)(marker);
+              searchResults.push(marker);
+              break;
+            }
+          }
+        }
+        if (this._options.searchBox.numberOfAdditionalGenericPlaces) {
+          if (searchResults.length && numberOfGenericSearchResults > this._options.searchBox.numberOfAdditionalGenericPlaces[0]) {
+            if (searchResults.length > this._options.searchBox.numberOfAdditionalGenericPlaces[1]) {
+              searchResults.splice(this._options.searchBox.numberOfAdditionalGenericPlaces[0], numberOfGenericSearchResults - this._options.searchBox.numberOfAdditionalGenericPlaces[0]);
+            }
+          }
+        }
+        limitReached = false;
+        if (this._options.searchBox.maximumNumberOfResults < searchResults.length) {
+          limitReached = true;
+          searchResults.splice(this._options.searchBox.maximumNumberOfResults, searchResults.length);
+        }
+        searchResults.sort((function(_this) {
+          return function(first, second) {
+            if (_this._options.searchBox.prefereGenericResults && !first.infoWindow) {
+              return -1;
+            }
+            return window.google.maps.geometry.spherical.computeDistanceBetween(_this.map.getCenter(), first.position) - window.google.maps.geometry.spherical.computeDistanceBetween(_this.map.getCenter(), second.position);
+          };
+        })(this));
+        resultsRepresentation = this.makeSearchResults(searchResults, limitReached);
+        if ($.type(resultsRepresentation) === 'string') {
+          resultsRepresentationDomNode = $(resultsRepresentation);
+          if (!this.fireEvent('addSearchResults', false, this, resultsRepresentationDomNode, this.resultsDomNode, this.currentSearchResultsDomNode || [])) {
+            this.resultsDomNode.html(resultsRepresentationDomNode);
+          }
+          if ((_ref2 = this.currentSearchResultsDomNode) != null ? _ref2.length : void 0) {
+            this.fireEvent('removeSearchResults', false, this, this.currentSearchResultsDomNode);
+          }
+          this.currentSearchResultsDomNode = resultsRepresentationDomNode;
+          window.setTimeout((function(_this) {
+            return function() {
+              return _this.releaseLock(_this.__name__ + "Search");
+            };
+          })(this));
+        } else {
+          resultsRepresentation.then((function(_this) {
+            return function(resultsRepresentation) {
+              var _ref3;
+              resultsRepresentationDomNode = $(resultsRepresentation);
+              if (!_this.fireEvent('addSearchResults', false, _this, resultsRepresentationDomNode, _this.resultsDomNode, _this.currentSearchResultsDomNode || [])) {
+                _this.resultsDomNode.html(resultsRepresentationDomNode);
+              }
+              if ((_ref3 = _this.currentSearchResultsDomNode) != null ? _ref3.length : void 0) {
+                _this.fireEvent('removeSearchResults', false, _this, _this.currentSearchResultsDomNode);
+              }
+              _this.currentSearchResultsDomNode = resultsRepresentationDomNode;
+              return _this.releaseLock(_this.__name__ + "Search");
+            };
+          })(this));
+        }
+        this.currentSearchText = searchText;
+        this.currentSearchResults = searchResults.slice();
+        return this;
+      };
+
+      StoreLocator.prototype.openSearchResults = function(event) {
+
+        /*Closes current search results. */
+        if (event != null) {
+          event.stopPropagation();
+        }
+        if ((this.resultsDomNode != null) && !this.resultsDomNode.hasClass(this.stringCamelCaseToDelimited('open')) && !this.fireEvent('openSearchResults', false, this, event, this.resultsDomNode)) {
+          this.resultsDomNode.addClass(this.stringCamelCaseToDelimited('open'));
+        }
         return this;
       };
 
       StoreLocator.prototype.closeSearchResults = function(event) {
+
+        /*Closes current search results. */
         if (event != null) {
           event.stopPropagation();
         }
-        if (this.resultsDomNode) {
-          this.resultsDomNode.remove();
-          this.resultsDomNode = null;
+        if ((this.resultsDomNode != null) && this.resultsDomNode.hasClass(this.stringCamelCaseToDelimited('open')) && !this.fireEvent('closeSearchResults', false, this, event, this.resultsDomNode)) {
+          this.resultsDomNode.removeClass(this.stringCamelCaseToDelimited('open'));
         }
         return this;
       };
 
-      StoreLocator.prototype.initializeGenericSearchBox = function(searchInputDomNode) {
+      StoreLocator.prototype.initializeGenericSearchBox = function() {
 
         /*
             Initializes googles generic search box and tries to match to
             open and focus them.
          */
         var searchBox;
-        searchBox = new window.google.maps.places.SearchBox(searchInputDomNode[0]);
+        searchBox = new window.google.maps.places.SearchBox(this.$domNode.find('input')[0]);
         window.google.maps.event.addListener(this.map, 'bounds_changed', (function(_this) {
           return function() {
             return searchBox.setBounds(_this.map.getBounds());
@@ -390,6 +588,7 @@ Version
                 }
                 if (_this.currentlyOpenWindow != null) {
                   _this.currentlyOpenWindow.close();
+                  _this.currentlyOpenWindow.isOpen = false;
                 }
                 _this.map.setCenter(foundPlace.geometry.location);
                 if (_this._options.successfulSearchZoom != null) {
@@ -500,21 +699,31 @@ Version
         marker.infoWindow = new window.google.maps.InfoWindow({
           content: ''
         });
+        marker.infoWindow.isOpen = false;
+        window.google.maps.event.addListener(marker.infoWindow, 'closeclick', function() {
+          return marker.infoWindow.isOpen = false;
+        });
         marker.googleMarker = new window.google.maps.Marker(marker);
         window.google.maps.event.addListener(marker.googleMarker, 'click', this.getMethod('openMarker', this, marker));
         this.markers.push(marker);
         return marker.googleMarker;
       };
 
-      StoreLocator.prototype.openMarker = function(place, thisFunction, marker) {
+      StoreLocator.prototype.openMarker = function(place, thisFunction, marker, event) {
 
         /*
             Opens given marker info window. And closes a potential opened
             windows.
          */
-        var infoWindow;
-        this.closeSearchResults();
-        if (this.currentlyOpenWindow === marker.infoWindow) {
+        var infoWindow, _ref;
+        if (event != null) {
+          event.stopPropagation();
+        }
+        if (((_ref = this._options.markerCluster) != null ? _ref.maxZoom : void 0) && this.map.getZoom() <= this._options.markerCluster.maxZoom) {
+          this.map.setZoom(this._options.markerCluster.maxZoom + 1);
+        }
+        this.closeSearchResults(event);
+        if (this.currentlyOpenWindow === marker.infoWindow && this.currentlyOpenWindow.isOpen) {
           return this;
         }
         this.fireEvent('infoWindowOpen', marker);
@@ -537,8 +746,10 @@ Version
         }
         if (this.currentlyOpenWindow != null) {
           this.currentlyOpenWindow.close();
+          this.currentlyOpenWindow.isOpen = false;
         }
         this.currentlyOpenWindow = marker.infoWindow;
+        marker.infoWindow.isOpen = true;
         marker.infoWindow.open(this.map, marker.googleMarker);
         this.map.panTo(marker.googleMarker.position);
         this.map.panBy(0, -this._options.infoWindow.additionalMoveToBottomInPixel);
