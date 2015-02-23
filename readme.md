@@ -26,6 +26,8 @@ A jQuery plugin to serve a store locator with google maps API.
 Usage
 -----
 
+### Simple example
+
 <!--showExample-->
 
     #!HTML
@@ -58,8 +60,23 @@ Usage
     <script type="text/javascript" src="distributionBundle/jquery-storeLocator-1.0.js"></script>
 
     <script type="text/javascript">
-        window.initialize = function() {$(function($) {
-            $('body div[store-locator]').StoreLocator({
+        window.initializeSimple = function() {
+            $('body div.simple-store-locator').StoreLocator();
+        };
+    </script>
+    <div class=”simple-store-locator”>
+        <input type="text" class="form-control" />
+    </div>
+
+### Advanced example with all available options.
+
+<!--showExample-->
+
+    #!HTML
+
+    <script type="text/javascript">
+        window.initializeAdvanced = function() {
+            $('body div.advanced-store-locator').StoreLocator({
                 /*
                     URL to retrieve stores, list of stores or object describing
                     bounds to create random stores within. If a
@@ -150,12 +167,6 @@ Usage
                     */
                     loadingContent: 'loading...'
                 },
-                // Function to call if map is fully initialized.
-                onLoaded: $.noop,
-                // Triggers if a marker info window will be opened.
-                onInfoWindowOpen: $.noop,
-                // Triggers if a marker info window has finished opening.
-                onInfoWindowOpened: $.noop,
                 /*
                     If a number is given a generic search will be provided and
                     given number will be interpret as search result precision
@@ -188,14 +199,39 @@ Usage
                     instance as third argument. If nothing is provided all
                     available data will be listed in a generic info window.
                 */
-                searchBox: 50
+                searchBox: 50,
+                // Function to call if map is fully initialized.
+                onLoaded: $.noop,
+                // Triggers if a marker info window will be opened.
+                onInfoWindowOpen: $.noop,
+                // Triggers if a marker info window has finished opening.
+                onInfoWindowOpened: $.noop,
+                // Triggers before new search results appears.
+                onAddSearchResults: $.noop,
+                // Triggers before old search results will be removed.
+                onRemoveSearchResults: $.noop,
+                // Triggers before search result box appears.
+                onOpenSearchResults: $.noop,
+                // Triggers before search result box will be hidden.
+                onCloseSearchResults: $.noop
             });
+        };
+    </script>
+    <div class=”advanced-store-locator”>
+        <input type="text" class="form-control" />
+    </div>
+
+### Initialize both store locator
+
+<!--showExample-->
+
+    <script type="text/javascript">
+        window.initialize = function() {$(function($) {
+            window.initializeSimple()
+            window.initializeAdvanced()
         });};
     </script>
-
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places,geometry&callback=initialize"></script>
-
-    <div store-locator><input type="text" class="form-control" /></div>
 
 <!-- region modline
 

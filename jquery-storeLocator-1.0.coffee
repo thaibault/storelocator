@@ -157,12 +157,6 @@ main = ($) ->
                         load.
                     ###
                     loadingContent: '<div class="idle">loading...</div>'
-                # Function to call if map is fully initialized.
-                onLoaded: $.noop
-                # Triggers if a marker info window will be opened.
-                onInfoWindowOpen: $.noop
-                # Triggers if a marker info window has finished opening.
-                onInfoWindowOpened: $.noop
                 ###
                     If a number is given a generic search will be provided and
                     given number will be interpret as search result precision
@@ -196,6 +190,20 @@ main = ($) ->
                     available data will be listed in a generic info window.
                 ###
                 searchBox: 50
+                # Function to call if map is fully initialized.
+                onLoaded: $.noop
+                # Triggers if a marker info window will be opened.
+                onInfoWindowOpen: $.noop
+                # Triggers if a marker info window has finished opening.
+                onInfoWindowOpened: $.noop
+                # Triggers before new search results appears.
+                onAddSearchResults: $.noop
+                # Triggers before old search results will be removed.
+                onRemoveSearchResults: $.noop
+                # Triggers before search result box appears.
+                onOpenSearchResults: $.noop
+                # Triggers before search result box will be hidden.
+                onCloseSearchResults: $.noop
 
     # endregion
 
