@@ -22,41 +22,52 @@ A jQuery plugin to serve a store locator with google maps API.
     Ein jQuery-Plugin zum Bereitstellen eines Google-Maps-Storelocator.
 -->
 
+<!--|deDE:Inhalt-->
+Content
+------
+
+<!--Place for automatic generated table of contents.-->
+[TOC]
+
+<!--|deDE:Beispiele-->
+Examples
+--------
+
 <!--|deDE:Verwendung-->
 Usage
 -----
 
+<!--|deDE:Designvorgaben für die Store-Locator Beispiele-->
 ### Adding some style to our store locator examples
 
-<!--showExample-->
+<!--showExample:css-->
 
-    #!HTML
+    #!CSS
 
-    <style type="text/css">
-        body div.simple-store-locator, body div.advanced-store-locator {
-            width: 100%;
-            height: 400px;
-            margin: 0px;
-            padding: 0px
-        }
-        body div.simple-store-locator > div,
-        body div.advanced-store-locator > div {
-            height: 100%;
-        }
-        body div.simple-store-locator input.form-control,
-        body div.advanced-store-locator input.form-control {
-            margin-top: 27px;
-            width: 230px;
-            display: none;
-        }
-        body div.simple-store-locator div.gm-style-iw > div,
-        body div.advanced-store-locator div.gm-style-iw > div {
-            width: 225px;
-            height: 60px;
-            padding: 5px;
-        }
-    </style>
+    body div.simple-store-locator, body div.advanced-store-locator {
+        width: 100%;
+        height: 400px;
+        margin: 0px;
+        padding: 0px
+    }
+    body div.simple-store-locator > div,
+    body div.advanced-store-locator > div {
+        height: 100%;
+    }
+    body div.simple-store-locator input.form-control,
+    body div.advanced-store-locator input.form-control {
+        margin-top: 27px;
+        width: 230px;
+        display: none;
+    }
+    body div.simple-store-locator div.gm-style-iw > div,
+    body div.advanced-store-locator div.gm-style-iw > div {
+        width: 225px;
+        height: 60px;
+        padding: 5px;
+    }
 
+<!--|deDE:Laden einiger benötigter Ressourcen-->
 ### Loading some needed resources
 
 <!--showExample-->
@@ -68,6 +79,7 @@ Usage
     <script type="text/javascript" src="distributionBundle/jquery-tools-1.0.js"></script>
     <script type="text/javascript" src="distributionBundle/jquery-storeLocator-1.0.js"></script>
 
+<!--|deDE:Einfache Beispiel-->
 ### Simple example
 
 <!--showExample-->
@@ -83,6 +95,7 @@ Usage
         <input type="text" class="form-control" />
     </div>
 
+<!--|deDE:Erweitertes Beispiel-->
 ### Advanced example with all available options.
 
 <!--showExample-->
@@ -236,6 +249,7 @@ Usage
         <input type="text" class="form-control" />
     </div>
 
+<!--|deDE:Initialisierung der Store-Locator Beispiele-->
 ### Initialize both store locator examples
 
 <!--showExample-->
