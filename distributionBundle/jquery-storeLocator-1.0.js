@@ -181,9 +181,6 @@ Version
              */
             loadingContent: '<div class="idle">loading...</div>'
           },
-          onLoaded: $.noop,
-          onInfoWindowOpen: $.noop,
-          onInfoWindowOpened: $.noop,
 
           /*
               If a number is given a generic search will be provided and
@@ -217,7 +214,14 @@ Version
               instance as third argument. If nothing is provided all
               available data will be listed in a generic info window.
            */
-          searchBox: 50
+          searchBox: 50,
+          onLoaded: $.noop,
+          onInfoWindowOpen: $.noop,
+          onInfoWindowOpened: $.noop,
+          onAddSearchResults: $.noop,
+          onRemoveSearchResults: $.noop,
+          onOpenSearchResults: $.noop,
+          onCloseSearchResults: $.noop
         };
         StoreLocator.__super__.initialize.call(this, options);
         this.$domNodes = this.grabDomNode(this._options.domNode);
