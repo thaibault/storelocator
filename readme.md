@@ -79,7 +79,7 @@ Usage
             $('body div.simple-store-locator').StoreLocator();
         };
     </script>
-    <div class=”simple-store-locator”>
+    <div class="simple-store-locator">
         <input type="text" class="form-control" />
     </div>
 
@@ -232,7 +232,7 @@ Usage
             });
         };
     </script>
-    <div class=”advanced-store-locator”>
+    <div class="advanced-store-locator">
         <input type="text" class="form-control" />
     </div>
 
