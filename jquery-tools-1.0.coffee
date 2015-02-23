@@ -654,12 +654,23 @@ main = ($) ->
                                                        method
             ###
             lock = false
+            waitingCallArguments = null
+            self = this
             ->
-                if not lock
+                parameter = self.argumentsObjectToArray arguments
+                if lock
+                    waitingCallArguments = parameter.concat(
+                        additionalArguments or [])
+                else
                     lock = true
-                    timeoutID = window.setTimeout(
-                        (-> lock = false), thresholdInMilliseconds)
-                    eventFunction.apply this, additionalArguments
+                    timeoutID = window.setTimeout (=>
+                        lock = false
+                        if waitingCallArguments
+                            eventFunction.apply this, waitingCallArguments
+                            waitingCallArguments = null
+                    ), thresholdInMilliseconds
+                    eventFunction.apply this, parameter.concat(
+                        additionalArguments or [])
         fireEvent: (
             eventName, callOnlyOptionsMethod=false, scope=this,
             additionalArguments...
@@ -668,7 +679,7 @@ main = ($) ->
                 Searches for internal event handler methods and runs them by
                 default. In addition this method searches for a given event
                 method by the options object. Additional arguments are
-                forwareded to respective event functions.
+                forwarded to respective event functions.
 
                 **eventName {String}                - An event name.
 

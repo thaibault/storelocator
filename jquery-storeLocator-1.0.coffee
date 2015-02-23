@@ -52,9 +52,15 @@ main = ($) ->
 
     # region properties
 
+            # Saves last found search results.
+            this.currentSearchResults = null
+            # Saves last searched string.
+            this.currentSearchText = null
             # Saves currently opened results dom node or null if no results
             # exists yet.
             this.resultsDomNode = null
+            # Saves current search results content dom node.
+            this.currentSearchResultsDomNode = null
             # Saves currently opened window instance.
             this.currentlyOpenWindow = null
             # Saves all seen locations to recognize duplicates.
@@ -150,7 +156,7 @@ main = ($) ->
                         Content to show in the info window during info window
                         load.
                     ###
-                    loadingContent: 'loading...'
+                    loadingContent: '<div class="idle">loading...</div>'
                 # Function to call if map is fully initialized.
                 onLoaded: $.noop
                 # Triggers if a marker info window will be opened.
@@ -162,18 +168,30 @@ main = ($) ->
                     given number will be interpret as search result precision
                     tolerance to identify a marker as search result.
                     If an object is given it indicates what should be search
-                    for. The object can hold four keys. "properties" to
+                    for. The object can hold up to nine keys. "properties" to
                     specify which store data should contain given search text,
                     "maximumNumberOfResults" to limit the auto complete result,
-                    "loadingContent" to display while the results are loading
-                    and "content" to render the search results. "content" can
-                    be a function or string returning or representing the
-                    search results. If a function is given and a promise is
-                    returned the info box will be filled with the given loading
-                    content and updated with the resolved data. The function
-                    becomes search results as first argument, a boolean
-                    value as second argument indicating if the maximum number
-                    of search results was reached and the store locator
+                    "loadingContent" to display while the results are loading,
+                    "numberOfAdditionalGenericPlaces" a tuple describing a
+                    range of minimal to maximal limits of additional generic
+                    google suggestions depending on number of local search
+                    results, "maximalDistanceInMeter" to specify maximal
+                    distance from current position to search suggestions,
+                    "genericPlaceFilter" specifies a function which gets a
+                    relevant place to decide if the place should be included
+                    (returns a boolean value), "prefereGenericResults"
+                    specifies a boolean value indicating if generic search
+                    results should be the first results,
+                    "genericPlaceSearchOptions" specifies how a generic place
+                    search should be done (google maps request object
+                    specification) and "content" to render the search results.
+                    "content" can be a function or string returning or
+                    representing the search results. If a function is given and
+                    a promise is returned the info box will be filled with the
+                    given loading content and updated with the resolved data.
+                    The function becomes search results as first argument, a
+                    boolean value as second argument indicating if the maximum
+                    number of search results was reached and the store locator
                     instance as third argument. If nothing is provided all
                     available data will be listed in a generic info window.
                 ###
@@ -189,7 +207,7 @@ main = ($) ->
                 this.initializeMap()
             else
                 this._options.startLocation = this._options.fallbackLocation
-                $.ajax({
+                $.ajax(
                     url: this.stringFormat(
                         this._options.ipToLocation.applicationInterfaceURL
                         document.location.protocol.substring(
@@ -198,7 +216,7 @@ main = ($) ->
                     ),
                     timeout: this._options.ipToLocation.timeoutInMilliseconds
                     dataType: 'jsonp'
-                }).done((currentLocation) =>
+                ).done((currentLocation) =>
                     this._options.startLocation = currentLocation
                 ).always =>
                     this.initializeMap()
@@ -243,77 +261,255 @@ main = ($) ->
                     markerCluster.addMarker this.createMarker $.extend(
                         store, this._options.stores.generateProperties store)
             # Create the search box and link it to the UI element.
-            searchInputDomNode = this.$domNode.find 'input'
             this.map.controls[window.google.maps.ControlPosition.TOP_LEFT]
-            .push searchInputDomNode[0]
+            .push this.$domNode.find('input')[0]
             if $.type(this._options.searchBox) is 'number'
-                this.initializeGenericSearchBox searchInputDomNode
+                this.initializeGenericSearchBox()
             else
-                this._options.searchBox = $.extend {
+                window.google.maps.event.addListener this.map, 'click', =>
+                    this.closeSearchResults()
+                this._options.searchBox = $.extend true, {
                     maximumNumberOfResults: 50
+                    numberOfAdditionalGenericPlaces: [2, 5]
+                    maximalDistanceInMeter: 1000000
                     loadingContent: this._options.infoWindow.loadingContent
+                    genericPlaceFilter: (place) ->
+                        place.formatted_address.indexOf(
+                            ' Deutschland'
+                        ) isnt -1 or place.formatted_address.indexOf(
+                            ' Germany'
+                        ) isnt -1
+                    prefereGenericResults: true
+                    genericPlaceSearchOptions: radius: '50000', types: [
+                        'locality', 'political', 'postal_code']
                 }, this._options.searchBox
-                this.initializeDataSourceSearchBox searchInputDomNode
+                this.initializeDataSourceSearchBox()
+            # Close marker if zoom level is bigger than the aggregation.
+            google.maps.event.addListener this.map, 'zoom_changed', =>
+                if(this.currentlyOpenWindow? and
+                   this.currentlyOpenWindow.isOpen and
+                   this.map.getZoom() <= this._options.markerCluster.maxZoom)
+                    this.currentlyOpenWindow.close()
+                    this.currentlyOpenWindow.isOpen = false
             this.fireEvent 'loaded'
             this
-        initializeDataSourceSearchBox: (searchInputDomNode) ->
+        initializeDataSourceSearchResultsBox: ->
+            ###Position search results right below the search input field.###
+            cssProperties = {}
+            for propertyName in [
+                'position', 'width', 'top', 'left', 'border'
+            ]
+                cssProperties[propertyName] = this.$domNode.find('input').css(
+                    propertyName)
+            cssProperties.marginTop = this.$domNode.find('input').outerHeight(
+                true)
+            # Prepare search result positioning.
+            this.resultsDomNode = $('<div>').addClass(
+                this.stringCamelCaseToDelimited(
+                    "#{this.__name__}SearchResults")
+            ).css cssProperties
+            # Inject the final search results into the dom tree.
+            this.$domNode.find('input').after this.resultsDomNode
+        initializeDataSourceSearchBox: ->
             ###
                 Initializes a data source based search box to open and focus
                 them matching marker.
             ###
-            this.on searchInputDomNode, 'keyup', =>
-                searchResults = []
-                searchText = searchInputDomNode.val()
-                limitReached = false
-                for marker in this.markers
-                    for key in this._options.searchBox.properties
-                        if (
-                            marker.data[key] or marker.data[key] is 0
-                        ) and "#{marker.data[key]}".toLowerCase().indexOf(
-                            searchText.toLowerCase()
-                        ) isnt -1
-                            if searchResults.length is this._options.searchBox
-                            .maximumNumberOfResults
-                                limitReached = true
-                                break
-                            do (marker) => marker.open = => this.openMarker(
-                                null, this.openMarker, marker)
-                            searchResults.push marker
-                            break
-                    break if limitReached
-                this.closeSearchResults()
-                cssProperties = {}
-                for propertyName in [
-                    'position', 'width', 'top', 'left', 'border'
-                ]
-                    cssProperties[propertyName] = searchInputDomNode.css(
-                        propertyName)
-                cssProperties.marginTop = searchInputDomNode.outerHeight true
-                resultsDomNode = $('<div>').css cssProperties
-                resultsRepresentation = this.makeSearchResults(
-                    searchResults, limitReached)
-                if $.type(resultsRepresentation) is 'string'
-                    resultsDomNode.html resultsRepresentation
+            placesService = new google.maps.places.PlacesService this.map
+            this.on this.$domNode.find('input'), 'focus', =>
+                this.openSearchResults() if this.currentSearchText
+            this.on this.$domNode.find('input'), 'input', this.debounce ((
+                event
+            ) => this.acquireLock "#{this.__name__}Search", =>
+                searchText = $.trim $(event.target).val()
+                if this.currentSearchText is searchText
+                    return this.releaseLock "#{this.__name__}Search"
+                if not this.resultsDomNode
+                    this.initializeDataSourceSearchResultsBox()
+                if not searchText
+                    this.currentSearchText = ''
+                    this.currentSearchResults = []
+                    this.resultsDomNode.html ''
+                    this.currentSearchResultsDomNode = null
+                    this.closeSearchResults()
+                    return this.releaseLock "#{this.__name__}Search"
+                this.openSearchResults()
+                loadingDomNode = $ this._options.searchBox.loadingContent
+                if not this.fireEvent(
+                    'addSearchResults', false, this, loadingDomNode
+                    this.resultsDomNode, this.currentSearchResultsDomNode or []
+                )
+                    this.resultsDomNode.html loadingDomNode
+                if this.currentSearchResultsDomNode?.length
+                    this.fireEvent(
+                        'removeSearchResults', false, this
+                        this.currentSearchResultsDomNode)
+                this.currentSearchResultsDomNode = loadingDomNode
+                if this._options.searchBox.numberOfAdditionalGenericPlaces
+                    # NOTE: Google searches for more items than exists in the
+                    # specified radius. However the radius is a string in the
+                    # examples provided by google.
+                    placesService.textSearch $.extend({
+                        query: searchText, location: this.map.getCenter()
+                    }, this._options.searchBox.genericPlaceSearchOptions
+                    ), (places) => if places
+                        this.handleGenericSearchResults places, searchText
                 else
-                    resultsDomNode.html this._options.searchBox.loadingContent
-                    resultsRepresentation.then (resultsRepresentation) ->
-                        resultsDomNode.html resultsRepresentation
-                searchInputDomNode.after resultsDomNode
-                this.resultsDomNode = resultsDomNode
+                    this.performLocalSearch searchText
+            ), 1000
+            this
+        handleGenericSearchResults: (places, searchText) ->
+            ###Sorts and filters search results given by the google api.###
+            searchResults = []
+            # NOTE: Since google text search doesn't support sorting by
+            # distance we have to sort by our own.
+            for index, place of places.sort((firstPlace, secondPlace) =>
+                window.google.maps.geometry.spherical.computeDistanceBetween(
+                    this.map.getCenter(), firstPlace.geometry.location
+                ) - window.google.maps.geometry.spherical\
+                .computeDistanceBetween(
+                    this.map.getCenter(), secondPlace.geometry.location)
+            )
+                distance = window.google.maps.geometry.spherical
+                .computeDistanceBetween(
+                    this.map.getCenter(), place.geometry.location)
+                if distance > this._options.searchBox.maximalDistanceInMeter
+                    break
+                if this._options.searchBox.genericPlaceFilter place
+                    result =
+                        data: $.extend place, {
+                            logoFilePath: place.icon.replace(
+                                /^http:(\/\/)/
+                                "#{document.location.protocol}$1")
+                            address: place.formatted_address
+                            distance: distance
+                        }
+                        position: place.geometry.location
+                        open: do (place) => (event) =>
+                            event?.stopPropagation()
+                            this.closeSearchResults event
+                            if this.currentlyOpenWindow?
+                                this.currentlyOpenWindow.close()
+                                this.currentlyOpenWindow.isOpen = false
+                            this.map.setCenter place.geometry.location
+                            this.map.setZoom this._options.successfulSearchZoom
+                    searchResults.push result
+                    if this._options.searchBox
+                    .numberOfAdditionalGenericPlaces[1] < window.parseInt(
+                        index
+                    ) + 2
+                        break
+            this.performLocalSearch searchText, searchResults
+        performLocalSearch: (searchText, searchResults=[]) ->
+            ###Performs a search on locally given store data.###
+            numberOfGenericSearchResults = searchResults.length
+            for marker in this.markers
+                for key in this._options.searchBox.properties
+                    if (
+                        marker.data[key] or marker.data[key] is 0
+                    ) and "#{marker.data[key]}".toLowerCase().indexOf(
+                        searchText.toLowerCase()
+                    ) isnt -1
+                        do (marker) => marker.open = (event) =>
+                            this.openMarker(
+                                null, this.openMarker, marker, event)
+                        searchResults.push marker
+                        break
+            if this._options.searchBox.numberOfAdditionalGenericPlaces
+                # Remove generic place results if there are enough local search
+                # results.
+                if(searchResults.length and numberOfGenericSearchResults >
+                   this._options.searchBox.numberOfAdditionalGenericPlaces[0])
+                    if searchResults.length >
+                    this._options.searchBox.numberOfAdditionalGenericPlaces[1]
+                        searchResults.splice(
+                            this._options.searchBox
+                                .numberOfAdditionalGenericPlaces[0]
+                            numberOfGenericSearchResults - this._options
+                                .searchBox.numberOfAdditionalGenericPlaces[0])
+            # Slice additional unneeded local search results.
+            limitReached = false
+            if this._options.searchBox.maximumNumberOfResults <
+            searchResults.length
+                limitReached = true
+                searchResults.splice(
+                    this._options.searchBox.maximumNumberOfResults
+                    searchResults.length)
+            # Sort results by current map center form nearer to more fare away
+            # results.
+            searchResults.sort (first, second) =>
+                if(this._options.searchBox.prefereGenericResults and
+                   not first.infoWindow)
+                    return -1
+                window.google.maps.geometry.spherical.computeDistanceBetween(
+                    this.map.getCenter(), first.position
+                ) - window.google.maps.geometry.spherical\
+                .computeDistanceBetween this.map.getCenter(), second.position
+            # Compile search results markup.
+            resultsRepresentation = this.makeSearchResults(
+                searchResults, limitReached)
+            if $.type(resultsRepresentation) is 'string'
+                resultsRepresentationDomNode = $ resultsRepresentation
+                if not this.fireEvent(
+                    'addSearchResults', false, this
+                    resultsRepresentationDomNode, this.resultsDomNode
+                    this.currentSearchResultsDomNode or []
+                )
+                    this.resultsDomNode.html resultsRepresentationDomNode
+                if this.currentSearchResultsDomNode?.length
+                    this.fireEvent(
+                        'removeSearchResults', false, this
+                        this.currentSearchResultsDomNode)
+                this.currentSearchResultsDomNode = resultsRepresentationDomNode
+                window.setTimeout => this.releaseLock "#{this.__name__}Search"
+            else
+                resultsRepresentation.then (resultsRepresentation) =>
+                    resultsRepresentationDomNode = $ resultsRepresentation
+                    if not this.fireEvent(
+                        'addSearchResults', false, this
+                        resultsRepresentationDomNode, this.resultsDomNode
+                        this.currentSearchResultsDomNode or []
+                    )
+                        this.resultsDomNode.html resultsRepresentationDomNode
+                    if this.currentSearchResultsDomNode?.length
+                        this.fireEvent(
+                            'removeSearchResults', false, this
+                            this.currentSearchResultsDomNode)
+                    this.currentSearchResultsDomNode =
+                        resultsRepresentationDomNode
+                    this.releaseLock "#{this.__name__}Search"
+            this.currentSearchText = searchText
+            this.currentSearchResults = searchResults.slice()
+            this
+        openSearchResults: (event) ->
+            ###Closes current search results.###
+            event?.stopPropagation()
+            if this.resultsDomNode? and not this.resultsDomNode.hasClass(
+                this.stringCamelCaseToDelimited 'open'
+            ) and not this.fireEvent(
+                'openSearchResults', false, this, event, this.resultsDomNode
+            )
+                this.resultsDomNode.addClass this.stringCamelCaseToDelimited(
+                    'open')
             this
         closeSearchResults: (event) ->
+            ###Closes current search results.###
             event?.stopPropagation()
-            if this.resultsDomNode
-                this.resultsDomNode.remove()
-                this.resultsDomNode = null
+            if this.resultsDomNode? and this.resultsDomNode.hasClass(
+                this.stringCamelCaseToDelimited 'open'
+            ) and not this.fireEvent(
+                'closeSearchResults', false, this, event, this.resultsDomNode
+            )
+                this.resultsDomNode.removeClass(
+                    this.stringCamelCaseToDelimited 'open')
             this
-        initializeGenericSearchBox: (searchInputDomNode) ->
+        initializeGenericSearchBox: ->
             ###
                 Initializes googles generic search box and tries to match to
                 open and focus them.
             ###
             searchBox = new window.google.maps.places.SearchBox(
-                searchInputDomNode[0])
+                this.$domNode.find('input')[0])
             # Bias the search box results towards places that are within the
             # bounds of the current map's viewport.
             window.google.maps.event.addListener this.map, 'bounds_changed', =>
@@ -347,6 +543,7 @@ main = ($) ->
                                     matchingMarker)
                             if this.currentlyOpenWindow?
                                 this.currentlyOpenWindow.close()
+                                this.currentlyOpenWindow.isOpen = false
                             this.map.setCenter foundPlace.geometry.location
                             if this._options.successfulSearchZoom?
                                 this.map.setZoom(
@@ -431,19 +628,34 @@ main = ($) ->
                     this._options.defaultMarkerIconFileName
             marker.title = store.title if store.title
             marker.infoWindow = new window.google.maps.InfoWindow content: ''
+            marker.infoWindow.isOpen = false
+            window.google.maps.event.addListener(
+                marker.infoWindow, 'closeclick', ->
+                    marker.infoWindow.isOpen = false
+            )
             marker.googleMarker = new window.google.maps.Marker marker
             window.google.maps.event.addListener(
                 marker.googleMarker, 'click', this.getMethod(
                     'openMarker', this, marker))
             this.markers.push marker
             marker.googleMarker
-        openMarker: (place, thisFunction, marker) ->
+        openMarker: (place, thisFunction, marker, event) ->
             ###
                 Opens given marker info window. And closes a potential opened
                 windows.
             ###
-            this.closeSearchResults()
-            return this if this.currentlyOpenWindow is marker.infoWindow
+            event?.stopPropagation()
+            # We have to ensure that the minimum zoom level has one more then
+            # the clustering can appear. Since a cluster hides an open window.
+            if(
+                this._options.markerCluster?.maxZoom and
+                this.map.getZoom() <= this._options.markerCluster.maxZoom
+            )
+                this.map.setZoom this._options.markerCluster.maxZoom + 1
+            this.closeSearchResults event
+            if(this.currentlyOpenWindow is marker.infoWindow and
+               this.currentlyOpenWindow.isOpen)
+                return this
             this.fireEvent 'infoWindowOpen', marker
             marker.refreshSize = ->
                 ###
@@ -459,8 +671,11 @@ main = ($) ->
                     this._options.infoWindow.loadingContent)
                 infoWindow.then (infoWindow) ->
                     marker.infoWindow.setContent infoWindow
-            this.currentlyOpenWindow.close() if this.currentlyOpenWindow?
+            if this.currentlyOpenWindow?
+                this.currentlyOpenWindow.close()
+                this.currentlyOpenWindow.isOpen = false
             this.currentlyOpenWindow = marker.infoWindow
+            marker.infoWindow.isOpen = true
             marker.infoWindow.open this.map, marker.googleMarker
             this.map.panTo marker.googleMarker.position
             this.map.panBy(

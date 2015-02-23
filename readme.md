@@ -161,18 +161,30 @@ Usage
                     given number will be interpret as search result precision
                     tolerance to identify a marker as search result.
                     If an object is given it indicates what should be search
-                    for. The object can hold four keys. "properties" to
+                    for. The object can hold up to nine keys. "properties" to
                     specify which store data should contain given search text,
                     "maximumNumberOfResults" to limit the auto complete result,
-                    "loadingContent" to display while the results are loading
-                    and "content" to render the search results. "content" can
-                    be a function or string returning or representing the
-                    search results. If a function is given and a promise is
-                    returned the info box will be filled with the given loading
-                    content and updated with the resolved data. The function
-                    becomes search results as first argument, a boolean
-                    value as second argument indicating if the maximum number
-                    of search results was reached and the store locator
+                    "loadingContent" to display while the results are loading,
+                    "numberOfAdditionalGenericPlaces" a tuple describing a
+                    range of minimal to maximal limits of additional generic
+                    google suggestions depending on number of local search
+                    results, "maximalDistanceInMeter" to specify maximal
+                    distance from current position to search suggestions,
+                    "genericPlaceFilter" specifies a function which gets a
+                    relevant place to decide if the place should be included
+                    (returns a boolean value), "prefereGenericResults"
+                    specifies a boolean value indicating if generic search
+                    results should be the first results,
+                    "genericPlaceSearchOptions" specifies how a generic place
+                    search should be done (google maps request object
+                    specification) and "content" to render the search results.
+                    "content" can be a function or string returning or
+                    representing the search results. If a function is given and
+                    a promise is returned the info box will be filled with the
+                    given loading content and updated with the resolved data.
+                    The function becomes search results as first argument, a
+                    boolean value as second argument indicating if the maximum
+                    number of search results was reached and the store locator
                     instance as third argument. If nothing is provided all
                     available data will be listed in a generic info window.
                 */
