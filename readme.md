@@ -70,7 +70,7 @@ Usage
 <!--|deDE:Laden einiger benötigter Ressourcen-->
 ### Loading some needed resources
 
-<!--showExample-->
+<!--showExample:hidden-->
 
     #!HTML
 
@@ -252,7 +252,7 @@ Usage
 <!--|deDE:Initialisierung der Store-Locator Beispiele-->
 ### Initialize both store locator examples
 
-<!--showExample-->
+<!--showExample:hidden-->
 
     <script type="text/javascript">
         window.initialize = function() {$(function($) {
