@@ -61,13 +61,16 @@ Version
         }
 
         /*Entry point for object orientated jQuery plugin. */
-        this.currentSearchResults = null;
+        this.currentSearchResults = [];
         this.currentSearchText = null;
         this.resultsDomNode = null;
         this.currentSearchResultsDomNode = null;
         this.currentlyOpenWindow = null;
+        this.currentlyHighlightedMarker = null;
+        this.searchResultsDirty = false;
         this.seenLocations = [];
         this.markers = [];
+        this.currentSearchResultRange = null;
         this._options = {
 
           /*
@@ -221,7 +224,8 @@ Version
           onAddSearchResults: $.noop,
           onRemoveSearchResults: $.noop,
           onOpenSearchResults: $.noop,
-          onCloseSearchResults: $.noop
+          onCloseSearchResults: $.noop,
+          onMarkerHighlighted: $.noop
         };
         StoreLocator.__super__.initialize.call(this, options);
         this.$domNodes = this.grabDomNode(this._options.domNode);
@@ -293,6 +297,11 @@ Version
               return _this.closeSearchResults();
             };
           })(this));
+          window.google.maps.event.addListener(this.map, 'dragstart', (function(_this) {
+            return function() {
+              return _this.closeSearchResults();
+            };
+          })(this));
           this._options.searchBox = $.extend(true, {
             maximumNumberOfResults: 50,
             numberOfAdditionalGenericPlaces: [2, 5],
@@ -342,8 +351,39 @@ Version
             Initializes a data source based search box to open and focus
             them matching marker.
          */
-        var placesService;
-        placesService = new google.maps.places.PlacesService(this.map);
+        this.on(this.$domNode, 'keydown', (function(_this) {
+          return function(event) {
+            var currentIndex;
+            if (_this.currentSearchResults.length) {
+              if (_this.currentSearchResultRange) {
+                _this.currentSearchResultRange = [window.Math.max(0, _this.currentSearchResultRange[0]), window.Math.min(_this.currentSearchResults.length - 1, _this.currentSearchResultRange[1])];
+              } else {
+                _this.currentSearchResultRange = [0, _this.currentSearchResults.length - 1];
+              }
+              currentIndex = _this.currentSearchResults.indexOf(_this.currentlyHighlightedMarker);
+              if (event.keyCode === _this.keyCode.DOWN) {
+                if (currentIndex === -1 || _this.currentSearchResultRange[1] < currentIndex + 1) {
+                  return _this.highlightMarker(null, _this.highlightMarker, _this.currentSearchResults[_this.currentSearchResultRange[0]], event);
+                } else {
+                  return _this.highlightMarker(null, _this.highlightMarker, _this.currentSearchResults[currentIndex + 1], event);
+                }
+              } else if (event.keyCode === _this.keyCode.UP) {
+                if (currentIndex === _this.currentSearchResultRange[0] || currentIndex === (-1)) {
+                  return _this.highlightMarker(null, _this.highlightMarker, _this.currentSearchResults[_this.currentSearchResultRange[1]], event);
+                } else {
+                  return _this.highlightMarker(null, _this.highlightMarker, _this.currentSearchResults[currentIndex - 1], event);
+                }
+              } else if (event.keyCode === _this.keyCode.ENTER && _this.currentlyHighlightedMarker) {
+                event.stopPropagation();
+                if (_this.currentlyHighlightedMarker.infoWindow) {
+                  return _this.openMarker(null, _this.openMarker, _this.currentlyHighlightedMarker, event);
+                } else {
+                  return _this.openPlace(_this.currentlyHighlightedMarker.data, _this.openPlace, event);
+                }
+              }
+            }
+          };
+        })(this));
         this.on(this.$domNode.find('input'), 'focus', (function(_this) {
           return function() {
             if (_this.currentSearchText) {
@@ -351,14 +391,59 @@ Version
             }
           };
         })(this));
-        this.on(this.$domNode.find('input'), 'input', this.debounce(((function(_this) {
+        this.on(this.$domNode.find('input'), 'keydown', (function(_this) {
           return function(event) {
+            var keyCode, name, _ref;
+            _ref = _this.keyCode;
+            for (name in _ref) {
+              keyCode = _ref[name];
+              if (event.keyCode === keyCode && (name !== 'DOWN')) {
+                return;
+              }
+            }
+            if (_this.currentSearchText) {
+              return _this.openSearchResults();
+            }
+          };
+        })(this));
+        this.on(this.$domNode.find('input'), 'click', (function(_this) {
+          return function() {
+            if (_this.currentSearchText) {
+              return _this.openSearchResults();
+            }
+          };
+        })(this));
+        window.google.maps.event.addListener(this.map, 'center_changed', (function(_this) {
+          return function() {
+            if (_this.currentSearchText && (_this.resultsDomNode != null)) {
+              return _this.searchResultsDirty = true;
+            }
+          };
+        })(this));
+        this.on(this.$domNode.find('input'), 'keyup', this.getUpdateSearchResultsHandler());
+        return this;
+      };
+
+      StoreLocator.prototype.getUpdateSearchResultsHandler = function() {
+        var placesService;
+        placesService = new google.maps.places.PlacesService(this.map);
+        return this.debounce(((function(_this) {
+          return function(event) {
+            var keyCode, name, _ref;
+            _ref = _this.keyCode;
+            for (name in _ref) {
+              keyCode = _ref[name];
+              if ((event != null ? event.keyCode : void 0) === keyCode && (name !== 'DELETE' && name !== 'BACKSPACE')) {
+                return;
+              }
+            }
             return _this.acquireLock(_this.__name__ + "Search", function() {
-              var loadingDomNode, searchText, _ref;
-              searchText = $.trim($(event.target).val());
-              if (_this.currentSearchText === searchText) {
+              var loadingDomNode, searchText, _ref1;
+              searchText = $.trim(_this.$domNode.find('input').val());
+              if (_this.currentSearchText === searchText && !_this.searchResultsDirty) {
                 return _this.releaseLock(_this.__name__ + "Search");
               }
+              _this.searchResultsDirty = false;
               if (!_this.resultsDomNode) {
                 _this.initializeDataSourceSearchResultsBox();
               }
@@ -375,7 +460,7 @@ Version
               if (!_this.fireEvent('addSearchResults', false, _this, loadingDomNode, _this.resultsDomNode, _this.currentSearchResultsDomNode || [])) {
                 _this.resultsDomNode.html(loadingDomNode);
               }
-              if ((_ref = _this.currentSearchResultsDomNode) != null ? _ref.length : void 0) {
+              if ((_ref1 = _this.currentSearchResultsDomNode) != null ? _ref1.length : void 0) {
                 _this.fireEvent('removeSearchResults', false, _this, _this.currentSearchResultsDomNode);
               }
               _this.currentSearchResultsDomNode = loadingDomNode;
@@ -393,22 +478,23 @@ Version
               }
             });
           };
-        })(this)), 1000));
-        return this;
+        })(this)), 1000);
       };
 
       StoreLocator.prototype.handleGenericSearchResults = function(places, searchText) {
 
         /*Sorts and filters search results given by the google api. */
-        var distance, index, place, result, searchResults, _ref;
+        var distance, index, place, result, searchResults, _i, _len, _ref;
         searchResults = [];
+        index = 1;
         _ref = places.sort((function(_this) {
           return function(firstPlace, secondPlace) {
             return window.google.maps.geometry.spherical.computeDistanceBetween(_this.map.getCenter(), firstPlace.geometry.location) - window.google.maps.geometry.spherical.computeDistanceBetween(_this.map.getCenter(), secondPlace.geometry.location);
           };
         })(this));
-        for (index in _ref) {
-          place = _ref[index];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          place = _ref[_i];
+          index += 1;
           distance = window.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(), place.geometry.location);
           if (distance > this._options.searchBox.maximalDistanceInMeter) {
             break;
@@ -424,22 +510,13 @@ Version
               open: (function(_this) {
                 return function(place) {
                   return function(event) {
-                    if (event != null) {
-                      event.stopPropagation();
-                    }
-                    _this.closeSearchResults(event);
-                    if (_this.currentlyOpenWindow != null) {
-                      _this.currentlyOpenWindow.close();
-                      _this.currentlyOpenWindow.isOpen = false;
-                    }
-                    _this.map.setCenter(place.geometry.location);
-                    return _this.map.setZoom(_this._options.successfulSearchZoom);
+                    return _this.openPlace(place, _this.openPlace, event);
                   };
                 };
               })(this)(place)
             };
             searchResults.push(result);
-            if (this._options.searchBox.numberOfAdditionalGenericPlaces[1] < window.parseInt(index) + 2) {
+            if (this._options.searchBox.numberOfAdditionalGenericPlaces[1] < index) {
               break;
             }
           }
@@ -464,8 +541,11 @@ Version
             if ((marker.data[key] || marker.data[key] === 0) && ("" + marker.data[key]).toLowerCase().indexOf(searchText.toLowerCase()) !== -1) {
               (function(_this) {
                 return (function(marker) {
-                  return marker.open = function(event) {
+                  marker.open = function(event) {
                     return _this.openMarker(null, _this.openMarker, marker, event);
+                  };
+                  return marker.highlight = function(event, type) {
+                    return _this.highlightMarker(null, _this.highlightMarker, marker, event, type);
                   };
                 });
               })(this)(marker);
@@ -488,8 +568,11 @@ Version
         }
         searchResults.sort((function(_this) {
           return function(first, second) {
-            if (_this._options.searchBox.prefereGenericResults && !first.infoWindow) {
+            if (_this._options.searchBox.prefereGenericResults && !first.infoWindow && second.infoWindow) {
               return -1;
+            }
+            if (_this._options.searchBox.prefereGenericResults && !second.infoWindow && first.infoWindow) {
+              return +1;
             }
             return window.google.maps.geometry.spherical.computeDistanceBetween(_this.map.getCenter(), first.position) - window.google.maps.geometry.spherical.computeDistanceBetween(_this.map.getCenter(), second.position);
           };
@@ -536,8 +619,9 @@ Version
         if (event != null) {
           event.stopPropagation();
         }
-        if ((this.resultsDomNode != null) && !this.resultsDomNode.hasClass(this.stringCamelCaseToDelimited('open')) && !this.fireEvent('openSearchResults', false, this, event, this.resultsDomNode)) {
-          this.resultsDomNode.addClass(this.stringCamelCaseToDelimited('open'));
+        this.getUpdateSearchResultsHandler()(event);
+        if ((this.resultsDomNode != null) && !this.resultsDomNode.hasClass('open') && !this.fireEvent('openSearchResults', false, this, event, this.resultsDomNode)) {
+          this.resultsDomNode.addClass('open');
         }
         return this;
       };
@@ -548,8 +632,8 @@ Version
         if (event != null) {
           event.stopPropagation();
         }
-        if ((this.resultsDomNode != null) && this.resultsDomNode.hasClass(this.stringCamelCaseToDelimited('open')) && !this.fireEvent('closeSearchResults', false, this, event, this.resultsDomNode)) {
-          this.resultsDomNode.removeClass(this.stringCamelCaseToDelimited('open'));
+        if ((this.resultsDomNode != null) && this.resultsDomNode.hasClass('open') && !this.fireEvent('closeSearchResults', false, this, event, this.resultsDomNode)) {
+          this.resultsDomNode.removeClass('open');
         }
         return this;
       };
@@ -707,10 +791,10 @@ Version
         window.google.maps.event.addListener(marker.infoWindow, 'closeclick', function() {
           return marker.infoWindow.isOpen = false;
         });
-        marker.googleMarker = new window.google.maps.Marker(marker);
-        window.google.maps.event.addListener(marker.googleMarker, 'click', this.getMethod('openMarker', this, marker));
+        marker.nativeMarker = new window.google.maps.Marker(marker);
+        window.google.maps.event.addListener(marker.nativeMarker, 'click', this.getMethod('openMarker', this, marker));
         this.markers.push(marker);
-        return marker.googleMarker;
+        return marker.nativeMarker;
       };
 
       StoreLocator.prototype.openMarker = function(place, thisFunction, marker, event) {
@@ -723,6 +807,7 @@ Version
         if (event != null) {
           event.stopPropagation();
         }
+        this.highlightMarker(place, this.highlightMarker, marker, event, 'stop');
         if (((_ref = this._options.markerCluster) != null ? _ref.maxZoom : void 0) && this.map.getZoom() <= this._options.markerCluster.maxZoom) {
           this.map.setZoom(this._options.markerCluster.maxZoom + 1);
         }
@@ -754,10 +839,67 @@ Version
         }
         this.currentlyOpenWindow = marker.infoWindow;
         marker.infoWindow.isOpen = true;
-        marker.infoWindow.open(this.map, marker.googleMarker);
-        this.map.panTo(marker.googleMarker.position);
+        marker.infoWindow.open(this.map, marker.nativeMarker);
+        this.map.panTo(marker.nativeMarker.position);
         this.map.panBy(0, -this._options.infoWindow.additionalMoveToBottomInPixel);
         this.fireEvent('infoWindowOpened', marker);
+        return this;
+      };
+
+      StoreLocator.prototype.openPlace = function(place, thisFunction, event) {
+
+        /*Focuses given place on map. */
+        if (event != null) {
+          event.stopPropagation();
+        }
+        this.closeSearchResults(event);
+        if (this.currentlyOpenWindow != null) {
+          this.currentlyOpenWindow.close();
+          this.currentlyOpenWindow.isOpen = false;
+        }
+        this.map.setCenter(place.geometry.location);
+        this.map.setZoom(this._options.successfulSearchZoom);
+        return this;
+      };
+
+      StoreLocator.prototype.highlightMarker = function(place, thisFunction, marker, event, type) {
+        var _ref, _ref1, _ref2, _ref3, _ref4;
+        if (type == null) {
+          type = 'bounce';
+        }
+
+        /*
+            Opens given marker info window. And closes a potential opened
+            windows.
+         */
+        if (event != null) {
+          event.stopPropagation();
+        }
+        if (this.currentlyHighlightedMarker) {
+          if ((_ref = this.currentlyHighlightedMarker.nativeMarker) != null) {
+            _ref.setAnimation(null);
+          }
+          this.currentlyHighlightedMarker.isHighlighted = false;
+          this.currentlyHighlightedMarker = null;
+        }
+        if (type === 'stop') {
+          if ((_ref1 = marker.nativeMarker) != null) {
+            _ref1.setAnimation(null);
+          }
+        } else {
+          if (((_ref2 = this._options.markerCluster) != null ? _ref2.maxZoom : void 0) && this.map.getZoom() <= this._options.markerCluster.maxZoom && (((_ref3 = marker.nativeMarker) != null ? _ref3.position : void 0) != null) && this.map.getBounds().contains(marker.nativeMarker.position)) {
+            this.map.setCenter(marker.nativeMarker.position);
+            this.map.setZoom(this._options.markerCluster.maxZoom + 1);
+          }
+          if (marker !== this.currentlyHighlightedMarker) {
+            if ((_ref4 = marker.nativeMarker) != null) {
+              _ref4.setAnimation(window.google.maps.Animation[type.toUpperCase()]);
+            }
+            marker.isHighlighted = true;
+            this.currentlyHighlightedMarker = marker;
+          }
+        }
+        this.fireEvent('markerHighlighted', marker);
         return this;
       };
 
@@ -820,7 +962,7 @@ Version
 
   if (this.require != null) {
     this.require.scopeIndicator = 'jQuery.fn.StoreLocator';
-    this.require('jquery-tools-1.0.coffee', main);
+    this.require([['jQuery.Tools', 'jquery-tools-1.0.coffee']], main);
   } else {
     main(this.jQuery);
   }

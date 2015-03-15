@@ -84,6 +84,30 @@ Version
       };
 
 
+      /*Saves currently minimal supported internet explorer version. */
+
+      Tools.prototype.maximalSupportedInternetExplorerVersion = (function() {
+
+        /*Returns zero if no internet explorer present. */
+        var div, version, _i;
+        div = document.createElement('div');
+        for (version = _i = 0; _i < 9; version = ++_i) {
+          div.innerHTML = '<!' + ("--[if gt IE " + version + "]><i></i><![e") + 'ndif]-' + '->';
+          if (!div.getElementsByTagName('i').length) {
+            break;
+          }
+        }
+        if (!version) {
+          if (window.navigator.appVersion.indexOf('MSIE 10') !== -1) {
+            return 10;
+          } else if (window.navigator.userAgent.indexOf('Trident') !== -1 && window.navigator.userAgent.indexOf('rv:11') !== -1) {
+            return 11;
+          }
+        }
+        return version;
+      })();
+
+
       /*
           **_consoleMethods {String[]}**
           This variable contains a collection of methods usually binded to
@@ -656,6 +680,40 @@ Version
         return domNodes;
       };
 
+      Tools.prototype.getURLVariable = function(key) {
+
+        /*
+            Read a page's GET URL variables and return them as an
+            associative array and preserves ordering.
+        
+            **key {String}**    - A get array key. If given only the
+                                  corresponding value is returned and full
+                                  array otherwise.
+        
+            **returns {Mixed}** - Returns the current get array or
+                                  requested value. If requested key doesn't
+                                  exist "undefined" is returned.
+         */
+        var variables;
+        variables = [];
+        $.each(window.location.search.substring(1).split('&'), function(key, value) {
+          var keyValuePair;
+          keyValuePair = value.split('=');
+          key = window.decodeURIComponent(keyValuePair[0]);
+          value = window.decodeURIComponent(keyValuePair[1]);
+          variables.push(key);
+          return variables[key] = value;
+        });
+        if ($.type(key) === 'string') {
+          if (__indexOf.call(variables, key) >= 0) {
+            return variables[key];
+          } else {
+            return void 0;
+          }
+        }
+        return variables;
+      };
+
       Tools.prototype.determineUniqueScopeName = function(prefix, scope) {
         var uniqueName;
         if (prefix == null) {
@@ -1026,36 +1084,6 @@ Version
           return path + pathSeparator;
         }
         return path;
-      };
-
-      Tools.prototype.stringGetURLVariables = function(key) {
-
-        /*
-            Read a page's GET URL variables and return them as an
-            associative array.
-        
-            **key {String}**    - A get array key. If given only the
-                                  corresponding value is returned and full
-                                  array otherwise.
-        
-            **returns {Mixed}** - Returns the current get array or
-                                  requested value. If requested key doesn't
-                                  exist "undefined" is returned.
-         */
-        var variables;
-        variables = [];
-        $.each(window.location.href.slice(window.location.href.indexOf('?') + 1).split('&'), function(key, value) {
-          variables.push(value.split('=')[0]);
-          return variables[value.split('=')[0]] = value.split('=')[1];
-        });
-        if ($.type(key) === 'string') {
-          if (__indexOf.call(variables, key) >= 0) {
-            return variables[key];
-          } else {
-            return void 0;
-          }
-        }
-        return variables;
       };
 
       Tools.prototype.sendToIFrame = function(target, url, data, requestType, removeAfterLoad) {
