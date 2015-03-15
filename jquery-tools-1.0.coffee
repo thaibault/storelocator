@@ -64,6 +64,33 @@ main = ($) ->
             NUMPAD_DECIMAL: 110, NUMPAD_DIVIDE: 111, NUMPAD_ENTER: 108
             NUMPAD_MULTIPLY: 106, NUMPAD_SUBTRACT: 109, PAGE_DOWN: 34
             PAGE_UP: 33, PERIOD: 190, RIGHT: 39, SPACE: 32, TAB: 9, UP: 38
+        ###Saves currently minimal supported internet explorer version.###
+        maximalSupportedInternetExplorerVersion: do ->
+            ###Returns zero if no internet explorer present.###
+            div = document.createElement 'div'
+            for version in [0...9]
+                # NOTE: We split html comment sequences to avoid wrong
+                # interpretation if this code is embedded in markup.
+                # NOTE: Internet Explorer 9 and lower sometimes doesn't
+                # understand conditional comments wich doesn't starts with a
+                # whitespace. If the conditional markup isn't in a commend.
+                # Otherwise there shouldn't be any whitespace!
+                div.innerHTML = (
+                    '<!' + "--[if gt IE #{version}]><i></i><![e" + 'ndif]-' +
+                    '->')
+                if not div.getElementsByTagName('i').length
+                    break
+            if not version
+                # Try special detection for internet explorer 10 and 11.
+                if window.navigator.appVersion.indexOf('MSIE 10') isnt -1
+                    return 10
+                else if window.navigator.userAgent.indexOf(
+                    'Trident'
+                ) isnt -1 and window.navigator.userAgent.indexOf(
+                    'rv:11'
+                ) isnt -1
+                    return 11
+            version
         ###
             **_consoleMethods {String[]}**
             This variable contains a collection of methods usually binded to
@@ -564,6 +591,34 @@ main = ($) ->
 
         # region scope
 
+        getURLVariable: (key) ->
+            ###
+                Read a page's GET URL variables and return them as an
+                associative array and preserves ordering.
+
+                **key {String}**    - A get array key. If given only the
+                                      corresponding value is returned and full
+                                      array otherwise.
+
+                **returns {Mixed}** - Returns the current get array or
+                                      requested value. If requested key doesn't
+                                      exist "undefined" is returned.
+            ###
+            variables = []
+            $.each window.location.search.substring(1).split('&'), (
+                key, value
+            ) ->
+                keyValuePair = value.split('=')
+                key = window.decodeURIComponent keyValuePair[0]
+                value = window.decodeURIComponent keyValuePair[1]
+                variables.push key
+                variables[key] = value
+            if $.type(key) is 'string'
+                if key in variables
+                    return variables[key]
+                else
+                    return undefined
+            variables
         determineUniqueScopeName: (prefix='callback', scope=window) ->
             ###
                 Generates a unique function name needed for jsonp requests.
@@ -873,31 +928,6 @@ main = ($) ->
             if path.substr(-1) isnt pathSeparator and path.length
                 return path + pathSeparator
             path
-        stringGetURLVariables: (key) ->
-            ###
-                Read a page's GET URL variables and return them as an
-                associative array.
-
-                **key {String}**    - A get array key. If given only the
-                                      corresponding value is returned and full
-                                      array otherwise.
-
-                **returns {Mixed}** - Returns the current get array or
-                                      requested value. If requested key doesn't
-                                      exist "undefined" is returned.
-            ###
-            variables = []
-            $.each window.location.href.slice(
-                window.location.href.indexOf('?') + 1
-            ).split('&'), (key, value) ->
-                variables.push value.split('=')[0]
-                variables[value.split('=')[0]] = value.split('=')[1]
-            if $.type(key) is 'string'
-                if key in variables
-                    return variables[key]
-                else
-                    return undefined
-            variables
 
         # endregion
 
