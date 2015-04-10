@@ -188,10 +188,10 @@ Version
           /*
               If a number is given a generic search will be provided and
               given number will be interpret as search result precision
-              tolerance to identify a marker as search result.
-              If an object is given it indicates what should be search
-              for. The object can hold up to nine keys. "properties" to
-              specify which store data should contain given search text,
+              tolerance to identify a marker as search result. If an
+              object is given it indicates what should be search for. The
+              object can hold up to nine keys. "properties" to specify
+              which store data should contain given search text,
               "maximumNumberOfResults" to limit the auto complete result,
               "loadingContent" to display while the results are loading,
               "numberOfAdditionalGenericPlaces" a tuple describing a
@@ -513,7 +513,10 @@ Version
                     return _this.openPlace(place, _this.openPlace, event);
                   };
                 };
-              })(this)(place)
+              })(this)(place),
+              highlight: function(event, type) {
+                return this.isHighlighted = type !== 'stop';
+              }
             };
             searchResults.push(result);
             if (this._options.searchBox.numberOfAdditionalGenericPlaces[1] < index) {
@@ -898,8 +901,8 @@ Version
             marker.isHighlighted = true;
             this.currentlyHighlightedMarker = marker;
           }
+          this.fireEvent('markerHighlighted', marker);
         }
-        this.fireEvent('markerHighlighted', marker);
         return this;
       };
 
