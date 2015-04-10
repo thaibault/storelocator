@@ -167,10 +167,10 @@ main = ($) ->
                 ###
                     If a number is given a generic search will be provided and
                     given number will be interpret as search result precision
-                    tolerance to identify a marker as search result.
-                    If an object is given it indicates what should be search
-                    for. The object can hold up to nine keys. "properties" to
-                    specify which store data should contain given search text,
+                    tolerance to identify a marker as search result. If an
+                    object is given it indicates what should be search for. The
+                    object can hold up to nine keys. "properties" to specify
+                    which store data should contain given search text,
                     "maximumNumberOfResults" to limit the auto complete result,
                     "loadingContent" to display while the results are loading,
                     "numberOfAdditionalGenericPlaces" a tuple describing a
@@ -391,8 +391,7 @@ main = ($) ->
                 this.openSearchResults() if this.currentSearchText
             this.on this.$domNode.find('input'), 'keydown', (event) =>
                 for name, keyCode of this.keyCode
-                    return if event.keyCode is keyCode and name not in [
-                        'DOWN']
+                    return if event.keyCode is keyCode and name not in ['DOWN']
                 this.openSearchResults() if this.currentSearchText
             this.on this.$domNode.find('input'), 'click', =>
                 this.openSearchResults() if this.currentSearchText
@@ -485,6 +484,8 @@ main = ($) ->
                         position: place.geometry.location
                         open: do (place) => (event) =>
                             this.openPlace place, this.openPlace, event
+                        highlight: (event, type) ->
+                            this.isHighlighted = type isnt 'stop'
                     searchResults.push result
                     if this._options.searchBox
                     .numberOfAdditionalGenericPlaces[1] < index
@@ -820,7 +821,7 @@ main = ($) ->
                         window.google.maps.Animation[type.toUpperCase()])
                     marker.isHighlighted = true
                     this.currentlyHighlightedMarker = marker
-            this.fireEvent 'markerHighlighted', marker
+                this.fireEvent 'markerHighlighted', marker
             this
         makeInfoWindow: (marker) ->
             ###
