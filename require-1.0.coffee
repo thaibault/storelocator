@@ -4,7 +4,7 @@
 # region header
 
 ###
-[Project page](https://thaibault.github.com/require)
+[Project page](http://torben.website/require)
 
 This native javaScript module provides a full featured import mechanism like
 python, php, c++ etc..
@@ -32,10 +32,9 @@ Conventions
   outer scope. They could accessed in inherited objects (protected attributes).
 - __rc5__ Property with two preceding underscore shouldn't be accessed from any
   location then the object itself (private attributes).
-- __rc6__ Don't use any whitespaces between return statements and preceding
-  statements if not needed.
-    - __bad__: ```return {}```
-    - __good__: ```return{}```
+- __rc6__ Use whitespaces between return statements and preceding symbols.
+    - __bad__: ```return{}```
+    - __good__: ```return {}```
 - __rc7__ Follow the javascript OOP conventions like camel-case class-names
   methods and property names.
 - __rc8__ Class-names have a leading upper case letter.
@@ -45,10 +44,11 @@ Conventions
 - __rc12__ Write qunit tests for each unit it is possible and try to reach 100%
   path coverage.
 - __rc13__ Sorting imports as following:
-    1. Import all standard modules and packages,
-    2. then all from third party,
-    3. now import your own modules or packages.
-    4. Sort import names alphabetically and separate the previous defined parts
+    1. Standard libraries,
+    2. Published third party libraries,
+    3. Your own unpublished libraries,
+    4. Your own modules or packages,
+    5. Sort import names alphabetically and separate the previous defined parts
        with blank lines.
 - __rc14__ Prefix global reference from global context with "this" and with
   "window" in none global contexts.
@@ -304,8 +304,10 @@ class Require
                 ) + 'js'
                 sourceRoot: sourceRootPath
                 sourceFiles: [fileName]
-            if window.btoa? and window.JSON? and window.unescape? and
-               window.encodeURIComponent? and self.generateSourceMaps
+            if(
+                window.btoa? and window.JSON? and window.unescape? and
+                window.encodeURIComponent? and self.generateSourceMaps
+            )
                 coffeeScriptCompilerOptions.sourceMap = true
                 # NOTE: Workaround to enable source maps for asynchron loaded
                 # coffee scripts.
@@ -317,18 +319,15 @@ class Require
                         'Syntax error in source file ' +
                         "\"#{localSourceRootPath}#{fileName}\".", true)
                     throw error
-                # NOTE: Additional commend syntax with "/*...*/" is necessary
-                # to support internet explorer.
                 window.eval(
                     "#{js}\n//# sourceMappingURL=data:application/json;" +
                     'base64,' + window.btoa(
                         window.unescape window.encodeURIComponent v3SourceMap
                     ) + "\n//# sourceURL=#{localSourceRootPath + fileName}")
                 return [js, coffeeScriptCode, v3SourceMap]
-            else
-                window.CoffeeScript.run(
-                    coffeeScriptCode, coffeeScriptCompilerOptions)
-                return [null, coffeeScriptCode, null]
+            window.CoffeeScript.run(
+                coffeeScriptCode, coffeeScriptCompilerOptions)
+            return [null, coffeeScriptCode, null]
     ###
         **generateSourceMaps {Boolean}**
         Indicates weather source maps should be created.
@@ -459,7 +458,7 @@ class Require
                 "#{self._currentSessionTimestamp.getTime()}")
                     self::_log(
                         "Remove old stored path reference \"#{value}\".")
-                    delete window.localStorage[key]
+                    window.localStorage.removeItem key
         self
 
     # endregion
@@ -607,11 +606,11 @@ class Require
                     if ajaxObject.readyState is 4
                         if ajaxObject.status in [0, 200]
                             if self.localStoragePathReminderPrefix
-                                window.localStorage[self
-                                    .localStoragePathReminderPrefix +
+                                window.localStorage.setItem(
+                                    self.localStoragePathReminderPrefix +
                                     ":#{self._currentSessionTimestamp
                                     .getTime()}:#{module[1]}"
-                                ] = url
+                                    url)
                             callback.apply this, [
                                 ajaxObject.responseText, url, module
                             ].concat parameters
@@ -696,8 +695,9 @@ class Require
         else if checkAgainExtension
             hasExtension = false
             for name, properties of self.includeTypes
-                if(scriptFilePath.substr(-".#{properties.extension}".length) is
-                   ".#{properties.extension}")
+                if scriptFilePath.substr(
+                    -".#{properties.extension}".length
+                ) is ".#{properties.extension}"
                     hasExtension = true
                     break
             if not hasExtension
@@ -721,9 +721,11 @@ class Require
                     cacheHit = key
         for path in basePaths
             fullScriptFilePath = path + scriptFilePath
-            if cacheHit and fullScriptFilePath is window.localStorage[cacheHit]
-                result.unshift window.localStorage[cacheHit]
-                delete window.localStorage[cacheHit]
+            if cacheHit and fullScriptFilePath is window.localStorage.getItem(
+                cacheHit
+            )
+                result.unshift window.localStorage.getItem cacheHit
+                window.localStorage.removeItem cacheHit
             else
                 result.push fullScriptFilePath
         result
@@ -747,8 +749,9 @@ class Require
         urls = self::_getScriptFileURLs(module[1], true) if not urls.length
         url = urls.shift()
         for name, properties of self.includeTypes
-            if(url.substr(-"-#{properties.extension}".length) is
-               ".#{properties.extension}")
+            if url.substr(
+                -"-#{properties.extension}".length
+            ) is ".#{properties.extension}"
                 return self::_injectLoadingHelper(
                     module, parameters, urls, url, properties)
         self::_log(
@@ -797,8 +800,10 @@ class Require
             domNode.parentElement.removeChild domNode
         if domNode.readyState
             domNode.onreadystatechange = ->
-                if(domNode.readyState is 'loaded' or
-                   domNode.readyState is 'complete')
+                if(
+                    domNode.readyState is 'loaded' or
+                    domNode.readyState is 'complete'
+                )
                     self::_scriptLoaded module, parameters
                     # Delete event after passing it once.
                     domNode.onreadystatechange = null
@@ -807,11 +812,11 @@ class Require
         else
             domNode.onload = ->
                 if self.localStoragePathReminderPrefix
-                    window.localStorage[self
-                        .localStoragePathReminderPrefix +
+                    window.localStorage.setItem(
+                        self.localStoragePathReminderPrefix +
                         ":#{self._currentSessionTimestamp
                         .getTime()}:#{module[1]}"
-                    ] = url
+                        url)
                 self::_scriptLoaded module, parameters
                 # Delete event after passing it once.
                 domNode.onload = null
@@ -842,8 +847,10 @@ class Require
         if typeof parameters[2] is 'string'
             parameters[2] = [parameters[2]]
         for value, index in parameters[2]
-            if(not hasScopeIndicator and typeof value is 'string' and
-               module[1] is value)
+            if(
+                not hasScopeIndicator and typeof value is 'string' and
+                module[1] is value
+            )
                 parameters[2][index] = module
         for value, index in self.initializedLoadings
             if module[0] is value

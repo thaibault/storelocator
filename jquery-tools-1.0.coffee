@@ -4,7 +4,7 @@
 # region header
 
 ###
-[Project page](https://thaibault.github.com/jQuery-tools)
+[Project page](http://torben.website/jQuery-tools)
 
 This module provides common reusable logic for every non trivial jQuery plugin.
 
@@ -64,7 +64,30 @@ main = ($) ->
             NUMPAD_DECIMAL: 110, NUMPAD_DIVIDE: 111, NUMPAD_ENTER: 108
             NUMPAD_MULTIPLY: 106, NUMPAD_SUBTRACT: 109, PAGE_DOWN: 34
             PAGE_UP: 33, PERIOD: 190, RIGHT: 39, SPACE: 32, TAB: 9, UP: 38
-        ###Saves currently minimal supported internet explorer version.###
+        ###
+            Lists all known abbreviation for proper camel case to delimited
+            and back conversion.
+        ###
+        abbreviations: ['html', 'id', 'url', 'us', 'de', 'api', 'href']
+        ###
+            **transitionEndEventNames {String}**
+            Saves a string with all css3 browser specific transition end event
+            names.
+        ###
+        transitionEndEventNames:
+            'transitionend webkitTransitionEnd oTransitionEnd ' +
+            'MSTransitionEnd'
+        ###
+            **animationEndEventNames {String}**
+            Saves a string with all css3 browser specific animation end event
+            names.
+        ###
+        animationEndEventNames:
+            'animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd'
+        ###
+            **maximalsupportedinternetexplorerversion {String}**
+            Saves currently minimal supported internet explorer version.
+        ###
         maximalSupportedInternetExplorerVersion: do ->
             ###Returns zero if no internet explorer present.###
             div = document.createElement 'div'
@@ -97,9 +120,9 @@ main = ($) ->
             the console object.
         ###
         _consoleMethods: [
-            'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
-            'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
-            'markTimeline', 'profile', 'profileEnd', 'table', 'time',
+            'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error'
+            'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log'
+            'markTimeline', 'profile', 'profileEnd', 'table', 'time'
             'timeEnd', 'timeStamp', 'trace', 'warn']
         ###
             **_javaScriptDependentContentHandled {Boolean}**
@@ -125,7 +148,7 @@ main = ($) ->
 
         constructor: (
             @$domNode=null, @_options={}, @_defaultOptions={
-                logging: false, domNodeSelectorPrefix: 'body',
+                logging: false, domNodeSelectorPrefix: 'body'
                 domNode:
                     hideJavaScriptEnabled:
                         '.tools-hidden-on-javascript-enabled'
@@ -464,8 +487,32 @@ main = ($) ->
 
         # endregion
 
-        # region dom node handling
+        # region dom node
 
+        getPositionRelativeToViewport: (delta={}) ->
+            ###
+                Determines where current dom node is relative to current view
+                port position.
+
+                **delta {Object}**   - Allows deltas for "top", "left",
+                                       "bottom" and "right" for determining
+                                       positions.
+
+                **returns {String}** - Returns one of "above", "left", "below",
+                                       "right" or "in".
+            ###
+            delta = $.extend {top: 0, left: 0, bottom: 0, right: 0}, delta
+            $window = $ window
+            rectangle = this.$domNode[0].getBoundingClientRect()
+            if (rectangle.top + delta.top) < 0
+                return 'above'
+            if (rectangle.left + delta.left) < 0
+                return 'left'
+            if $window.height() < (rectangle.bottom + delta.bottom)
+                return 'below'
+            if $window.width() < (rectangle.right + delta.right)
+                return 'right'
+            return 'in'
         generateDirectiveSelector: (directiveName) ->
             ###
                 Generates a directive name corresponding selector string.
@@ -476,8 +523,10 @@ main = ($) ->
             ###
             delimitedName = this.stringCamelCaseToDelimited directiveName
             "#{delimitedName}, .#{delimitedName}, [#{delimitedName}], " +
-            "[data-#{delimitedName}], [x-#{delimitedName}], " +
-            "[#{delimitedName.replace '-', '\\:'}]"
+            "[data-#{delimitedName}], [x-#{delimitedName}]" + (
+                if delimitedName.indexOf('-') is -1 then '' else \
+                (", [#{delimitedName.replace /-/g, '\\:'}], " +
+                "[#{delimitedName.replace /-/g, '_'}]"))
         removeDirective: (directiveName) ->
             ###
                 Removes a directive name corresponding class or attribute.
@@ -491,7 +540,29 @@ main = ($) ->
                 delimitedName
             ).removeAttr("data-#{delimitedName}").removeAttr(
                 "x-#{delimitedName}"
-            ).removeAttr delimitedName.replace '-', ':'
+            ).removeAttr(delimitedName.replace '-', ':').removeAttr(
+                delimitedName.replace '-', '_')
+        getNormalizedDirectiveName: (directiveName) ->
+            ###
+                Determines a normalized camel case directive name
+                representation.
+
+                **directiveName {String}** - The directive name
+
+                **return {String}**        - Returns the corresponding name
+            ###
+            for delimiter in ['-', ':', '_']
+                prefixFound = false
+                for prefix in ['data' + delimiter, 'x' + delimiter]
+                    if this.stringStartsWith directiveName, prefix
+                        directiveName = directiveName.substring prefix.length
+                        prefixFound = true
+                        break
+                break if prefixFound
+            for delimiter in ['-', ':', '_']
+                directiveName = this.stringDelimitedToCamelCase(
+                    directiveName, delimiter)
+            directiveName
         getDirectiveValue: (directiveName) ->
             ###
                 Determines a directive attribute value.
@@ -591,34 +662,27 @@ main = ($) ->
 
         # region scope
 
-        getURLVariable: (key) ->
+        isolateScope: (scope, prefixesToIgnore=['$', '_']) ->
             ###
-                Read a page's GET URL variables and return them as an
-                associative array and preserves ordering.
+                Overwrites all inherited variables from parent scope with
+                "undefined".
 
-                **key {String}**    - A get array key. If given only the
-                                      corresponding value is returned and full
-                                      array otherwise.
+                **scope {Object}**            - A scope where inherited names
+                                                will be removed.
 
-                **returns {Mixed}** - Returns the current get array or
-                                      requested value. If requested key doesn't
-                                      exist "undefined" is returned.
+                **prefixesToIgnore String[]** - Name prefixes to ignore during
+                                                deleting names in given scope.
+
+                **returns {Object}**          - The isolated scope.
             ###
-            variables = []
-            $.each window.location.search.substring(1).split('&'), (
-                key, value
-            ) ->
-                keyValuePair = value.split('=')
-                key = window.decodeURIComponent keyValuePair[0]
-                value = window.decodeURIComponent keyValuePair[1]
-                variables.push key
-                variables[key] = value
-            if $.type(key) is 'string'
-                if key in variables
-                    return variables[key]
-                else
-                    return undefined
-            variables
+            for name, object of scope
+                if prefixesToIgnore.indexOf(name.charAt 0) is -1 and [
+                    'this', 'constructor'
+                ].indexOf(name) is -1 and not scope.hasOwnProperty name
+                    # NOTE: Delete ("delete $scope[name]") doesn't destroy the
+                    # automatic lookup to parent scope.
+                    scope[name] = undefined
+            scope
         determineUniqueScopeName: (prefix='callback', scope=window) ->
             ###
                 Generates a unique function name needed for jsonp requests.
@@ -635,7 +699,7 @@ main = ($) ->
 
         # endregion
 
-        # region function handling
+        # region function
 
         getMethod: (method, scope=this, additionalArguments...) ->
             ###
@@ -668,8 +732,7 @@ main = ($) ->
                 var parameter = this.argumentsObjectToArray(arguments);
             ###
             parameter = this.argumentsObjectToArray arguments
-            if($.type(method) is 'string' and
-               $.type(scope) is 'object')
+            if $.type(method) is 'string' and $.type(scope) is 'object'
                 return ->
                     if not scope[method]
                         $.error(
@@ -684,10 +747,39 @@ main = ($) ->
             parameter.unshift scope
             parameter.unshift method
             $.proxy.apply $, parameter
+        identity: (value) ->
+            ###
+                Implements the identity function.
+
+                **value {Object}**   - A value to return.
+
+                **returns {Object}** - Returns the given value.
+            ###
+            value
+        invertArrayFilter: (filter) ->
+            ###
+                Inverted filter helper to inverse each given filter.
+
+                **filter {Function}**  - A function that filters an array.
+
+                **returns {Function}** - The inverted filter.
+            ###
+            (data) ->
+                if data
+                    filteredData = filter.apply this, arguments
+                    result = []
+                    if filteredData.length
+                        for date in data
+                            if date not in filteredData
+                                result.push date
+                    else
+                        result = data
+                    return result
+                data
 
         # endregion
 
-        # region event handling
+        # region event
 
         debounce: (
             eventFunction, thresholdInMilliseconds=600, additionalArguments...
@@ -696,7 +788,8 @@ main = ($) ->
                 Prevents event functions from triggering to often by defining a
                 minimal span between each function call. Additional arguments
                 given to this function will be forwarded to given event
-                function call.
+                function call. The function wrapper returns null if current
+                function will be omitted due to debounceing.
 
                 **eventFunction** {Function}         - The function to call
                                                        debounced
@@ -711,11 +804,13 @@ main = ($) ->
             lock = false
             waitingCallArguments = null
             self = this
+            timeoutID = null
             ->
                 parameter = self.argumentsObjectToArray arguments
                 if lock
                     waitingCallArguments = parameter.concat(
                         additionalArguments or [])
+                    null
                 else
                     lock = true
                     timeoutID = window.setTimeout (=>
@@ -726,6 +821,7 @@ main = ($) ->
                     ), thresholdInMilliseconds
                     eventFunction.apply this, parameter.concat(
                         additionalArguments or [])
+                timeoutID
         fireEvent: (
             eventName, callOnlyOptionsMethod=false, scope=this,
             additionalArguments...
@@ -784,7 +880,136 @@ main = ($) ->
 
         # endregion
 
-        # region array handling
+        # region object
+
+        forEachSorted: (object, iterator, context) ->
+            ###
+                Iterates given objects own properties in sorted fashion. For
+                each key value pair given iterator function will be called with
+                value and key as arguments.
+
+                **object {Object}**     - Object to iterate.
+
+                **iterator {Function}** - Function to execute for each key
+                                          value pair. Value will be the first
+                                          and key will be the second argument.
+
+                **context {Object}**    - The "this" binding for given iterator
+                                          function.
+
+                **returns {Object[]}**  - List of given sorted keys.
+            ###
+            keys = this.sort object
+            for key in keys
+                iterator.call context, object[key], key
+            keys
+        sort: (object) ->
+            ###
+                Sort given objects keys.
+
+                **object {Object}**    - Object which keys should be sorted.
+
+                **returns {Object[]}** - Sorted list of given keys.
+            ###
+            isArray = $.isArray object
+            keys = []
+            for key, value of object
+                key = window.parseInt(key) if isArray
+                if object.hasOwnProperty key
+                    keys.push key
+            keys.sort()
+        equals: (
+            firstValue, secondValue, properties=null, deep=-1
+            exceptionPrefixes=['$', '_'], ignoreFunctions=true
+        ) ->
+            ###
+                Returns true if given items are equal for given property list.
+                If property list isn't set all properties will be checked. All
+                keys which starts with one of the exception prefixes will be
+                omitted.
+
+                **firstValue {Mixed}**           - First object to compare.
+
+                **secondValue {Mixed}**          - Second object to compare.
+
+                **properties {String[]}**        - Property names to check.
+                                                   Check all if "null" is
+                                                   selected (default).
+
+                **deep {Integer}**               - Recursion depth negative
+                                                   values means infinitely deep
+                                                   (default).
+
+                **exceptionPrefixes {String[]}** - Property prefixes which
+                                                   indicates properties to
+                                                   ignore.
+
+                **ignoreFunctions {Boolean}* *   - Indicates weather functions
+                                                   have to be identical to
+                                                   interpret is as equal.
+                                                   If set to "true" two
+                                                   functions will be assumed to
+                                                   be equal (default).
+
+                **returns {Boolean}**            - "true" if both objects are
+                                                   equal and "false" otherwise.
+            ###
+            if(
+                ignoreFunctions and $.isFunction(firstValue) and $.isFunction(
+                    secondValue
+                ) or firstValue is secondValue or this.numberIsNotANumber(
+                    firstValue
+                ) and this.numberIsNotANumber(secondValue) or
+                firstValue instanceof window.RegExp and
+                secondValue instanceof window.RegExp and
+                firstValue.toString() is secondValue.toString() or
+                firstValue instanceof window.Date and
+                secondValue instanceof window.Date and (
+                    window.isNaN(firstValue.getTime()) and
+                    window.isNaN(secondValue.getTime()) or
+                    not window.isNaN(firstValue.getTime()) and
+                    not window.isNaN(secondValue.getTime()) and
+                    firstValue.getTime() is secondValue.getTime()
+                )
+            )
+                return true
+            if $.isPlainObject(firstValue) and $.isPlainObject(
+                secondValue
+            ) and not (
+                firstValue instanceof window.RegExp or
+                secondValue instanceof window.RegExp
+            ) or $.isArray(firstValue) and $.isArray(secondValue)
+                equal = true
+                for [first, second] in [[firstValue, secondValue], [
+                    secondValue, firstValue
+                ]]
+                    firstIsArray = $.isArray first
+                    return false if firstIsArray and (not $.isArray(
+                        second
+                    )) or first.length isnt second.length
+                    $.each first, (key, value) =>
+                        if not firstIsArray
+                            if(
+                                not equal or properties? and
+                                key not in properties
+                            )
+                                return
+                            for exceptionPrefix in exceptionPrefixes
+                                if this.stringStartsWith(
+                                    key.toString(), exceptionPrefix
+                                )
+                                    return
+                        if deep isnt 0 and not this.equals(
+                            value, second[key], properties, deep - 1
+                            exceptionPrefixes
+                        )
+                            equal = false
+                return equal
+            false
+
+        # endregion
+
+        # region array
 
         argumentsObjectToArray: (argumentsObject) ->
             ###
@@ -797,41 +1022,687 @@ main = ($) ->
                                                elements in given arguments
                                                object.
             ###
-            Array.prototype.slice.call argumentsObject
+            window.Array.prototype.slice.call argumentsObject
+        arrayUnique: (data) ->
+            ###
+                Makes all values in given iterable unique by removing
+                duplicates (The first occurrences will be left).
+
+                **data {Object}**    - Array like object.
+
+                **returns {Object}** - Sliced version of given object.
+            ###
+            result = []
+            for index, value of data
+                result.push(value) if value not in result
+            result
+        arrayAggregatePropertyIfEqual: (data, propertyName, defaultValue='') ->
+            ###
+                Summarizes given property of given item list.
+
+                **data {Object[]}**       - Array of objects with given
+                                            property name.
+
+                **propertyName {String}** - Property name to summarize.
+
+                **defaultValue {Mixed}**  - Value to return if property values
+                                            doesn't match.
+            ###
+            result = defaultValue
+            if data?.length and data[0][propertyName]?
+                result = data[0][propertyName]
+                for item in data
+                    if item[propertyName] isnt result
+                        return defaultValue
+            result
+        arrayDeleteEmptyItems: (data, propertyNames=[]) ->
+            ###
+                Deletes every item witch has only empty attributes for given
+                property names. If given property names are empty each
+                attribute will be considered. The empty string, "null" and
+                "undefined" will be interpreted as empty.
+
+                **data {Object[]}**          - Data to filter.
+
+                **propertyNames {String[]}** - Properties to consider.
+
+                **returns {Object[]}**       - Given data without empty items.
+            ###
+            return data if not data?
+            result = []
+            for item in data
+                empty = true
+                for propertyName, value of item
+                    if value not in ['', null, undefined] and (
+                        not propertyNames.length or
+                        propertyName in propertyNames
+                    )
+                        empty = false
+                        break
+                result.push(item) if not empty
+            result
+        arrayExtract: (data, propertyNames) ->
+            ###
+                Extracts all properties from all items wich occur in given
+                property names.
+
+                **data {Object[]}**          - Data where each item should be
+                                               sliced.
+
+                **propertyNames {String[]}** - Property names to extract.
+
+                **returns {Object[]}**       - Data with sliced items.
+            ###
+            for item in data
+                for attributeName of item
+                    if attributeName not in propertyNames
+                        delete item[attributeName]
+            data
+        arrayExtractIfMatches: (data, regularExpression) ->
+            ###
+                Extracts all values which matches given regular expression.
+
+                **data {String[]}**            - Data to filter.
+
+                **regularExpression {String}** - Pattern to match for.
+
+                **returns {String[]}**         - Filtered data.
+            ###
+            result = []
+            $.each data, (index, value) ->
+                if (new window.RegExp regularExpression).test value
+                    result.push value
+            result
+        arrayExtractIfPropertyExists: (data, propertyName) ->
+            ###
+                Filters given data if given property is set or not.
+
+                **data {Object[]}**       - Data to filter.
+
+                **propertyName {String}** - Property name to check for
+                                            existence.
+
+                **returns {Object[]}**    - Given data without the items which
+                                            doesn't have specified property.
+            ###
+            if data and propertyName
+                result = []
+                for item in data
+                    exists = false
+                    for key, value of item
+                        if key is propertyName and value?
+                            exists = true
+                            break
+                    result.push(item) if exists
+                return result
+            data
+        arrayExtractIfPropertyMatches: (data, propertyPattern) ->
+            ###
+                Extract given data where specified property value matches given
+                patterns.
+
+                **data {Object[]}**          - Data to filter.
+
+                **propertyPattern {Object}** - Mapping of property names to
+                                               pattern.
+
+                **returns {Object[]}**       - Filtered data.
+            ###
+            if data and propertyPattern
+                result = []
+                for item in data
+                    matches = true
+                    for key, pattern of propertyPattern
+                        if not window.RegExp(pattern).test item[key]
+                            matches = false
+                            break
+                    result.push(item) if matches
+                return result
+            data
+        arrayIntersect: (firstSet, secondSet, keys=[], strict=true) ->
+            ###
+                Determines all objects which exists in "firstSet" and in
+                "secondSet". Object key which will be compared are given by
+                "keys". If an empty array is given each key will be compared.
+                If an object is given corresponding initial data key will be
+                mapped to referenced new data key.
+
+                **firstSet {Mixed[]}**     - Referenced data to check for.
+
+                **secondSet {Mixed[]}**    - Data to check for existence.
+
+                **keys {Object|String[]}** - Keys to define equality.
+
+                **strict {Boolean}**       - The strict parameter indicates
+                                             weather "null" and "undefined"
+                                             should be interpreted as equal
+                                             (takes only effect if given keys
+                                             aren't empty).
+
+                **returns {Mixed[]} **     - Data which does exit in given
+                                             initial data.
+            ###
+            containingData = []
+            for initialItem in firstSet
+                if $.isPlainObject initialItem
+                    exists = false
+                    for newItem in secondSet
+                        exists = true
+                        iterateGivenKeys = $.isPlainObject(keys) or keys.length
+                        if not iterateGivenKeys
+                            keys = initialItem
+                        $.each (keys), (firstSetKey, secondSetKey) ->
+                            if $.isArray keys
+                                firstSetKey = secondSetKey
+                            else if not iterateGivenKeys
+                                secondSetKey = firstSetKey
+                            if(
+                                newItem[secondSetKey] isnt
+                                initialItem[firstSetKey] and (
+                                    strict or (
+                                        [null, undefined].indexOf(
+                                            newItem[secondSetKey]
+                                        ) is -1 or
+                                        [null, undefined].indexOf(
+                                            initialItem[firstSetKey]
+                                        ) is -1))
+                            )
+                                exists = false
+                                return false
+                        break if exists
+                else
+                    exists = secondSet.indexOf(initialItem) isnt -1
+                containingData.push(initialItem) if exists
+            containingData
+        arrayMakeRange: (range, step=1) ->
+            ###
+                Creates a list of items within given range.
+
+                **range {Integer[]}**   - Array of lower and upper bounds. If
+                                          only one value is given lower bound
+                                          will be assumed to be zero. Both
+                                          integers have to be positive and will
+                                          be contained in the resulting array.
+
+                **step {Integer}**      - Space between two consecutive values.
+
+                **returns {Integer[]}** - Produced array of integers.
+            ###
+            if range.length is 1
+                index = 0
+                higherBound = window.parseInt range[0]
+            else if range.length is 2
+                index = window.parseInt range[0]
+                higherBound = window.parseInt range[1]
+            else
+                return range
+            result = [index]
+            while index <= higherBound - step
+                index += step
+                result.push index
+            return result
+        arraySumUpProperty: (data, propertyName) ->
+            ###
+                Sums up given property of given item list.
+
+                **data {Object[]}**        - The objects to with the given
+                                             property to sum up.
+
+                **propertyNames {String}** - Property name to sum up its value.
+
+                **returns {Number}**       - The aggregated value.
+            ###
+            result = 0
+            if data?.length
+                for item in data
+                    result += window.parseFloat item[propertyName] or 0
+            result
+        arrayAppendAdd: (item, target, name, checkIfExists=true) ->
+            ###
+                Adds an item to another item as array connection (many to one).
+
+                **item {Object}**           - Item where the item should be
+                                              appended to.
+
+                **target {Object}**         - Target to add to given item.
+
+                **name {String}**           - Name of the target connection.
+
+                **checkIfExists {Boolean}** - Indicates if duplicates are
+                                              allowed in resulting list (will
+                                              result in linear runtime instead
+                                              of constant one).
+
+                **returns {Object}** - Item with the appended target.
+            ###
+            if item.hasOwnProperty name
+                if not (checkIfExists and target in item[name])
+                    item[name].push target
+            else
+                item[name] = [target]
+            item
+        arrayRemove: (list, target, strict=false) ->
+            ###
+                Removes given target on given list.
+
+                **list {Object[]}**    - Array to splice.
+
+                **target {Object}**    - Target to remove from given list.
+
+                **strict {Boolean}**   - Indicates weather to fire an exception
+                                         if given target doesn't exists given
+                                         list.
+
+                **returns {Object[]}** - Item with the appended target.
+            ###
+            if list? or strict
+                index = list.indexOf target
+                if index is -1
+                    if strict
+                        throw window.Error(
+                            "Given target doesn't exists in given list.")
+                else
+                    list.splice index, 1
+            list
 
         # endregion
 
-        # region number handling
+        # region string
 
-        round: (number, digits=0) ->
+        ## region url handling
+
+        stringEncodeURIComponent: (url, encodeSpaces) ->
             ###
-                Rounds a given number accurate to given number of digits.
+                This method is intended for encoding *key* or *value* parts of
+                query component. We need a custom method because
+                "window.encodeURIComponent()" is too aggressive and encodes
+                stuff that doesn't have to be encoded per
+                "http://tools.ietf.org/html/rfc3986:"
 
-                **number {Float}**   - The number to round.
+                **url {String}**           - URL to encode.
 
-                **digits {Integer}** - The number of digits after comma.
+                **encodeSpaces {Boolean}** - Indicates weather given url should
+                                             encode whitespaces as "+" or
+                                             "%20".
 
-                **returns {Float}**  - Returns the rounded number.
+                **return {String}**        - Encoded given url.
             ###
-            Math.round(number * Math.pow 10, digits) / Math.pow 10, digits
-
-        # endregion
-
-        # region string manipulating
-
-        stringStartsWith: (string, searchString) ->
+            window.encodeURIComponent(url).replace(/%40/gi, '@').replace(
+                /%3A/gi, ':'
+            ).replace(/%24/g, '$').replace(/%2C/gi, ',').replace(
+                /%20/g, if encodeSpaces then '%20' else '+')
+        stringAddSeparatorToPath: (path, pathSeparator='/') ->
             ###
-                Checks weather given string starts with given search string.
+                Appends a path selector to the given path if there isn't one
+                yet.
 
-                **string {String}**        - String to search in.
+                **path {String}**          - The path for appending a selector.
 
-                **searchString {String}**  - String to search for.
+                **pathSeparator {String}** - The selector for appending to
+                                             path.
 
-                **returns {String}**       - Returns "true" if given string
-                                             starts with given search string
-                                             and "false" otherwise.
+                **returns {String}**       - The appended path.
             ###
-            string.indexOf(searchString) is 0
+            path = $.trim path
+            if path.substr(-1) isnt pathSeparator and path.length
+                return path + pathSeparator
+            path
+        stringHasPathPrefix: (
+            prefix='/admin', path=window.location.pathname, separator='/'
+        ) ->
+            ###
+                Checks if given path has given path prefix.
+
+                **prefix {String}**    - Path prefix to search for.
+
+                **path {String}**      - Path to search in.
+
+                **separator {String}** - Delimiter to use in path (default is
+                                         the posix conform slash).
+
+                **returns {Boolean}**  - "true" if given prefix occur and
+                                         "false" otherwise.
+            ###
+            return false if not prefix?
+            if not this.stringEndsWith prefix, separator
+                prefix += separator
+            path is prefix.substring(
+                0, prefix.length - separator.length
+            ) or this.stringStartsWith path, prefix
+        stringGetDomainName: (
+            url=window.location.href, fallback=window.location.hostname
+        ) ->
+            ###
+                Extracts domain name from given url. If no explicit domain name
+                given current domain name will be assumed. If no parameter
+                given current domain name will be determined.
+
+                **url** {String}      - The url to extract domain from.
+
+                **fallback** {String} - The fallback host name if no one exits
+                                        in given url (default is current
+                                        hostname)
+
+                **returns {String}** - Extracted domain.
+            ###
+            result = /^([a-z]*:?\/\/)?([^/]+?)(?::[0-9]+)?(?:\/.*|$)/i.exec url
+            return result[2] if result?[2]? and result?[1]?
+            fallback
+        stringGetPortNumber: (
+            url=window.location.href, fallback=null, parameter=[]
+        ) ->
+            ###
+                Extracts port number from given url. If no explicit port number
+                given and no fallback is defined current port number will be
+                assumed for local links. For external links 80 will be assumed
+                for http protocol or 443 for https.
+
+                **url** {String}        - The url to extract port from.
+
+                **fallback {String}**   - Fallback port number if no explicit
+                                          one was found. Default is derived
+                                          from current protocol name.
+
+                **parameter {Object[]}** - Additional parameter for checking if
+                                           given url is an internal url. Given
+                                           url and this parameter will be
+                                           forwarded to the
+                                           "stringIsInternalURL()" method.
+
+                **returns {Integer}** - Extracted port number.
+            ###
+            result = /^(?:[a-z]*:?\/\/[^/]+?)?(?:[^/]+?):([0-9]+)/i.exec url
+            return window.parseInt(result[1]) if result?[1]?
+            return fallback if fallback isnt null
+            if this.stringIsInternalURL.apply(
+                this, [url].concat parameter
+            ) and window.location.port and window.parseInt window.location.port
+                return window.parseInt window.location.port
+            if this.stringGetProtocolName(url) is 'https' then 443 else 80
+        stringGetProtocolName: (
+            url=window.location.href
+            fallback=window.location.protocol.substring(
+                0, window.location.protocol.length - 1)
+        ) ->
+            ###
+                Extracts protocol name from given url. If no explicit url is
+                given, current protocol will be assumed. If no parameter
+                given current protocol number will be determined.
+
+                **url** {String}      - The url to extract protocol from.
+
+                **fallback** {String} - Fallback port to use if no protocol
+                                        exists in given url (default is current
+                                        protocol).
+
+                **returns {String}**  - Extracted protocol.
+            ###
+            result = /^([a-z]+):\/\//i.exec url
+            return result[1] if result?[1]
+            fallback
+        stringGetURLVariable: (
+            keyToGet, input, subDelimiter='$', hashedPathIndicator='!', search
+            hash=window.location.hash
+        ) ->
+            ###
+                Read a page's GET URL variables and return them as an
+                associative array and preserves ordering.
+
+                **keyToGet {String}**            - If key given the
+                                                   corresponding value is
+                                                   returned and full object
+                                                   otherwise.
+
+                **input {String}**               - An alternative input to the
+                                                   url search parameter. If "#"
+                                                   is given the complete
+                                                   current hash tag will be
+                                                   interpreted as url and
+                                                   search parameter will be
+                                                   extracted from there. If "&"
+                                                   is given classical search
+                                                   parameter and hash parameter
+                                                   will be taken in account. If
+                                                   a search string is given
+                                                   this will be analyzed. The
+                                                   default is to take given
+                                                   search part into account.
+
+                **subDelimiter {String}**        - Defines which sequence
+                                                   indicates the start of
+                                                   parameter in a hash part of
+                                                   the url.
+
+                **hashedPathIndicator {String}** - If defined and given hash
+                                                   starts with this indicator
+                                                   given hash will be
+                                                   interpreted as path
+                                                   containing search and hash
+                                                   parts.
+
+                **search {String}**              - Search part to take into
+                                                   account defaults to current
+                                                   url search part.
+
+                **hash {String}**                - Hash part to take into
+                                                   account defaults to current
+                                                   url hash part.
+
+                **returns {Mixed}**              - Returns the current get
+                                                   array or requested value. If
+                                                   requested key doesn't exist
+                                                   "undefined" is returned.
+            ###
+
+            # region set search and hash
+
+            if not search?
+                hash = '#' if not hash
+                hash = hash.substring '#'.length
+                if hashedPathIndicator and this.stringStartsWith(
+                    hash, hashedPathIndicator
+                )
+                    subHashStartIndex = hash.indexOf '#'
+                    if subHashStartIndex is -1
+                        pathAndSearch = hash.substring(
+                            hashedPathIndicator.length)
+                        hash = ''
+                    else
+                        pathAndSearch = hash.substring(
+                            hashedPathIndicator.length, subHashStartIndex)
+                        hash = hash.substring subHashStartIndex
+                    subSearchStartIndex = pathAndSearch.indexOf '?'
+                    if subSearchStartIndex is -1
+                        search = ''
+                    else
+                        search = pathAndSearch.substring subSearchStartIndex
+                else
+                    search = window.location.search
+            input = search if not input
+
+            # endregion
+
+            # region determine data from search and hash if specified
+
+            both = input is '&'
+            if both or input is '#'
+                decodedHash = decodeURIComponent hash
+                subDelimiterPosition = decodedHash.indexOf subDelimiter
+                if subDelimiterPosition is -1
+                    input = ''
+                else
+                    input = decodedHash.substring subDelimiterPosition
+                    if this.stringStartsWith input, subDelimiter
+                        input = input.substring subDelimiter.length
+            else if this.stringStartsWith input, '?'
+                input = input.substring '?'.length
+            data = if input then input.split '&' else []
+            search = search.substring '?'.length
+            data = data.concat(search.split '&') if both and search
+
+            # endregion
+
+            # region construct data structure
+
+            variables = []
+            $.each data, (key, value) ->
+                keyValuePair = value.split '='
+                key = window.decodeURIComponent keyValuePair[0]
+                value = window.decodeURIComponent keyValuePair[1]
+                variables.push key
+                variables[key] = value
+
+            # endregion
+
+            return variables[keyToGet] if keyToGet?
+            variables
+        stringIsInternalURL: (firstURL, secondURL=window.location.href) ->
+            ###
+                Checks if given url points to another domain than second given
+                url. If no second given url provided current url will be
+                assumed.
+
+                **firstURL {String}**  - URL to check against second url.
+
+                **secondURL {String}** - URL to check against first url.
+
+                **returns {Boolean}**  - Returns "true" if given first url has
+                                         same domain as given second (or
+                                         current) or.
+            ###
+            explicitDomainName = this.stringGetDomainName firstURL, false
+            explicitProtocolName = this.stringGetProtocolName firstURL, false
+            explicitPortNumber = this.stringGetPortNumber firstURL, false
+            (
+                not explicitDomainName or
+                explicitDomainName is this.stringGetDomainName secondURL
+            ) and (
+                not explicitProtocolName or
+                explicitProtocolName is this.stringGetProtocolName secondURL
+            ) and (
+                not explicitPortNumber or
+                explicitPortNumber is this.stringGetPortNumber secondURL)
+        stringNormalizeURL: (url) ->
+            ###
+                Normalized given website url.
+
+                **url {String}**     - Uniform resource locator to normalize.
+
+                **returns {String}** - Normalized result.
+            ###
+            if url
+                url = $.trim url.replace(/^:?\/+/, '').replace /\/+$/, ''
+                if this.stringStartsWith url, 'http'
+                    return url
+                return "http://#{url}"
+            return ''
+        stringRepresentURL: (url) ->
+            ###
+                Represents given website url.
+
+                **url {String}**     - Uniform resource locator to represent.
+
+                **returns {String}** - Represented result.
+            ###
+            if url
+                return $.trim url.replace(/^(https?)?:?\/+/, '').replace(
+                    /\/+$/, '')
+            ''
+
+        ## endregion
+
+        stringCamelCaseToDelimited: (
+            string, delimiter='-', abbreviations=null
+        ) ->
+            ###
+                Converts a camel cased string to its delimited string version.
+
+                **string {String}**          - The string to format.
+
+                **delimiter {String}**       - Delimiter string
+
+                **abbreviations {String[]}** - Collection of shortcut words to
+                                               represent upper cased.
+
+                **returns {String}**         - The formatted string.
+            ###
+            abbreviations = this.abbreviations if not abbreviations?
+            escapedDelimiter = this.stringGetRegularExpressionValidated(
+                delimiter)
+            if abbreviations.length
+                abbreviationPattern = ''
+                for abbreviation in abbreviations
+                    abbreviationPattern += '|' if abbreviationPattern
+                    abbreviationPattern += abbreviation.toUpperCase()
+                string = string.replace new window.RegExp(
+                    "(#{abbreviationPattern})(#{abbreviationPattern})", 'g'
+                ), "$1#{delimiter}$2"
+            string = string.replace new window.RegExp(
+                "([^#{escapedDelimiter}])([A-Z][a-z]+)", 'g'
+            ), "$1#{delimiter}$2"
+            string.replace(new window.RegExp(
+                '([a-z0-9])([A-Z])', 'g'
+            ), "$1#{delimiter}$2").toLowerCase()
+        stringCapitalize: (string) ->
+            ###
+                Converts a string to its capitalize representation.
+
+                **string {String}**  - The string to format.
+
+                **returns {String}** - The formatted string.
+            ###
+            string.charAt(0).toUpperCase() + string.substring 1
+        stringDelimitedToCamelCase: (
+            string, delimiter='-', abbreviations=null
+            preserveWrongFormattedAbbreviations=false
+        ) ->
+            ###
+                Converts a delimited string to its camel case representation.
+
+                **string {String}**          - The string to format.
+
+                **delimiter {String}**       - Delimiter string
+
+                **abbreviations {String[]}** - Collection of shortcut words to
+                                               represent upper cased.
+
+                **preserveWrongFormattedAbbreviations {Boolean}**
+                                             - If set to "True" wrong formatted
+                                               camel case abbreviations will
+                                               be ignored.
+
+                **returns {String}**         - The formatted string.
+            ###
+            escapedDelimiter = this.stringGetRegularExpressionValidated(
+                delimiter)
+            abbreviations = this.abbreviations if not abbreviations?
+            if preserveWrongFormattedAbbreviations
+                abbreviationPattern = abbreviations.join '|'
+            else
+                abbreviationPattern = ''
+                for abbreviation in abbreviations
+                    abbreviationPattern += '|' if abbreviationPattern
+                    abbreviationPattern +=
+                        "#{this.stringCapitalize abbreviation}|#{abbreviation}"
+            stringStartsWithDelimiter = false
+            if this.stringStartsWith string, delimiter
+                string = string.substring delimiter.length
+                stringStartsWithDelimiter = true
+            string = string.replace new window.RegExp(
+                "(#{escapedDelimiter})(#{abbreviationPattern})" +
+                "(#{escapedDelimiter}|$)", 'g'
+            ), (fullMatch, before, abbreviation, after) ->
+                return (
+                    before + abbreviation.toUpperCase() + after
+                ) if fullMatch
+                fullMatch
+            string = string.replace new window.RegExp(
+                "#{escapedDelimiter}([a-zA-Z0-9])", 'g'
+            ), (fullMatch, firstLetter) ->
+                return firstLetter.toUpperCase() if fullMatch
+                fullMatch
+            string = (delimiter + string) if stringStartsWithDelimiter
+            string
         stringEndsWith: (string, searchString) ->
             ###
                 Checks weather given string ends with given search string.
@@ -864,36 +1735,16 @@ main = ($) ->
                 string = string.replace(
                     new RegExp("\\{#{key}\\}", 'gm'), value))
             string
-        stringCamelCaseToDelimited: (string, delimiter='-') ->
+        stringGetRegularExpressionValidated: (string) ->
             ###
-                Converts a camel case string to a string with given delimiter
-                between each camel case separation.
+                Validates the current string for using in a regular expression
+                pattern. Special regular expression chars will be escaped.
 
-                **string {String}**    - The string to format.
+                **string {String}**            - The string to format.
 
-                **delimiter {String}** - The string to put between each camel
-                                         case separation.
-
-                **returns {String}**   - The formatted string.
+                **returns {String}**           - The formatted string.
             ###
-            string.replace(new window.RegExp('(.)([A-Z])', 'g'), ->
-                arguments[1] + delimiter + arguments[2]
-            ).toLowerCase()
-        stringDelimitedToCamelCase: (string, delimiter='-') ->
-            ###
-                Converts a delimited string to a string with any none
-                alphanumeric value to its camel cased version.
-
-                **string {String}**    - The string to format.
-
-                **returns {String}**   - The formatted string.
-            ###
-            string = string.replace(
-                new window.RegExp('[^a-zA-Z0-9]([a-z])', 'g'), (
-                    fullMatch, firstLetter
-                ) -> firstLetter.toUpperCase()
-            ).replace window.RegExp('[^a-zA-Z0-9]', 'g'), ''
-            this.stringLowerCase string
+            string.replace /([\\|.*$^+[\]()?\-{}])/g, '\\$1'
         stringLowerCase: (string) ->
             ###
                 Converts a string to its lower case representation.
@@ -903,31 +1754,329 @@ main = ($) ->
                 **returns {String}** - The formatted string.
             ###
             string.charAt(0).toLowerCase() + string.substring 1
-        stringCapitalize: (string) ->
+        stringMark: (
+            target, mark, marker='<span class="tools-mark">{1}</span>'
+            caseSensitiv=false
+        ) ->
             ###
-                Converts a string to its capitalize representation.
+                Wraps given mark strings in given target with given marker.
 
-                **string {String}**  - The string to format.
+                **target {String}**         - String to search for marker.
 
-                **returns {String}** - The formatted string.
+                **mark {String}**           - String to search in target for.
+
+                **marker {String}**         - HTML template string to mark.
+
+                **caseSensitive {Boolean}** - Indicates weather case takes a
+                                              role during searching.
+
+                **returns {String}**        - Processed result.
             ###
-            string.charAt(0).toUpperCase() + string.substring 1
-        stringAddSeparatorToPath: (path, pathSeparator='/') ->
+            target = $.trim target
+            mark = $.trim mark
+            if target and mark
+                offset = 0
+                searchTarget = target
+                searchTarget = searchTarget.toLowerCase() if not caseSensitiv
+                mark = mark.toLowerCase() if not caseSensitiv
+                while true
+                    index = searchTarget.indexOf mark, offset
+                    if index is -1
+                        break
+                    else
+                        target = target.substring(
+                            0, index
+                        ) + this.stringFormat(
+                            marker, target.substr index, mark.length
+                        ) + target.substring index + mark.length
+                        searchTarget = target.toLowerCase() if not caseSensitiv
+                        offset = index + (
+                            marker.length - '{1}'.length
+                        ) + mark.length
+            target
+        stringMD5: (value) ->
             ###
-                Appends a path selector to the given path if there isn't one
-                yet.
+                Implements the md5 hash algorithm.
 
-                **path {String}**          - The path for appending a selector.
+                **value {String}**   - Value to calculate md5 hash for.
 
-                **pathSeparator {String}** - The selector for appending to
-                                             path.
-
-                **returns {String}**       - The appended path.
+                **returns {String}** - Calculated md5 hash value.
             ###
-            path = $.trim path
-            if path.substr(-1) isnt pathSeparator and path.length
-                return path + pathSeparator
-            path
+            rotateLeft = (lValue, iShiftBits) ->
+                (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits))
+
+            addUnsigned = (lX, lY) ->
+                lX8 = (lX & 0x80000000)
+                lY8 = (lY & 0x80000000)
+                lX4 = (lX & 0x40000000)
+                lY4 = (lY & 0x40000000)
+                lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF)
+                if lX4 & lY4
+                    return lResult ^ 0x80000000 ^ lX8 ^ lY8
+                if lX4 | lY4
+                    if lResult & 0x40000000
+                        return lResult ^ 0xC0000000 ^ lX8 ^ lY8
+                    else
+                        return lResult ^ 0x40000000 ^ lX8 ^ lY8
+                else
+                    return lResult ^ lX8 ^ lY8
+
+            _F = (x, y, z) -> (x & y) | ((~x) & z)
+            _G = (x, y, z) -> (x & z) | (y & (~z))
+            _H = (x, y, z) -> x ^ y ^ z
+            _I = (x, y, z) -> y ^ (x | (~z))
+
+            _FF = (a, b, c, d, x, s, ac) ->
+                a = addUnsigned a, addUnsigned addUnsigned(_F(b, c, d), x), ac
+                addUnsigned rotateLeft(a, s), b
+
+            _GG = (a, b, c, d, x, s, ac) ->
+                a = addUnsigned a, addUnsigned addUnsigned(_G(b, c, d), x), ac
+                addUnsigned rotateLeft(a, s), b
+
+            _HH = (a, b, c, d, x, s, ac) ->
+                a = addUnsigned a, addUnsigned addUnsigned(_H(b, c, d), x), ac
+                addUnsigned rotateLeft(a, s), b
+
+            _II = (a, b, c, d, x, s, ac) ->
+                a = addUnsigned a, addUnsigned addUnsigned(_I(b, c, d), x), ac
+                addUnsigned rotateLeft(a, s), b
+
+            convertToWordArray = (value) ->
+                lMessageLength = value.length
+                lNumberOfWords_temp1 = lMessageLength + 8
+                lNumberOfWords_temp2 = (lNumberOfWords_temp1 - (
+                    lNumberOfWords_temp1 % 64)) / 64
+                lNumberOfWords = (lNumberOfWords_temp2 + 1) * 16
+                lWordArray = new Array(lNumberOfWords - 1)
+                lBytePosition = 0
+                lByteCount = 0
+                while lByteCount < lMessageLength
+                    lWordCount = (lByteCount - (lByteCount % 4)) / 4
+                    lBytePosition = (lByteCount % 4) * 8
+                    lWordArray[lWordCount] = (lWordArray[lWordCount] | (
+                        value.charCodeAt(lByteCount) << lBytePosition))
+                    lByteCount += 1
+                lWordCount = (lByteCount - (lByteCount % 4)) / 4
+                lBytePosition = (lByteCount % 4) * 8
+                lWordArray[lWordCount] = lWordArray[lWordCount] | (
+                    0x80 << lBytePosition)
+                lWordArray[lNumberOfWords - 2] = lMessageLength << 3
+                lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29
+                lWordArray
+
+            wordToHex = (lValue) ->
+                wordToHexValue = ''
+                wordToHexValueTemp = ''
+                lCount = 0
+                while lCount <= 3
+                    lByte = (lValue >>> (lCount * 8)) & 255
+                    wordToHexValueTemp = "0" + lByte.toString(16)
+                    wordToHexValue =
+                        wordToHexValue + wordToHexValueTemp.substr(
+                            wordToHexValueTemp.length - 2, 2)
+                    lCount += 1
+                wordToHexValue
+
+            x = []
+            S11 = 7
+            S12 = 12
+            S13 = 17
+            S14 = 22
+            S21 = 5
+            S22 = 9
+            S23 = 14
+            S24 = 20
+            S31 = 4
+            S32 = 11
+            S33 = 16
+            S34 = 23
+            S41 = 6
+            S42 = 10
+            S43 = 15
+            S44 = 21
+
+            x = convertToWordArray value
+            a = 0x67452301
+            b = 0xEFCDAB89
+            c = 0x98BADCFE
+            d = 0x10325476
+
+            xl = x.length
+
+            k = 0
+            while k < xl
+                AA = a
+                BB = b
+                CC = c
+                DD = d
+                a = _FF a, b, c, d, x[k + 0], S11, 0xD76AA478
+                d = _FF d, a, b, c, x[k + 1], S12, 0xE8C7B756
+                c = _FF c, d, a, b, x[k + 2], S13, 0x242070DB
+                b = _FF b, c, d, a, x[k + 3], S14, 0xC1BDCEEE
+                a = _FF a, b, c, d, x[k + 4], S11, 0xF57C0FAF
+                d = _FF d, a, b, c, x[k + 5], S12, 0x4787C62A
+                c = _FF c, d, a, b, x[k + 6], S13, 0xA8304613
+                b = _FF b, c, d, a, x[k + 7], S14, 0xFD469501
+                a = _FF a, b, c, d, x[k + 8], S11, 0x698098D8
+                d = _FF d, a, b, c, x[k + 9], S12, 0x8B44F7AF
+                c = _FF c, d, a, b, x[k + 10], S13, 0xFFFF5BB1
+                b = _FF b, c, d, a, x[k + 11], S14, 0x895CD7BE
+                a = _FF a, b, c, d, x[k + 12], S11, 0x6B901122
+                d = _FF d, a, b, c, x[k + 13], S12, 0xFD987193
+                c = _FF c, d, a, b, x[k + 14], S13, 0xA679438E
+                b = _FF b, c, d, a, x[k + 15], S14, 0x49B40821
+                a = _GG a, b, c, d, x[k + 1], S21, 0xF61E2562
+                d = _GG d, a, b, c, x[k + 6], S22, 0xC040B340
+                c = _GG c, d, a, b, x[k + 11], S23, 0x265E5A51
+                b = _GG b, c, d, a, x[k + 0], S24, 0xE9B6C7AA
+                a = _GG a, b, c, d, x[k + 5], S21, 0xD62F105D
+                d = _GG d, a, b, c, x[k + 10], S22, 0x2441453
+                c = _GG c, d, a, b, x[k + 15], S23, 0xD8A1E681
+                b = _GG b, c, d, a, x[k + 4], S24, 0xE7D3FBC8
+                a = _GG a, b, c, d, x[k + 9], S21, 0x21E1CDE6
+                d = _GG d, a, b, c, x[k + 14], S22, 0xC33707D6
+                c = _GG c, d, a, b, x[k + 3], S23, 0xF4D50D87
+                b = _GG b, c, d, a, x[k + 8], S24, 0x455A14ED
+                a = _GG a, b, c, d, x[k + 13], S21, 0xA9E3E905
+                d = _GG d, a, b, c, x[k + 2], S22, 0xFCEFA3F8
+                c = _GG c, d, a, b, x[k + 7], S23, 0x676F02D9
+                b = _GG b, c, d, a, x[k + 12], S24, 0x8D2A4C8A
+                a = _HH a, b, c, d, x[k + 5], S31, 0xFFFA3942
+                d = _HH d, a, b, c, x[k + 8], S32, 0x8771F681
+                c = _HH c, d, a, b, x[k + 11], S33, 0x6D9D6122
+                b = _HH b, c, d, a, x[k + 14], S34, 0xFDE5380C
+                a = _HH a, b, c, d, x[k + 1], S31, 0xA4BEEA44
+                d = _HH d, a, b, c, x[k + 4], S32, 0x4BDECFA9
+                c = _HH c, d, a, b, x[k + 7], S33, 0xF6BB4B60
+                b = _HH b, c, d, a, x[k + 10], S34, 0xBEBFBC70
+                a = _HH a, b, c, d, x[k + 13], S31, 0x289B7EC6
+                d = _HH d, a, b, c, x[k + 0], S32, 0xEAA127FA
+                c = _HH c, d, a, b, x[k + 3], S33, 0xD4EF3085
+                b = _HH b, c, d, a, x[k + 6], S34, 0x4881D05
+                a = _HH a, b, c, d, x[k + 9], S31, 0xD9D4D039
+                d = _HH d, a, b, c, x[k + 12], S32, 0xE6DB99E5
+                c = _HH c, d, a, b, x[k + 15], S33, 0x1FA27CF8
+                b = _HH b, c, d, a, x[k + 2], S34, 0xC4AC5665
+                a = _II a, b, c, d, x[k + 0], S41, 0xF4292244
+                d = _II d, a, b, c, x[k + 7], S42, 0x432AFF97
+                c = _II c, d, a, b, x[k + 14], S43, 0xAB9423A7
+                b = _II b, c, d, a, x[k + 5], S44, 0xFC93A039
+                a = _II a, b, c, d, x[k + 12], S41, 0x655B59C3
+                d = _II d, a, b, c, x[k + 3], S42, 0x8F0CCC92
+                c = _II c, d, a, b, x[k + 10], S43, 0xFFEFF47D
+                b = _II b, c, d, a, x[k + 1], S44, 0x85845DD1
+                a = _II a, b, c, d, x[k + 8], S41, 0x6FA87E4F
+                d = _II d, a, b, c, x[k + 15], S42, 0xFE2CE6E0
+                c = _II c, d, a, b, x[k + 6], S43, 0xA3014314
+                b = _II b, c, d, a, x[k + 13], S44, 0x4E0811A1
+                a = _II a, b, c, d, x[k + 4], S41, 0xF7537E82
+                d = _II d, a, b, c, x[k + 11], S42, 0xBD3AF235
+                c = _II c, d, a, b, x[k + 2], S43, 0x2AD7D2BB
+                b = _II b, c, d, a, x[k + 9], S44, 0xEB86D391
+                a = addUnsigned a, AA
+                b = addUnsigned b, BB
+                c = addUnsigned c, CC
+                d = addUnsigned d, DD
+                k += 16
+            (
+                wordToHex(a) + wordToHex(b) + wordToHex(c) + wordToHex d
+            ).toLowerCase()
+        stringNormalizePhoneNumber: (phoneNumber) ->
+            ###
+                Normalizes given phone number for automatic dialing mechanisms.
+
+                **phoneNumber {String}** - Number to normalize.
+
+                **returns {String}**     - Normalized number.
+            ###
+            if phoneNumber?
+                return "#{phoneNumber}".replace(/[^0-9]*\+/, '00').replace(
+                    /[^0-9]+/g, '')
+            ''
+        stringRepresentPhoneNumber: (phoneNumber) ->
+            ###
+                Represents given phone number. NOTE: Currently only support
+                German phone numbers.
+
+                **phoneNumber {String}** - Number to format.
+
+                **returns {String}**     - Formatted number.
+            ###
+            if phoneNumber
+                # Represent country code and leading area code zero.
+                phoneNumber = phoneNumber.replace(
+                    /^(00|\+)([0-9]+)-([0-9-]+)$/, '+$2 (0) $3')
+                # Add German country code if not exists.
+                phoneNumber = phoneNumber.replace(
+                    /^0([1-9][0-9-]+)$/, '+49 (0) $1')
+                # Separate area code from base number.
+                phoneNumber = phoneNumber.replace(
+                    /^([^-]+)-([0-9-]+)$/, '$1 / $2')
+                # Partition base number in one triple and tuples or tuples
+                # only.
+                return phoneNumber.replace /^(.*?)([0-9]+)(-?[0-9]*)$/, (
+                    match, prefix, number, suffix
+                ) -> prefix + $.trim(
+                    if number.length % 2 is 0 then number.replace(
+                        /([0-9]{2})/g, '$1 '
+                    ) else number.replace(
+                        /^([0-9]{3})([0-9]+)$/, (match, triple, rest) ->
+                            triple + ' ' + $.trim rest.replace(
+                                /([0-9]{2})/g, '$1 ')
+                    ) + suffix)
+            ''
+        stringStartsWith: (string, searchString) ->
+            ###
+                Checks weather given string starts with given search string.
+
+                **string {String}**        - String to search in.
+
+                **searchString {String}**  - String to search for.
+
+                **returns {String}**       - Returns "true" if given string
+                                             starts with given search string
+                                             and "false" otherwise.
+            ###
+            string.indexOf(searchString) is 0
+        stringDecodeHTMLEntities: (htmlString) ->
+            ###
+                Decodes all html symbols in text nodes in given html string.
+
+                **htmlString {String}** - HTML string to decode.
+
+                **returns {String}**    - Decoded html string.
+            ###
+            textareaDomNode = window.document.createElement 'textarea'
+            textareaDomNode.innerHTML = htmlString
+            textareaDomNode.value
+
+        # endregion
+
+        # region number
+
+        numberIsNotANumber: (object) ->
+            ###
+                Checks if given object is java scripts native
+                "window.Number.NaN" object.
+
+                **object {Mixed}**    - Object to Check.
+
+                **returns {Boolean}** - Returns weather given value is not a
+                                        number or not.
+            ###
+            typeof object is 'number' and window.isNaN object
+        numberRound: (number, digits=0) ->
+            ###
+                Rounds a given number accurate to given number of digits.
+
+                **number {Float}**   - The number to round.
+
+                **digits {Integer}** - The number of digits after comma.
+
+                **returns {Float}**  - Returns the rounded number.
+            ###
+            Math.round(number * Math.pow 10, digits) / Math.pow 10, digits
 
         # endregion
 
@@ -972,7 +2121,6 @@ main = ($) ->
                     value: value
             form.submit().remove()
             target.on? 'load', -> target.remove() if removeAfterLoad
-
         sendToExternalURL: (
             url, data, requestType='post', removeAfterLoad=true
         ) ->

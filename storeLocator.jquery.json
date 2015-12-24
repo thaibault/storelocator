@@ -5,7 +5,7 @@
     "author": {
         "name": "Torben Sickert",
         "email": "t.sickert@gmail.com",
-        "url": "http://thaibault.github.com"
+        "url": "http://torben.website"
     },
     "licenses": [{
         "type": "creativecommons",
@@ -17,14 +17,14 @@
     },
     "description": "google maps store locator",
     "keywords": ["map", "google", "storeLocator", "locator"],
-    "homepage": "http://thaibault.github.com/jQuery-storeLocator",
-    "docs": "http://thaibault.github.com/jQuery-storeLocator/api",
-    "demo": "http://thaibault.github.com/jQuery-storeLocator",
-    "download": "http://thaibault.github.com/jQuery-storeLocator/distributionBundle.zip",
+    "homepage": "http://torben.website/jQuery-storeLocator",
+    "docs": "http://torben.website/jQuery-storeLocator/api",
+    "demo": "http://torben.website/jQuery-storeLocator",
+    "download": "http://torben.website/jQuery-storeLocator/distributionBundle.zip",
     "bugs": "https://github.com/thaibault/jQuery-storeLocator/issues",
     "maintainers": [{
         "name": "Torben Sickert",
         "email": "t.sickert@gmail.com",
-        "url": "http://thaibault.github.com"
+        "url": "http://torben.website"
     }]
 }

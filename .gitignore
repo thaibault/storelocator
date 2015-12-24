@@ -18,6 +18,9 @@ lib
 lib64
 .sass-cache
 
+# Ignore docker nested bash generated files.
+/.bash_history
+
 # Unit test / coverage reports
 .coverage
 .tox
@@ -34,6 +37,7 @@ nosetests.xml
 # Vim temporary file
 *.swp
 .ropeproject
+.viminfo
 
 # PHPStorm and other IDE Files
 *.idea
@@ -46,7 +50,12 @@ nosetests.xml
 *~
 
 # Node Modules
-*node_modules/
+node_modules/
+.npm/
+v8flags.*
+/.cache
+/.config
+.npm-debug.log
 
 # region vim modline
 

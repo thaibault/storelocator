@@ -4,7 +4,7 @@
 # region header
 
 ###
-[Project page](https://thaibault.github.com/jQuery-storeLocator)
+[Project page](http://torben.website/jQuery-storeLocator)
 
 This plugin provides a google application interface based store locator.
 
@@ -50,7 +50,7 @@ main = ($) ->
         initialize: (options={}) ->
             ###Entry point for object orientated jQuery plugin.###
 
-    # region properties
+            # region properties
 
             # Saves last found search results.
             this.currentSearchResults = []
@@ -158,7 +158,7 @@ main = ($) ->
                         Additional move to bottom relative to the marker if an
                         info window has been opened.
                     ###
-                    additionalMoveToBottomInPixel: 100
+                    additionalMoveToBottomInPixel: 120
                     ###
                         Content to show in the info window during info window
                         load.
@@ -214,7 +214,7 @@ main = ($) ->
                 # Triggers after a marker starts to highlight.
                 onMarkerHighlighted: $.noop
 
-    # endregion
+            # endregion
 
             # Merges given options with default options recursively.
             super options
@@ -224,18 +224,26 @@ main = ($) ->
                 this.initializeMap()
             else
                 this._options.startLocation = this._options.fallbackLocation
+                # NOTE: If request is slower than the timeout parameter for
+                # jsonp request the padding function isn't set anymore so an
+                # error occurs. That's why we use our own timeout
+                # implementation.
+                loaded = false
+                window.setTimeout (=> if not loaded
+                    loaded = true
+                    this.initializeMap()
+                ), this._options.ipToLocation.timeoutInMilliseconds
                 $.ajax(
                     url: this.stringFormat(
                         this._options.ipToLocation.applicationInterfaceURL
                         document.location.protocol.substring(
                             0, document.location.protocol.length - 1
                         ), this._options.ip or ''
-                    ),
-                    timeout: this._options.ipToLocation.timeoutInMilliseconds
-                    dataType: 'jsonp'
-                ).done((currentLocation) =>
-                    this._options.startLocation = currentLocation
-                ).always =>
+                    ), dataType: 'jsonp', cache: true
+                ).always (currentLocation, textStatus) => if not loaded
+                    loaded = true
+                    if textStatus is 'success'
+                        this._options.startLocation = currentLocation
                     this.initializeMap()
             this.$domNode or this
         initializeMap: ->
@@ -305,9 +313,11 @@ main = ($) ->
                 this.initializeDataSourceSearchBox()
             # Close marker if zoom level is bigger than the aggregation.
             google.maps.event.addListener this.map, 'zoom_changed', =>
-                if(this.currentlyOpenWindow? and
-                   this.currentlyOpenWindow.isOpen and
-                   this.map.getZoom() <= this._options.markerCluster.maxZoom)
+                if(
+                    this.currentlyOpenWindow? and
+                    this.currentlyOpenWindow.isOpen and
+                    this.map.getZoom() <= this._options.markerCluster.maxZoom
+                )
                     this.currentlyOpenWindow.close()
                     this.currentlyOpenWindow.isOpen = false
             this.fireEvent 'loaded'
@@ -405,9 +415,7 @@ main = ($) ->
             this
         getUpdateSearchResultsHandler: ->
             placesService = new google.maps.places.PlacesService this.map
-            this.debounce ((
-                event
-            ) =>
+            this.debounce ((event) =>
                 for name, keyCode of this.keyCode
                     return if event?.keyCode is keyCode and name not in [
                         'DELETE', 'BACKSPACE']
@@ -498,9 +506,11 @@ main = ($) ->
                 for key in this._options.searchBox.properties
                     if (
                         marker.data[key] or marker.data[key] is 0
-                    ) and "#{marker.data[key]}".toLowerCase().indexOf(
-                        searchText.toLowerCase()
-                    ) isnt -1
+                    ) and "#{marker.data[key]}".toLowerCase().replace(
+                        /[-_&]+/g, ' '
+                    ).indexOf(searchText.toLowerCase().replace(
+                        /[-_&]+/g, ' '
+                    )) isnt -1
                         do (marker) =>
                             marker.open = (event) =>
                                 this.openMarker(
@@ -579,7 +589,7 @@ main = ($) ->
             this.currentSearchResults = searchResults.slice()
             this
         openSearchResults: (event) ->
-            ###Closes current search results.###
+            ###Opens current search results.###
             event?.stopPropagation()
             this.getUpdateSearchResultsHandler() event
             if this.resultsDomNode? and not this.resultsDomNode.hasClass(
