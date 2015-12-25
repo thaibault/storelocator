@@ -823,7 +823,7 @@ main = ($) ->
                         additionalArguments or [])
                 timeoutID
         fireEvent: (
-            eventName, callOnlyOptionsMethod=false, scope=this,
+            eventName, callOnlyOptionsMethod=false, scope=this
             additionalArguments...
         ) ->
             ###
