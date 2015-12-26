@@ -120,6 +120,11 @@ Usage
                         return {};
                     }
                 },
+                /*
+                    Additional static store properties which will be available
+                    to each store.
+                */
+                addtionalStoreProperties: {},
                 // Path prefix to search for marker icons.
                 iconPath: '/webAsset/image/storeLocator/',
                 /*
@@ -146,7 +151,7 @@ Usage
                         epresents currently used protocol and potentially given
                         ip.
                     */
-                    apiURL: '{1}://freegeoip.net/json/{2}',
+                    applicationInterfaceURL: '{1}://freegeoip.net/json/{2}',
                     /*
                         Time to wait for ip resolve. If time is up initialize
                         on given fallback location.
@@ -188,12 +193,12 @@ Usage
                         Additional move to bottom relative to the marker if an
                         info window has been opened.
                     */
-                    additionalMoveToBottomInPixel: 100,
+                    additionalMoveToBottomInPixel: 120,
                     /*
                         Content to show in the info window during info window
                         load.
                     */
-                    loadingContent: 'loading...'
+                    loadingContent: '<div class="idle">loading...</div>'
                 },
                 /*
                     If a number is given a generic search will be provided and
@@ -241,7 +246,9 @@ Usage
                 // Triggers before search result box appears.
                 onOpenSearchResults: $.noop,
                 // Triggers before search result box will be hidden.
-                onCloseSearchResults: $.noop
+                onCloseSearchResults: $.noop,
+                // Triggers after a marker starts to highlight.
+                onMarkerHighlighted: $.noop
             });
         };
     </script>
