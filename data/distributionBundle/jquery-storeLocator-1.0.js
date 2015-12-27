@@ -133,7 +133,23 @@ Version
                 Time to wait for ip resolve. If time is up initialize
                 on given fallback location.
              */
-            timeoutInMilliseconds: 5000
+            timeoutInMilliseconds: 5000,
+
+            /*
+                Defines bound withing determined locations should be.
+                If resolved location isn't within this location it will
+                be ignored.
+             */
+            bounds: {
+              northEast: {
+                latitude: 85,
+                longitude: 180
+              },
+              southWest: {
+                latitude: -85,
+                longitude: -180
+              }
+            }
           },
           map: {
             zoom: 3
@@ -252,7 +268,9 @@ Version
               if (!loaded) {
                 loaded = true;
                 if (textStatus === 'success') {
-                  _this._options.startLocation = currentLocation;
+                  if ((_this._options.ipToLocation.bounds == null) || (new window.google.maps.LatLngBounds(new window.google.maps.LatLng(_this._options.ipToLocation.bounds.southWest.latitude, _this._options.ipToLocation.bounds.southWest.longitude), new window.google.maps.LatLng(_this._options.ipToLocation.bounds.northEast.latitude, _this._options.ipToLocation.bounds.northEast.longitude))).contains(new window.google.maps.LatLng(currentLocation.latitude, currentLocation.longitude))) {
+                    _this._options.startLocation = currentLocation;
+                  }
                 }
                 return _this.initializeMap();
               }
