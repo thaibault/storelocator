@@ -157,6 +157,14 @@ Usage
                         on given fallback location.
                     */
                     timeoutInMilliseconds: 5000
+                    /*
+                        Defines bound withing determined locations should be.
+                        If resolved location isn't within this location it will
+                        be ignored.
+                    */
+                    bounds:
+                        northEast: latitude: 85, longitude: 180
+                        southWest: latitude: -85, longitude: -180
                 },
                 // Initial view properties.
                 map: {zoom: 3},

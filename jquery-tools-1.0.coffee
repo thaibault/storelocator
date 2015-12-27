@@ -122,8 +122,8 @@ main = ($) ->
         _consoleMethods: [
             'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error'
             'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log'
-            'markTimeline', 'profile', 'profileEnd', 'table', 'time'
-            'timeEnd', 'timeStamp', 'trace', 'warn']
+            'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd'
+            'timeStamp', 'trace', 'warn']
         ###
             **_javaScriptDependentContentHandled {Boolean}**
             Indicates weather javaScript dependent content where hide or shown.
@@ -148,8 +148,7 @@ main = ($) ->
 
         constructor: (
             @$domNode=null, @_options={}, @_defaultOptions={
-                logging: false, domNodeSelectorPrefix: 'body'
-                domNode:
+                logging: false, domNodeSelectorPrefix: 'body', domNode:
                     hideJavaScriptEnabled:
                         '.tools-hidden-on-javascript-enabled'
                     showJavaScriptEnabled:

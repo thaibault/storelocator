@@ -123,6 +123,14 @@ main = ($) ->
                         on given fallback location.
                     ###
                     timeoutInMilliseconds: 5000
+                    ###
+                        Defines bound withing determined locations should be.
+                        If resolved location isn't within this location it will
+                        be ignored.
+                    ###
+                    bounds:
+                        northEast: latitude: 85, longitude: 180
+                        southWest: latitude: -85, longitude: -180
                 # Initial view properties.
                 map: zoom: 3
                 # Delay before we show search input field.
@@ -243,7 +251,24 @@ main = ($) ->
                 ).always (currentLocation, textStatus) => if not loaded
                     loaded = true
                     if textStatus is 'success'
-                        this._options.startLocation = currentLocation
+                        # Check if determined location is within defined
+                        # bounds.
+                        if not this._options.ipToLocation.bounds? or (
+                            new window.google.maps.LatLngBounds(
+                                new window.google.maps.LatLng(
+                                    this._options.ipToLocation.bounds.southWest
+                                        .latitude
+                                    this._options.ipToLocation.bounds.southWest
+                                        .longitude)
+                                new window.google.maps.LatLng(
+                                    this._options.ipToLocation.bounds.northEast
+                                        .latitude
+                                    this._options.ipToLocation.bounds.northEast
+                                        .longitude))
+                        ).contains new window.google.maps.LatLng(
+                            currentLocation.latitude, currentLocation.longitude
+                        )
+                            this._options.startLocation = currentLocation
                     this.initializeMap()
             this.$domNode or this
         initializeMap: ->
@@ -266,8 +291,8 @@ main = ($) ->
                 $.getJSON this._options.stores, (stores) =>
                     for store in stores
                         $.extend(
-                            true, store
-                            this._options.addtionalStoreProperties)
+                            true, store, this._options.addtionalStoreProperties
+                        )
                         markerCluster.addMarker this.createMarker store
             else
                 southWest = new window.google.maps.LatLng(
