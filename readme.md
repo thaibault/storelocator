@@ -163,7 +163,7 @@ Usage
                         be ignored.
                     */
                     bounds: {
-                        northEast: latitude: 85, longitude: 180
+                        northEast: latitude: 85, longitude: 180,
                         southWest: latitude: -85, longitude: -180
                     }
                 },
