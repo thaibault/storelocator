@@ -156,15 +156,16 @@ Usage
                         Time to wait for ip resolve. If time is up initialize
                         on given fallback location.
                     */
-                    timeoutInMilliseconds: 5000
+                    timeoutInMilliseconds: 5000,
                     /*
                         Defines bound withing determined locations should be.
                         If resolved location isn't within this location it will
                         be ignored.
                     */
-                    bounds:
+                    bounds: {
                         northEast: latitude: 85, longitude: 180
                         southWest: latitude: -85, longitude: -180
+                    }
                 },
                 // Initial view properties.
                 map: {zoom: 3},
