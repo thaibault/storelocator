@@ -825,7 +825,6 @@ Version
         };
         if (store.markerIconFileName || this._options.defaultMarkerIconFileName) {
           marker.icon = $.extend({}, this._options.marker.icon);
-          console.log(marker.icon);
           if (marker.icon.size) {
             marker.icon.size = new window.google.maps.Size(marker.icon.size.width, marker.icon.size.height, marker.icon.size.unit, marker.icon.size.unit);
           }
