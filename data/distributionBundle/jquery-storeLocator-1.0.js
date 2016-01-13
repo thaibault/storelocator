@@ -164,9 +164,23 @@ Version
               latitude and longitude.
            */
           distanceToMoveByDuplicatedEntries: 0.0001,
-          markerCluster: {
-            gridSize: 100,
-            maxZoom: 11
+          marker: {
+            cluster: {
+              gridSize: 100,
+              maxZoom: 11
+            },
+            icon: {
+              size: {
+                width: 44,
+                height: 49,
+                unit: 'px'
+              },
+              scaledSize: {
+                width: 44,
+                height: 49,
+                unit: 'px'
+              }
+            }
           },
 
           /*
@@ -286,7 +300,7 @@ Version
         var index, markerCluster, northEast, southWest, store, _i, _j, _len, _ref, _ref1;
         this._options.map.center = new window.google.maps.LatLng(this._options.startLocation.latitude, this._options.startLocation.longitude);
         this.map = new window.google.maps.Map($('<div>').appendTo(this.$domNode)[0], this._options.map);
-        markerCluster = new window.MarkerClusterer(this.map, [], this._options.markerCluster);
+        markerCluster = new window.MarkerClusterer(this.map, [], this._options.marker.cluster);
         if ($.isArray(this._options.stores)) {
           _ref = this._options.stores;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -350,7 +364,7 @@ Version
         }
         google.maps.event.addListener(this.map, 'zoom_changed', (function(_this) {
           return function() {
-            if ((_this.currentlyOpenWindow != null) && _this.currentlyOpenWindow.isOpen && _this.map.getZoom() <= _this._options.markerCluster.maxZoom) {
+            if ((_this.currentlyOpenWindow != null) && _this.currentlyOpenWindow.isOpen && _this.map.getZoom() <= _this._options.marker.cluster.maxZoom) {
               _this.currentlyOpenWindow.close();
               return _this.currentlyOpenWindow.isOpen = false;
             }
@@ -809,10 +823,20 @@ Version
           map: this.map,
           data: store
         };
-        if (store.markerIconFileName) {
-          marker.icon = this._options.iconPath + store.markerIconFileName;
-        } else if (this._options.defaultMarkerIconFileName) {
-          marker.icon = this._options.iconPath + this._options.defaultMarkerIconFileName;
+        if (store.markerIconFileName || this._options.defaultMarkerIconFileName) {
+          marker.icon = $.extend({}, this._options.marker.icon);
+          console.log(marker.icon);
+          if (marker.icon.size) {
+            marker.icon.size = new window.google.maps.Size(marker.icon.size.width, marker.icon.size.height, marker.icon.size.unit, marker.icon.size.unit);
+          }
+          if (marker.icon.scaledSize) {
+            marker.icon.scaledSize = new window.google.maps.Size(marker.icon.scaledSize.width, marker.icon.scaledSize.height, marker.icon.scaledSize.unit, marker.icon.scaledSize.unit);
+          }
+          if (store.markerIconFileName) {
+            marker.icon.url = this._options.iconPath + store.markerIconFileName;
+          } else {
+            marker.icon.url = this._options.iconPath + this._options.defaultMarkerIconFileName;
+          }
         }
         if (store.title) {
           marker.title = store.title;
@@ -841,8 +865,8 @@ Version
           event.stopPropagation();
         }
         this.highlightMarker(place, this.highlightMarker, marker, event, 'stop');
-        if (((_ref = this._options.markerCluster) != null ? _ref.maxZoom : void 0) && this.map.getZoom() <= this._options.markerCluster.maxZoom) {
-          this.map.setZoom(this._options.markerCluster.maxZoom + 1);
+        if (((_ref = this._options.marker.cluster) != null ? _ref.maxZoom : void 0) && this.map.getZoom() <= this._options.marker.cluster.maxZoom) {
+          this.map.setZoom(this._options.marker.cluster.maxZoom + 1);
         }
         this.closeSearchResults(event);
         if (this.currentlyOpenWindow === marker.infoWindow && this.currentlyOpenWindow.isOpen) {
@@ -920,9 +944,9 @@ Version
             _ref1.setAnimation(null);
           }
         } else {
-          if (((_ref2 = this._options.markerCluster) != null ? _ref2.maxZoom : void 0) && this.map.getZoom() <= this._options.markerCluster.maxZoom && (((_ref3 = marker.nativeMarker) != null ? _ref3.position : void 0) != null) && this.map.getBounds().contains(marker.nativeMarker.position)) {
+          if (((_ref2 = this._options.marker.cluster) != null ? _ref2.maxZoom : void 0) && this.map.getZoom() <= this._options.marker.cluster.maxZoom && (((_ref3 = marker.nativeMarker) != null ? _ref3.position : void 0) != null) && this.map.getBounds().contains(marker.nativeMarker.position)) {
             this.map.setCenter(marker.nativeMarker.position);
-            this.map.setZoom(this._options.markerCluster.maxZoom + 1);
+            this.map.setZoom(this._options.marker.cluster.maxZoom + 1);
           }
           if (marker !== this.currentlyHighlightedMarker) {
             if ((_ref4 = marker.nativeMarker) != null) {
