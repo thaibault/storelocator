@@ -142,8 +142,13 @@ main = ($) ->
                     latitude and longitude.
                 ###
                 distanceToMoveByDuplicatedEntries: 0.0001
-                # Options passed to the marker cluster.
-                markerCluster: gridSize: 100, maxZoom : 11
+                marker:
+                    # Options passed to the marker cluster.
+                    cluster: gridSize: 100, maxZoom : 11
+                    # Options passed to the icon.
+                    icon:
+                        size: width: 44, height: 49, unit: 'px'
+                        scaledSize: width: 44, height: 49, unit: 'px'
                 ###
                     Specifies a zoom value wich will be adjusted after
                     successfully picked a search result. If set to "null" no
@@ -280,7 +285,7 @@ main = ($) ->
                 this.$domNode
             )[0], this._options.map
             markerCluster = new window.MarkerClusterer(
-                this.map, [], this._options.markerCluster)
+                this.map, [], this._options.marker.cluster)
             # Add a marker for each retrieved store.
             if $.isArray this._options.stores
                 for store in this._options.stores
@@ -341,7 +346,7 @@ main = ($) ->
                 if(
                     this.currentlyOpenWindow? and
                     this.currentlyOpenWindow.isOpen and
-                    this.map.getZoom() <= this._options.markerCluster.maxZoom
+                    this.map.getZoom() <= this._options.marker.cluster.maxZoom
                 )
                     this.currentlyOpenWindow.close()
                     this.currentlyOpenWindow.isOpen = false
@@ -387,8 +392,10 @@ main = ($) ->
                     currentIndex = this.currentSearchResults.indexOf(
                         this.currentlyHighlightedMarker)
                     if event.keyCode is this.keyCode.DOWN
-                        if(currentIndex is -1 or
-                           this.currentSearchResultRange[1] < currentIndex + 1)
+                        if(
+                            currentIndex is -1 or
+                            this.currentSearchResultRange[1] < currentIndex + 1
+                        )
                             this.highlightMarker(
                                 null, this.highlightMarker
                                 this.currentSearchResults[this
@@ -549,8 +556,10 @@ main = ($) ->
             if this._options.searchBox.numberOfAdditionalGenericPlaces
                 # Remove generic place results if there are enough local search
                 # results.
-                if(searchResults.length and numberOfGenericSearchResults >
-                   this._options.searchBox.numberOfAdditionalGenericPlaces[0])
+                if(
+                    searchResults.length and numberOfGenericSearchResults >
+                    this._options.searchBox.numberOfAdditionalGenericPlaces[0]
+                )
                     if searchResults.length >
                     this._options.searchBox.numberOfAdditionalGenericPlaces[1]
                         searchResults.splice(
@@ -752,11 +761,28 @@ main = ($) ->
                     store.latitude, store.longitude)
                 map: this.map
                 data: store
-            if store.markerIconFileName
-                marker.icon = this._options.iconPath + store.markerIconFileName
-            else if this._options.defaultMarkerIconFileName
-                marker.icon = this._options.iconPath +
-                    this._options.defaultMarkerIconFileName
+            if(
+                store.markerIconFileName or
+                this._options.defaultMarkerIconFileName
+            )
+                marker.icon = $.extend {}, this._options.marker.icon
+                console.log marker.icon
+                if marker.icon.size
+                    marker.icon.size = new window.google.maps.Size(
+                        marker.icon.size.width, marker.icon.size.height
+                        marker.icon.size.unit, marker.icon.size.unit)
+                if marker.icon.scaledSize
+                    marker.icon.scaledSize = new window.google.maps.Size(
+                        marker.icon.scaledSize.width
+                        marker.icon.scaledSize.height
+                        marker.icon.scaledSize.unit
+                        marker.icon.scaledSize.unit)
+                if store.markerIconFileName
+                    marker.icon.url = this._options.iconPath +
+                        store.markerIconFileName
+                else
+                    marker.icon.url = this._options.iconPath +
+                        this._options.defaultMarkerIconFileName
             marker.title = store.title if store.title
             marker.infoWindow = new window.google.maps.InfoWindow content: ''
             marker.infoWindow.isOpen = false
@@ -781,13 +807,15 @@ main = ($) ->
             # We have to ensure that the minimum zoom level has one more then
             # the clustering can appear. Since a cluster hides an open window.
             if(
-                this._options.markerCluster?.maxZoom and
-                this.map.getZoom() <= this._options.markerCluster.maxZoom
+                this._options.marker.cluster?.maxZoom and
+                this.map.getZoom() <= this._options.marker.cluster.maxZoom
             )
-                this.map.setZoom this._options.markerCluster.maxZoom + 1
+                this.map.setZoom this._options.marker.cluster.maxZoom + 1
             this.closeSearchResults event
-            if(this.currentlyOpenWindow is marker.infoWindow and
-               this.currentlyOpenWindow.isOpen)
+            if(
+                this.currentlyOpenWindow is marker.infoWindow and
+                this.currentlyOpenWindow.isOpen
+            )
                 return this
             this.fireEvent 'infoWindowOpen', marker
             marker.refreshSize = ->
@@ -843,14 +871,14 @@ main = ($) ->
                 # then the clustering can appear. Since a cluster hides an open
                 # window.
                 if(
-                    this._options.markerCluster?.maxZoom and
+                    this._options.marker.cluster?.maxZoom and
                     this.map.getZoom() <=
-                    this._options.markerCluster.maxZoom and
+                    this._options.marker.cluster.maxZoom and
                     marker.nativeMarker?.position? and
                     this.map.getBounds().contains marker.nativeMarker.position
                 )
                     this.map.setCenter marker.nativeMarker.position
-                    this.map.setZoom this._options.markerCluster.maxZoom + 1
+                    this.map.setZoom this._options.marker.cluster.maxZoom + 1
                 if marker isnt this.currentlyHighlightedMarker
                     marker.nativeMarker?.setAnimation(
                         window.google.maps.Animation[type.toUpperCase()])

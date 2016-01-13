@@ -178,8 +178,15 @@ Usage
                     latitude and longitude.
                 */
                 distanceToMoveByDuplicatedEntries: 0.0001,
-                // Options passed to the marker cluster.
-                markerCluster: {gridSize: 100, maxZoom : 11},
+                marker: {
+                    // Options passed to the marker cluster.
+                    cluster: {gridSize: 100, maxZoom : 11},
+                    // Options passed to the icon.
+                    icon: {
+                        size: {width: 44, height: 49, unit: 'px'},
+                        scaledSize: {width: 44, height: 49, unit: 'px'}
+                    }
+                },
                 /*
                     Specifies a zoom value wich will be adjusted after
                     successfully picked a search result. If set to "null" no
