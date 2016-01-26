@@ -1732,7 +1732,7 @@ main = ($) ->
             additionalArguments.unshift string
             $.each(additionalArguments, (key, value) ->
                 string = string.replace(
-                    new RegExp("\\{#{key}\\}", 'gm'), value))
+                    new window.RegExp("\\{#{key}\\}", 'gm'), value))
             string
         stringGetRegularExpressionValidated: (string) ->
             ###
