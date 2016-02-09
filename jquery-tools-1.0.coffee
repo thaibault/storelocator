@@ -488,6 +488,59 @@ main = ($) ->
 
         # region dom node
 
+        normalizeClassNames: ->
+            ###
+                Normalizes class name order of current dom node.
+
+                **returns {$.Tools}** - Returns current instance.
+            ###
+            this.$domNode.find('*').addBack().each ->
+                $this = $ this
+                if $this.attr 'class'
+                    sortedClassNames = $this.attr('class').split(' ').sort(
+                    ) or []
+                    $this.attr 'class', ''
+                    for className in sortedClassNames
+                        $this.addClass className
+                else if $this.attr('class')?
+                    $this.removeAttr 'class'
+            this
+        isEquivalentDom: (first, second) ->
+            ###
+                Checks weather given html or text strings are equal.
+
+                **first {String|DomNode}**  - First html or text to compare.
+
+                **second {String|DomNode}** - Second html or text to compare.
+
+                **returns {Boolean}**       - Returns true if both dom
+                                              representations are equivalent.
+            ###
+            return true if first is second
+            if first?
+                if second?
+                    # NOTE: We have to distinguish between selector and markup.
+                    if not (
+                        (not first.charAt? or first.charAt(0) is '<') and
+                        (not second.charAt? or second.charAt(0) is '<')
+                    )
+                        return first is second
+                    $firstDomNode = $ first
+                    if $firstDomNode.length
+                        $secondDomNode = $ second
+                        if $secondDomNode.length
+                            $firstDomNode = $firstDomNode.Tools(
+                                'normalizeClassNames'
+                            ).$domNode
+                            $secondDomNode = $secondDomNode.Tools(
+                                'normalizeClassNames'
+                            ).$domNode
+                            return $firstDomNode[0].isEqualNode(
+                                $secondDomNode[0])
+                        return false
+                    return first is second
+                return false
+            not second?
         getPositionRelativeToViewport: (delta={}) ->
             ###
                 Determines where current dom node is relative to current view
@@ -511,7 +564,7 @@ main = ($) ->
                 return 'below'
             if $window.width() < (rectangle.right + delta.right)
                 return 'right'
-            return 'in'
+            'in'
         generateDirectiveSelector: (directiveName) ->
             ###
                 Generates a directive name corresponding selector string.
@@ -977,7 +1030,9 @@ main = ($) ->
             ) and not (
                 firstValue instanceof window.RegExp or
                 secondValue instanceof window.RegExp
-            ) or $.isArray(firstValue) and $.isArray(secondValue)
+            ) or $.isArray(firstValue) and $.isArray(
+                secondValue
+            ) and firstValue.length is secondValue.length
                 equal = true
                 for [first, second] in [[firstValue, secondValue], [
                     secondValue, firstValue
