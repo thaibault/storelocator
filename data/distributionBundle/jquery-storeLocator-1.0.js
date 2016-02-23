@@ -21,7 +21,7 @@ For conventions see require on https://github.com/thaibault/require
 Author
 ------
 
-t.sickert["~at~"]gmail.com (Torben Sickert)
+info["~at~"]torben.website (Torben Sickert)
 
 Version
 -------
@@ -356,8 +356,7 @@ Version
             },
             prefereGenericResults: true,
             genericPlaceSearchOptions: {
-              radius: '50000',
-              types: ['locality', 'political', 'postal_code']
+              radius: '50000'
             }
           }, this._options.searchBox);
           this.initializeDataSourceSearchBox();
