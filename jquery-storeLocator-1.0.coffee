@@ -24,7 +24,7 @@ For conventions see require on https://github.com/thaibault/require
 Author
 ------
 
-t.sickert["~at~"]gmail.com (Torben Sickert)
+info["~at~"]torben.website (Torben Sickert)
 
 Version
 -------
@@ -337,8 +337,7 @@ main = ($) ->
                             ' Germany'
                         ) isnt -1
                     prefereGenericResults: true
-                    genericPlaceSearchOptions: radius: '50000', types: [
-                        'locality', 'political', 'postal_code']
+                    genericPlaceSearchOptions: radius: '50000'
                 }, this._options.searchBox
                 this.initializeDataSourceSearchBox()
             # Close marker if zoom level is bigger than the aggregation.

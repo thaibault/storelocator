@@ -24,7 +24,7 @@ For conventions see require on https://github.com/thaibault/require
 Author
 ------
 
-t.sickert["~at~"]gmail.com (Torben Sickert)
+info["~at~"]torben.website (Torben Sickert)
 
 Version
 -------
@@ -2276,7 +2276,7 @@ main = ($) ->
     $.Tools = -> (new Tools).controller Tools, arguments
     $.Tools.class = Tools
 
-        # region prop fix for comments and text nodes
+    ## region prop fix for comments and text nodes
 
     nativePropFunction = $.fn.prop
     $.fn.prop = (key, value) ->
@@ -2284,7 +2284,7 @@ main = ($) ->
             JQuery's native prop implementation ignores properties for text
             nodes, comments and attribute nodes.
         ###
-        if arguments.length < 3 and this[0].nodeName in [
+        if arguments.length < 3 and this[0]?.nodeName in [
             '#text', '#comment'
         ] and this[0][key]?
             if arguments.length is 1
@@ -2294,19 +2294,18 @@ main = ($) ->
                 return this
         nativePropFunction.apply this, arguments
 
-        # endregion
+    ## endregion
 
     # endregion
+
+    $.Tools
 
 # endregion
 
 # region dependencies
 
-if this.require?
-    this.require.scopeIndicator = 'jQuery.Tools'
-    this.require [['jQuery', 'jquery-2.1.1']], main
-else
-    main this.jQuery
+jQuery = jQuery or $ or window.jQuery or window.$
+if module? then module.exports = main(jQuery) else main jQuery
 
 # endregion
 
