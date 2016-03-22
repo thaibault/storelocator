@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+*.compiled.*
+
 ## Generic
 
 # Packages
