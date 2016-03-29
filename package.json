@@ -1,0 +1,37 @@
+{
+    "name": "jQuery-storeLocator",
+    "version": "1.0.0",
+    "description": "serves a google maps store locator",
+    "keywords": [
+        "jquery", "storeLocator", "store", "locator", "map", "location",
+        "finder"
+    ],
+    "files": ["index.coffee"],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/thaibault/jQuery-storeLocator"
+    },
+    "homepage": "http://torben.website/jQuery-storeLocator",
+    "main": "index.compiled.js",
+    "webOptimizer": {"moduleAliases": {
+        "jQuery-tools": "jQuery-tools/index.compiled"
+    }},
+    "scripts": {
+        "build": "webOptimizer build",
+        "clear": "webOptimizer clear",
+        "lint": "webOptimizer lint",
+        "test": "webOptimizer test",
+        "preinstall": "webOptimizer preinstall",
+        "postinstall": "webOptimizer build"
+    },
+    "license": "ISC",
+    "dependencies": {
+        "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git"
+    },
+    "devDependencies": {
+        "jquery": "2.2.2",
+        "qunitjs": "*",
+        "sizzle": "*",
+        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git"
+    }
+}
