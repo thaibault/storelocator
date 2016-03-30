@@ -13,9 +13,6 @@
     },
     "homepage": "http://torben.website/jQuery-storeLocator",
     "main": "index.compiled.js",
-    "webOptimizer": {"moduleAliases": {
-        "jQuery-tools": "jQuery-tools/index.compiled"
-    }},
     "scripts": {
         "build": "webOptimizer build",
         "clear": "webOptimizer clear",
