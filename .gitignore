@@ -20,6 +20,9 @@ lib
 lib64
 .sass-cache
 
+# Ignore npm generated debug informations.
+npm-debug.log
+
 # Ignore docker nested bash generated files.
 /.bash_history
 
