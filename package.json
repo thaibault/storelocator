@@ -26,6 +26,7 @@
         "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git"
     },
     "devDependencies": {
-        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git"
+        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
+        "qunitjs": "*"
     }
 }
