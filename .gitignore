@@ -67,6 +67,7 @@ v8flags.*
 /.config
 .npm-debug.log
 *.compiled.*
+*.compiled
 
 # region vim modline
 # vim: set tabstop=4 shiftwidth=4 expandtab:
