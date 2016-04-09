@@ -22,9 +22,7 @@
     },
     "license": "ISC",
     "dependencies": {
+        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
         "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git"
-    },
-    "devDependencies": {
-        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git"
     }
 }
