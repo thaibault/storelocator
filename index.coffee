@@ -31,8 +31,8 @@ Version
 1.0 stable
 ###
 # endregion
-require 'jQuery-tools'
 $ = require 'jquery'
+require 'jQuery-tools'
 # region plugins/classes
 class StoreLocator extends $.Tools.class
     ###
