@@ -16,6 +16,7 @@
     "scripts": {
         "build": "webOptimizer build",
         "clear": "webOptimizer clear",
+        "document": "webOptimizer document",
         "lint": "webOptimizer lint",
         "preinstall": "webOptimizer preinstall",
         "postinstall": "webOptimizer build"
