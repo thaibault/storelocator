@@ -17,7 +17,7 @@
         "build": "webOptimizer build",
         "clear": "webOptimizer clear",
         "document": "webOptimizer document",
-        "lint": "webOptimizer lint",
+        "lint": "webOptimizer typeCheck && webOptimizer lint",
         "preinstall": "webOptimizer preinstall",
         "postinstall": "webOptimizer build"
     },
