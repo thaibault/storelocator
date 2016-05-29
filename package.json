@@ -6,7 +6,7 @@
         "jquery", "storeLocator", "store", "locator", "map", "location",
         "finder"
     ],
-    "files": ["index.coffee"],
+    "files": ["index.js"],
     "repository": {
         "type": "git",
         "url": "https://github.com/thaibault/jQuery-storeLocator"

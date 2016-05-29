@@ -1,47 +1,47 @@
-#!/usr/bin/env coffee
-# -*- coding: utf-8 -*-
+// @flow
+// #!/usr/bin/env node
+// -*- coding: utf-8 -*-
+/** @module jQuery-storeLocator */
 'use strict'
-# region header
-###
-[Project page](http://torben.website/jQuery-storeLocator)
+/* !
+    region header
+    [Project page](http://torben.website/jQuery-storeLocator)
 
-This plugin provides a google application interface based store locator.
+    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
-Copyright Torben Sickert 16.12.2012
+    License
+    -------
 
-License
--------
-
-This library written by Torben Sickert stand under a creative commons naming
-3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
-
-Extending this module
----------------------
-
-For conventions see require on https://github.com/thaibault/require
-
-Author
-------
-
-info["~at~"]torben.website (Torben Sickert)
-
-Version
--------
-
-1.0 stable
-###
-# endregion
-$ = require 'jquery'
-require 'jQuery-tools'
-# region plugins/classes
-class StoreLocator extends $.Tools.class
-    ###
-        A jQuery storelocator plugin.
-
-        Expected store data format:
-
-        {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}
-    ###
+    This library written by Torben Sickert stand under a creative commons
+    naming 3.0 unported license.
+    See http://creativecommons.org/licenses/by/3.0/deed.de
+    endregion
+*/
+// region imports
+import $ from 'jquery'
+import 'jQuery-tools'
+/* eslint-disable no-duplicate-imports */
+import type {$DomNode} from 'jQuery-tools'
+/* eslint-enable no-duplicate-imports */
+// endregion
+const context:Object = (():Object => {
+    if ($.type(window) === 'undefined') {
+        if ($.type(global) === 'undefined')
+            return ($.type(module) === 'undefined') ? {} : module
+        return global
+    }
+    return window
+})()
+if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
+    context.document = $.context
+// region plugins/classes
+/**
+ * A jQuery storelocator plugin.
+ * Expected store data format:
+ * {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}
+ * TODO add all properties
+ */
+class StoreLocator extends $.Tools.class {
     __name__: 'StoreLocator'
     initialize: (options={}) ->
         ###Entry point for object orientated jQuery plugin.###
@@ -221,7 +221,6 @@ class StoreLocator extends $.Tools.class
             # Triggers after a marker starts to highlight.
             onMarkerHighlighted: $.noop
         # endregion
-
         # Merges given options with default options recursively.
         super options
         # Grab dom nodes
@@ -277,21 +276,25 @@ class StoreLocator extends $.Tools.class
         this.map = new window.google.maps.Map $('<div>').appendTo(
             this.$domNode
         )[0], this._options.map
-        markerCluster = new window.MarkerClusterer(
-            this.map, [], this._options.marker.cluster)
+        if this._options.marker.cluster
+            markerCluster = new window.MarkerClusterer(
+                this.map, [], this._options.marker.cluster)
         # Add a marker for each retrieved store.
         if $.isArray this._options.stores
             for store in this._options.stores
                 $.extend(
                     true, store, this._options.addtionalStoreProperties)
-                markerCluster.addMarker this.createMarker store
+                marker = this.createMarker store
+                if this._options.marker.cluster
+                    markerCluster.addMarker marker
         else if $.type(this._options.stores) is 'string'
             $.getJSON this._options.stores, (stores) =>
                 for store in stores
                     $.extend(
-                        true, store, this._options.addtionalStoreProperties
-                    )
-                    markerCluster.addMarker this.createMarker store
+                        true, store, this._options.addtionalStoreProperties)
+                    marker = this.createMarker store
+                    if this._options.marker.cluster
+                        markerCluster.addMarker marker
         else
             southWest = new window.google.maps.LatLng(
                 this._options.stores.southWest.latitude
@@ -306,8 +309,10 @@ class StoreLocator extends $.Tools.class
                     longitude: southWest.lng() + (northEast.lng(
                     ) - southWest.lng()) * window.Math.random()
                 }, this._options.addtionalStoreProperties
-                markerCluster.addMarker this.createMarker $.extend(
+                marker = this.createMarker this.createMarker $.extend(
                     store, this._options.stores.generateProperties store)
+                if this._options.marker.cluster
+                    markerCluster.addMarker marker
         # Create the search box and link it to the UI element.
         this.map.controls[window.google.maps.ControlPosition.TOP_LEFT]
         .push this.$domNode.find('input')[0]
@@ -906,10 +911,14 @@ class StoreLocator extends $.Tools.class
                 content += "#{name}: #{value}<br />"
             content += '</div>'
         content
-# endregion
-module.exports = $.fn.StoreLocator = -> $.Tools().controller(
-    StoreLocator, arguments, this)
-# region vim modline
-# vim: set tabstop=4 shiftwidth=4 expandtab:
-# vim: foldmethod=marker foldmarker=region,endregion:
-# endregion
+}
+// endregion
+$.fn.StoreLocator = function():any {
+    return $.Tools().controller(StoreLocator, arguments, this)
+}
+/** The jQuery-storeLocator plugin class. */
+export default StoreLocator
+// region vim modline
+// vim: set tabstop=4 shiftwidth=4 expandtab:
+// vim: foldmethod=marker foldmarker=region,endregion:
+// endregion
