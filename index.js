@@ -39,10 +39,169 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * A jQuery storelocator plugin.
  * Expected store data format:
  * {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}
+ * @property static:_name - Defines this class name to allow retrieving them
+ * after name mangling.
+ * @property currentSearchResults - Saves last found search results.
+ * @property currentSearchText - Saves last searched string.
+ * @property resultsDomNode - Saves currently opened results dom node or null
+ * if no results exists yet.
+ * @property currentSearchResultsDomNode - Saves current search results content
+ * dom node.
+ * @property currentlyOpenWindow - Saves currently opened window instance.
+ * @property currentlyHighlightedMarker - Saves currently highlighted marker
+ * instance.
+ * @property searchResultsDirty - Indicates weather current search results
+ * aren't valid anymore.
+ * @property seenLocations - Saves all seen locations to recognize duplicates.
+ * @property markers - Saves all recognized markers.
+ * @property currentSearchResultRange - Public editable property to set current
+ * search result range. This is useful for pagination implementations in
+ * template level.
+ * @property _options - Saves all plugin interface options.
+ * @property _options.stores
+ * {string|Array.<string>|Object.<string, number|Function>} - URL to retrieve
+ * stores, list of stores or object describing bounds to create random stores
+ * within. If a "generateProperties" function is given it will be called to
+ * retrieve additional properties for each store. The specified store will be
+ * given to the function.
+ * @property _options.addtionalStoreProperties {Object.<string, mixed>} -
+ * Additional static store properties which will be available to each store.
+ * @property _options.iconPath {string} - Path prefix to search for marker
+ * icons.
+ * @property _options.defaultMarkerIconFileName {string} - Specifies a fallback
+ * marker
+ * icon (if no store specific icon was set). If set to "null" google will place
+ * a fallback icon.
+ * @property _options.startLocation {null|Object} - If not provided we
+ * initialize the map with center in current location determined by internet
+ * protocol address. If an object is given a "latitude" and "longitude" with a
+ * saved float are assumed.
+ * @property _options.fallbackLocation {Object} - Fallback location if
+ * automatic location determination has failed.
+ * @property _options.fallbackLocation.latitude {number} - Latitude value.
+ * @property _options.fallbackLocation.longitude {number} - Longitude value.
+ * @property _options.ip {null|string} - If provided given ip will be used to
+ * determine current location instead of automatically determined one.
+ * @property _options.ipToLocation {Object} - Configuration for ip to location
+ * conversion.
+ * @property _options.ipToLocation.applicationInterfaceURL {string} - IP to
+ * location determination application interface url. {1} and {2} represents
+ * currently used protocol and potentially given ip.
+   TODO stand
+                ###
+                    Time to wait for ip resolve. If time is up initialize
+                    on given fallback location.
+                ###
+                timeoutInMilliseconds: 5000
+                ###
+                    Defines bound withing determined locations should be.
+                    If resolved location isn't within this location it will
+                    be ignored.
+                ###
+                bounds:
+                    northEast: latitude: 85, longitude: 180
+                    southWest: latitude: -85, longitude: -180
+            # Initial view properties.
+            map: zoom: 3
+            # Delay before we show search input field.
+            showInputAfterLoadedDelayInMilliseconds: 500
+            # Transition to show search input field.
+            inputFadeInOption: duration: 'fast'
+            ###
+                Distance to move if stores are determined with same
+                latitude and longitude.
+            ###
+            distanceToMoveByDuplicatedEntries: 0.0001
+            marker:
+                # Options passed to the marker cluster.
+                cluster: gridSize: 100, maxZoom : 11
+                # Options passed to the icon.
+                icon:
+                    size: width: 44, height: 49, unit: 'px'
+                    scaledSize: width: 44, height: 49, unit: 'px'
+            ###
+                Specifies a zoom value wich will be adjusted after
+                successfully picked a search result. If set to "null" no
+                zoom change happens.
+            ###
+            successfulSearchZoom: 12
+            infoWindow:
+                ###
+                    Function or string returning or representing the info
+                    box. If a function is given and a promise is returned
+                    the info box will be filled with the given loading
+                    content and updated with the resolved data. The
+                    function becomes the corresponding marker as first
+                    argument and the store locator instance as second
+                    argument. If nothing is provided all available data
+                    will be listed in a generic info window.
+                ###
+                content: null
+                ###
+                    Additional move to bottom relative to the marker if an
+                    info window has been opened.
+                ###
+                additionalMoveToBottomInPixel: 120
+                ###
+                    Content to show in the info window during info window
+                    load.
+                ###
+                loadingContent: '<div class="idle">loading...</div>'
+            ###
+                If a number is given a generic search will be provided and
+                given number will be interpret as search result precision
+                tolerance to identify a marker as search result. If an
+                object is given it indicates what should be search for. The
+                object can hold up to nine keys. "properties" to specify
+                which store data should contain given search text,
+                "maximumNumberOfResults" to limit the auto complete result,
+                "loadingContent" to display while the results are loading,
+                "numberOfAdditionalGenericPlaces" a tuple describing a
+                range of minimal to maximal limits of additional generic
+                google suggestions depending on number of local search
+                results, "maximalDistanceInMeter" to specify maximal
+                distance from current position to search suggestions,
+                "genericPlaceFilter" specifies a function which gets a
+                relevant place to decide if the place should be included
+                (returns a boolean value), "prefereGenericResults"
+                specifies a boolean value indicating if generic search
+                results should be the first results,
+                "genericPlaceSearchOptions" specifies how a generic place
+                search should be done (google maps request object
+                specification) and "content" to render the search results.
+                "content" can be a function or string returning or
+                representing the search results. If a function is given and
+                a promise is returned the info box will be filled with the
+                given loading content and updated with the resolved data.
+                The function becomes search results as first argument, a
+                boolean value as second argument indicating if the maximum
+                number of search results was reached and the store locator
+                instance as third argument. If nothing is provided all
+                available data will be listed in a generic info window.
+            ###
+            searchBox: 50
+            # Function to call if map is fully initialized.
+            onLoaded: $.noop
+            # Triggers if a marker info window will be opened.
+            onInfoWindowOpen: $.noop
+            # Triggers if a marker info window has finished opening.
+            onInfoWindowOpened: $.noop
+            # Triggers before new search results appears.
+            onAddSearchResults: $.noop
+            # Triggers before old search results will be removed.
+            onRemoveSearchResults: $.noop
+            # Triggers before search result box appears.
+            onOpenSearchResults: $.noop
+            # Triggers before search result box will be hidden.
+            onCloseSearchResults: $.noop
+            # Triggers after a marker starts to highlight.
+            onMarkerHighlighted: $.noop
  * TODO add all properties
  */
 class StoreLocator extends $.Tools.class {
-    __name__: 'StoreLocator'
+    // region static properties
+    static _name:string = 'StoreLocator'
+    // endregion
     initialize: (options={}) ->
         ###Entry point for object orientated jQuery plugin.###
         # region properties
