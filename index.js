@@ -183,6 +183,18 @@ class StoreLocator extends $.Tools.class {
     // region static properties
     static _name:string = 'StoreLocator'
     // endregion
+    // region dynamic properties
+    currentSearchResults:Array<Object>
+    currentSearchText = null
+    resultsDomNode = null
+    currentSearchResultsDomNode = null
+    currentlyOpenWindow = null
+    currentlyHighlightedMarker = null
+    searchResultsDirty:boolean
+    seenLocations:
+    markers:
+    currentSearchResultRange:;
+    // endregion
     /**
      * Entry point for object orientated jQuery plugin.
      * @param options - Options to overwrite default ones.
@@ -250,11 +262,9 @@ class StoreLocator extends $.Tools.class {
         // endregion
         // Merges given options with default options recursively.
         super.initialize(options)
-        // Grab dom nodes
-        this.$domNodes = this.grabDomNode(this._options.domNode)
         if (this._options.startLocation)
             this.initializeMap()
-        else
+        else {
             this._options.startLocation = this._options.fallbackLocation
             /*
                 NOTE: If request is slower than the timeout parameter for jsonp
@@ -288,12 +298,12 @@ class StoreLocator extends $.Tools.class {
                             new context.google.maps.LatLngBounds(
                                 new context.google.maps.LatLng(
                                     this._options.ipToLocation.bounds.southWest
-                                        .latitude
+                                        .latitude,
                                     this._options.ipToLocation.bounds.southWest
-                                        .longitude)
+                                        .longitude),
                                 new context.google.maps.LatLng(
                                     this._options.ipToLocation.bounds.northEast
-                                        .latitude
+                                        .latitude,
                                     this._options.ipToLocation.bounds.northEast
                                         .longitude))
                         ).contains(new context.google.maps.LatLng(
@@ -303,6 +313,7 @@ class StoreLocator extends $.Tools.class {
                     this.initializeMap()
                 }
             })
+        }
         return this.$domNode
     }
     /**
@@ -338,10 +349,10 @@ class StoreLocator extends $.Tools.class {
                 }
             })
         else {
-            const southWest:Object = new window.google.maps.LatLng(
+            const southWest:Object = new context.google.maps.LatLng(
                 this._options.stores.southWest.latitude,
                 this._options.stores.southWest.longitude)
-            const northEast:Object = new window.google.maps.LatLng(
+            const northEast:Object = new context.google.maps.LatLng(
                 this._options.stores.northEast.latitude,
                 this._options.stores.northEast.longitude)
             for (
@@ -350,9 +361,9 @@ class StoreLocator extends $.Tools.class {
             ) {
                 const store:Object = $.extend({
                     latitude: southWest.lat() + (northEast.lat(
-                    ) - southWest.lat()) * window.Math.random(),
+                    ) - southWest.lat()) * Math.random(),
                     longitude: southWest.lng() + (northEast.lng(
-                    ) - southWest.lng()) * window.Math.random()
+                    ) - southWest.lng()) * Math.random()
                 }, this._options.addtionalStoreProperties)
                 const marker:Object = this.createMarker($.extend(
                     store, this._options.stores.generateProperties(store)))
@@ -361,7 +372,7 @@ class StoreLocator extends $.Tools.class {
             }
         }
         // Create the search box and link it to the UI element.
-        this.map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(
+        this.map.controls[context.google.maps.ControlPosition.TOP_LEFT].push(
             this.$domNode.find('input')[0])
         if ($.type(this._options.searchBox) === 'number')
             this.initializeGenericSearchBox()
@@ -439,8 +450,8 @@ class StoreLocator extends $.Tools.class {
             if (this.currentSearchResults.length) {
                 if (this.currentSearchResultRange)
                     this.currentSearchResultRange = [
-                        window.Math.max(0, this.currentSearchResultRange[0])
-                        window.Math.min(
+                        Math.max(0, this.currentSearchResultRange[0]),
+                        Math.min(
                             this.currentSearchResults.length - 1,
                             this.currentSearchResultRange[1])]
                 else
@@ -512,7 +523,7 @@ class StoreLocator extends $.Tools.class {
                 this.searchResultsDirty = true
         })
         this.on(
-            this.$domNode.find('input'), 'keyup'
+            this.$domNode.find('input'), 'keyup',
             this.getUpdateSearchResultsHandler())
         return this
     }
@@ -576,7 +587,7 @@ class StoreLocator extends $.Tools.class {
                     }, this._options.searchBox.genericPlaceSearchOptions), (
                         places:Array<Object>
                     ):void => {
-                        if places
+                        if (places)
                             this.handleGenericSearchResults(places, searchText)
                     })
                 else
@@ -626,7 +637,7 @@ class StoreLocator extends $.Tools.class {
                             /^http:(\/\/)/, `${document.location.protocol}$1`),
                         address: place.formatted_address,
                         distance: distance
-                    })
+                    }),
                     position: place.geometry.location,
                     open: (event:Object):StoreLocator => this.openPlace(
                         place, event),
@@ -705,7 +716,7 @@ class StoreLocator extends $.Tools.class {
         searchResults.sort((first:Object, second:Object):number => {
             if (
                 this._options.searchBox.prefereGenericResults &&
-                !first.infoWindow and second.infoWindow
+                !first.infoWindow && second.infoWindow
             )
                 return -1
             if (
@@ -747,7 +758,7 @@ class StoreLocator extends $.Tools.class {
                     resultsRepresentation)
                 if (!this.fireEvent(
                     'addSearchResults', false, this,
-                    resultsRepresentationDomNode, this.resultsDomNode
+                    resultsRepresentationDomNode, this.resultsDomNode,
                     this.currentSearchResultsDomNode || []
                 ))
                     this.resultsDomNode.html(resultsRepresentationDomNode)
@@ -805,7 +816,7 @@ class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     initializeGenericSearchBox():StoreLocator {
-        const searchBox:Object = new window.google.maps.places.SearchBox(
+        const searchBox:Object = new context.google.maps.places.SearchBox(
             this.$domNode.find('input')[0])
         /*
             Bias the search box results towards places that are within the
@@ -882,7 +893,7 @@ class StoreLocator extends $.Tools.class {
                     if (status === context.google.maps.GeocoderStatus.OK)
                         place.geometry = results[0].geometry
                     else {
-                        delete places[places.indexOf place]
+                        delete places[places.indexOf(place)]
                         this.warn(
                             'Found place "{1}" couldn\'t be geocoded by ' +
                             'google. Removing it from the places list.')
@@ -970,6 +981,7 @@ class StoreLocator extends $.Tools.class {
             else
                 marker.icon.url = this._options.iconPath +
                     this._options.defaultMarkerIconFileName
+        }
         if (store.title)
             marker.title = store.title
         marker.infoWindow = new context.google.maps.InfoWindow({content: ''})
