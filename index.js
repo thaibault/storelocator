@@ -87,56 +87,46 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * @property _options.ipToLocation.applicationInterfaceURL {string} - IP to
  * location determination application interface url. {1} and {2} represents
  * currently used protocol and potentially given ip.
-   TODO stand
-                ###
-                    Time to wait for ip resolve. If time is up initialize
-                    on given fallback location.
-                ###
-                timeoutInMilliseconds: 5000
-                ###
-                    Defines bound withing determined locations should be.
-                    If resolved location isn't within this location it will
-                    be ignored.
-                ###
-                bounds:
-                    northEast: latitude: 85, longitude: 180
-                    southWest: latitude: -85, longitude: -180
-            # Initial view properties.
-            map: zoom: 3
-            # Delay before we show search input field.
-            showInputAfterLoadedDelayInMilliseconds: 500
-            # Transition to show search input field.
-            inputFadeInOption: duration: 'fast'
-            ###
-                Distance to move if stores are determined with same
-                latitude and longitude.
-            ###
-            distanceToMoveByDuplicatedEntries: 0.0001
-            marker:
-                # Options passed to the marker cluster.
-                cluster: gridSize: 100, maxZoom : 11
-                # Options passed to the icon.
-                icon:
-                    size: width: 44, height: 49, unit: 'px'
-                    scaledSize: width: 44, height: 49, unit: 'px'
-            ###
-                Specifies a zoom value wich will be adjusted after
-                successfully picked a search result. If set to "null" no
-                zoom change happens.
-            ###
-            successfulSearchZoom: 12
-            infoWindow:
-                ###
-                    Function or string returning or representing the info
-                    box. If a function is given and a promise is returned
-                    the info box will be filled with the given loading
-                    content and updated with the resolved data. The
-                    function becomes the corresponding marker as first
-                    argument and the store locator instance as second
-                    argument. If nothing is provided all available data
-                    will be listed in a generic info window.
-                ###
-                content: null
+ * @property _options.ipToLocation.timeoutInMilliseconds {number} - Time to
+ * wait for ip resolve. If time is up initialize on given fallback location.
+ * @property _options.ipToLocation.bounds
+ * {Object.<string, Object.<string, number>>} - Defines bound withing
+ * determined locations should be. If resolved location isn't within this
+ * location it will be ignored.
+ * @property _options.ipToLocation.bound.northEast {Object.<string, number>} -
+ * Defines north east bound.
+ * @property _options.ipToLocation.bound.northEast.latitude {number} - North
+ * east latitude bond.
+ * @property _options.ipToLocation.bound.northEast.longitude {number} - North
+ * east longitude bond.
+ * @property _options.ipToLocation.bound.southWest {Object.<string, number>} -
+ * Defined south west bound.
+ * @property _options.ipToLocation.bound.southWest.latitude {number} - South
+ * east latitude bound.
+ * @property _options.ipToLocation.bound.southWest.longitude {number} - South
+ * west longitude bound.
+ * @property _options.map {Object} - Initial view properties.
+ * @property _options.showInputAfterLoadedDelayInMilliseconds {number} - Delay
+ * before we show search input field.
+ * @property _options.inputFadeInOption {Object.<string, mixed>} - Transition
+ * options to show search input field.
+ * @property _options.distanceToMoveByDuplicatedEntries {number} - Distance to
+ * move if stores are determined with same latitude and longitude.
+ * @property _options.marker {Object|null} - Options passed to the marker
+ * cluster. If set to "null" no marker cluster will appear.
+ * @property _options.icon {Object} - Options passed to the icon.
+ * @property _options.successfulSearchZoom {number} - Specifies a zoom value
+ * wich will be adjusted after successfully picked a search result. If set to
+ * "null" no zoom change happens.
+ * @property _options.infoWindow {Object.<string, mixed>} - Info window
+ * options.
+ * @property _options.infoWindow.content {Function|string|null} - Function or
+ * string returning or representing the info box. If a function is given and a
+ * promise is returned the info box will be filled with the given loading
+ * content and updated with the resolved data. The function becomes the
+ * corresponding marker as first argument and the store locator instance as
+ * second argument. If nothing is provided all available data will be listed in
+ * a generic info window.
                 ###
                     Additional move to bottom relative to the marker if an
                     info window has been opened.
