@@ -24,6 +24,12 @@ import 'jQuery-tools'
 import type {$DomNode} from 'jQuery-tools'
 /* eslint-enable no-duplicate-imports */
 // endregion
+// region types
+export type Position = {
+    latitude:number;
+    longitude:number;
+}
+// endregion
 const context:Object = (():Object => {
     if ($.type(window) === 'undefined') {
         if ($.type(global) === 'undefined')
@@ -127,470 +133,395 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * corresponding marker as first argument and the store locator instance as
  * second argument. If nothing is provided all available data will be listed in
  * a generic info window.
-                ###
-                    Additional move to bottom relative to the marker if an
-                    info window has been opened.
-                ###
-                additionalMoveToBottomInPixel: 120
-                ###
-                    Content to show in the info window during info window
-                    load.
-                ###
-                loadingContent: '<div class="idle">loading...</div>'
-            ###
-                If a number is given a generic search will be provided and
-                given number will be interpret as search result precision
-                tolerance to identify a marker as search result. If an
-                object is given it indicates what should be search for. The
-                object can hold up to nine keys. "properties" to specify
-                which store data should contain given search text,
-                "maximumNumberOfResults" to limit the auto complete result,
-                "loadingContent" to display while the results are loading,
-                "numberOfAdditionalGenericPlaces" a tuple describing a
-                range of minimal to maximal limits of additional generic
-                google suggestions depending on number of local search
-                results, "maximalDistanceInMeter" to specify maximal
-                distance from current position to search suggestions,
-                "genericPlaceFilter" specifies a function which gets a
-                relevant place to decide if the place should be included
-                (returns a boolean value), "prefereGenericResults"
-                specifies a boolean value indicating if generic search
-                results should be the first results,
-                "genericPlaceSearchOptions" specifies how a generic place
-                search should be done (google maps request object
-                specification) and "content" to render the search results.
-                "content" can be a function or string returning or
-                representing the search results. If a function is given and
-                a promise is returned the info box will be filled with the
-                given loading content and updated with the resolved data.
-                The function becomes search results as first argument, a
-                boolean value as second argument indicating if the maximum
-                number of search results was reached and the store locator
-                instance as third argument. If nothing is provided all
-                available data will be listed in a generic info window.
-            ###
-            searchBox: 50
-            # Function to call if map is fully initialized.
-            onLoaded: $.noop
-            # Triggers if a marker info window will be opened.
-            onInfoWindowOpen: $.noop
-            # Triggers if a marker info window has finished opening.
-            onInfoWindowOpened: $.noop
-            # Triggers before new search results appears.
-            onAddSearchResults: $.noop
-            # Triggers before old search results will be removed.
-            onRemoveSearchResults: $.noop
-            # Triggers before search result box appears.
-            onOpenSearchResults: $.noop
-            # Triggers before search result box will be hidden.
-            onCloseSearchResults: $.noop
-            # Triggers after a marker starts to highlight.
-            onMarkerHighlighted: $.noop
- * TODO add all properties
+ * @property _options.infoWindow.additionalMoveToBottomInPixel {number} -
+ * Additional move to bottom relative to the marker if an info window has been
+ * opened.
+ * @property _options.infoWindow.loadingContent {string} - Content to show in
+ * the info window during info window load.
+ * @property _options.searchBox {number|Object} - If a number is given a
+ * generic search will be provided and given number will be interpret as search
+ * result precision tolerance to identify a marker as search result. If an
+ * object is given it indicates what should be search for. The object can hold
+ * up to nine keys. "properties" to specify which store data should contain
+ * given search text, "maximumNumberOfResults" to limit the auto complete
+ * result, "loadingContent" to display while the results are loading,
+ * "numberOfAdditionalGenericPlaces" a tuple describing a range of minimal to
+ * maximal limits of additional generic google suggestions depending on number
+ * of local search results, "maximalDistanceInMeter" to specify maximal
+ * distance from current position to search suggestions, "genericPlaceFilter"
+ * specifies a function which gets a relevant place to decide if the place
+ * should be included (returns a boolean value), "prefereGenericResults"
+ * specifies a boolean value indicating if generic search results should be the
+ * first results, "genericPlaceSearchOptions" specifies how a generic place
+ * search should be done (google maps request object specification) and
+ * "content" to render the search results. "content" can be a function or
+ * string returning or representing the search results. If a function is given
+ * and a promise is returned the info box will be filled with the given loading
+ * content and updated with the resolved data. The function becomes search
+ * results as first argument, a boolean value as second argument indicating if
+ * the maximum number of search results was reached and the store locator
+ * instance as third argument. If nothing is provided all available data will
+ * be listed in a generic info window.
+ * @property _options.onLoaded {Function} - Function to call if map is fully
+ * initialized.
+ * @property _options.onInfoWindowOpen {Function} - Triggers if a marker info
+ * window will be opened.
+ * @property _options.onInfoWindowOpened {Function} - Triggers if a marker info
+ * window has finished opening.
+ * @property _options.onAddSearchResults {Function} - Triggers before new
+ * search results appears.
+ * @property _options.onRemoveSearchResults {Function} - Triggers before old
+ * search results will be removed.
+ * @property _options.onOpenSearchResults {Function} - Triggers before search
+ * result box appears.
+ * @property _options.onCloseSearchResults {Function} - Triggers before search
+ * result box will be hidden.
+ * @property _options.onMarkerHighlighted {Function} - Triggers after a marker
+ * starts to highlight.
  */
 class StoreLocator extends $.Tools.class {
     // region static properties
     static _name:string = 'StoreLocator'
     // endregion
-    initialize: (options={}) ->
-        ###Entry point for object orientated jQuery plugin.###
-        # region properties
-        # Saves last found search results.
+    /**
+     * Entry point for object orientated jQuery plugin.
+     * @param options - Options to overwrite default ones.
+     * @returns Currently selected dom node.
+     */
+    initialize(options:Object = {}):$DomNode {
+        // region properties
         this.currentSearchResults = []
-        # Saves last searched string.
         this.currentSearchText = null
-        # Saves currently opened results dom node or null if no results
-        # exists yet.
         this.resultsDomNode = null
-        # Saves current search results content dom node.
         this.currentSearchResultsDomNode = null
-        # Saves currently opened window instance.
         this.currentlyOpenWindow = null
-        # Saves currently highlighted marker instance.
         this.currentlyHighlightedMarker = null
-        # Indicates weather current search results aren't valid anymore.
         this.searchResultsDirty = false
-        # Saves all seen locations to recognize duplicates.
         this.seenLocations = []
-        # Saves all recognized markers.
         this.markers = []
-        # Public editable property to set current search result range. This
-        # is useful for pagination implementations in template level.
         this.currentSearchResultRange = null
-        # Saves all plugin interface options.
-        this._options =
-            ###
-                URL to retrieve stores, list of stores or object describing
-                bounds to create random stores within. If a
-                "generateProperties" function is given it will be called to
-                retrieve additional properties for each store. The
-                specified store will be given to the function.
-            ###
+        this._options = {
             stores: {
-                northEast: latitude: 85, longitude: 180
-                southWest: latitude: -85, longitude: -180
-                number: 100, generateProperties: (store) -> {}
-            }
-            # Additional static store properties which will be available to
-            # each store.
-            addtionalStoreProperties: {}
-            # Path prefix to search for marker icons.
-            iconPath: '/webAsset/image/storeLocator/'
-            ###
-                Specifies a fallback marker icon (if no store specific icon
-                was set). If set to "null" google will place a fallback
-                icon.
-            ###
-            defaultMarkerIconFileName: null
-            ###
-                If not provided we initialize the map with center in
-                current location determined by internet protocol address.
-            ###
-            startLocation: null
-            # Fallback location if automatic detection fails.
-            fallbackLocation: latitude: 51.124213, longitude: 10.147705
-            ###
-                Current ip. If set to "null" ip will be determined
-                dynamically
-            ###
-            ip: null
-            ipToLocation:
-                ###
-                    IP to location determination application interface url.
-                    {1} and {2} represents currently used protocol and
-                    potentially given ip.
-                ###
-                applicationInterfaceURL: '{1}://freegeoip.net/json/{2}'
-                ###
-                    Time to wait for ip resolve. If time is up initialize
-                    on given fallback location.
-                ###
-                timeoutInMilliseconds: 5000
-                ###
-                    Defines bound withing determined locations should be.
-                    If resolved location isn't within this location it will
-                    be ignored.
-                ###
-                bounds:
-                    northEast: latitude: 85, longitude: 180
-                    southWest: latitude: -85, longitude: -180
-            # Initial view properties.
-            map: zoom: 3
-            # Delay before we show search input field.
-            showInputAfterLoadedDelayInMilliseconds: 500
-            # Transition to show search input field.
-            inputFadeInOption: duration: 'fast'
-            ###
-                Distance to move if stores are determined with same
-                latitude and longitude.
-            ###
-            distanceToMoveByDuplicatedEntries: 0.0001
-            marker:
-                # Options passed to the marker cluster.
-                cluster: gridSize: 100, maxZoom : 11
-                # Options passed to the icon.
-                icon:
-                    size: width: 44, height: 49, unit: 'px'
-                    scaledSize: width: 44, height: 49, unit: 'px'
-            ###
-                Specifies a zoom value wich will be adjusted after
-                successfully picked a search result. If set to "null" no
-                zoom change happens.
-            ###
-            successfulSearchZoom: 12
-            infoWindow:
-                ###
-                    Function or string returning or representing the info
-                    box. If a function is given and a promise is returned
-                    the info box will be filled with the given loading
-                    content and updated with the resolved data. The
-                    function becomes the corresponding marker as first
-                    argument and the store locator instance as second
-                    argument. If nothing is provided all available data
-                    will be listed in a generic info window.
-                ###
-                content: null
-                ###
-                    Additional move to bottom relative to the marker if an
-                    info window has been opened.
-                ###
-                additionalMoveToBottomInPixel: 120
-                ###
-                    Content to show in the info window during info window
-                    load.
-                ###
+                northEast: {latitude: 85, longitude: 180},
+                southWest: {latitude: -85, longitude: -180},
+                number: 100, generateProperties: (store:Object) => {}
+            },
+            addtionalStoreProperties: {},
+            iconPath: '/webAsset/image/storeLocator/',
+            defaultMarkerIconFileName: null,
+            startLocation: null,
+            fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
+            ip: null,
+            ipToLocation: {
+                applicationInterfaceURL: '{1}://freegeoip.net/json/{2}',
+                timeoutInMilliseconds: 5000,
+                bounds: {
+                    northEast: {latitude: 85, longitude: 180},
+                    southWest: {latitude: -85, longitude: -180}
+                }
+            },
+            map: {zoom: 3},
+            showInputAfterLoadedDelayInMilliseconds: 500,
+            inputFadeInOption: {duration: 'fast'},
+            distanceToMoveByDuplicatedEntries: 0.0001,
+            marker: {
+                cluster: {gridSize: 100, maxZoom : 11},
+                icon: {
+                    size: {width: 44, height: 49, unit: 'px'},
+                    scaledSize: {width: 44, height: 49, unit: 'px'},
+                }
+            },
+            successfulSearchZoom: 12,
+            infoWindow: {
+                content: null,
+                additionalMoveToBottomInPixel: 120,
                 loadingContent: '<div class="idle">loading...</div>'
-            ###
-                If a number is given a generic search will be provided and
-                given number will be interpret as search result precision
-                tolerance to identify a marker as search result. If an
-                object is given it indicates what should be search for. The
-                object can hold up to nine keys. "properties" to specify
-                which store data should contain given search text,
-                "maximumNumberOfResults" to limit the auto complete result,
-                "loadingContent" to display while the results are loading,
-                "numberOfAdditionalGenericPlaces" a tuple describing a
-                range of minimal to maximal limits of additional generic
-                google suggestions depending on number of local search
-                results, "maximalDistanceInMeter" to specify maximal
-                distance from current position to search suggestions,
-                "genericPlaceFilter" specifies a function which gets a
-                relevant place to decide if the place should be included
-                (returns a boolean value), "prefereGenericResults"
-                specifies a boolean value indicating if generic search
-                results should be the first results,
-                "genericPlaceSearchOptions" specifies how a generic place
-                search should be done (google maps request object
-                specification) and "content" to render the search results.
-                "content" can be a function or string returning or
-                representing the search results. If a function is given and
-                a promise is returned the info box will be filled with the
-                given loading content and updated with the resolved data.
-                The function becomes search results as first argument, a
-                boolean value as second argument indicating if the maximum
-                number of search results was reached and the store locator
-                instance as third argument. If nothing is provided all
-                available data will be listed in a generic info window.
-            ###
-            searchBox: 50
-            # Function to call if map is fully initialized.
-            onLoaded: $.noop
-            # Triggers if a marker info window will be opened.
-            onInfoWindowOpen: $.noop
-            # Triggers if a marker info window has finished opening.
-            onInfoWindowOpened: $.noop
-            # Triggers before new search results appears.
-            onAddSearchResults: $.noop
-            # Triggers before old search results will be removed.
-            onRemoveSearchResults: $.noop
-            # Triggers before search result box appears.
-            onOpenSearchResults: $.noop
-            # Triggers before search result box will be hidden.
-            onCloseSearchResults: $.noop
-            # Triggers after a marker starts to highlight.
+            },
+            searchBox: 50,
+            onLoaded: $.noop,
+            onInfoWindowOpen: $.noop,
+            onInfoWindowOpened: $.noop,
+            onAddSearchResults: $.noop,
+            onRemoveSearchResults: $.noop,
+            onOpenSearchResults: $.noop,
+            onCloseSearchResults: $.noop,
             onMarkerHighlighted: $.noop
-        # endregion
-        # Merges given options with default options recursively.
-        super options
-        # Grab dom nodes
-        this.$domNodes = this.grabDomNode this._options.domNode
-        if this._options.startLocation?
+        }
+        // endregion
+        // Merges given options with default options recursively.
+        super.initialize(options)
+        // Grab dom nodes
+        this.$domNodes = this.grabDomNode(this._options.domNode)
+        if (this._options.startLocation)
             this.initializeMap()
         else
             this._options.startLocation = this._options.fallbackLocation
-            # NOTE: If request is slower than the timeout parameter for
-            # jsonp request the padding function isn't set anymore so an
-            # error occurs. That's why we use our own timeout
-            # implementation.
-            loaded = false
-            window.setTimeout (=> if not loaded
-                loaded = true
-                this.initializeMap()
-            ), this._options.ipToLocation.timeoutInMilliseconds
-            $.ajax(
+            /*
+                NOTE: If request is slower than the timeout parameter for jsonp
+                request the padding function isn't set anymore so an error
+                occurs. That's why we use our own timeout implementation.
+            */
+            const loaded:boolean = false
+            setTimeout(():void => {
+                if (!loaded) {
+                    loaded = true
+                    this.initializeMap()
+                }
+            }, this._options.ipToLocation.timeoutInMilliseconds)
+            $.ajax({
                 url: this.stringFormat(
-                    this._options.ipToLocation.applicationInterfaceURL
+                    this._options.ipToLocation.applicationInterfaceURL,
                     document.location.protocol.substring(
                         0, document.location.protocol.length - 1
-                    ), this._options.ip or ''
-                ), dataType: 'jsonp', cache: true
-            ).always (currentLocation, textStatus) => if not loaded
-                loaded = true
-                if textStatus is 'success'
-                    # Check if determined location is within defined
-                    # bounds.
-                    if not this._options.ipToLocation.bounds? or (
-                        new window.google.maps.LatLngBounds(
-                            new window.google.maps.LatLng(
-                                this._options.ipToLocation.bounds.southWest
-                                    .latitude
-                                this._options.ipToLocation.bounds.southWest
-                                    .longitude)
-                            new window.google.maps.LatLng(
-                                this._options.ipToLocation.bounds.northEast
-                                    .latitude
-                                this._options.ipToLocation.bounds.northEast
-                                    .longitude))
-                    ).contains new window.google.maps.LatLng(
-                        currentLocation.latitude, currentLocation.longitude
-                    )
-                        this._options.startLocation = currentLocation
-                this.initializeMap()
-        this.$domNode or this
-    initializeMap: ->
-        ###Initializes cluster, info windows and marker.###
-        this._options.map.center = new window.google.maps.LatLng(
-            this._options.startLocation.latitude
+                    ), this._options.ip || ''
+                ),
+                dataType: 'jsonp', cache: true
+            }).always((currentLocation:Position, textStatus:string):void => {
+                if (!loaded) {
+                    loaded = true
+                    if (textStatus === 'success')
+                        /*
+                            Check if determined location is within defined
+                            bounds.
+                        */
+                        if (!this._options.ipToLocation.bounds || (
+                            new context.google.maps.LatLngBounds(
+                                new context.google.maps.LatLng(
+                                    this._options.ipToLocation.bounds.southWest
+                                        .latitude
+                                    this._options.ipToLocation.bounds.southWest
+                                        .longitude)
+                                new context.google.maps.LatLng(
+                                    this._options.ipToLocation.bounds.northEast
+                                        .latitude
+                                    this._options.ipToLocation.bounds.northEast
+                                        .longitude))
+                        ).contains(new context.google.maps.LatLng(
+                            currentLocation.latitude, currentLocation.longitude
+                        )))
+                            this._options.startLocation = currentLocation
+                    this.initializeMap()
+                }
+            })
+        return this.$domNode
+    }
+    /**
+     * Initializes cluster, info windows and marker.
+     * @returns The current instance.
+     */
+    initializeMap():StoreLocator {
+        this._options.map.center = new context.google.maps.LatLng(
+            this._options.startLocation.latitude,
             this._options.startLocation.longitude)
-        this.map = new window.google.maps.Map $('<div>').appendTo(
+        this.map = new context.google.maps.Map($('<div>').appendTo(
             this.$domNode
-        )[0], this._options.map
-        if this._options.marker.cluster
-            markerCluster = new window.MarkerClusterer(
+        )[0], this._options.map)
+        if (this._options.marker.cluster)
+            markerCluster = new context.MarkerClusterer(
                 this.map, [], this._options.marker.cluster)
-        # Add a marker for each retrieved store.
-        if $.isArray this._options.stores
-            for store in this._options.stores
-                $.extend(
-                    true, store, this._options.addtionalStoreProperties)
-                marker = this.createMarker store
-                if this._options.marker.cluster
-                    markerCluster.addMarker marker
-        else if $.type(this._options.stores) is 'string'
-            $.getJSON this._options.stores, (stores) =>
-                for store in stores
+        // Add a marker for each retrieved store.
+        if ($.isArray(this._options.stores))
+            for (const store:Object of this._options.stores) {
+                $.extend(true, store, this._options.addtionalStoreProperties)
+                const marker:Object = this.createMarker(store)
+                if (this._options.marker.cluster)
+                    markerCluster.addMarker(marker)
+            }
+        else if ($.type(this._options.stores) === 'string')
+            $.getJSON(this._options.stores, (stores:Array<Object>):void => {
+                for (const store:Object of stores) {
                     $.extend(
                         true, store, this._options.addtionalStoreProperties)
-                    marker = this.createMarker store
-                    if this._options.marker.cluster
-                        markerCluster.addMarker marker
-        else
-            southWest = new window.google.maps.LatLng(
-                this._options.stores.southWest.latitude
+                    const marker:Object = this.createMarker(store)
+                    if (this._options.marker.cluster)
+                        markerCluster.addMarker(marker)
+                }
+            })
+        else {
+            const southWest:Object = new window.google.maps.LatLng(
+                this._options.stores.southWest.latitude,
                 this._options.stores.southWest.longitude)
-            northEast = new window.google.maps.LatLng(
-                this._options.stores.northEast.latitude
+            const northEast:Object = new window.google.maps.LatLng(
+                this._options.stores.northEast.latitude,
                 this._options.stores.northEast.longitude)
-            for index in [0...this._options.stores.number]
-                store = $.extend {
+            for (
+                let index:number = 0; index < this._options.stores.number;
+                index++
+            ) {
+                const store:Object = $.extend({
                     latitude: southWest.lat() + (northEast.lat(
-                    ) - southWest.lat()) * window.Math.random()
+                    ) - southWest.lat()) * window.Math.random(),
                     longitude: southWest.lng() + (northEast.lng(
                     ) - southWest.lng()) * window.Math.random()
-                }, this._options.addtionalStoreProperties
-                marker = this.createMarker this.createMarker $.extend(
-                    store, this._options.stores.generateProperties store)
-                if this._options.marker.cluster
-                    markerCluster.addMarker marker
-        # Create the search box and link it to the UI element.
-        this.map.controls[window.google.maps.ControlPosition.TOP_LEFT]
-        .push this.$domNode.find('input')[0]
-        if $.type(this._options.searchBox) is 'number'
+                }, this._options.addtionalStoreProperties)
+                const marker:Object = this.createMarker($.extend(
+                    store, this._options.stores.generateProperties(store)))
+                if (this._options.marker.cluster)
+                    markerCluster.addMarker(marker)
+            }
+        }
+        // Create the search box and link it to the UI element.
+        this.map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(
+            this.$domNode.find('input')[0])
+        if ($.type(this._options.searchBox) === 'number')
             this.initializeGenericSearchBox()
-        else
-            window.google.maps.event.addListener this.map, 'click', =>
-                this.closeSearchResults()
-            window.google.maps.event.addListener this.map, 'dragstart', =>
-                this.closeSearchResults()
-            this._options.searchBox = $.extend true, {
-                maximumNumberOfResults: 50
-                numberOfAdditionalGenericPlaces: [2, 5]
-                maximalDistanceInMeter: 1000000
-                loadingContent: this._options.infoWindow.loadingContent
-                genericPlaceFilter: (place) ->
+        else {
+            context.google.maps.event.addListener(this.map, 'click', (
+            ):StoreLocator => this.closeSearchResults())
+            context.google.maps.event.addListener(this.map, 'dragstart', (
+            ):StoreLocator => this.closeSearchResults())
+            this._options.searchBox = $.extend(true, {
+                maximumNumberOfResults: 50,
+                numberOfAdditionalGenericPlaces: [2, 5],
+                maximalDistanceInMeter: 1000000,
+                loadingContent: this._options.infoWindow.loadingContent,
+                genericPlaceFilter: (place:Object):void => {
                     place.formatted_address.indexOf(
                         ' Deutschland'
-                    ) isnt -1 or place.formatted_address.indexOf(
+                    ) !== -1 || place.formatted_address.indexOf(
                         ' Germany'
-                    ) isnt -1
-                prefereGenericResults: true
-                genericPlaceSearchOptions: radius: '50000'
-            }, this._options.searchBox
+                    ) !== -1
+                },
+                prefereGenericResults: true,
+                genericPlaceSearchOptions: {radius: '50000'}
+            }, this._options.searchBox)
             this.initializeDataSourceSearchBox()
-        # Close marker if zoom level is bigger than the aggregation.
-        google.maps.event.addListener this.map, 'zoom_changed', =>
-            if(
-                this.currentlyOpenWindow? and
-                this.currentlyOpenWindow.isOpen and
+        }
+        // Close marker if zoom level is bigger than the aggregation.
+        context.google.maps.event.addListener(this.map, 'zoom_changed', (
+        ):void => {
+            if (
+                this.currentlyOpenWindow &&
+                this.currentlyOpenWindow.isOpen &&
                 this.map.getZoom() <= this._options.marker.cluster.maxZoom
-            )
+            ) {
                 this.currentlyOpenWindow.close()
                 this.currentlyOpenWindow.isOpen = false
-        this.fireEvent 'loaded'
-        this
-    initializeDataSourceSearchResultsBox: ->
-        ###Position search results right below the search input field.###
-        cssProperties = {}
-        for propertyName in [
+            }
+        })
+        this.fireEvent('loaded')
+        return this
+    }
+    /**
+     * Position search results right below the search input field.
+     * @returns The current instance.
+     */
+    initializeDataSourceSearchResultsBox():StoreLocator {
+        const cssProperties:Object = {}
+        for (const propertyName:string of [
             'position', 'width', 'top', 'left', 'border'
-        ]
+        ])
             cssProperties[propertyName] = this.$domNode.find('input').css(
                 propertyName)
         cssProperties.marginTop = this.$domNode.find('input').outerHeight(
             true)
-        # Prepare search result positioning.
+        // Prepare search result positioning.
         this.resultsDomNode = $('<div>').addClass(
-            this.stringCamelCaseToDelimited(
-                "#{this.__name__}SearchResults")
-        ).css cssProperties
-        # Inject the final search results into the dom tree.
-        this.$domNode.find('input').after this.resultsDomNode
-    initializeDataSourceSearchBox: ->
-        ###
-            Initializes a data source based search box to open and focus
-            them matching marker.
-        ###
-        this.on this.$domNode, 'keydown', (event) =>
-            # NOTE: Events that doesn't occurs in search context are
-            # handled by the native map implementation and won't be
-            # propagated so we doesn't have to care about that.
-            if this.currentSearchResults.length
-                if this.currentSearchResultRange
+            this.constructor.stringCamelCaseToDelimited(
+                `${this.__name__}SearchResults`)
+        ).css(cssProperties)
+        // Inject the final search results into the dom tree.
+        this.$domNode.find('input').after(this.resultsDomNode)
+        return this
+    }
+    /**
+     * Initializes a data source based search box to open and focus them
+     * matching marker.
+     * @returns The current instance.
+     */
+    initializeDataSourceSearchBox():StoreLocator {
+        this.on(this.$domNode, 'keydown', (event:Object):void => {
+            /*
+                NOTE: Events that doesn't occurs in search context are handled
+                by the native map implementation and won't be propagated so we
+                doesn't have to care about that.
+            */
+            if (this.currentSearchResults.length) {
+                if (this.currentSearchResultRange)
                     this.currentSearchResultRange = [
-                        window.Math.max(
-                            0, this.currentSearchResultRange[0])
+                        window.Math.max(0, this.currentSearchResultRange[0])
                         window.Math.min(
-                            this.currentSearchResults.length - 1
+                            this.currentSearchResults.length - 1,
                             this.currentSearchResultRange[1])]
                 else
                     this.currentSearchResultRange = [
                         0, this.currentSearchResults.length - 1]
-                currentIndex = this.currentSearchResults.indexOf(
+                const currentIndex:number = this.currentSearchResults.indexOf(
                     this.currentlyHighlightedMarker)
-                if event.keyCode is this.keyCode.DOWN
-                    if(
-                        currentIndex is -1 or
+                if (event.keyCode === this.keyCode.DOWN)
+                    if (
+                        currentIndex === -1 ||
                         this.currentSearchResultRange[1] < currentIndex + 1
                     )
                         this.highlightMarker(
-                            null, this.highlightMarker
+                            null, this.highlightMarker,
                             this.currentSearchResults[this
                             .currentSearchResultRange[0]], event)
                     else
                         this.highlightMarker(
-                            null, this.highlightMarker
+                            null, this.highlightMarker,
                             this.currentSearchResults[currentIndex + 1]
                             event)
-                else if event.keyCode is this.keyCode.UP
-                    if currentIndex in [
-                        this.currentSearchResultRange[0], -1
-                    ]
+                else if (event.keyCode === this.keyCode.UP)
+                    if ([this.currentSearchResultRange[0], -1].includes(
+                        currentIndex
+                    ))
                         this.highlightMarker(
-                            null, this.highlightMarker
+                            null, this.highlightMarker,
                             this.currentSearchResults[this
                             .currentSearchResultRange[1]], event)
                     else
                         this.highlightMarker(
-                            null, this.highlightMarker
-                            this.currentSearchResults[currentIndex - 1]
-                            event)
-                else if(event.keyCode is this.keyCode.ENTER and
-                        this.currentlyHighlightedMarker)
+                            null, this.highlightMarker,
+                            this.currentSearchResults[currentIndex - 1], event)
+                else if (
+                    event.keyCode === this.keyCode.ENTER &&
+                    this.currentlyHighlightedMarker
+                ) {
                     event.stopPropagation()
-                    if this.currentlyHighlightedMarker.infoWindow
+                    if (this.currentlyHighlightedMarker.infoWindow)
                         this.openMarker(
-                            null, this.openMarker
+                            null, this.openMarker,
                             this.currentlyHighlightedMarker, event)
                     else
                         this.openPlace(
-                            this.currentlyHighlightedMarker.data
+                            this.currentlyHighlightedMarker.data,
                             this.openPlace, event)
-        this.on this.$domNode.find('input'), 'focus', =>
-            this.openSearchResults() if this.currentSearchText
-        this.on this.$domNode.find('input'), 'keydown', (event) =>
-            for name, keyCode of this.keyCode
-                return if event.keyCode is keyCode and name not in ['DOWN']
-            this.openSearchResults() if this.currentSearchText
-        this.on this.$domNode.find('input'), 'click', =>
-            this.openSearchResults() if this.currentSearchText
-        window.google.maps.event.addListener this.map, 'center_changed', =>
-            # NOTE: Search results depends on current position.
-            if this.currentSearchText and this.resultsDomNode?
+                }
+            }
+        })
+        this.on(this.$domNode.find('input'), 'focus', ():void => {
+            if (this.currentSearchText)
+                this.openSearchResults()
+        })
+        this.on(this.$domNode.find('input'), 'keydown', (
+            event:Object
+        ):void => {
+            for (const name:string in this.keyCode)
+                if (
+                    this.keyCode.hasOwnProperty(name) &&
+                    event.keyCode === this.keyCode[name] && name !== 'DOWN'
+                )
+                    return
+        })
+        if (this.currentSearchText)
+            this.openSearchResults()
+        this.on(this.$domNode.find('input'), 'click', ():void => {
+            if (this.currentSearchText)
+                this.openSearchResults()
+        })
+        context.google.maps.event.addListener(this.map, 'center_changed', (
+        ):void => {
+            // NOTE: Search results depends on current position.
+            if (this.currentSearchText && this.resultsDomNode)
                 this.searchResultsDirty = true
+        })
         this.on(
             this.$domNode.find('input'), 'keyup'
             this.getUpdateSearchResultsHandler())
-        this
+        return this
+    }
+    // TODO STand
     getUpdateSearchResultsHandler: ->
         placesService = new google.maps.places.PlacesService this.map
         this.debounce ((event) =>
