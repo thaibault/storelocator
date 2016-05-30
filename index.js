@@ -19,6 +19,7 @@
 */
 // region imports
 import $ from 'jquery'
+import type {PromiseCallbackFunction} from 'webOptimizer/type'
 import 'jQuery-tools'
 /* eslint-disable no-duplicate-imports */
 import type {$DomNode} from 'jQuery-tools'
@@ -216,7 +217,7 @@ class StoreLocator extends $.Tools.class {
             stores: {
                 northEast: {latitude: 85, longitude: 180},
                 southWest: {latitude: -85, longitude: -180},
-                number: 100, generateProperties: (store:Object) => {}
+                number: 100, generateProperties: (store:Object):Object => store
             },
             addtionalStoreProperties: {},
             iconPath: '/webAsset/image/storeLocator/',
@@ -237,10 +238,10 @@ class StoreLocator extends $.Tools.class {
             inputFadeInOption: {duration: 'fast'},
             distanceToMoveByDuplicatedEntries: 0.0001,
             marker: {
-                cluster: {gridSize: 100, maxZoom : 11},
+                cluster: {gridSize: 100, maxZoom: 11},
                 icon: {
                     size: {width: 44, height: 49, unit: 'px'},
-                    scaledSize: {width: 44, height: 49, unit: 'px'},
+                    scaledSize: {width: 44, height: 49, unit: 'px'}
                 }
             },
             successfulSearchZoom: 12,
@@ -388,13 +389,13 @@ class StoreLocator extends $.Tools.class {
                 numberOfAdditionalGenericPlaces: [2, 5],
                 maximalDistanceInMeter: 1000000,
                 loadingContent: this._options.infoWindow.loadingContent,
-                genericPlaceFilter: (place:Object):void => {
+                genericPlaceFilter: (place:Object):boolean => (
                     place.formatted_address.indexOf(
                         ' Deutschland'
                     ) !== -1 || place.formatted_address.indexOf(
                         ' Germany'
                     ) !== -1
-                },
+                ),
                 prefereGenericResults: true,
                 genericPlaceSearchOptions: {radius: '50000'}
             }, this._options.searchBox)
@@ -652,10 +653,9 @@ class StoreLocator extends $.Tools.class {
                     }
                 }
                 searchResults.push(result)
-                if (
-                    this._options.searchBox.numberOfAdditionalGenericPlaces[1]
-                    < index
-                )
+                if (this._options.searchBox.numberOfAdditionalGenericPlaces[
+                    1
+                ] < index)
                     break
             }
         }
@@ -835,7 +835,7 @@ class StoreLocator extends $.Tools.class {
             pick list. Retrieve the matching places for that item.
         */
         context.google.maps.event.addListener(searchBox, 'places_changed', (
-        ):StoreLocator => this.ensurePlaceLocations(searchBox.getPlaces(), (
+        ):Promise => this.ensurePlaceLocations(searchBox.getPlaces()).then((
             places:Array<Object>
         ):void => {
             const foundPlace:?Object = this.determineBestSearchResult(places)
@@ -875,41 +875,44 @@ class StoreLocator extends $.Tools.class {
     /**
      * Ensures that every given place have a location property.
      * @param places - Places to check for.
-     * @param onSuccess - Callback to trigger if all places exits.
-     * @return The current instance.
+     * @returns A promise which will be resolved if all places are ensured.
      */
-    ensurePlaceLocations(places:Array<Object>, onSuccess:(
-        places:Array<Object>
-    ) => any) {
-        let runningGeocodes:number = 0
-        const geocoder:Object = new context.google.maps.Geocoder()
-        for (const place:Object of places)
-            if (!('geometry' in place && 'location' in place.geometry)) {
-                this.warn(
-                    'Found place "{1}" doesn\'t have a location. Full object:',
-                    place.name)
-                this.warn(place)
-                this.info(
-                    'Geocode will be determined separately. With address ' +
-                    '"{1}".', place.name)
-                runningGeocodes += 1
-                geocoder.geocode({address: place.name}, (
-                    results:Array<Object>, status:number
-                ):void => {
-                    runningGeocodes -= 1
-                    if (status === context.google.maps.GeocoderStatus.OK)
-                        place.geometry = results[0].geometry
-                    else {
-                        delete places[places.indexOf(place)]
-                        this.warn(
-                            'Found place "{1}" couldn\'t be geocoded by ' +
-                            'google. Removing it from the places list.')
-                    }
-                    if (runningGeocodes === 0)
-                        onSuccess(places)
-                })
-            }
-        return this
+    ensurePlaceLocations(places:Array<Object>):Promise {
+        return new Promise((
+            resolve:PromiseCallbackFunction, reject:PromiseCallbackFunction
+        ):void => {
+            let runningGeocodes:number = 0
+            const geocoder:Object = new context.google.maps.Geocoder()
+            for (const place:Object of places)
+                if (!('geometry' in place && 'location' in place.geometry)) {
+                    this.warn(
+                        'Found place "{1}" doesn\'t have a location. Full ' +
+                        'object:', place.name)
+                    this.warn(place)
+                    this.info(
+                        'Geocode will be determined separately. With address' +
+                        ' "{1}".', place.name)
+                    runningGeocodes += 1
+                    /* eslint-disable no-loop-func */
+                    geocoder.geocode({address: place.name}, (
+                        results:Array<Object>, status:number
+                    ):void => {
+                        runningGeocodes -= 1
+                        if (status === context.google.maps.GeocoderStatus.OK)
+                            place.geometry = results[0].geometry
+                        else {
+                            delete places[places.indexOf(place)]
+                            this.warn(
+                                'Found place "{1}" couldn\'t be geocoded by ' +
+                                'google. Removing it from the places list.',
+                                place.name)
+                        }
+                        if (runningGeocodes === 0)
+                            resolve(places)
+                    })
+                    /* eslint-enable no-loop-func */
+                }
+        })
     }
     /**
      * Determines the best search result from given list of candidates.
@@ -1076,7 +1079,6 @@ class StoreLocator extends $.Tools.class {
     }
     /**
      * Opens given marker info window. And closes a potential opened windows.
-     * @param place - Highlight marker for corresponding place.
      * @param marker - Marker to Highlight.
      * @param event - Event object for corresponding event that has the
      * highlighting requested.
@@ -1141,7 +1143,8 @@ class StoreLocator extends $.Tools.class {
             return this._options.infoWindow.content
         let content:string = '<div>'
         for (const name:string in marker.data)
-            content += `${name}: ${marker.data[name]}<br />`
+            if (marker.data.hasOwnProperty(name))
+                content += `${name}: ${marker.data[name]}<br />`
         return `${content}</div>`
     }
     /**
@@ -1159,7 +1162,8 @@ class StoreLocator extends $.Tools.class {
         for (const result:Object of searchResults) {
             content += '<div>'
             for (const name:string in result.data)
-                content += `${name}: ${result.data[name]}<br />`
+                if (result.data.hasOwnProperty(name))
+                    content += `${name}: ${result.data[name]}<br />`
             content += '</div>'
         }
         return content
