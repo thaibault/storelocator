@@ -185,15 +185,15 @@ class StoreLocator extends $.Tools.class {
     // endregion
     // region dynamic properties
     currentSearchResults:Array<Object>
-    currentSearchText = null
-    resultsDomNode = null
-    currentSearchResultsDomNode = null
-    currentlyOpenWindow = null
-    currentlyHighlightedMarker = null
+    currentSearchText:?string
+    resultsDomNode:?$DomNode
+    currentSearchResultsDomNode:?$DomNode
+    currentlyOpenWindow:?Object
+    currentlyHighlightedMarker:?Object
     searchResultsDirty:boolean
-    seenLocations:
-    markers:
-    currentSearchResultRange:;
+    seenLocations:Array<string>
+    markers:Array<Object>
+    currentSearchResultRange:?Array<number>;
     // endregion
     /**
      * Entry point for object orientated jQuery plugin.
@@ -271,7 +271,7 @@ class StoreLocator extends $.Tools.class {
                 request the padding function isn't set anymore so an error
                 occurs. That's why we use our own timeout implementation.
             */
-            const loaded:boolean = false
+            let loaded:boolean = false
             setTimeout(():void => {
                 if (!loaded) {
                     loaded = true
@@ -327,6 +327,7 @@ class StoreLocator extends $.Tools.class {
         this.map = new context.google.maps.Map($('<div>').appendTo(
             this.$domNode
         )[0], this._options.map)
+        let markerCluster:?Object = null
         if (this._options.marker.cluster)
             markerCluster = new context.MarkerClusterer(
                 this.map, [], this._options.marker.cluster)
@@ -335,7 +336,7 @@ class StoreLocator extends $.Tools.class {
             for (const store:Object of this._options.stores) {
                 $.extend(true, store, this._options.addtionalStoreProperties)
                 const marker:Object = this.createMarker(store)
-                if (this._options.marker.cluster)
+                if (markerCluster)
                     markerCluster.addMarker(marker)
             }
         else if ($.type(this._options.stores) === 'string')
@@ -344,7 +345,7 @@ class StoreLocator extends $.Tools.class {
                     $.extend(
                         true, store, this._options.addtionalStoreProperties)
                     const marker:Object = this.createMarker(store)
-                    if (this._options.marker.cluster)
+                    if (markerCluster)
                         markerCluster.addMarker(marker)
                 }
             })
@@ -367,7 +368,7 @@ class StoreLocator extends $.Tools.class {
                 }, this._options.addtionalStoreProperties)
                 const marker:Object = this.createMarker($.extend(
                     store, this._options.stores.generateProperties(store)))
-                if (this._options.marker.cluster)
+                if (markerCluster)
                     markerCluster.addMarker(marker)
             }
         }
@@ -402,12 +403,13 @@ class StoreLocator extends $.Tools.class {
         context.google.maps.event.addListener(this.map, 'zoom_changed', (
         ):void => {
             if (
+                typeof this.currentlyOpenWindow === 'object' &&
                 this.currentlyOpenWindow &&
                 this.currentlyOpenWindow.isOpen &&
                 this.map.getZoom() <= this._options.marker.cluster.maxZoom
             ) {
-                this.currentlyOpenWindow.close()
                 this.currentlyOpenWindow.isOpen = false
+                this.currentlyOpenWindow.close()
             }
         })
         this.fireEvent('loaded')
@@ -453,46 +455,49 @@ class StoreLocator extends $.Tools.class {
                         Math.max(0, this.currentSearchResultRange[0]),
                         Math.min(
                             this.currentSearchResults.length - 1,
+                            // IgnoreTypeCheck
                             this.currentSearchResultRange[1])]
                 else
                     this.currentSearchResultRange = [
                         0, this.currentSearchResults.length - 1]
-                const currentIndex:number = this.currentSearchResults.indexOf(
-                    this.currentlyHighlightedMarker)
+                let currentIndex:number = -1
+                if (this.currentlyHighlightedMarker)
+                    currentIndex = this.currentSearchResults.indexOf(
+                        this.currentlyHighlightedMarker)
                 if (event.keyCode === this.keyCode.DOWN)
                     if (
                         currentIndex === -1 ||
                         this.currentSearchResultRange[1] < currentIndex + 1
                     )
-                        this.highlightMarker(
-                            null, this.currentSearchResults[this
-                            .currentSearchResultRange[0]], event)
+                        this.highlightMarker(this.currentSearchResults[
+                            this.currentSearchResultRange[0]
+                        ], event)
                     else
                         this.highlightMarker(
-                            null, this.currentSearchResults[currentIndex + 1],
-                            event)
+                            this.currentSearchResults[currentIndex + 1], event)
                 else if (event.keyCode === this.keyCode.UP)
                     if ([this.currentSearchResultRange[0], -1].includes(
                         currentIndex
                     ))
-                        this.highlightMarker(
-                            null, this.currentSearchResults[this
-                            .currentSearchResultRange[1]], event)
+                        this.highlightMarker(this.currentSearchResults[
+                            // IgnoreTypeCheck
+                            this.currentSearchResultRange[1]
+                        ], event)
                     else
                         this.highlightMarker(
-                            null, this.currentSearchResults[currentIndex - 1],
-                            event)
+                            this.currentSearchResults[currentIndex - 1], event)
                 else if (
                     event.keyCode === this.keyCode.ENTER &&
                     this.currentlyHighlightedMarker
                 ) {
                     event.stopPropagation()
-                    if (this.currentlyHighlightedMarker.infoWindow)
-                        this.openMarker(
-                            null, this.currentlyHighlightedMarker, event)
-                    else
-                        this.openPlace(
-                            this.currentlyHighlightedMarker.data, event)
+                    if (this.currentlyHighlightedMarker)
+                        if (this.currentlyHighlightedMarker.infoWindow)
+                            this.openMarker(
+                                this.currentlyHighlightedMarker, event)
+                        else
+                            this.openPlace(
+                                this.currentlyHighlightedMarker.data, event)
                 }
             }
         })
@@ -552,7 +557,7 @@ class StoreLocator extends $.Tools.class {
                 this.searchResultsDirty = false
                 if (!this.resultsDomNode)
                     this.initializeDataSourceSearchResultsBox()
-                if (!searchText) {
+                if (!searchText && this.resultsDomNode) {
                     this.currentSearchText = ''
                     this.currentSearchResults = []
                     this.resultsDomNode.html('')
@@ -561,9 +566,9 @@ class StoreLocator extends $.Tools.class {
                     return this.releaseLock(`${this.constructor._name}Search`)
                 }
                 this.openSearchResults()
-                const loadingDomNode:string = $(
+                const loadingDomNode:$DomNode = $(
                     this._options.searchBox.loadingContent)
-                if (!this.fireEvent(
+                if (this.resultsDomNode && !this.fireEvent(
                     'addSearchResults', false, this, loadingDomNode,
                     this.resultsDomNode, this.currentSearchResultsDomNode || []
                 ))
@@ -675,11 +680,10 @@ class StoreLocator extends $.Tools.class {
                     /[-_&]+/g, ' '
                 )) !== -1) {
                     marker.open = (event:Object):StoreLocator =>
-                        this.openMarker(null, marker, event)
+                        this.openMarker(marker, event)
                     marker.highlight = (
                         event:Object, type:string
-                    ):StoreLocator => this.highlightMarker(
-                        null, marker, event, type)
+                    ):StoreLocator => this.highlightMarker(marker, event, type)
                     searchResults.push(marker)
                     break
                 }
@@ -724,19 +728,19 @@ class StoreLocator extends $.Tools.class {
                 !second.infoWindow && first.infoWindow
             )
                 return 1
-            return
-            context.google.maps.geometry.spherical.computeDistanceBetween(
+            return context.google.maps.geometry.spherical
+            .computeDistanceBetween(
                 this.map.getCenter(), first.position
             ) - context.google.maps.geometry.spherical.computeDistanceBetween(
                 this.map.getCenter(), second.position)
         })
         // Compile search results markup.
-        const resultsRepresentation:string = this.makeSearchResults(
+        const resultsRepresentation:Promise|string = this.makeSearchResults(
             searchResults, limitReached)
         if ($.type(resultsRepresentation) === 'string') {
             const resultsRepresentationDomNode:$DomNode = $(
                 resultsRepresentation)
-            if (!this.fireEvent(
+            if (this.resultsDomNode && !this.fireEvent(
                 'addSearchResults', false, this, resultsRepresentationDomNode,
                 this.resultsDomNode, this.currentSearchResultsDomNode || []
             ))
@@ -752,11 +756,11 @@ class StoreLocator extends $.Tools.class {
             setTimeout(():StoreLocator => this.releaseLock(
                 `${this.constructor._name}Search`
             ), 0)
-        } else
+        } else if (resultsRepresentation instanceof Promise)
             resultsRepresentation.then((resultsRepresentation:string):void => {
                 const resultsRepresentationDomNode:$DomNode = $(
                     resultsRepresentation)
-                if (!this.fireEvent(
+                if (this.resultsDomNode && !this.fireEvent(
                     'addSearchResults', false, this,
                     resultsRepresentationDomNode, this.resultsDomNode,
                     this.currentSearchResultsDomNode || []
@@ -782,7 +786,7 @@ class StoreLocator extends $.Tools.class {
      * triggered to show search results.
      * @returns The current instance.
      */
-    openSearchResults(event:Object):StoreLocator {
+    openSearchResults(event:?Object):StoreLocator {
         if (event)
             event.stopPropagation()
         this.getUpdateSearchResultsHandler()(event)
@@ -798,8 +802,9 @@ class StoreLocator extends $.Tools.class {
      * Closes current search results.
      * @param event - Object with meta data for current event which has
      * triggered to close search results.
+     * @returns The current instance.
      */
-    closeSearchResults(event:Object):StoreLocator {
+    closeSearchResults(event:?Object = null):StoreLocator {
         if (event)
             event.stopPropagation()
         if (this.resultsDomNode && this.resultsDomNode.hasClass(
@@ -832,9 +837,9 @@ class StoreLocator extends $.Tools.class {
         ):StoreLocator => this.ensurePlaceLocations(searchBox.getPlaces(), (
             places:Array<Object>
         ):void => {
-            const foundPlace:Object = this.determineBestSearchResult(places)
+            const foundPlace:?Object = this.determineBestSearchResult(places)
             if (foundPlace) {
-                const shortestDistanceInMeter:number = Number.MAX_VALUE
+                let shortestDistanceInMeter:number = Number.MAX_VALUE
                 let matchingMarker:?Object = null
                 for (const marker:Object of this.markers) {
                     const distanceInMeter:number = context.google.maps.geometry
@@ -852,11 +857,12 @@ class StoreLocator extends $.Tools.class {
                     if (this._options.successfulSearchZoom)
                         this.map.setZoom(
                             this._options.successfulSearchZoom)
-                    return this.openMarker(foundPlace, matchingMarker)
+                    this.openMarker(matchingMarker)
+                    return
                 }
                 if (this.currentlyOpenWindow) {
-                    this.currentlyOpenWindow.close()
                     this.currentlyOpenWindow.isOpen = false
+                    this.currentlyOpenWindow.close()
                 }
                 this.map.setCenter(foundPlace.geometry.location)
                 if (this._options.successfulSearchZoom)
@@ -911,7 +917,7 @@ class StoreLocator extends $.Tools.class {
      * @returns The determined best result.
      */
     determineBestSearchResult(candidates:Array<Object>):?Object {
-        const result:?Object = null
+        let result:?Object = null
         if (candidates.length) {
             let shortestDistanceInMeter:number = Number.MAX_VALUE
             for (const candidate:Object of candidates) {
@@ -955,7 +961,7 @@ class StoreLocator extends $.Tools.class {
             index += 1
         }
         this.seenLocations.push(`${store.latitude}-${store.longitude}`)
-        marker = {
+        const marker:Object = {
             position: new context.google.maps.LatLng(
                 store.latitude, store.longitude),
             map: this.map,
@@ -999,15 +1005,14 @@ class StoreLocator extends $.Tools.class {
     }
     /**
      * Opens given marker info window. And closes a potential opened windows.
-     * @param place - Place to open corresponding marker for.
      * @param marker - Marker to open.
      * @param event - Event which has triggered the marker opening call.
      * @returns The current instance.
      */
-    openMarker(place:?Object, marker:Object, event:?Object):StoreLocator {
+    openMarker(marker:Object, event:?Object):StoreLocator {
         if (event)
             event.stopPropagation()
-        this.highlightMarker(place, marker, event, 'stop')
+        this.highlightMarker(marker, event, 'stop')
         /*
             We have to ensure that the minimum zoom level has one more then
             the clustering can appear. Since a cluster hides an open window.
@@ -1028,8 +1033,8 @@ class StoreLocator extends $.Tools.class {
         marker.refreshSize = ():void =>
             // Simulates a content update to enforce info box size adjusting.
             marker.infoWindow.setContent(marker.infoWindow.getContent())
-        const infoWindow:Object = this.makeInfoWindow(marker)
-        if ($.type(infoWindow) === 'string')
+        const infoWindow:string|Object = this.makeInfoWindow(marker)
+        if (typeof infoWindow === 'string')
             marker.infoWindow.setContent(infoWindow)
         else {
             marker.infoWindow.setContent(
@@ -1038,8 +1043,8 @@ class StoreLocator extends $.Tools.class {
                 marker.infoWindow.setContent(infoWindow))
         }
         if (this.currentlyOpenWindow) {
-            this.currentlyOpenWindow.close()
             this.currentlyOpenWindow.isOpen = false
+            this.currentlyOpenWindow.close()
         }
         this.currentlyOpenWindow = marker.infoWindow
         marker.infoWindow.isOpen = true
@@ -1061,8 +1066,8 @@ class StoreLocator extends $.Tools.class {
             event.stopPropagation()
         this.closeSearchResults(event)
         if (this.currentlyOpenWindow) {
-            this.currentlyOpenWindow.close()
             this.currentlyOpenWindow.isOpen = false
+            this.currentlyOpenWindow.close()
         }
         this.map.setCenter(place.geometry.location)
         this.map.setZoom(this._options.successfulSearchZoom)
@@ -1078,7 +1083,7 @@ class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     highlightMarker(
-        place:Object, marker:Object, event:?Object, type:string = 'bounce'
+        marker:Object, event:?Object, type:string = 'bounce'
     ):StoreLocator {
         if (event)
             event.stopPropagation()
@@ -1128,7 +1133,7 @@ class StoreLocator extends $.Tools.class {
      * @param marker - Marker to generate info window for.
      * @returns Info window markup.
      */
-    makeInfoWindow(marker:Object):string {
+    makeInfoWindow(marker:Object):string|Object {
         if ($.isFunction(this._options.infoWindow.content))
             return this._options.infoWindow.content.apply(this, arguments)
         if ('content' in this._options.infoWindow)
@@ -1144,7 +1149,7 @@ class StoreLocator extends $.Tools.class {
      * @param searchResults - Search result to generate markup for.
      * @returns Generated markup.
      */
-    makeSearchResults(searchResults:Array<Object>):string {
+    makeSearchResults(searchResults:Array<Object>):Promise|string {
         if ($.isFunction(this._options.searchBox.content))
             return this._options.searchBox.content.apply(this, arguments)
         if ('content' in this._options.searchBox.content)
