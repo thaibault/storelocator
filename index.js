@@ -265,6 +265,7 @@ class StoreLocator extends $.Tools.class {
         if (this._options.startLocation)
             this.initializeMap()
         else {
+            // IgnoreTypeCheck
             this._options.startLocation = this._options.fallbackLocation
             /*
                 NOTE: If request is slower than the timeout parameter for jsonp
@@ -536,10 +537,10 @@ class StoreLocator extends $.Tools.class {
      * Triggers on each search request.
      * @returns The current instance.
      */
-    getUpdateSearchResultsHandler():StoreLocator {
+    getUpdateSearchResultsHandler():Function {
         const placesService:Object =
             new context.google.maps.places.PlacesService(this.map)
-        this.debounce((event:Object):void => {
+        return this.debounce((event:Object):void => {
             for (const name:string in this.keyCode)
                 if (event && event.keyCode === this.keyCode[name] && ![
                     'DELETE', 'BACKSPACE'
