@@ -856,8 +856,7 @@ class StoreLocator extends $.Tools.class {
                     shortestDistanceInMeter <= this._options.searchBox
                 ) {
                     if (this._options.successfulSearchZoom)
-                        this.map.setZoom(
-                            this._options.successfulSearchZoom)
+                        this.map.setZoom(this._options.successfulSearchZoom)
                     this.openMarker(matchingMarker)
                     return
                 }
@@ -878,9 +877,7 @@ class StoreLocator extends $.Tools.class {
      * @returns A promise which will be resolved if all places are ensured.
      */
     ensurePlaceLocations(places:Array<Object>):Promise {
-        return new Promise((
-            resolve:PromiseCallbackFunction, reject:PromiseCallbackFunction
-        ):void => {
+        return new Promise((resolve:PromiseCallbackFunction):void => {
             let runningGeocodes:number = 0
             const geocoder:Object = new context.google.maps.Geocoder()
             for (const place:Object of places)
