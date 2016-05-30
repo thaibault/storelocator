@@ -521,205 +521,289 @@ class StoreLocator extends $.Tools.class {
             this.getUpdateSearchResultsHandler())
         return this
     }
-    // TODO STand
-    getUpdateSearchResultsHandler: ->
-        placesService = new google.maps.places.PlacesService this.map
-        this.debounce ((event) =>
-            for name, keyCode of this.keyCode
-                return if event?.keyCode is keyCode and name not in [
-                    'DELETE', 'BACKSPACE']
-            this.acquireLock "#{this.__name__}Search", =>
-                searchText = $.trim this.$domNode.find('input').val()
-                if(
-                    this.currentSearchText is searchText and
-                    not this.searchResultsDirty
+    /**
+     * Triggers on each search request.
+     * @returns The current instance.
+     */
+    getUpdateSearchResultsHandler():StoreLocator {
+        const placesService:Object =
+            new context.google.maps.places.PlacesService(this.map)
+        this.debounce((event:Object):void => {
+            for (const name:string in this.keyCode)
+                if (event && event.keyCode === this.keyCode[name] && ![
+                    'DELETE', 'BACKSPACE'
+                ].includes(name))
+                    return
+            this.acquireLock(`${this.constructor._name}Search`, ():void => {
+                const searchText:string = $.trim(this.$domNode.find(
+                    'input'
+                ).val())
+                if (
+                    this.currentSearchText === searchText &&
+                    !this.searchResultsDirty
                 )
-                    return this.releaseLock "#{this.__name__}Search"
+                    return this.releaseLock(`${this.constructor._name}Search`)
                 this.searchResultsDirty = false
-                if not this.resultsDomNode
+                if (!this.resultsDomNode)
                     this.initializeDataSourceSearchResultsBox()
-                if not searchText
+                if (!searchText) {
                     this.currentSearchText = ''
                     this.currentSearchResults = []
-                    this.resultsDomNode.html ''
+                    this.resultsDomNode.html('')
                     this.currentSearchResultsDomNode = null
                     this.closeSearchResults()
-                    return this.releaseLock "#{this.__name__}Search"
+                    return this.releaseLock(`${this.constructor._name}Search`)
+                }
                 this.openSearchResults()
-                loadingDomNode = $ this._options.searchBox.loadingContent
-                if not this.fireEvent(
-                    'addSearchResults', false, this, loadingDomNode
-                    this.resultsDomNode
-                    this.currentSearchResultsDomNode or []
+                const loadingDomNode:string = $(
+                    this._options.searchBox.loadingContent)
+                if (!this.fireEvent(
+                    'addSearchResults', false, this, loadingDomNode,
+                    this.resultsDomNode, this.currentSearchResultsDomNode || []
+                ))
+                    this.resultsDomNode.html(loadingDomNode)
+                if (
+                    this.currentSearchResultsDomNode &&
+                    this.currentSearchResultsDomNode.length
                 )
-                    this.resultsDomNode.html loadingDomNode
-                if this.currentSearchResultsDomNode?.length
                     this.fireEvent(
-                        'removeSearchResults', false, this
+                        'removeSearchResults', false, this,
                         this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = loadingDomNode
-                if this._options.searchBox.numberOfAdditionalGenericPlaces
-                    # NOTE: Google searches for more items than exists in
-                    # the specified radius. However the radius is a string
-                    # in the examples provided by google.
-                    placesService.textSearch $.extend({
+                if (this._options.searchBox.numberOfAdditionalGenericPlaces)
+                    /*
+                        NOTE: Google searches for more items than exists in the
+                        the specified radius. However the radius is a string in
+                        the examples provided by google.
+                    */
+                    placesService.textSearch($.extend({
                         query: searchText, location: this.map.getCenter()
-                    }, this._options.searchBox.genericPlaceSearchOptions
-                    ), (places) => if places
-                        this.handleGenericSearchResults places, searchText
+                    }, this._options.searchBox.genericPlaceSearchOptions), (
+                        places:Array<Object>
+                    ):void => {
+                        if places
+                            this.handleGenericSearchResults(places, searchText)
+                    })
                 else
-                    this.performLocalSearch searchText
-        ), 1000
-    handleGenericSearchResults: (places, searchText) ->
-        ###Sorts and filters search results given by the google api.###
-        searchResults = []
-        # NOTE: Since google text search doesn't support sorting by
-        # distance we have to sort by our own.
-        index = 1
-        for place in places.sort((firstPlace, secondPlace) =>
-            window.google.maps.geometry.spherical.computeDistanceBetween(
+                    this.performLocalSearch(searchText)
+            }, 1000)
+        })
+    }
+    /**
+     * Sorts and filters search results given by the google api.
+     * @param places - List of place objects.
+     * @param searchText - Words which should occur in requested search
+     * results.
+     * @returns Returns current instance.
+     */
+    handleGenericSearchResults(
+        places:Array<Object>, searchText:string
+    ):StoreLocator {
+        const searchResults:Array<Object> = []
+        /*
+            NOTE: Since google text search doesn't support sorting by distance
+            we have to sort by our own.
+        */
+        let index:number = 1
+        for (const place:Object of places.sort((
+            firstPlace:Object, secondPlace:Object
+        ):number =>
+            context.google.maps.geometry.spherical.computeDistanceBetween(
                 this.map.getCenter(), firstPlace.geometry.location
-            ) - window.google.maps.geometry.spherical\
-            .computeDistanceBetween(
+            ) - context.google.maps.geometry.spherical.computeDistanceBetween(
                 this.map.getCenter(), secondPlace.geometry.location)
-        )
+        )) {
             index += 1
-            distance = window.google.maps.geometry.spherical
-            .computeDistanceBetween(
-                this.map.getCenter(), place.geometry.location)
-            if distance > this._options.searchBox.maximalDistanceInMeter
+            const distance:number =
+                context.google.maps.geometry.spherical.computeDistanceBetween(
+                    this.map.getCenter(), place.geometry.location)
+            if (distance > this._options.searchBox.maximalDistanceInMeter)
                 break
-            if this._options.searchBox.genericPlaceFilter place
-                result =
-                    data: $.extend place, {
+            if (this._options.searchBox.genericPlaceFilter(place)) {
+                const result:{
+                    data:Object;
+                    position:Position;
+                    open:(event:Object) => any;
+                    highlight:(event:Object, type:string) => any;
+                } = {
+                    data: $.extend(place, {
                         logoFilePath: place.icon.replace(
-                            /^http:(\/\/)/
-                            "#{document.location.protocol}$1")
-                        address: place.formatted_address
+                            /^http:(\/\/)/, `${document.location.protocol}$1`),
+                        address: place.formatted_address,
                         distance: distance
+                    })
+                    position: place.geometry.location,
+                    open: (event:Object):StoreLocator => this.openPlace(
+                        place, this.openPlace, event),
+                    highlight: (event:Object, type:string):void => {
+                        this.isHighlighted = type !== 'stop'
                     }
-                    position: place.geometry.location
-                    open: do (place) => (event) =>
-                        this.openPlace place, this.openPlace, event
-                    highlight: (event, type) ->
-                        this.isHighlighted = type isnt 'stop'
-                searchResults.push result
-                if this._options.searchBox
-                .numberOfAdditionalGenericPlaces[1] < index
-                    break
-        this.performLocalSearch searchText, searchResults
-    performLocalSearch: (searchText, searchResults=[]) ->
-        ###Performs a search on locally given store data.###
-        numberOfGenericSearchResults = searchResults.length
-        for marker in this.markers
-            for key in this._options.searchBox.properties
+                }
+                searchResults.push(result)
                 if (
-                    marker.data[key] or marker.data[key] is 0
-                ) and "#{marker.data[key]}".toLowerCase().replace(
+                    this._options.searchBox.numberOfAdditionalGenericPlaces[1]
+                    < index
+                )
+                    break
+            }
+        }
+        return this.performLocalSearch(searchText, searchResults)
+    }
+    /**
+     * Performs a search on locally given store data.
+     * @param searchText - Text to search for.
+     * @param searchResults - A list if generic search results.
+     * @returns The current instance.
+     */
+    performLocalSearch(
+        searchText:string, searchResults:Array<Object> = []
+    ):StoreLocator {
+        const numberOfGenericSearchResults:number = searchResults.length
+        for (const marker:Object of this.markers)
+            for (const key:string of this._options.searchBox.properties)
+                if ((
+                    marker.data[key] || marker.data[key] === 0
+                ) && `${marker.data[key]}`.toLowerCase().replace(
                     /[-_&]+/g, ' '
                 ).indexOf(searchText.toLowerCase().replace(
                     /[-_&]+/g, ' '
-                )) isnt -1
-                    do (marker) =>
-                        marker.open = (event) =>
-                            this.openMarker(
-                                null, this.openMarker, marker, event)
-                        marker.highlight = (event, type) =>
-                            this.highlightMarker(
-                                null, this.highlightMarker, marker, event
-                                type)
-                    searchResults.push marker
+                )) !== -1) {
+                    marker.open = (event:Object):StoreLocator =>
+                        this.openMarker(null, this.openMarker, marker, event)
+                    marker.highlight = (
+                        event:Object, type:string
+                    ):StoreLocator => this.highlightMarker(
+                        null, this.highlightMarker, marker, event, type)
+                    searchResults.push(marker)
                     break
-        if this._options.searchBox.numberOfAdditionalGenericPlaces
-            # Remove generic place results if there are enough local search
-            # results.
-            if(
-                searchResults.length and numberOfGenericSearchResults >
-                this._options.searchBox.numberOfAdditionalGenericPlaces[0]
-            )
-                if searchResults.length >
+                }
+        /*
+            Remove generic place results if there are enough local search
+            results.
+        */
+        if (
+            this._options.searchBox.numberOfAdditionalGenericPlaces &&
+            searchResults.length && numberOfGenericSearchResults >
+                this._options.searchBox.numberOfAdditionalGenericPlaces[0] &&
+            searchResults.length >
                 this._options.searchBox.numberOfAdditionalGenericPlaces[1]
-                    searchResults.splice(
-                        this._options.searchBox
-                            .numberOfAdditionalGenericPlaces[0]
-                        numberOfGenericSearchResults - this._options
-                            .searchBox.numberOfAdditionalGenericPlaces[0])
-        # Slice additional unneeded local search results.
-        limitReached = false
-        if this._options.searchBox.maximumNumberOfResults <
-        searchResults.length
+        )
+            searchResults.splice(
+                this._options.searchBox.numberOfAdditionalGenericPlaces[0],
+                numberOfGenericSearchResults -
+                    this._options.searchBox.numberOfAdditionalGenericPlaces[0])
+        // Slice additional unneeded local search results.
+        let limitReached:boolean = false
+        if (
+            this._options.searchBox.maximumNumberOfResults <
+            searchResults.length
+        ) {
             limitReached = true
             searchResults.splice(
-                this._options.searchBox.maximumNumberOfResults
+                this._options.searchBox.maximumNumberOfResults,
                 searchResults.length)
-        # Sort results by current map center form nearer to more fare away
-        # results.
-        searchResults.sort (first, second) =>
-            return -1 if(this._options.searchBox.prefereGenericResults and
-                         not first.infoWindow and second.infoWindow)
-            return +1 if(this._options.searchBox.prefereGenericResults and
-                         not second.infoWindow and first.infoWindow)
-            window.google.maps.geometry.spherical.computeDistanceBetween(
-                this.map.getCenter(), first.position
-            ) - window.google.maps.geometry.spherical\
-            .computeDistanceBetween this.map.getCenter(), second.position
-        # Compile search results markup.
-        resultsRepresentation = this.makeSearchResults(
-            searchResults, limitReached)
-        if $.type(resultsRepresentation) is 'string'
-            resultsRepresentationDomNode = $ resultsRepresentation
-            if not this.fireEvent(
-                'addSearchResults', false, this
-                resultsRepresentationDomNode, this.resultsDomNode
-                this.currentSearchResultsDomNode or []
+        }
+        /*
+            Sort results by current map center form nearer to more fare away
+            results.
+        */
+        searchResults.sort((first:Object, second:Object):number => {
+            if (
+                this._options.searchBox.prefereGenericResults &&
+                !first.infoWindow and second.infoWindow
             )
-                this.resultsDomNode.html resultsRepresentationDomNode
-            if this.currentSearchResultsDomNode?.length
+                return -1
+            if (
+                this._options.searchBox.prefereGenericResults &&
+                !second.infoWindow && first.infoWindow
+            )
+                return 1
+            return
+            context.google.maps.geometry.spherical.computeDistanceBetween(
+                this.map.getCenter(), first.position
+            ) - context.google.maps.geometry.spherical.computeDistanceBetween(
+                this.map.getCenter(), second.position)
+        })
+        // Compile search results markup.
+        const resultsRepresentation:string = this.makeSearchResults(
+            searchResults, limitReached)
+        if ($.type(resultsRepresentation) === 'string') {
+            const resultsRepresentationDomNode:$DomNode = $(
+                resultsRepresentation)
+            if (!this.fireEvent(
+                'addSearchResults', false, this, resultsRepresentationDomNode,
+                this.resultsDomNode, this.currentSearchResultsDomNode || []
+            ))
+                this.resultsDomNode.html(resultsRepresentationDomNode)
+            if (
+                this.currentSearchResultsDomNode &&
+                this.currentSearchResultsDomNode.length
+            )
                 this.fireEvent(
-                    'removeSearchResults', false, this
+                    'removeSearchResults', false, this,
                     this.currentSearchResultsDomNode)
             this.currentSearchResultsDomNode = resultsRepresentationDomNode
-            window.setTimeout => this.releaseLock "#{this.__name__}Search"
-        else
-            resultsRepresentation.then (resultsRepresentation) =>
-                resultsRepresentationDomNode = $ resultsRepresentation
-                if not this.fireEvent(
-                    'addSearchResults', false, this
+            setTimeout(():StoreLocator => this.releaseLock(
+                `${this.constructor._name}Search`
+            ), 0)
+        } else
+            resultsRepresentation.then((resultsRepresentation:string):void => {
+                const resultsRepresentationDomNode:$DomNode = $(
+                    resultsRepresentation)
+                if (!this.fireEvent(
+                    'addSearchResults', false, this,
                     resultsRepresentationDomNode, this.resultsDomNode
-                    this.currentSearchResultsDomNode or []
+                    this.currentSearchResultsDomNode || []
+                ))
+                    this.resultsDomNode.html(resultsRepresentationDomNode)
+                if (
+                    this.currentSearchResultsDomNode &&
+                    this.currentSearchResultsDomNode.length
                 )
-                    this.resultsDomNode.html resultsRepresentationDomNode
-                if this.currentSearchResultsDomNode?.length
                     this.fireEvent(
-                        'removeSearchResults', false, this
+                        'removeSearchResults', false, this,
                         this.currentSearchResultsDomNode)
-                this.currentSearchResultsDomNode =
-                    resultsRepresentationDomNode
-                this.releaseLock "#{this.__name__}Search"
+                this.currentSearchResultsDomNode = resultsRepresentationDomNode
+                this.releaseLock(`${this._name}Search`)
+            })
         this.currentSearchText = searchText
         this.currentSearchResults = searchResults.slice()
-        this
-    openSearchResults: (event) ->
-        ###Opens current search results.###
-        event?.stopPropagation()
-        this.getUpdateSearchResultsHandler() event
-        if this.resultsDomNode? and not this.resultsDomNode.hasClass(
+        return this
+    }
+    /**
+     * Opens current search results.
+     * @param event - Object with meta data for current event which has
+     * triggered to show search results.
+     * @returns The current instance.
+     */
+    openSearchResults(event:Object):StoreLocator {
+        if (event)
+            event.stopPropagation()
+        this.getUpdateSearchResultsHandler()(event)
+        if (this.resultsDomNode && !this.resultsDomNode.hasClass(
             'open'
-        ) and not this.fireEvent(
+        ) && !this.fireEvent(
             'openSearchResults', false, this, event, this.resultsDomNode
-        )
-            this.resultsDomNode.addClass 'open'
-        this
-    closeSearchResults: (event) ->
-        ###Closes current search results.###
-        event?.stopPropagation()
-        if this.resultsDomNode? and this.resultsDomNode.hasClass(
+        ))
+            this.resultsDomNode.addClass('open')
+        return this
+    }
+    /**
+     * Closes current search results.
+     * @param event - Object with meta data for current event which has
+     * triggered to close search results.
+     */
+    closeSearchResults(event:Object):StoreLocator {
+        if (event)
+            event.stopPropagation()
+        if (this.resultsDomNode && this.resultsDomNode.hasClass(
             'open'
-        ) and not this.fireEvent(
+        ) && !this.fireEvent(
             'closeSearchResults', false, this, event, this.resultsDomNode
-        )
-            this.resultsDomNode.removeClass 'open'
-        this
+        ))
+            this.resultsDomNode.removeClass('open')
+        return this
+    }
     initializeGenericSearchBox: ->
         ###
             Initializes googles generic search box and tries to match to
