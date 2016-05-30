@@ -1,0 +1,24 @@
+# NOTE: Uses OCaml regular expressions.
+[ignore]
+.*/\.git
+.*/_.*\.js
+.*/.+\.compiled\(\.js\)?
+# Ignore all webOptimizer modules except "browserAPI" and "type".
+\(.*/\)?node_modules/webOptimizer/\(\([^tb].*\)\|\(t[^y].*\)\|\(ty[^p].*\)\|\(typ[^e].*\)\|\(type.+\)\|\(..?.?\)\|\(......?.?.?.?\)\|\(brow\)\|\(b[^r].*\)\|\(br[^o].*\)\|\(bro[^w].*\)\|\(brow[^s].*\)\|\(brows[^e].*\)\|\(browse[^r].*\)\|\(browser[^A].*\)\|\(browserA[^P].*\)\|\(browserAP[^I].*\)\|\(browserAPI.+\)\)\.js
+
+[options]
+esproposal.class_static_fields=enable
+
+module.name_mapper='^\./index\.compiled$' -> './index'
+
+module.file_ext=.js
+module.file_ext=.compiled.js
+module.file_ext=.json
+module.file_ext=.compiled.json
+module.file_ext=.jsx
+module.file_ext=.compiled.jsx
+
+strip_root=true
+
+suppress_comment=[ \\n]*IgnoreTypeCheck
+traces=1
