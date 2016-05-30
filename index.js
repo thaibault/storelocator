@@ -454,26 +454,23 @@ class StoreLocator extends $.Tools.class {
                         this.currentSearchResultRange[1] < currentIndex + 1
                     )
                         this.highlightMarker(
-                            null, this.highlightMarker,
-                            this.currentSearchResults[this
+                            null, this.currentSearchResults[this
                             .currentSearchResultRange[0]], event)
                     else
                         this.highlightMarker(
-                            null, this.highlightMarker,
-                            this.currentSearchResults[currentIndex + 1]
+                            null, this.currentSearchResults[currentIndex + 1],
                             event)
                 else if (event.keyCode === this.keyCode.UP)
                     if ([this.currentSearchResultRange[0], -1].includes(
                         currentIndex
                     ))
                         this.highlightMarker(
-                            null, this.highlightMarker,
-                            this.currentSearchResults[this
+                            null, this.currentSearchResults[this
                             .currentSearchResultRange[1]], event)
                     else
                         this.highlightMarker(
-                            null, this.highlightMarker,
-                            this.currentSearchResults[currentIndex - 1], event)
+                            null, this.currentSearchResults[currentIndex - 1],
+                            event)
                 else if (
                     event.keyCode === this.keyCode.ENTER &&
                     this.currentlyHighlightedMarker
@@ -481,12 +478,10 @@ class StoreLocator extends $.Tools.class {
                     event.stopPropagation()
                     if (this.currentlyHighlightedMarker.infoWindow)
                         this.openMarker(
-                            null, this.openMarker,
-                            this.currentlyHighlightedMarker, event)
+                            null, this.currentlyHighlightedMarker, event)
                     else
                         this.openPlace(
-                            this.currentlyHighlightedMarker.data,
-                            this.openPlace, event)
+                            this.currentlyHighlightedMarker.data, event)
                 }
             }
         })
@@ -634,7 +629,7 @@ class StoreLocator extends $.Tools.class {
                     })
                     position: place.geometry.location,
                     open: (event:Object):StoreLocator => this.openPlace(
-                        place, this.openPlace, event),
+                        place, event),
                     highlight: (event:Object, type:string):void => {
                         this.isHighlighted = type !== 'stop'
                     }
@@ -669,11 +664,11 @@ class StoreLocator extends $.Tools.class {
                     /[-_&]+/g, ' '
                 )) !== -1) {
                     marker.open = (event:Object):StoreLocator =>
-                        this.openMarker(null, this.openMarker, marker, event)
+                        this.openMarker(null, marker, event)
                     marker.highlight = (
                         event:Object, type:string
                     ):StoreLocator => this.highlightMarker(
-                        null, this.highlightMarker, marker, event, type)
+                        null, marker, event, type)
                     searchResults.push(marker)
                     break
                 }
@@ -804,277 +799,353 @@ class StoreLocator extends $.Tools.class {
             this.resultsDomNode.removeClass('open')
         return this
     }
-    initializeGenericSearchBox: ->
-        ###
-            Initializes googles generic search box and tries to match to
-            open and focus them.
-        ###
-        searchBox = new window.google.maps.places.SearchBox(
+    /**
+     * Initializes googles generic search box and tries to match to open and
+     * focus them.
+     * @returns The current instance.
+     */
+    initializeGenericSearchBox():StoreLocator {
+        const searchBox:Object = new window.google.maps.places.SearchBox(
             this.$domNode.find('input')[0])
-        # Bias the search box results towards places that are within the
-        # bounds of the current map's viewport.
-        window.google.maps.event.addListener this.map, 'bounds_changed', =>
-            searchBox.setBounds this.map.getBounds()
-        # Listen for the event fired when the user selects an item from the
-        # pick list. Retrieve the matching places for that item.
-        window.google.maps.event.addListener(
-            searchBox, 'places_changed', => this.ensurePlaceLocations(
-                searchBox.getPlaces(), (places) =>
-                    foundPlace = this.determineBestSearchResult places
-                    if foundPlace?
-                        shortestDistanceInMeter = window.Number.MAX_VALUE
-                        matchingMarker = null
-                        for marker in this.markers
-                            distanceInMeter = window.google.maps.geometry
-                            .spherical.computeDistanceBetween(
-                                foundPlace.geometry.location
-                                marker.position)
-                            if distanceInMeter < shortestDistanceInMeter
-                                shortestDistanceInMeter = distanceInMeter
-                                matchingMarker = marker
-                        if(
-                            matchingMarker and shortestDistanceInMeter <=
-                            this._options.searchBox
-                        )
-                            if this._options.successfulSearchZoom?
-                                this.map.setZoom(
-                                    this._options.successfulSearchZoom)
-                            return this.openMarker(
-                                foundPlace, this.openMarker
-                                matchingMarker)
-                        if this.currentlyOpenWindow?
-                            this.currentlyOpenWindow.close()
-                            this.currentlyOpenWindow.isOpen = false
-                        this.map.setCenter foundPlace.geometry.location
-                        if this._options.successfulSearchZoom?
-                            this.map.setZoom(
-                                this._options.successfulSearchZoom)
-            )
-        )
-        this
-    ensurePlaceLocations: (places, onSuccess) ->
-        ###Ensures that every given place have a location property.###
-        runningGeocodes = 0
-        for place in places
-            if not place.geometry?.location?
+        /*
+            Bias the search box results towards places that are within the
+            bounds of the current map's viewport.
+        */
+        context.google.maps.event.addListener(this.map, 'bounds_changed', (
+        ):void => searchBox.setBounds(this.map.getBounds()))
+        /*
+            Listen for the event fired when the user selects an item from the
+            pick list. Retrieve the matching places for that item.
+        */
+        context.google.maps.event.addListener(searchBox, 'places_changed', (
+        ):StoreLocator => this.ensurePlaceLocations(searchBox.getPlaces(), (
+            places:Array<Object>
+        ):void => {
+            const foundPlace:Object = this.determineBestSearchResult(places)
+            if (foundPlace) {
+                const shortestDistanceInMeter:number = Number.MAX_VALUE
+                let matchingMarker:?Object = null
+                for (const marker:Object of this.markers) {
+                    const distanceInMeter:number = context.google.maps.geometry
+                        .spherical.computeDistanceBetween(
+                            foundPlace.geometry.location, marker.position)
+                    if (distanceInMeter < shortestDistanceInMeter) {
+                        shortestDistanceInMeter = distanceInMeter
+                        matchingMarker = marker
+                    }
+                }
+                if (
+                    matchingMarker &&
+                    shortestDistanceInMeter <= this._options.searchBox
+                ) {
+                    if (this._options.successfulSearchZoom)
+                        this.map.setZoom(
+                            this._options.successfulSearchZoom)
+                    return this.openMarker(foundPlace, matchingMarker)
+                }
+                if (this.currentlyOpenWindow) {
+                    this.currentlyOpenWindow.close()
+                    this.currentlyOpenWindow.isOpen = false
+                }
+                this.map.setCenter(foundPlace.geometry.location)
+                if (this._options.successfulSearchZoom)
+                    this.map.setZoom(this._options.successfulSearchZoom)
+            }
+        }))
+        return this
+    }
+    /**
+     * Ensures that every given place have a location property.
+     * @param places - Places to check for.
+     * @param onSuccess - Callback to trigger if all places exits.
+     * @return The current instance.
+     */
+    ensurePlaceLocations(places:Array<Object>, onSuccess:(
+        places:Array<Object>
+    ) => any) {
+        let runningGeocodes:number = 0
+        const geocoder:Object = new context.google.maps.Geocoder()
+        for (const place:Object of places)
+            if (!('geometry' in place && 'location' in place.geometry)) {
                 this.warn(
-                    'Found place "{1}" doesn\'t have a location. ' +
-                    'Full object:', place.name)
-                this.warn place
+                    'Found place "{1}" doesn\'t have a location. Full object:',
+                    place.name)
+                this.warn(place)
                 this.info(
-                    'Geocode will be determined separately. With ' +
-                    'address "{1}".', place.name)
-                if not geocoder?
-                    geocoder = new window.google.maps.Geocoder()
+                    'Geocode will be determined separately. With address ' +
+                    '"{1}".', place.name)
                 runningGeocodes += 1
-                geocoder.geocode {address: place.name}, (
-                    results, status
-                ) ->
+                geocoder.geocode({address: place.name}, (
+                    results:Array<Object>, status:number
+                ):void => {
                     runningGeocodes -= 1
-                    if status is window.google.maps.GeocoderStatus.OK
+                    if (status === context.google.maps.GeocoderStatus.OK)
                         place.geometry = results[0].geometry
-                    else
+                    else {
                         delete places[places.indexOf place]
                         this.warn(
-                            'Found place "{1}" couldn\'t be geocoded by '
+                            'Found place "{1}" couldn\'t be geocoded by ' +
                             'google. Removing it from the places list.')
-                    if runningGeocodes is 0
-                        onSuccess places
-        this
-    determineBestSearchResult: (candidates) ->
-        ###
-            Determines the best search result from given list of
-            candidates. Currently the nearest result to current viewport
-            will be preferred.
-        ###
-        result = null
-        if candidates.length
-            shortestDistanceInMeter = window.Number.MAX_VALUE
-            for candidate in candidates
-                distanceInMeter = window.google.maps.geometry
-                .spherical.computeDistanceBetween(
-                    candidate.geometry.location, this.map.getCenter())
-                if distanceInMeter < shortestDistanceInMeter
+                    }
+                    if (runningGeocodes === 0)
+                        onSuccess(places)
+                })
+            }
+        return this
+    }
+    /**
+     * Determines the best search result from given list of candidates.
+     * Currently the nearest result to current viewport will be preferred.
+     * @param candidates - List of search results to determine best from.
+     * @returns The determined best result.
+     */
+    determineBestSearchResult(candidates:Array<Object>):?Object {
+        const result:?Object = null
+        if (candidates.length) {
+            let shortestDistanceInMeter:number = Number.MAX_VALUE
+            for (const candidate:Object of candidates) {
+                const distanceInMeter:number = context.google.maps.geometry
+                    .spherical.computeDistanceBetween(
+                        candidate.geometry.location, this.map.getCenter())
+                if (distanceInMeter < shortestDistanceInMeter) {
                     result = candidate
                     shortestDistanceInMeter = distanceInMeter
-        result
-    onLoaded: ->
-        ###Is triggered if the complete map ist loaded.###
-        window.setTimeout (=>
-            this.$domNode.find('input').fadeIn(
-                this._options.inputFadeInOption)
-        ), this._options.showInputAfterLoadedDelayInMilliseconds
-        this
-    createMarker: (store) ->
-        ###Registers given store to the google maps canvas.###
-        index = 0
-        while "#{store.latitude}-#{store.longitude}" in this.seenLocations
-            if index % 2
+                }
+            }
+        }
+        return result
+    }
+    /**
+     * Is triggered if the complete map ist loaded.
+     * @returns The current instance.
+     */
+    onLoaded():StoreLocator {
+        setTimeout(():$DomNode => this.$domNode.find('input').fadeIn(
+            this._options.inputFadeInOption
+        ), this._options.showInputAfterLoadedDelayInMilliseconds)
+        return this
+    }
+    /**
+     * Registers given store to the google maps canvas.
+     * @param store - Store object to create a marker for.
+     * @returns The created marker.
+     */
+    createMarker(store:Object):Object {
+        let index:number = 0
+        while (this.seenLocations.includes(
+            `${store.latitude}-${store.longitude}`
+        )) {
+            if (index % 2)
                 store.latitude +=
                     this._options.distanceToMoveByDuplicatedEntries
             else
                 store.longitude +=
                     this._options.distanceToMoveByDuplicatedEntries
             index += 1
-        this.seenLocations.push "#{store.latitude}-#{store.longitude}"
-        marker =
-            position: new window.google.maps.LatLng(
-                store.latitude, store.longitude)
-            map: this.map
+        }
+        this.seenLocations.push(`${store.latitude}-${store.longitude}`)
+        marker = {
+            position: new context.google.maps.LatLng(
+                store.latitude, store.longitude),
+            map: this.map,
             data: store
-        if(
-            store.markerIconFileName or
-            this._options.defaultMarkerIconFileName
-        )
-            marker.icon = $.extend {}, this._options.marker.icon
-            if marker.icon.size
-                marker.icon.size = new window.google.maps.Size(
-                    marker.icon.size.width, marker.icon.size.height
+        }
+        if (
+            store.markerIconFileName || this._options.defaultMarkerIconFileName
+        ) {
+            marker.icon = $.extend({}, this._options.marker.icon)
+            if (marker.icon.size)
+                marker.icon.size = new context.google.maps.Size(
+                    marker.icon.size.width, marker.icon.size.height,
                     marker.icon.size.unit, marker.icon.size.unit)
-            if marker.icon.scaledSize
-                marker.icon.scaledSize = new window.google.maps.Size(
-                    marker.icon.scaledSize.width
-                    marker.icon.scaledSize.height
-                    marker.icon.scaledSize.unit
+            if (marker.icon.scaledSize)
+                marker.icon.scaledSize = new context.google.maps.Size(
+                    marker.icon.scaledSize.width,
+                    marker.icon.scaledSize.height,
+                    marker.icon.scaledSize.unit,
                     marker.icon.scaledSize.unit)
-            if store.markerIconFileName
+            if (store.markerIconFileName)
                 marker.icon.url = this._options.iconPath +
                     store.markerIconFileName
             else
                 marker.icon.url = this._options.iconPath +
                     this._options.defaultMarkerIconFileName
-        marker.title = store.title if store.title
-        marker.infoWindow = new window.google.maps.InfoWindow content: ''
+        if (store.title)
+            marker.title = store.title
+        marker.infoWindow = new context.google.maps.InfoWindow({content: ''})
         marker.infoWindow.isOpen = false
-        window.google.maps.event.addListener(
-            marker.infoWindow, 'closeclick', ->
+        context.google.maps.event.addListener(
+            marker.infoWindow, 'closeclick', ():void => {
                 marker.infoWindow.isOpen = false
-        )
-        marker.nativeMarker = new window.google.maps.Marker marker
-        window.google.maps.event.addListener(
+            })
+        marker.nativeMarker = new context.google.maps.Marker(marker)
+        context.google.maps.event.addListener(
             marker.nativeMarker, 'click', this.getMethod(
                 'openMarker', this, marker))
-        this.markers.push marker
-        marker.nativeMarker
-    openMarker: (place, thisFunction, marker, event) ->
-        ###
-            Opens given marker info window. And closes a potential opened
-            windows.
-        ###
-        event?.stopPropagation()
-        this.highlightMarker(
-            place, this.highlightMarker, marker, event, 'stop')
-        # We have to ensure that the minimum zoom level has one more then
-        # the clustering can appear. Since a cluster hides an open window.
-        if(
-            this._options.marker.cluster?.maxZoom and
+        this.markers.push(marker)
+        return marker.nativeMarker
+    }
+    /**
+     * Opens given marker info window. And closes a potential opened windows.
+     * @param place - Place to open corresponding marker for.
+     * @param marker - Marker to open.
+     * @param event - Event which has triggered the marker opening call.
+     * @returns The current instance.
+     */
+    openMarker(place:?Object, marker:Object, event:?Object):StoreLocator {
+        if (event)
+            event.stopPropagation()
+        this.highlightMarker(place, marker, event, 'stop')
+        /*
+            We have to ensure that the minimum zoom level has one more then
+            the clustering can appear. Since a cluster hides an open window.
+        */
+        if (
+            'cluster' in this._options.marker &&
+            this._options.marker.cluster.maxZoom &&
             this.map.getZoom() <= this._options.marker.cluster.maxZoom
         )
-            this.map.setZoom this._options.marker.cluster.maxZoom + 1
-        this.closeSearchResults event
-        if(
-            this.currentlyOpenWindow is marker.infoWindow and
+            this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
+        this.closeSearchResults(event)
+        if (
+            this.currentlyOpenWindow === marker.infoWindow &&
             this.currentlyOpenWindow.isOpen
         )
             return this
-        this.fireEvent 'infoWindowOpen', marker
-        marker.refreshSize = ->
-            ###
-                Simulates a content update to enforce info box size
-                adjusting.
-            ###
-            marker.infoWindow.setContent marker.infoWindow.getContent()
-        infoWindow = this.makeInfoWindow marker
-        if $.type(infoWindow) is 'string'
-            marker.infoWindow.setContent infoWindow
-        else
+        this.fireEvent('infoWindowOpen', marker)
+        marker.refreshSize = ():void =>
+            // Simulates a content update to enforce info box size adjusting.
+            marker.infoWindow.setContent(marker.infoWindow.getContent())
+        const infoWindow:Object = this.makeInfoWindow(marker)
+        if ($.type(infoWindow) === 'string')
+            marker.infoWindow.setContent(infoWindow)
+        else {
             marker.infoWindow.setContent(
                 this._options.infoWindow.loadingContent)
-            infoWindow.then (infoWindow) ->
-                marker.infoWindow.setContent infoWindow
-        if this.currentlyOpenWindow?
+            infoWindow.then((infoWindow:Object):void =>
+                marker.infoWindow.setContent(infoWindow))
+        }
+        if (this.currentlyOpenWindow) {
             this.currentlyOpenWindow.close()
             this.currentlyOpenWindow.isOpen = false
+        }
         this.currentlyOpenWindow = marker.infoWindow
         marker.infoWindow.isOpen = true
-        marker.infoWindow.open this.map, marker.nativeMarker
-        this.map.panTo marker.nativeMarker.position
+        marker.infoWindow.open(this.map, marker.nativeMarker)
+        this.map.panTo(marker.nativeMarker.position)
         this.map.panBy(
             0, -this._options.infoWindow.additionalMoveToBottomInPixel)
-        this.fireEvent 'infoWindowOpened', marker
-        this
-    openPlace: (place, thisFunction, event) ->
-        ###Focuses given place on map.###
-        event?.stopPropagation()
-        this.closeSearchResults event
-        if this.currentlyOpenWindow?
+        this.fireEvent('infoWindowOpened', marker)
+        return this
+    }
+    /**
+     * Focuses given place on map.
+     * @param place - Place to open.
+     * @param event - Event object which has triggered requested place opening.
+     * @returns The current instance.
+     */
+    openPlace(place:Object, event:?Object):StoreLocator {
+        if (event)
+            event.stopPropagation()
+        this.closeSearchResults(event)
+        if (this.currentlyOpenWindow) {
             this.currentlyOpenWindow.close()
             this.currentlyOpenWindow.isOpen = false
-        this.map.setCenter place.geometry.location
-        this.map.setZoom this._options.successfulSearchZoom
-        this
-    highlightMarker: (place, thisFunction, marker, event, type='bounce') ->
-        ###
-            Opens given marker info window. And closes a potential opened
-            windows.
-        ###
-        event?.stopPropagation()
-        if this.currentlyHighlightedMarker
-            this.currentlyHighlightedMarker.nativeMarker?.setAnimation(
-                null)
+        }
+        this.map.setCenter(place.geometry.location)
+        this.map.setZoom(this._options.successfulSearchZoom)
+        return this
+    }
+    /**
+     * Opens given marker info window. And closes a potential opened windows.
+     * @param place - Highlight marker for corresponding place.
+     * @param marker - Marker to Highlight.
+     * @param event - Event object for corresponding event that has the
+     * highlighting requested.
+     * @param type - Type of highlighting.
+     * @returns The current instance.
+     */
+    highlightMarker(
+        place:Object, marker:Object, event:?Object, type:string = 'bounce'
+    ):StoreLocator {
+        if (event)
+            event.stopPropagation()
+        if (this.currentlyHighlightedMarker) {
+            if ('nativeMarker' in this.currentlyHighlightedMarker)
+                this.currentlyHighlightedMarker.nativeMarker.setAnimation(null)
             this.currentlyHighlightedMarker.isHighlighted = false
             this.currentlyHighlightedMarker = null
-        if type is 'stop'
-            marker.nativeMarker?.setAnimation null
-        else
-            # We have to ensure that the minimum zoom level has one more
-            # then the clustering can appear. Since a cluster hides an open
-            # window.
-            if(
-                this._options.marker.cluster?.maxZoom and
-                this.map.getZoom() <=
-                this._options.marker.cluster.maxZoom and
-                marker.nativeMarker?.position? and
-                this.map.getBounds().contains marker.nativeMarker.position
-            )
-                this.map.setCenter marker.nativeMarker.position
-                this.map.setZoom this._options.marker.cluster.maxZoom + 1
-            if marker isnt this.currentlyHighlightedMarker
-                marker.nativeMarker?.setAnimation(
-                    window.google.maps.Animation[type.toUpperCase()])
-                marker.isHighlighted = true
-                this.currentlyHighlightedMarker = marker
-            this.fireEvent 'markerHighlighted', marker
-        this
-    makeInfoWindow: (marker) ->
-        ###
-            Takes the marker for a store and creates the HTML content of
-            the info window.
-        ###
-        if $.isFunction this._options.infoWindow.content
-            return this._options.infoWindow.content.apply this, arguments
-        if this._options.infoWindow.content?
+        }
+        if ('nativeMarker' in marker)
+            if (type === 'stop')
+                marker.nativeMarker.setAnimation(null)
+            else {
+                /*
+                    We have to ensure that the minimum zoom level has one more
+                    then the clustering can appear. Since a cluster hides an
+                    open window.
+                */
+                if (
+                    'cluster' in this._options.marker &&
+                    this._options.marker.cluster.maxZoom &&
+                    this.map.getZoom() <=
+                        this._options.marker.cluster.maxZoom &&
+                    'position' in marker.nativeMarker &&
+                    this.map.getBounds().contains(
+                        marker.nativeMarker.positioning)
+                ) {
+                    this.map.setCenter(marker.nativeMarker.position)
+                    this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
+                }
+                if (
+                    marker !== this.currentlyHighlightedMarker &&
+                    marker.nativeMarker
+                ) {
+                    marker.nativeMarker.setAnimation(
+                        context.google.maps.Animation[type.toUpperCase()])
+                    marker.isHighlighted = true
+                    this.currentlyHighlightedMarker = marker
+                }
+                this.fireEvent('markerHighlighted', marker)
+            }
+        return this
+    }
+    /**
+     * Takes the marker for a store and creates the HTML content of the info
+     * window.
+     * @param marker - Marker to generate info window for.
+     * @returns Info window markup.
+     */
+    makeInfoWindow(marker:Object):string {
+        if ($.isFunction(this._options.infoWindow.content))
+            return this._options.infoWindow.content.apply(this, arguments)
+        if ('content' in this._options.infoWindow)
             return this._options.infoWindow.content
-        content = '<div>'
-        for name, value of marker.data
-            content += "#{name}: #{value}<br />"
-        "#{content}</div>"
-    makeSearchResults: (searchResults) ->
-        ###
-            Takes the search results and creates the HTML content of the
-            search results.
-        ###
-        if $.isFunction this._options.searchBox.content
-            return this._options.searchBox.content.apply this, arguments
-        if this._options.searchBox.content?
+        let content:string = '<div>'
+        for (const name:string in marker.data)
+            content += `${name}: ${marker.data[name]}<br />`
+        return `${content}</div>`
+    }
+    /**
+     * Takes the search results and creates the HTML content of the search
+     * results.
+     * @param searchResults - Search result to generate markup for.
+     * @returns Generated markup.
+     */
+    makeSearchResults(searchResults:Array<Object>):string {
+        if ($.isFunction(this._options.searchBox.content))
+            return this._options.searchBox.content.apply(this, arguments)
+        if ('content' in this._options.searchBox.content)
             return this._options.searchBox.content
-        content = ''
-        for result in searchResults
+        let content:string = ''
+        for (const result:Object of searchResults) {
             content += '<div>'
-            for name, value of result.data
-                content += "#{name}: #{value}<br />"
+            for (const name:string in result.data)
+                content += `${name}: ${result.data[name]}<br />`
             content += '</div>'
-        content
+        }
+        return content
+    }
 }
 // endregion
 $.fn.StoreLocator = function():any {
