@@ -19,7 +19,8 @@
         "document": "webOptimizer document",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
         "preinstall": "webOptimizer preinstall",
-        "postinstall": "webOptimizer build"
+        "postinstall": "webOptimizer build",
+        "watch": "webOptimizer build --watch"
     },
     "license": "ISC",
     "dependencies": {
