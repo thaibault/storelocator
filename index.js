@@ -1030,7 +1030,7 @@ class StoreLocator extends $.Tools.class {
             this.currentlyOpenWindow.isOpen
         )
             return this
-        this.fireEvent('infoWindowOpen', marker)
+        this.fireEvent('infoWindowOpen', event, marker)
         marker.refreshSize = ():void =>
             // Simulates a content update to enforce info box size adjusting.
             marker.infoWindow.setContent(marker.infoWindow.getContent())
@@ -1053,7 +1053,7 @@ class StoreLocator extends $.Tools.class {
         this.map.panTo(marker.nativeMarker.position)
         this.map.panBy(
             0, -this._options.infoWindow.additionalMoveToBottomInPixel)
-        this.fireEvent('infoWindowOpened', marker)
+        this.fireEvent('infoWindowOpened', event, marker)
         return this
     }
     /**
