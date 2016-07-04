@@ -26,5 +26,6 @@
     "dependencies": {
         "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
         "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git"
-    }
+    },
+    "devDependencies": {"source-map-support": ">=0.4.0"}
 }
