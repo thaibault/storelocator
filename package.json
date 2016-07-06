@@ -15,12 +15,14 @@
     "main": "index.compiled.js",
     "scripts": {
         "build": "webOptimizer build",
+        "buildDLL": "webOptimizer buildDLL",
         "clear": "webOptimizer clear",
         "document": "webOptimizer document",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
         "preinstall": "webOptimizer preinstall",
         "postinstall": "webOptimizer build",
-        "watch": "webOptimizer build --watch"
+        "watch": "webOptimizer build --watch",
+        "watchDLL": "webOptimizer buildDLL --watch"
     },
     "license": "ISC",
     "dependencies": {
