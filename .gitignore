@@ -69,6 +69,7 @@ v8flags.*
 *.compiled
 apiDocumentation/
 .dynamicConfiguration-*.json
+*.dll-manifest.json
 
 # region vim modline
 # vim: set tabstop=4 shiftwidth=4 expandtab:
