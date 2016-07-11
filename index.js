@@ -736,8 +736,8 @@ class StoreLocator extends $.Tools.class {
                 this.map.getCenter(), second.position)
         })
         // Compile search results markup.
-        const resultsRepresentation:Promise|string = this.makeSearchResults(
-            searchResults, limitReached)
+        const resultsRepresentation:Promise<any>|string =
+            this.makeSearchResults(searchResults, limitReached)
         if ($.type(resultsRepresentation) === 'string') {
             const resultsRepresentationDomNode:$DomNode = $(
                 resultsRepresentation)
@@ -835,9 +835,9 @@ class StoreLocator extends $.Tools.class {
             pick list. Retrieve the matching places for that item.
         */
         context.google.maps.event.addListener(searchBox, 'places_changed', (
-        ):Promise => this.ensurePlaceLocations(searchBox.getPlaces()).then((
-            places:Array<Object>
-        ):void => {
+        ):Promise<Array<Object>> => this.ensurePlaceLocations(
+            searchBox.getPlaces()
+        ).then((places:Array<Object>):Array<Object> => {
             const foundPlace:?Object = this.determineBestSearchResult(places)
             if (foundPlace) {
                 let shortestDistanceInMeter:number = Number.MAX_VALUE
@@ -858,7 +858,7 @@ class StoreLocator extends $.Tools.class {
                     if (this._options.successfulSearchZoom)
                         this.map.setZoom(this._options.successfulSearchZoom)
                     this.openMarker(matchingMarker)
-                    return
+                    return places
                 }
                 if (this.currentlyOpenWindow) {
                     this.currentlyOpenWindow.isOpen = false
@@ -868,6 +868,7 @@ class StoreLocator extends $.Tools.class {
                 if (this._options.successfulSearchZoom)
                     this.map.setZoom(this._options.successfulSearchZoom)
             }
+            return places
         }))
         return this
     }
@@ -876,7 +877,7 @@ class StoreLocator extends $.Tools.class {
      * @param places - Places to check for.
      * @returns A promise which will be resolved if all places are ensured.
      */
-    ensurePlaceLocations(places:Array<Object>):Promise {
+    ensurePlaceLocations(places:Array<Object>):Promise<Array<Object>> {
         return new Promise((resolve:PromiseCallbackFunction):void => {
             let runningGeocodes:number = 0
             const geocoder:Object = new context.google.maps.Geocoder()
@@ -1150,7 +1151,7 @@ class StoreLocator extends $.Tools.class {
      * @param searchResults - Search result to generate markup for.
      * @returns Generated markup.
      */
-    makeSearchResults(searchResults:Array<Object>):Promise|string {
+    makeSearchResults(searchResults:Array<Object>):Promise<any>|string {
         if ($.isFunction(this._options.searchBox.content))
             return this._options.searchBox.content.apply(this, arguments)
         if ('content' in this._options.searchBox.content)
