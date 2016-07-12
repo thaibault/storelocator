@@ -24,7 +24,7 @@
         "watch": "webOptimizer build --watch",
         "watchDLL": "webOptimizer buildDLL --watch"
     },
-    "license": "ISC",
+    "license": "CC-BY-3.0",
     "dependencies": {
         "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
         "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git"
