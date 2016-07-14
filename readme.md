@@ -2,7 +2,6 @@
 -*- coding: utf-8 -*- -->
 
 <!-- region header
-
 Copyright Torben Sickert 16.12.2012
 
 License
@@ -10,7 +9,6 @@ License
 
 This library written by Torben Sickert stand under a creative commons naming
 3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
-
 endregion -->
 
 <!--|deDE:Einsatz-->
@@ -284,10 +282,7 @@ Usage
         });};
     </script>
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places,geometry&callback=initialize"></script>
-
 <!-- region modline
-
 vim: set tabstop=4 shiftwidth=4 expandtab:
 vim: foldmethod=marker foldmarker=region,endregion:
-
 endregion -->
