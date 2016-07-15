@@ -1,0 +1,380 @@
+'use strict';
+var jQueryStoreLocator =
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+
+
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(1);
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(module) {// #!/usr/bin/env node
+	// -*- coding: utf-8 -*-
+	/** @module jQuery-storeLocator */'use strict'; /* !
+	    region header
+	    [Project page](http://torben.website/jQuery-storeLocator)
+
+	    Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
+
+	    License
+	    -------
+
+	    This library written by Torben Sickert stand under a creative commons
+	    naming 3.0 unported license.
+	    See http://creativecommons.org/licenses/by/3.0/deed.de
+	    endregion
+	*/ // region imports
+	Object.defineProperty(exports,"__esModule",{value:true});var _jquery=__webpack_require__(3);var _jquery2=_interopRequireDefault(_jquery);__webpack_require__(2);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};} // endregion
+	/* eslint-disable no-duplicate-imports */ /* eslint-enable no-duplicate-imports */ // endregion
+	// region types
+	const context=(() => {if(_jquery2.default.type(window)==='undefined'){if(_jquery2.default.type(global)==='undefined')return _jquery2.default.type(module)==='undefined'?{}:module;return global;}return window;})();if(!context.hasOwnProperty('document')&&_jquery2.default.hasOwnProperty('context'))context.document=_jquery2.default.context; // region plugins/classes
+	/**
+	 * A jQuery storelocator plugin.
+	 * Expected store data format:
+	 * {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}
+	 * @property static:_name - Defines this class name to allow retrieving them
+	 * after name mangling.
+	 * @property currentSearchResults - Saves last found search results.
+	 * @property currentSearchText - Saves last searched string.
+	 * @property resultsDomNode - Saves currently opened results dom node or null
+	 * if no results exists yet.
+	 * @property currentSearchResultsDomNode - Saves current search results content
+	 * dom node.
+	 * @property currentlyOpenWindow - Saves currently opened window instance.
+	 * @property currentlyHighlightedMarker - Saves currently highlighted marker
+	 * instance.
+	 * @property searchResultsDirty - Indicates weather current search results
+	 * aren't valid anymore.
+	 * @property seenLocations - Saves all seen locations to recognize duplicates.
+	 * @property markers - Saves all recognized markers.
+	 * @property currentSearchResultRange - Public editable property to set current
+	 * search result range. This is useful for pagination implementations in
+	 * template level.
+	 * @property _options - Saves all plugin interface options.
+	 * @property _options.stores
+	 * {string|Array.<string>|Object.<string, number|Function>} - URL to retrieve
+	 * stores, list of stores or object describing bounds to create random stores
+	 * within. If a "generateProperties" function is given it will be called to
+	 * retrieve additional properties for each store. The specified store will be
+	 * given to the function.
+	 * @property _options.addtionalStoreProperties {Object.<string, mixed>} -
+	 * Additional static store properties which will be available to each store.
+	 * @property _options.iconPath {string} - Path prefix to search for marker
+	 * icons.
+	 * @property _options.defaultMarkerIconFileName {string} - Specifies a fallback
+	 * marker
+	 * icon (if no store specific icon was set). If set to "null" google will place
+	 * a fallback icon.
+	 * @property _options.startLocation {null|Object} - If not provided we
+	 * initialize the map with center in current location determined by internet
+	 * protocol address. If an object is given a "latitude" and "longitude" with a
+	 * saved float are assumed.
+	 * @property _options.fallbackLocation {Object} - Fallback location if
+	 * automatic location determination has failed.
+	 * @property _options.fallbackLocation.latitude {number} - Latitude value.
+	 * @property _options.fallbackLocation.longitude {number} - Longitude value.
+	 * @property _options.ip {null|string} - If provided given ip will be used to
+	 * determine current location instead of automatically determined one.
+	 * @property _options.ipToLocation {Object} - Configuration for ip to location
+	 * conversion.
+	 * @property _options.ipToLocation.applicationInterfaceURL {string} - IP to
+	 * location determination application interface url. {1} and {2} represents
+	 * currently used protocol and potentially given ip.
+	 * @property _options.ipToLocation.timeoutInMilliseconds {number} - Time to
+	 * wait for ip resolve. If time is up initialize on given fallback location.
+	 * @property _options.ipToLocation.bounds
+	 * {Object.<string, Object.<string, number>>} - Defines bound withing
+	 * determined locations should be. If resolved location isn't within this
+	 * location it will be ignored.
+	 * @property _options.ipToLocation.bound.northEast {Object.<string, number>} -
+	 * Defines north east bound.
+	 * @property _options.ipToLocation.bound.northEast.latitude {number} - North
+	 * east latitude bond.
+	 * @property _options.ipToLocation.bound.northEast.longitude {number} - North
+	 * east longitude bond.
+	 * @property _options.ipToLocation.bound.southWest {Object.<string, number>} -
+	 * Defined south west bound.
+	 * @property _options.ipToLocation.bound.southWest.latitude {number} - South
+	 * east latitude bound.
+	 * @property _options.ipToLocation.bound.southWest.longitude {number} - South
+	 * west longitude bound.
+	 * @property _options.map {Object} - Initial view properties.
+	 * @property _options.showInputAfterLoadedDelayInMilliseconds {number} - Delay
+	 * before we show search input field.
+	 * @property _options.inputFadeInOption {Object.<string, mixed>} - Transition
+	 * options to show search input field.
+	 * @property _options.distanceToMoveByDuplicatedEntries {number} - Distance to
+	 * move if stores are determined with same latitude and longitude.
+	 * @property _options.marker {Object|null} - Options passed to the marker
+	 * cluster. If set to "null" no marker cluster will appear.
+	 * @property _options.icon {Object} - Options passed to the icon.
+	 * @property _options.successfulSearchZoom {number} - Specifies a zoom value
+	 * wich will be adjusted after successfully picked a search result. If set to
+	 * "null" no zoom change happens.
+	 * @property _options.infoWindow {Object.<string, mixed>} - Info window
+	 * options.
+	 * @property _options.infoWindow.content {Function|string|null} - Function or
+	 * string returning or representing the info box. If a function is given and a
+	 * promise is returned the info box will be filled with the given loading
+	 * content and updated with the resolved data. The function becomes the
+	 * corresponding marker as first argument and the store locator instance as
+	 * second argument. If nothing is provided all available data will be listed in
+	 * a generic info window.
+	 * @property _options.infoWindow.additionalMoveToBottomInPixel {number} -
+	 * Additional move to bottom relative to the marker if an info window has been
+	 * opened.
+	 * @property _options.infoWindow.loadingContent {string} - Content to show in
+	 * the info window during info window load.
+	 * @property _options.searchBox {number|Object} - If a number is given a
+	 * generic search will be provided and given number will be interpret as search
+	 * result precision tolerance to identify a marker as search result. If an
+	 * object is given it indicates what should be search for. The object can hold
+	 * up to nine keys. "properties" to specify which store data should contain
+	 * given search text, "maximumNumberOfResults" to limit the auto complete
+	 * result, "loadingContent" to display while the results are loading,
+	 * "numberOfAdditionalGenericPlaces" a tuple describing a range of minimal to
+	 * maximal limits of additional generic google suggestions depending on number
+	 * of local search results, "maximalDistanceInMeter" to specify maximal
+	 * distance from current position to search suggestions, "genericPlaceFilter"
+	 * specifies a function which gets a relevant place to decide if the place
+	 * should be included (returns a boolean value), "prefereGenericResults"
+	 * specifies a boolean value indicating if generic search results should be the
+	 * first results, "genericPlaceSearchOptions" specifies how a generic place
+	 * search should be done (google maps request object specification) and
+	 * "content" to render the search results. "content" can be a function or
+	 * string returning or representing the search results. If a function is given
+	 * and a promise is returned the info box will be filled with the given loading
+	 * content and updated with the resolved data. The function becomes search
+	 * results as first argument, a boolean value as second argument indicating if
+	 * the maximum number of search results was reached and the store locator
+	 * instance as third argument. If nothing is provided all available data will
+	 * be listed in a generic info window.
+	 * @property _options.onLoaded {Function} - Function to call if map is fully
+	 * initialized.
+	 * @property _options.onInfoWindowOpen {Function} - Triggers if a marker info
+	 * window will be opened.
+	 * @property _options.onInfoWindowOpened {Function} - Triggers if a marker info
+	 * window has finished opening.
+	 * @property _options.onAddSearchResults {Function} - Triggers before new
+	 * search results appears.
+	 * @property _options.onRemoveSearchResults {Function} - Triggers before old
+	 * search results will be removed.
+	 * @property _options.onOpenSearchResults {Function} - Triggers before search
+	 * result box appears.
+	 * @property _options.onCloseSearchResults {Function} - Triggers before search
+	 * result box will be hidden.
+	 * @property _options.onMarkerHighlighted {Function} - Triggers after a marker
+	 * starts to highlight.
+	 */class StoreLocator extends _jquery2.default.Tools.class{ // endregion
+	/**
+	     * Entry point for object orientated jQuery plugin.
+	     * @param options - Options to overwrite default ones.
+	     * @returns Currently selected dom node.
+	     */ // endregion
+	// region dynamic properties
+	initialize(options={}){ // region properties
+	this.currentSearchResults=[];this.currentSearchText=null;this.resultsDomNode=null;this.currentSearchResultsDomNode=null;this.currentlyOpenWindow=null;this.currentlyHighlightedMarker=null;this.searchResultsDirty=false;this.seenLocations=[];this.markers=[];this.currentSearchResultRange=null;this._options={stores:{northEast:{latitude:85,longitude:180},southWest:{latitude:-85,longitude:-180},number:100,generateProperties:store => store},addtionalStoreProperties:{},iconPath:'/webAsset/image/storeLocator/',defaultMarkerIconFileName:null,startLocation:null,fallbackLocation:{latitude:51.124213,longitude:10.147705},ip:null,ipToLocation:{applicationInterfaceURL:'{1}://freegeoip.net/json/{2}',timeoutInMilliseconds:5000,bounds:{northEast:{latitude:85,longitude:180},southWest:{latitude:-85,longitude:-180}}},map:{zoom:3},showInputAfterLoadedDelayInMilliseconds:500,inputFadeInOption:{duration:'fast'},distanceToMoveByDuplicatedEntries:0.0001,marker:{cluster:{gridSize:100,maxZoom:11},icon:{size:{width:44,height:49,unit:'px'},scaledSize:{width:44,height:49,unit:'px'}}},successfulSearchZoom:12,infoWindow:{content:null,additionalMoveToBottomInPixel:120,loadingContent:'<div class="idle">loading...</div>'},searchBox:50,onLoaded:_jquery2.default.noop,onInfoWindowOpen:_jquery2.default.noop,onInfoWindowOpened:_jquery2.default.noop,onAddSearchResults:_jquery2.default.noop,onRemoveSearchResults:_jquery2.default.noop,onOpenSearchResults:_jquery2.default.noop,onCloseSearchResults:_jquery2.default.noop,onMarkerHighlighted:_jquery2.default.noop}; // endregion
+	// Merges given options with default options recursively.
+	super.initialize(options);if(this._options.startLocation)this.initializeMap();else { // IgnoreTypeCheck
+	this._options.startLocation=this._options.fallbackLocation; /*
+	                NOTE: If request is slower than the timeout parameter for jsonp
+	                request the padding function isn't set anymore so an error
+	                occurs. That's why we use our own timeout implementation.
+	            */let loaded=false;setTimeout(() => {if(!loaded){loaded=true;this.initializeMap();}},this._options.ipToLocation.timeoutInMilliseconds);_jquery2.default.ajax({url:this.stringFormat(this._options.ipToLocation.applicationInterfaceURL,document.location.protocol.substring(0,document.location.protocol.length-1),this._options.ip||''),dataType:'jsonp',cache:true}).always((currentLocation,textStatus) => {if(!loaded){loaded=true;if(textStatus==='success') /*
+	                            Check if determined location is within defined
+	                            bounds.
+	                        */if(!this._options.ipToLocation.bounds||new context.google.maps.LatLngBounds(new context.google.maps.LatLng(this._options.ipToLocation.bounds.southWest.latitude,this._options.ipToLocation.bounds.southWest.longitude),new context.google.maps.LatLng(this._options.ipToLocation.bounds.northEast.latitude,this._options.ipToLocation.bounds.northEast.longitude)).contains(new context.google.maps.LatLng(currentLocation.latitude,currentLocation.longitude)))this._options.startLocation=currentLocation;this.initializeMap();}});}return this.$domNode;} /**
+	     * Initializes cluster, info windows and marker.
+	     * @returns The current instance.
+	     */ // region static properties
+	initializeMap(){this._options.map.center=new context.google.maps.LatLng(this._options.startLocation.latitude,this._options.startLocation.longitude);this.map=new context.google.maps.Map((0,_jquery2.default)('<div>').appendTo(this.$domNode)[0],this._options.map);let markerCluster=null;if(this._options.marker.cluster)markerCluster=new context.MarkerClusterer(this.map,[],this._options.marker.cluster); // Add a marker for each retrieved store.
+	if(_jquery2.default.isArray(this._options.stores))for(const store of this._options.stores){_jquery2.default.extend(true,store,this._options.addtionalStoreProperties);const marker=this.createMarker(store);if(markerCluster)markerCluster.addMarker(marker);}else if(_jquery2.default.type(this._options.stores)==='string')_jquery2.default.getJSON(this._options.stores,stores => {for(const store of stores){_jquery2.default.extend(true,store,this._options.addtionalStoreProperties);const marker=this.createMarker(store);if(markerCluster)markerCluster.addMarker(marker);}});else {const southWest=new context.google.maps.LatLng(this._options.stores.southWest.latitude,this._options.stores.southWest.longitude);const northEast=new context.google.maps.LatLng(this._options.stores.northEast.latitude,this._options.stores.northEast.longitude);for(let index=0;index<this._options.stores.number;index++){const store=_jquery2.default.extend({latitude:southWest.lat()+(northEast.lat()-southWest.lat())*Math.random(),longitude:southWest.lng()+(northEast.lng()-southWest.lng())*Math.random()},this._options.addtionalStoreProperties);const marker=this.createMarker(_jquery2.default.extend(store,this._options.stores.generateProperties(store)));if(markerCluster)markerCluster.addMarker(marker);}} // Create the search box and link it to the UI element.
+	this.map.controls[context.google.maps.ControlPosition.TOP_LEFT].push(this.$domNode.find('input')[0]);if(_jquery2.default.type(this._options.searchBox)==='number')this.initializeGenericSearchBox();else {context.google.maps.event.addListener(this.map,'click',() => this.closeSearchResults());context.google.maps.event.addListener(this.map,'dragstart',() => this.closeSearchResults());this._options.searchBox=_jquery2.default.extend(true,{maximumNumberOfResults:50,numberOfAdditionalGenericPlaces:[2,5],maximalDistanceInMeter:1000000,loadingContent:this._options.infoWindow.loadingContent,genericPlaceFilter:place => place.formatted_address.indexOf(' Deutschland')!==-1||place.formatted_address.indexOf(' Germany')!==-1,prefereGenericResults:true,genericPlaceSearchOptions:{radius:'50000'}},this._options.searchBox);this.initializeDataSourceSearchBox();} // Close marker if zoom level is bigger than the aggregation.
+	context.google.maps.event.addListener(this.map,'zoom_changed',() => {if(typeof this.currentlyOpenWindow==='object'&&this.currentlyOpenWindow&&this.currentlyOpenWindow.isOpen&&this.map.getZoom()<=this._options.marker.cluster.maxZoom){this.currentlyOpenWindow.isOpen=false;this.currentlyOpenWindow.close();}});this.fireEvent('loaded');return this;} /**
+	     * Position search results right below the search input field.
+	     * @returns The current instance.
+	     */initializeDataSourceSearchResultsBox(){const cssProperties={};for(const propertyName of ['position','width','top','left','border'])cssProperties[propertyName]=this.$domNode.find('input').css(propertyName);cssProperties.marginTop=this.$domNode.find('input').outerHeight(true); // Prepare search result positioning.
+	this.resultsDomNode=(0,_jquery2.default)('<div>').addClass(this.constructor.stringCamelCaseToDelimited(`${ this.__name__ }SearchResults`)).css(cssProperties); // Inject the final search results into the dom tree.
+	this.$domNode.find('input').after(this.resultsDomNode);return this;} /**
+	     * Initializes a data source based search box to open and focus them
+	     * matching marker.
+	     * @returns The current instance.
+	     */initializeDataSourceSearchBox(){this.on(this.$domNode,'keydown',event => { /*
+	                NOTE: Events that doesn't occurs in search context are handled
+	                by the native map implementation and won't be propagated so we
+	                doesn't have to care about that.
+	            */if(this.currentSearchResults.length){if(this.currentSearchResultRange)this.currentSearchResultRange=[Math.max(0,this.currentSearchResultRange[0]),Math.min(this.currentSearchResults.length-1, // IgnoreTypeCheck
+	this.currentSearchResultRange[1])];else this.currentSearchResultRange=[0,this.currentSearchResults.length-1];let currentIndex=-1;if(this.currentlyHighlightedMarker)currentIndex=this.currentSearchResults.indexOf(this.currentlyHighlightedMarker);if(event.keyCode===this.keyCode.DOWN){if(currentIndex===-1||this.currentSearchResultRange[1]<currentIndex+1)this.highlightMarker(this.currentSearchResults[this.currentSearchResultRange[0]],event);else this.highlightMarker(this.currentSearchResults[currentIndex+1],event);}else if(event.keyCode===this.keyCode.UP){if([this.currentSearchResultRange[0],-1].includes(currentIndex))this.highlightMarker(this.currentSearchResults[ // IgnoreTypeCheck
+	this.currentSearchResultRange[1]],event);else this.highlightMarker(this.currentSearchResults[currentIndex-1],event);}else if(event.keyCode===this.keyCode.ENTER&&this.currentlyHighlightedMarker){event.stopPropagation();if(this.currentlyHighlightedMarker)if(this.currentlyHighlightedMarker.infoWindow)this.openMarker(this.currentlyHighlightedMarker,event);else this.openPlace(this.currentlyHighlightedMarker.data,event);}}});this.on(this.$domNode.find('input'),'focus',() => {if(this.currentSearchText)this.openSearchResults();});this.on(this.$domNode.find('input'),'keydown',event => {for(const name in this.keyCode)if(this.keyCode.hasOwnProperty(name)&&event.keyCode===this.keyCode[name]&&name!=='DOWN')return;});if(this.currentSearchText)this.openSearchResults();this.on(this.$domNode.find('input'),'click',() => {if(this.currentSearchText)this.openSearchResults();});context.google.maps.event.addListener(this.map,'center_changed',() => { // NOTE: Search results depends on current position.
+	if(this.currentSearchText&&this.resultsDomNode)this.searchResultsDirty=true;});this.on(this.$domNode.find('input'),'keyup',this.getUpdateSearchResultsHandler());return this;} /**
+	     * Triggers on each search request.
+	     * @returns The current instance.
+	     */getUpdateSearchResultsHandler(){const placesService=new context.google.maps.places.PlacesService(this.map);return this.debounce(event => {for(const name in this.keyCode)if(event&&event.keyCode===this.keyCode[name]&&!['DELETE','BACKSPACE'].includes(name))return;this.acquireLock(`${ this.constructor._name }Search`,() => {const searchText=_jquery2.default.trim(this.$domNode.find('input').val());if(this.currentSearchText===searchText&&!this.searchResultsDirty)return this.releaseLock(`${ this.constructor._name }Search`);this.searchResultsDirty=false;if(!this.resultsDomNode)this.initializeDataSourceSearchResultsBox();if(!searchText&&this.resultsDomNode){this.currentSearchText='';this.currentSearchResults=[];this.resultsDomNode.html('');this.currentSearchResultsDomNode=null;this.closeSearchResults();return this.releaseLock(`${ this.constructor._name }Search`);}this.openSearchResults();const loadingDomNode=(0,_jquery2.default)(this._options.searchBox.loadingContent);if(this.resultsDomNode&&!this.fireEvent('addSearchResults',false,this,loadingDomNode,this.resultsDomNode,this.currentSearchResultsDomNode||[]))this.resultsDomNode.html(loadingDomNode);if(this.currentSearchResultsDomNode&&this.currentSearchResultsDomNode.length)this.fireEvent('removeSearchResults',false,this,this.currentSearchResultsDomNode);this.currentSearchResultsDomNode=loadingDomNode;if(this._options.searchBox.numberOfAdditionalGenericPlaces) /*
+	                        NOTE: Google searches for more items than exists in the
+	                        the specified radius. However the radius is a string in
+	                        the examples provided by google.
+	                    */placesService.textSearch(_jquery2.default.extend({query:searchText,location:this.map.getCenter()},this._options.searchBox.genericPlaceSearchOptions),places => {if(places)this.handleGenericSearchResults(places,searchText);});else this.performLocalSearch(searchText);},1000);});} /**
+	     * Sorts and filters search results given by the google api.
+	     * @param places - List of place objects.
+	     * @param searchText - Words which should occur in requested search
+	     * results.
+	     * @returns Returns current instance.
+	     */handleGenericSearchResults(places,searchText){const searchResults=[]; /*
+	            NOTE: Since google text search doesn't support sorting by distance
+	            we have to sort by our own.
+	        */let index=1;for(const place of places.sort((firstPlace,secondPlace) => context.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),firstPlace.geometry.location)-context.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),secondPlace.geometry.location))){index+=1;const distance=context.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),place.geometry.location);if(distance>this._options.searchBox.maximalDistanceInMeter)break;if(this._options.searchBox.genericPlaceFilter(place)){const result={data:_jquery2.default.extend(place,{logoFilePath:place.icon.replace(/^http:(\/\/)/,`${ document.location.protocol }$1`),address:place.formatted_address,distance:distance}),position:place.geometry.location,open:event => this.openPlace(place,event),highlight:(event,type) => {this.isHighlighted=type!=='stop';}};searchResults.push(result);if(this._options.searchBox.numberOfAdditionalGenericPlaces[1]<index)break;}}return this.performLocalSearch(searchText,searchResults);} /**
+	     * Performs a search on locally given store data.
+	     * @param searchText - Text to search for.
+	     * @param searchResults - A list if generic search results.
+	     * @returns The current instance.
+	     */performLocalSearch(searchText,searchResults=[]){const numberOfGenericSearchResults=searchResults.length;for(const marker of this.markers)for(const key of this._options.searchBox.properties)if((marker.data[key]||marker.data[key]===0)&&`${ marker.data[key] }`.toLowerCase().replace(/[-_&]+/g,' ').indexOf(searchText.toLowerCase().replace(/[-_&]+/g,' '))!==-1){marker.open=event => this.openMarker(marker,event);marker.highlight=(event,type) => this.highlightMarker(marker,event,type);searchResults.push(marker);break;} /*
+	            Remove generic place results if there are enough local search
+	            results.
+	        */if(this._options.searchBox.numberOfAdditionalGenericPlaces&&searchResults.length&&numberOfGenericSearchResults>this._options.searchBox.numberOfAdditionalGenericPlaces[0]&&searchResults.length>this._options.searchBox.numberOfAdditionalGenericPlaces[1])searchResults.splice(this._options.searchBox.numberOfAdditionalGenericPlaces[0],numberOfGenericSearchResults-this._options.searchBox.numberOfAdditionalGenericPlaces[0]); // Slice additional unneeded local search results.
+	let limitReached=false;if(this._options.searchBox.maximumNumberOfResults<searchResults.length){limitReached=true;searchResults.splice(this._options.searchBox.maximumNumberOfResults,searchResults.length);} /*
+	            Sort results by current map center form nearer to more fare away
+	            results.
+	        */searchResults.sort((first,second) => {if(this._options.searchBox.prefereGenericResults&&!first.infoWindow&&second.infoWindow)return -1;if(this._options.searchBox.prefereGenericResults&&!second.infoWindow&&first.infoWindow)return 1;return context.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),first.position)-context.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),second.position);}); // Compile search results markup.
+	const resultsRepresentation=this.makeSearchResults(searchResults,limitReached);if(_jquery2.default.type(resultsRepresentation)==='string'){const resultsRepresentationDomNode=(0,_jquery2.default)(resultsRepresentation);if(this.resultsDomNode&&!this.fireEvent('addSearchResults',false,this,resultsRepresentationDomNode,this.resultsDomNode,this.currentSearchResultsDomNode||[]))this.resultsDomNode.html(resultsRepresentationDomNode);if(this.currentSearchResultsDomNode&&this.currentSearchResultsDomNode.length)this.fireEvent('removeSearchResults',false,this,this.currentSearchResultsDomNode);this.currentSearchResultsDomNode=resultsRepresentationDomNode;setTimeout(() => this.releaseLock(`${ this.constructor._name }Search`),0);}else if(resultsRepresentation instanceof Promise)resultsRepresentation.then(resultsRepresentation => {const resultsRepresentationDomNode=(0,_jquery2.default)(resultsRepresentation);if(this.resultsDomNode&&!this.fireEvent('addSearchResults',false,this,resultsRepresentationDomNode,this.resultsDomNode,this.currentSearchResultsDomNode||[]))this.resultsDomNode.html(resultsRepresentationDomNode);if(this.currentSearchResultsDomNode&&this.currentSearchResultsDomNode.length)this.fireEvent('removeSearchResults',false,this,this.currentSearchResultsDomNode);this.currentSearchResultsDomNode=resultsRepresentationDomNode;this.releaseLock(`${ this._name }Search`);});this.currentSearchText=searchText;this.currentSearchResults=searchResults.slice();return this;} /**
+	     * Opens current search results.
+	     * @param event - Object with meta data for current event which has
+	     * triggered to show search results.
+	     * @returns The current instance.
+	     */openSearchResults(event){if(event)event.stopPropagation();this.getUpdateSearchResultsHandler()(event);if(this.resultsDomNode&&!this.resultsDomNode.hasClass('open')&&!this.fireEvent('openSearchResults',false,this,event,this.resultsDomNode))this.resultsDomNode.addClass('open');return this;} /**
+	     * Closes current search results.
+	     * @param event - Object with meta data for current event which has
+	     * triggered to close search results.
+	     * @returns The current instance.
+	     */closeSearchResults(event=null){if(event)event.stopPropagation();if(this.resultsDomNode&&this.resultsDomNode.hasClass('open')&&!this.fireEvent('closeSearchResults',false,this,event,this.resultsDomNode))this.resultsDomNode.removeClass('open');return this;} /**
+	     * Initializes googles generic search box and tries to match to open and
+	     * focus them.
+	     * @returns The current instance.
+	     */initializeGenericSearchBox(){const searchBox=new context.google.maps.places.SearchBox(this.$domNode.find('input')[0]); /*
+	            Bias the search box results towards places that are within the
+	            bounds of the current map's viewport.
+	        */context.google.maps.event.addListener(this.map,'bounds_changed',() => searchBox.setBounds(this.map.getBounds())); /*
+	            Listen for the event fired when the user selects an item from the
+	            pick list. Retrieve the matching places for that item.
+	        */context.google.maps.event.addListener(searchBox,'places_changed',() => this.ensurePlaceLocations(searchBox.getPlaces()).then(places => {const foundPlace=this.determineBestSearchResult(places);if(foundPlace){let shortestDistanceInMeter=Number.MAX_VALUE;let matchingMarker=null;for(const marker of this.markers){const distanceInMeter=context.google.maps.geometry.spherical.computeDistanceBetween(foundPlace.geometry.location,marker.position);if(distanceInMeter<shortestDistanceInMeter){shortestDistanceInMeter=distanceInMeter;matchingMarker=marker;}}if(matchingMarker&&shortestDistanceInMeter<=this._options.searchBox){if(this._options.successfulSearchZoom)this.map.setZoom(this._options.successfulSearchZoom);this.openMarker(matchingMarker);return places;}if(this.currentlyOpenWindow){this.currentlyOpenWindow.isOpen=false;this.currentlyOpenWindow.close();}this.map.setCenter(foundPlace.geometry.location);if(this._options.successfulSearchZoom)this.map.setZoom(this._options.successfulSearchZoom);}return places;}));return this;} /**
+	     * Ensures that every given place have a location property.
+	     * @param places - Places to check for.
+	     * @returns A promise which will be resolved if all places are ensured.
+	     */ensurePlaceLocations(places){return new Promise(resolve => {let runningGeocodes=0;const geocoder=new context.google.maps.Geocoder();for(const place of places)if(!('geometry' in place&&'location' in place.geometry)){this.warn('Found place "{1}" doesn\'t have a location. Full '+'object:',place.name);this.warn(place);this.info('Geocode will be determined separately. With address'+' "{1}".',place.name);runningGeocodes+=1; /* eslint-disable no-loop-func */geocoder.geocode({address:place.name},(results,status) => {runningGeocodes-=1;if(status===context.google.maps.GeocoderStatus.OK)place.geometry=results[0].geometry;else {delete places[places.indexOf(place)];this.warn('Found place "{1}" couldn\'t be geocoded by '+'google. Removing it from the places list.',place.name);}if(runningGeocodes===0)resolve(places);}); /* eslint-enable no-loop-func */}});} /**
+	     * Determines the best search result from given list of candidates.
+	     * Currently the nearest result to current viewport will be preferred.
+	     * @param candidates - List of search results to determine best from.
+	     * @returns The determined best result.
+	     */determineBestSearchResult(candidates){let result=null;if(candidates.length){let shortestDistanceInMeter=Number.MAX_VALUE;for(const candidate of candidates){const distanceInMeter=context.google.maps.geometry.spherical.computeDistanceBetween(candidate.geometry.location,this.map.getCenter());if(distanceInMeter<shortestDistanceInMeter){result=candidate;shortestDistanceInMeter=distanceInMeter;}}}return result;} /**
+	     * Is triggered if the complete map ist loaded.
+	     * @returns The current instance.
+	     */onLoaded(){setTimeout(() => this.$domNode.find('input').fadeIn(this._options.inputFadeInOption),this._options.showInputAfterLoadedDelayInMilliseconds);return this;} /**
+	     * Registers given store to the google maps canvas.
+	     * @param store - Store object to create a marker for.
+	     * @returns The created marker.
+	     */createMarker(store){let index=0;while(this.seenLocations.includes(`${ store.latitude }-${ store.longitude }`)){if(index%2)store.latitude+=this._options.distanceToMoveByDuplicatedEntries;else store.longitude+=this._options.distanceToMoveByDuplicatedEntries;index+=1;}this.seenLocations.push(`${ store.latitude }-${ store.longitude }`);const marker={position:new context.google.maps.LatLng(store.latitude,store.longitude),map:this.map,data:store};if(store.markerIconFileName||this._options.defaultMarkerIconFileName){marker.icon=_jquery2.default.extend({},this._options.marker.icon);if(marker.icon.size)marker.icon.size=new context.google.maps.Size(marker.icon.size.width,marker.icon.size.height,marker.icon.size.unit,marker.icon.size.unit);if(marker.icon.scaledSize)marker.icon.scaledSize=new context.google.maps.Size(marker.icon.scaledSize.width,marker.icon.scaledSize.height,marker.icon.scaledSize.unit,marker.icon.scaledSize.unit);if(store.markerIconFileName)marker.icon.url=this._options.iconPath+store.markerIconFileName;else marker.icon.url=this._options.iconPath+this._options.defaultMarkerIconFileName;}if(store.title)marker.title=store.title;marker.infoWindow=new context.google.maps.InfoWindow({content:''});marker.infoWindow.isOpen=false;context.google.maps.event.addListener(marker.infoWindow,'closeclick',() => {marker.infoWindow.isOpen=false;});marker.nativeMarker=new context.google.maps.Marker(marker);context.google.maps.event.addListener(marker.nativeMarker,'click',this.getMethod('openMarker',this,marker));this.markers.push(marker);return marker.nativeMarker;} /**
+	     * Opens given marker info window. And closes a potential opened windows.
+	     * @param marker - Marker to open.
+	     * @param event - Event which has triggered the marker opening call.
+	     * @returns The current instance.
+	     */openMarker(marker,event){if(event)event.stopPropagation();this.highlightMarker(marker,event,'stop'); /*
+	            We have to ensure that the minimum zoom level has one more then
+	            the clustering can appear. Since a cluster hides an open window.
+	        */if('cluster' in this._options.marker&&this._options.marker.cluster.maxZoom&&this.map.getZoom()<=this._options.marker.cluster.maxZoom)this.map.setZoom(this._options.marker.cluster.maxZoom+1);this.closeSearchResults(event);if(this.currentlyOpenWindow===marker.infoWindow&&this.currentlyOpenWindow.isOpen)return this;this.fireEvent('infoWindowOpen',event,marker);marker.refreshSize=() =>  // Simulates a content update to enforce info box size adjusting.
+	marker.infoWindow.setContent(marker.infoWindow.getContent());const infoWindow=this.makeInfoWindow(marker);if(typeof infoWindow==='string')marker.infoWindow.setContent(infoWindow);else {marker.infoWindow.setContent(this._options.infoWindow.loadingContent);infoWindow.then(infoWindow => marker.infoWindow.setContent(infoWindow));}if(this.currentlyOpenWindow){this.currentlyOpenWindow.isOpen=false;this.currentlyOpenWindow.close();}this.currentlyOpenWindow=marker.infoWindow;marker.infoWindow.isOpen=true;marker.infoWindow.open(this.map,marker.nativeMarker);this.map.panTo(marker.nativeMarker.position);this.map.panBy(0,-this._options.infoWindow.additionalMoveToBottomInPixel);this.fireEvent('infoWindowOpened',event,marker);return this;} /**
+	     * Focuses given place on map.
+	     * @param place - Place to open.
+	     * @param event - Event object which has triggered requested place opening.
+	     * @returns The current instance.
+	     */openPlace(place,event){if(event)event.stopPropagation();this.closeSearchResults(event);if(this.currentlyOpenWindow){this.currentlyOpenWindow.isOpen=false;this.currentlyOpenWindow.close();}this.map.setCenter(place.geometry.location);this.map.setZoom(this._options.successfulSearchZoom);return this;} /**
+	     * Opens given marker info window. And closes a potential opened windows.
+	     * @param marker - Marker to Highlight.
+	     * @param event - Event object for corresponding event that has the
+	     * highlighting requested.
+	     * @param type - Type of highlighting.
+	     * @returns The current instance.
+	     */highlightMarker(marker,event,type='bounce'){if(event)event.stopPropagation();if(this.currentlyHighlightedMarker){if('nativeMarker' in this.currentlyHighlightedMarker)this.currentlyHighlightedMarker.nativeMarker.setAnimation(null);this.currentlyHighlightedMarker.isHighlighted=false;this.currentlyHighlightedMarker=null;}if('nativeMarker' in marker)if(type==='stop')marker.nativeMarker.setAnimation(null);else { /*
+	                    We have to ensure that the minimum zoom level has one more
+	                    then the clustering can appear. Since a cluster hides an
+	                    open window.
+	                */if('cluster' in this._options.marker&&this._options.marker.cluster.maxZoom&&this.map.getZoom()<=this._options.marker.cluster.maxZoom&&'position' in marker.nativeMarker&&this.map.getBounds().contains(marker.nativeMarker.positioning)){this.map.setCenter(marker.nativeMarker.position);this.map.setZoom(this._options.marker.cluster.maxZoom+1);}if(marker!==this.currentlyHighlightedMarker&&marker.nativeMarker){marker.nativeMarker.setAnimation(context.google.maps.Animation[type.toUpperCase()]);marker.isHighlighted=true;this.currentlyHighlightedMarker=marker;}this.fireEvent('markerHighlighted',marker);}return this;} /**
+	     * Takes the marker for a store and creates the HTML content of the info
+	     * window.
+	     * @param marker - Marker to generate info window for.
+	     * @returns Info window markup.
+	     */makeInfoWindow(marker){if(_jquery2.default.isFunction(this._options.infoWindow.content))return this._options.infoWindow.content.apply(this,arguments);if('content' in this._options.infoWindow)return this._options.infoWindow.content;let content='<div>';for(const name in marker.data)if(marker.data.hasOwnProperty(name))content+=`${ name }: ${ marker.data[name] }<br />`;return `${ content }</div>`;} /**
+	     * Takes the search results and creates the HTML content of the search
+	     * results.
+	     * @param searchResults - Search result to generate markup for.
+	     * @returns Generated markup.
+	     */makeSearchResults(searchResults){if(_jquery2.default.isFunction(this._options.searchBox.content))return this._options.searchBox.content.apply(this,arguments);if('content' in this._options.searchBox.content)return this._options.searchBox.content;let content='';for(const result of searchResults){content+='<div>';for(const name in result.data)if(result.data.hasOwnProperty(name))content+=`${ name }: ${ result.data[name] }<br />`;content+='</div>';}return content;}} // endregion
+	StoreLocator._name='StoreLocator';_jquery2.default.fn.StoreLocator=function(){return _jquery2.default.Tools().controller(StoreLocator,arguments,this);}; /** The jQuery-storeLocator plugin class. */exports.default=StoreLocator; // region vim modline
+	// vim: set tabstop=4 shiftwidth=4 expandtab:
+	// vim: foldmethod=marker foldmarker=region,endregion:
+	// endregion
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)(module)))
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	module.exports = jQueryTools;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	module.exports = jquery;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	module.exports = node_modulesWebpackBuildinModuleJs;
+
+/***/ }
+/******/ ]);

@@ -1,0 +1,10 @@
+# Compiled by babel
+lib
+
+# Compiled by webpack
+test/dist
+
+# Syntax error on purpose
+test/modules/error.js
+
+examples
