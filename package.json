@@ -18,6 +18,7 @@
         "buildDLL": "webOptimizer buildDLL",
         "clear": "webOptimizer clear",
         "document": "webOptimizer document",
+        "export": "webOptimizer build '{exportFormat:\"var\"}'",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
         "preinstall": "webOptimizer preinstall",
         "postinstall": "webOptimizer build",
