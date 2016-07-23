@@ -275,6 +275,8 @@ Usage
 
 <!--showExample:hidden-->
 
+    #!HTML
+
     <script type="text/javascript">
         window.initialize = function() {$(function($) {
             window.initializeSimple()
