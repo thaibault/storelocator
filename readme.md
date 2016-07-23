@@ -72,10 +72,10 @@ Usage
 
     #!HTML
 
-    <script src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.1.2/src/markerclusterer_packed.js" type="text/javascript"></script>
-    <script src="data/distributionBundle/jquery-2.1.1.js" type="text/javascript"></script>
-    <script src="data/distributionBundle/jquery-tools-1.0.js" type="text/javascript"></script>
-    <script src="data/distributionBundle/jquery-storeLocator-1.0.js" type="text/javascript"></script>
+    <script src="https://cdn.jobrad.org/markerclusterer_compiled.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
+    <script src="https://raw.githubusercontent.com/thaibault/jQuery-tools/gh-pages/data/distributionBundle/jquery-tools-1.0.js"></script>
+    <script src="https://raw.githubusercontent.com/thaibault/jQuery-storeLocator/gh-pages/data/distributionBundle/index.compiled.js"></script>
 
 <!--|deDE:Einfache Beispiel-->
 ### Simple example
