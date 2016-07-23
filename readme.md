@@ -74,7 +74,7 @@ Usage
 
     <script src="https://cdn.jobrad.org/markerclusterer_compiled.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
-    <script src="https://raw.githubusercontent.com/thaibault/jQuery-tools/gh-pages/data/distributionBundle/jquery-tools-1.0.js"></script>
+    <script src="https://raw.githubusercontent.com/thaibault/jQuery-tools/gh-pages/data/distributionBundle/index.compiled.js"></script>
     <script src="https://raw.githubusercontent.com/thaibault/jQuery-storeLocator/gh-pages/data/distributionBundle/index.compiled.js"></script>
 
 <!--|deDE:Einfache Beispiel-->
