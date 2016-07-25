@@ -548,9 +548,9 @@ class StoreLocator extends $.Tools.class {
                 ].includes(name))
                     return
             this.acquireLock(`${this.constructor._name}Search`, ():void => {
-                const searchText:string = $.trim(this.$domNode.find(
+                const searchText:string = this.$domNode.find(
                     'input'
-                ).val())
+                ).val().trim()
                 if (
                     this.currentSearchText === searchText &&
                     !this.searchResultsDirty
