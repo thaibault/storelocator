@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3>jQuery-storeLocator 1.0.0</h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><!-- !/usr/bin/env markdown
+-*- coding: utf-8 -*- -->
+<!-- region header
+Copyright Torben Sickert 16.12.2012
+
+License
+-------
+
+This library written by Torben Sickert stand under a creative commons naming
+3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
+endregion -->
+<!--|deDE:Einsatz-->
+<h2>Use case</h2><p>A jQuery plugin to serve a store locator with google maps API.
+<!--deDE:
+    Ein jQuery-Plugin zum Bereitstellen eines Google-Maps-Storelocator.
+--></p>
+<!--|deDE:Inhalt-->
+<h2>Content</h2><!--Place for automatic generated table of contents.-->
+<p>[TOC]</p>
+<!--|deDE:Beispiele-->
+<h2>Examples</h2><!--|deDE:Verwendung-->
+<h2>Usage</h2><!--|deDE:Designvorgaben für die Store-Locator Beispiele-->
+<h3>Adding some style to our store locator examples</h3><!--showExample:css-->
+<pre class="prettyprint source"><code>#!CSS
+
+body div.simple-store-locator, body div.advanced-store-locator {
+    width: 100%;
+    height: 400px;
+    margin: 0px;
+    padding: 0px
+}
+body div.simple-store-locator > div,
+body div.advanced-store-locator > div {
+    height: 100%;
+}
+body div.simple-store-locator input.form-control,
+body div.advanced-store-locator input.form-control {
+    margin-top: 27px;
+    width: 230px;
+    display: none;
+}
+body div.simple-store-locator div.gm-style-iw > div,
+body div.advanced-store-locator div.gm-style-iw > div {
+    width: 225px;
+    height: 60px;
+    padding: 5px;
+}</code></pre><!--|deDE:Laden einiger benötigter Ressourcen-->
+<h3>Loading some needed resources</h3><!--showExample:hidden-->
+<pre class="prettyprint source"><code>#!HTML
+
+&lt;script src=&quot;https://cdn.jobrad.org/markerclusterer_compiled.js&quot;>&lt;/script>
+&lt;script src=&quot;https://code.jquery.com/jquery-3.1.0.js&quot; integrity=&quot;sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=&quot; crossorigin=&quot;anonymous&quot;>&lt;/script>
+&lt;script src=&quot;http://torben.website/jQuery-tools/data/distributionBundle/index.compiled.js&quot;>&lt;/script>
+&lt;script src=&quot;http://torben.website/jQuery-storeLocator/data/distributionBundle/index.compiled.js&quot;>&lt;/script></code></pre><!--|deDE:Einfache Beispiel-->
+<h3>Simple example</h3><!--showExample-->
+<pre class="prettyprint source"><code>#!HTML
+
+&lt;script type=&quot;text/javascript&quot;>
+    window.initializeSimple = function() {
+        $('body div.simple-store-locator').StoreLocator();
+    };
+&lt;/script>
+&lt;div class=&quot;simple-store-locator&quot;>
+    &lt;input type=&quot;text&quot; class=&quot;form-control&quot; />
+&lt;/div></code></pre><!--|deDE:Erweitertes Beispiel-->
+<h3>Advanced example with all available options.</h3><!--showExample-->
+<pre class="prettyprint source"><code>#!HTML
+
+&lt;script type=&quot;text/javascript&quot;>
+    window.initializeAdvanced = function() {
+        $('body div.advanced-store-locator').StoreLocator({
+            /*
+                URL to retrieve stores, list of stores or object describing
+                bounds to create random stores within. If a
+                &quot;generateProperties&quot; function is given it will be called to
+                retrieve additional properties for each store. The
+                specified store will be given to the function.
+
+            */
+            stores: {
+                northEast: {latitude: 85, longitude: 180},
+                southWest: {latitude: -85, longitude: -180},
+                number: 100, generateProperties: function(store) {
+                    return {};
+                }
+            },
+            /*
+                Additional static store properties which will be available
+                to each store.
+            */
+            addtionalStoreProperties: {},
+            // Path prefix to search for marker icons.
+            iconPath: '/webAsset/image/storeLocator/',
+            /*
+                Specifies a fallback marker icon (if no store specific icon
+                was set). If set to &quot;null&quot; google will place a fallback
+                icon.
+            */
+            defaultMarkerIconFileName: null,
+            /*
+                If not provided we initialize the map with center in
+                current location determined by internet protocol address.
+            */
+            startLocation: null,
+            // Fallback location if automatic detection fails.
+            fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
+            /*
+                Current ip. If set to &quot;null&quot; ip will be determined
+                dynamically
+            */
+            ip: null,
+            ipToLocation: {
+                /*
+                    IP to location determination api url. {1} and {2}
+                    epresents currently used protocol and potentially given
+                    ip.
+                */
+                applicationInterfaceURL: '{1}://freegeoip.net/json/{2}',
+                /*
+                    Time to wait for ip resolve. If time is up initialize
+                    on given fallback location.
+                */
+                timeoutInMilliseconds: 5000,
+                /*
+                    Defines bound withing determined locations should be.
+                    If resolved location isn't within this location it will
+                    be ignored.
+                */
+                bounds: {
+                    northEast: {latitude: 85, longitude: 180},
+                    southWest: {latitude: -85, longitude: -180}
+                }
+            },
+            // Initial view properties.
+            map: {zoom: 3},
+            // Delay before we show search input field.
+            showInputAfterLoadedDelayInMilliseconds: 500,
+            // Transition to show search input field.
+            inputFadeInOption: {duration: 'fast'},
+            /*
+                Distance to move if stores are determined with same
+                latitude and longitude.
+            */
+            distanceToMoveByDuplicatedEntries: 0.0001,
+            marker: {
+                // Options passed to the marker cluster.
+                cluster: {gridSize: 100, maxZoom : 11},
+                // Options passed to the icon.
+                icon: {
+                    size: {width: 44, height: 49, unit: 'px'},
+                    scaledSize: {width: 44, height: 49, unit: 'px'}
+                }
+            },
+            /*
+                Specifies a zoom value wich will be adjusted after
+                successfully picked a search result. If set to &quot;null&quot; no
+                zoom change happens.
+            */
+            successfulSearchZoom: 12,
+            infoWindow: {
+                /*
+                    Function or string returning or representing the info
+                    box. If a function is given and a promise is returned
+                    the info box will be filled with the given loading
+                    content and updated with the resolved data. The
+                    function becomes the corresponding marker as first
+                    argument and the store locator instance as second
+                    argument. If nothing is provided all available data
+                    will be listed in a generic info window.
+                */
+                content: null,
+                /*
+                    Additional move to bottom relative to the marker if an
+                    info window has been opened.
+                */
+                additionalMoveToBottomInPixel: 120,
+                /*
+                    Content to show in the info window during info window
+                    load.
+                */
+                loadingContent: '&lt;div class=&quot;idle&quot;>loading...&lt;/div>'
+            },
+            /*
+                If a number is given a generic search will be provided and
+                given number will be interpret as search result precision
+                tolerance to identify a marker as search result.
+                If an object is given it indicates what should be search
+                for. The object can hold up to nine keys. &quot;properties&quot; to
+                specify which store data should contain given search text,
+                &quot;maximumNumberOfResults&quot; to limit the auto complete result,
+                &quot;loadingContent&quot; to display while the results are loading,
+                &quot;numberOfAdditionalGenericPlaces&quot; a tuple describing a
+                range of minimal to maximal limits of additional generic
+                google suggestions depending on number of local search
+                results, &quot;maximalDistanceInMeter&quot; to specify maximal
+                distance from current position to search suggestions,
+                &quot;genericPlaceFilter&quot; specifies a function which gets a
+                relevant place to decide if the place should be included
+                (returns a boolean value), &quot;prefereGenericResults&quot;
+                specifies a boolean value indicating if generic search
+                results should be the first results,
+                &quot;genericPlaceSearchOptions&quot; specifies how a generic place
+                search should be done (google maps request object
+                specification) and &quot;content&quot; to render the search results.
+                &quot;content&quot; can be a function or string returning or
+                representing the search results. If a function is given and
+                a promise is returned the info box will be filled with the
+                given loading content and updated with the resolved data.
+                The function becomes search results as first argument, a
+                boolean value as second argument indicating if the maximum
+                number of search results was reached and the store locator
+                instance as third argument. If nothing is provided all
+                available data will be listed in a generic info window.
+            */
+            searchBox: 50,
+            // Function to call if map is fully initialized.
+            onLoaded: $.noop,
+            // Triggers if a marker info window will be opened.
+            onInfoWindowOpen: $.noop,
+            // Triggers if a marker info window has finished opening.
+            onInfoWindowOpened: $.noop,
+            // Triggers before new search results appears.
+            onAddSearchResults: $.noop,
+            // Triggers before old search results will be removed.
+            onRemoveSearchResults: $.noop,
+            // Triggers before search result box appears.
+            onOpenSearchResults: $.noop,
+            // Triggers before search result box will be hidden.
+            onCloseSearchResults: $.noop,
+            // Triggers after a marker starts to highlight.
+            onMarkerHighlighted: $.noop
+        });
+    };
+&lt;/script>
+&lt;div class=&quot;advanced-store-locator&quot;>
+    &lt;input type=&quot;text&quot; class=&quot;form-control&quot; />
+&lt;/div></code></pre><!--|deDE:Initialisierung der Store-Locator Beispiele-->
+<h3>Initialize both store locator examples</h3><!--showExample:hidden-->
+<pre class="prettyprint source"><code>#!HTML
+
+&lt;script type=&quot;text/javascript&quot;>
+    window.initialize = function() {$(function($) {
+        window.initializeSimple()
+        window.initializeAdvanced()
+    });};
+&lt;/script>
+&lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places,geometry&callback=initialize&quot;>&lt;/script></code></pre><!-- region modline
+vim: set tabstop=4 shiftwidth=4 expandtab:
+vim: foldmethod=marker foldmarker=region,endregion:
+endregion --></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-jQuery-storeLocator.html">jQuery-storeLocator</a></li></ul><h3>Classes</h3><ul><li><a href="module-jQuery-storeLocator-StoreLocator.html">StoreLocator</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Jul 26 2016 17:29:55 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
