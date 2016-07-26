@@ -61,7 +61,7 @@ nosetests.xml
 # Node Modules
 node_modules/
 .npm/
-.v8flags.*
+v8flags.*
 /.cache
 /.config
 .npm-debug.log
@@ -69,6 +69,7 @@ node_modules/
 *.compiled
 apiDocumentation/
 .dynamicConfiguration-*.json
+*.dll-manifest.json
 
 # region vim modline
 # vim: set tabstop=4 shiftwidth=4 expandtab:
