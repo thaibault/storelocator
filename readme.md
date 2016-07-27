@@ -277,7 +277,7 @@ Usage
 <!--|deDE:Initialisierung der Store-Locator Beispiele-->
 ### Initialize both store locator examples
 
-<!--showExample:hidden-->
+<!--showExample:js-->
 
     #!JavaScript
 
