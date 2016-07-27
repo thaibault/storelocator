@@ -286,7 +286,8 @@ Usage
         window.initializeAdvanced()
     })
     dependenciesLoadPromise.then(() => $.getScript(
-        'http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places,geometry&callback=initialize'))
+        'http://maps.googleapis.com/maps/api/js' +
+        '?v=3&sensor=false&libraries=places,geometry&callback=initialize'))
 
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:
