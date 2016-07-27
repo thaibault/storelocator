@@ -284,7 +284,7 @@ Usage
     window.initialize = () => {
         window.initializeSimple()
         window.initializeAdvanced()
-    })
+    }
     dependenciesLoadPromise.then(() => $.getScript(
         'http://maps.googleapis.com/maps/api/js' +
         '?v=3&sensor=false&libraries=places,geometry&callback=initialize'))
