@@ -66,16 +66,24 @@ Usage
     }
 
 <!--|deDE:Laden einiger benötigter Ressourcen-->
-### Loading some needed resources
+### Load needed dependencies
 
 <!--showExample:hidden-->
 
-    #!HTML
+    #!JavaScript
 
-    <script src="https://cdn.jobrad.org/markerclusterer_compiled.js"></script>
-    <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
-    <script src="http://torben.website/jQuery-tools/data/distributionBundle/index.compiled.js"></script>
-    <script src="http://torben.website/jQuery-storeLocator/data/distributionBundle/index.compiled.js"></script>
+    const dependenciesLoadPromise = documentationWebsiteJQuery.getScript(
+        'https://code.jquery.com/jquery-3.1.0.js'
+    ).then(() => {
+        window.jquery = $
+        return $.getScript(
+            'http://torben.website/jQuery-tools/data/distributionBundle/' +
+            'index.compiled.js')
+    }).then(() => $.getScript(
+        'https://cdn.jobrad.org/markerclusterer_compiled.js'
+    )).then(() => $.getScript(
+        'http://torben.website/jQuery-storeLocator/data/distributionBundle/' +
+        'index.compiled.js'))
 
 <!--|deDE:Einfache Beispiel-->
 ### Simple example
@@ -84,14 +92,12 @@ Usage
 
     #!HTML
 
-    <script type="text/javascript">
-        window.initializeSimple = function() {
-            $('body div.simple-store-locator').StoreLocator();
-        };
+    <script>
+        window.initializeSimple = () => $(
+            'body div.simple-store-locator'
+        ).StoreLocator()
     </script>
-    <div class="simple-store-locator">
-        <input type="text" class="form-control" />
-    </div>
+    <div class="simple-store-locator"><input class="form-control" /></div>
 
 <!--|deDE:Erweitertes Beispiel-->
 ### Advanced example with all available options.
@@ -100,190 +106,188 @@ Usage
 
     #!HTML
 
-    <script type="text/javascript">
-        window.initializeAdvanced = function() {
-            $('body div.advanced-store-locator').StoreLocator({
-                /*
-                    URL to retrieve stores, list of stores or object describing
-                    bounds to create random stores within. If a
-                    "generateProperties" function is given it will be called to
-                    retrieve additional properties for each store. The
-                    specified store will be given to the function.
+    <script>
+        window.initializeAdvanced = () => $(
+            'body div.advanced-store-locator'
+        ).StoreLocator({
+            /*
+                URL to retrieve stores, list of stores or object describing
+                bounds to create random stores within. If a
+                "generateProperties" function is given it will be called to
+                retrieve additional properties for each store. The
+                specified store will be given to the function.
 
+            */
+            stores: {
+                northEast: {latitude: 85, longitude: 180},
+                southWest: {latitude: -85, longitude: -180},
+                number: 100, generateProperties: function(store) {
+                    return {};
+                }
+            },
+            /*
+                Additional static store properties which will be available
+                to each store.
+            */
+            addtionalStoreProperties: {},
+            // Path prefix to search for marker icons.
+            iconPath: '/webAsset/image/storeLocator/',
+            /*
+                Specifies a fallback marker icon (if no store specific icon
+                was set). If set to "null" google will place a fallback
+                icon.
+            */
+            defaultMarkerIconFileName: null,
+            /*
+                If not provided we initialize the map with center in
+                current location determined by internet protocol address.
+            */
+            startLocation: null,
+            // Fallback location if automatic detection fails.
+            fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
+            /*
+                Current ip. If set to "null" ip will be determined
+                dynamically
+            */
+            ip: null,
+            ipToLocation: {
+                /*
+                    IP to location determination api url. {1} and {2}
+                    epresents currently used protocol and potentially given
+                    ip.
                 */
-                stores: {
+                applicationInterfaceURL: '{1}://freegeoip.net/json/{2}',
+                /*
+                    Time to wait for ip resolve. If time is up initialize
+                    on given fallback location.
+                */
+                timeoutInMilliseconds: 5000,
+                /*
+                    Defines bound withing determined locations should be.
+                    If resolved location isn't within this location it will
+                    be ignored.
+                */
+                bounds: {
                     northEast: {latitude: 85, longitude: 180},
-                    southWest: {latitude: -85, longitude: -180},
-                    number: 100, generateProperties: function(store) {
-                        return {};
-                    }
-                },
+                    southWest: {latitude: -85, longitude: -180}
+                }
+            },
+            // Initial view properties.
+            map: {zoom: 3},
+            // Delay before we show search input field.
+            showInputAfterLoadedDelayInMilliseconds: 500,
+            // Transition to show search input field.
+            inputFadeInOption: {duration: 'fast'},
+            /*
+                Distance to move if stores are determined with same
+                latitude and longitude.
+            */
+            distanceToMoveByDuplicatedEntries: 0.0001,
+            marker: {
+                // Options passed to the marker cluster.
+                cluster: {gridSize: 100, maxZoom : 11},
+                // Options passed to the icon.
+                icon: {
+                    size: {width: 44, height: 49, unit: 'px'},
+                    scaledSize: {width: 44, height: 49, unit: 'px'}
+                }
+            },
+            /*
+                Specifies a zoom value wich will be adjusted after
+                successfully picked a search result. If set to "null" no
+                zoom change happens.
+            */
+            successfulSearchZoom: 12,
+            infoWindow: {
                 /*
-                    Additional static store properties which will be available
-                    to each store.
+                    Function or string returning or representing the info
+                    box. If a function is given and a promise is returned
+                    the info box will be filled with the given loading
+                    content and updated with the resolved data. The
+                    function becomes the corresponding marker as first
+                    argument and the store locator instance as second
+                    argument. If nothing is provided all available data
+                    will be listed in a generic info window.
                 */
-                addtionalStoreProperties: {},
-                // Path prefix to search for marker icons.
-                iconPath: '/webAsset/image/storeLocator/',
+                content: null,
                 /*
-                    Specifies a fallback marker icon (if no store specific icon
-                    was set). If set to "null" google will place a fallback
-                    icon.
+                    Additional move to bottom relative to the marker if an
+                    info window has been opened.
                 */
-                defaultMarkerIconFileName: null,
+                additionalMoveToBottomInPixel: 120,
                 /*
-                    If not provided we initialize the map with center in
-                    current location determined by internet protocol address.
+                    Content to show in the info window during info window
+                    load.
                 */
-                startLocation: null,
-                // Fallback location if automatic detection fails.
-                fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
-                /*
-                    Current ip. If set to "null" ip will be determined
-                    dynamically
-                */
-                ip: null,
-                ipToLocation: {
-                    /*
-                        IP to location determination api url. {1} and {2}
-                        epresents currently used protocol and potentially given
-                        ip.
-                    */
-                    applicationInterfaceURL: '{1}://freegeoip.net/json/{2}',
-                    /*
-                        Time to wait for ip resolve. If time is up initialize
-                        on given fallback location.
-                    */
-                    timeoutInMilliseconds: 5000,
-                    /*
-                        Defines bound withing determined locations should be.
-                        If resolved location isn't within this location it will
-                        be ignored.
-                    */
-                    bounds: {
-                        northEast: {latitude: 85, longitude: 180},
-                        southWest: {latitude: -85, longitude: -180}
-                    }
-                },
-                // Initial view properties.
-                map: {zoom: 3},
-                // Delay before we show search input field.
-                showInputAfterLoadedDelayInMilliseconds: 500,
-                // Transition to show search input field.
-                inputFadeInOption: {duration: 'fast'},
-                /*
-                    Distance to move if stores are determined with same
-                    latitude and longitude.
-                */
-                distanceToMoveByDuplicatedEntries: 0.0001,
-                marker: {
-                    // Options passed to the marker cluster.
-                    cluster: {gridSize: 100, maxZoom : 11},
-                    // Options passed to the icon.
-                    icon: {
-                        size: {width: 44, height: 49, unit: 'px'},
-                        scaledSize: {width: 44, height: 49, unit: 'px'}
-                    }
-                },
-                /*
-                    Specifies a zoom value wich will be adjusted after
-                    successfully picked a search result. If set to "null" no
-                    zoom change happens.
-                */
-                successfulSearchZoom: 12,
-                infoWindow: {
-                    /*
-                        Function or string returning or representing the info
-                        box. If a function is given and a promise is returned
-                        the info box will be filled with the given loading
-                        content and updated with the resolved data. The
-                        function becomes the corresponding marker as first
-                        argument and the store locator instance as second
-                        argument. If nothing is provided all available data
-                        will be listed in a generic info window.
-                    */
-                    content: null,
-                    /*
-                        Additional move to bottom relative to the marker if an
-                        info window has been opened.
-                    */
-                    additionalMoveToBottomInPixel: 120,
-                    /*
-                        Content to show in the info window during info window
-                        load.
-                    */
-                    loadingContent: '<div class="idle">loading...</div>'
-                },
-                /*
-                    If a number is given a generic search will be provided and
-                    given number will be interpret as search result precision
-                    tolerance to identify a marker as search result.
-                    If an object is given it indicates what should be search
-                    for. The object can hold up to nine keys. "properties" to
-                    specify which store data should contain given search text,
-                    "maximumNumberOfResults" to limit the auto complete result,
-                    "loadingContent" to display while the results are loading,
-                    "numberOfAdditionalGenericPlaces" a tuple describing a
-                    range of minimal to maximal limits of additional generic
-                    google suggestions depending on number of local search
-                    results, "maximalDistanceInMeter" to specify maximal
-                    distance from current position to search suggestions,
-                    "genericPlaceFilter" specifies a function which gets a
-                    relevant place to decide if the place should be included
-                    (returns a boolean value), "prefereGenericResults"
-                    specifies a boolean value indicating if generic search
-                    results should be the first results,
-                    "genericPlaceSearchOptions" specifies how a generic place
-                    search should be done (google maps request object
-                    specification) and "content" to render the search results.
-                    "content" can be a function or string returning or
-                    representing the search results. If a function is given and
-                    a promise is returned the info box will be filled with the
-                    given loading content and updated with the resolved data.
-                    The function becomes search results as first argument, a
-                    boolean value as second argument indicating if the maximum
-                    number of search results was reached and the store locator
-                    instance as third argument. If nothing is provided all
-                    available data will be listed in a generic info window.
-                */
-                searchBox: 50,
-                // Function to call if map is fully initialized.
-                onLoaded: $.noop,
-                // Triggers if a marker info window will be opened.
-                onInfoWindowOpen: $.noop,
-                // Triggers if a marker info window has finished opening.
-                onInfoWindowOpened: $.noop,
-                // Triggers before new search results appears.
-                onAddSearchResults: $.noop,
-                // Triggers before old search results will be removed.
-                onRemoveSearchResults: $.noop,
-                // Triggers before search result box appears.
-                onOpenSearchResults: $.noop,
-                // Triggers before search result box will be hidden.
-                onCloseSearchResults: $.noop,
-                // Triggers after a marker starts to highlight.
-                onMarkerHighlighted: $.noop
-            });
-        };
+                loadingContent: '<div class="idle">loading...</div>'
+            },
+            /*
+                If a number is given a generic search will be provided and
+                given number will be interpret as search result precision
+                tolerance to identify a marker as search result.
+                If an object is given it indicates what should be search
+                for. The object can hold up to nine keys. "properties" to
+                specify which store data should contain given search text,
+                "maximumNumberOfResults" to limit the auto complete result,
+                "loadingContent" to display while the results are loading,
+                "numberOfAdditionalGenericPlaces" a tuple describing a
+                range of minimal to maximal limits of additional generic
+                google suggestions depending on number of local search
+                results, "maximalDistanceInMeter" to specify maximal
+                distance from current position to search suggestions,
+                "genericPlaceFilter" specifies a function which gets a
+                relevant place to decide if the place should be included
+                (returns a boolean value), "prefereGenericResults"
+                specifies a boolean value indicating if generic search
+                results should be the first results,
+                "genericPlaceSearchOptions" specifies how a generic place
+                search should be done (google maps request object
+                specification) and "content" to render the search results.
+                "content" can be a function or string returning or
+                representing the search results. If a function is given and
+                a promise is returned the info box will be filled with the
+                given loading content and updated with the resolved data.
+                The function becomes search results as first argument, a
+                boolean value as second argument indicating if the maximum
+                number of search results was reached and the store locator
+                instance as third argument. If nothing is provided all
+                available data will be listed in a generic info window.
+            */
+            searchBox: 50,
+            // Function to call if map is fully initialized.
+            onLoaded: $.noop,
+            // Triggers if a marker info window will be opened.
+            onInfoWindowOpen: $.noop,
+            // Triggers if a marker info window has finished opening.
+            onInfoWindowOpened: $.noop,
+            // Triggers before new search results appears.
+            onAddSearchResults: $.noop,
+            // Triggers before old search results will be removed.
+            onRemoveSearchResults: $.noop,
+            // Triggers before search result box appears.
+            onOpenSearchResults: $.noop,
+            // Triggers before search result box will be hidden.
+            onCloseSearchResults: $.noop,
+            // Triggers after a marker starts to highlight.
+            onMarkerHighlighted: $.noop
+        })
     </script>
-    <div class="advanced-store-locator">
-        <input type="text" class="form-control" />
-    </div>
+    <div class="advanced-store-locator"><input class="form-control"></div>
 
 <!--|deDE:Initialisierung der Store-Locator Beispiele-->
 ### Initialize both store locator examples
 
 <!--showExample:hidden-->
 
-    #!HTML
+    #!JavaScript
 
-    <script type="text/javascript">
-        window.initialize = function() {$(function($) {
-            window.initializeSimple()
-            window.initializeAdvanced()
-        });};
-    </script>
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places,geometry&callback=initialize"></script>
+    window.initialize = () => {
+        window.initializeSimple()
+        window.initializeAdvanced()
+    })
+    dependenciesLoadPromise.then(() => $.getScript(
+        'http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=places,geometry&callback=initialize'))
+
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:
 vim: foldmethod=marker foldmarker=region,endregion:
