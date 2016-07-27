@@ -468,12 +468,14 @@
 3
 4
 5
-6</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="nb">window</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+6
+7</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="nb">window</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="nb">window</span><span class="p">.</span><span class="nx">initializeSimple</span><span class="p">()</span>
     <span class="nb">window</span><span class="p">.</span><span class="nx">initializeAdvanced</span><span class="p">()</span>
 <span class="p">})</span>
 <span class="nx">dependenciesLoadPromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">$</span><span class="p">.</span><span class="nx">getScript</span><span class="p">(</span>
-    <span class="s1">'http://maps.googleapis.com/maps/api/js?v=3&amp;sensor=false&amp;libraries=places,geometry&amp;callback=initialize'</span><span class="p">))</span>
+    <span class="s1">'http://maps.googleapis.com/maps/api/js'</span> <span class="o">+</span>
+    <span class="s1">'?v=3&amp;sensor=false&amp;libraries=places,geometry&amp;callback=initialize'</span><span class="p">))</span>
 </pre></div>
 </td></tr></tbody></table>
 </section><section class="about-this-website inner"><h2 id="about-this-website">About this website<!--deDE:Impressum--><!--frFR:Mentions légales--></h2><p>Provider of<!--deDE:Anbieter von--><!--frFR:Fournisseur de--> <a href="http://torben.website/jQuery-storeLocator">http://torben.website/jQuery-storeLocator</a>:<br>Torben Sickert<br>Christoph-Mang-Str. 14<br>79100 Freiburg<br>Phone:<!--deDE:Tel.:--><!--frFR:Téléphone:--> <a href="tel:004917610248185">+49 (0) 176<span>/</span>10 248 185</a><br>Email:<!--deDE:E-Mail:--> <a href="mailto:info@torben.website">info@torben.website</a><br>Website: <!--deDE:Webseite:--><!--frFR:Site:--> <a href="http://torben.website">http://torben.website</a><br><span class="glyphicon glyphicon-arrow-left arrow-left-home tools-visible-on-javascript-enabled"></span><a class="tools-visible-on-javascript-enabled" href="#home">home<!--deDE:Startseite--><!--frFR:Maison--></a></p>
