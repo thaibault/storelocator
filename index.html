@@ -472,7 +472,7 @@
 7</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="nb">window</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="nb">window</span><span class="p">.</span><span class="nx">initializeSimple</span><span class="p">()</span>
     <span class="nb">window</span><span class="p">.</span><span class="nx">initializeAdvanced</span><span class="p">()</span>
-<span class="p">})</span>
+<span class="p">}</span>
 <span class="nx">dependenciesLoadPromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">$</span><span class="p">.</span><span class="nx">getScript</span><span class="p">(</span>
     <span class="s1">'http://maps.googleapis.com/maps/api/js'</span> <span class="o">+</span>
     <span class="s1">'?v=3&amp;sensor=false&amp;libraries=places,geometry&amp;callback=initialize'</span><span class="p">))</span>
