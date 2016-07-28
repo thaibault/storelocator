@@ -20,6 +20,8 @@
         "document": "webOptimizer document",
         "export": "webOptimizer build '{exportFormat:\"var\"}'",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
+        "test": "webOptimizer test",
+        "testInBrowser": "webOptimizer testInBrowser",
         "preinstall": "webOptimizer preinstall",
         "postinstall": "webOptimizer build",
         "watch": "webOptimizer build --watch",

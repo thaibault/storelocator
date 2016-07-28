@@ -22,7 +22,7 @@ import $ from 'jquery'
 import type {PromiseCallbackFunction} from 'webOptimizer/type'
 import 'jQuery-tools'
 /* eslint-disable no-duplicate-imports */
-import type {$DomNode} from 'jQuery-tools'
+import type {$DomNode, $Deferred} from 'jQuery-tools'
 /* eslint-enable no-duplicate-imports */
 // endregion
 // region types
@@ -201,7 +201,7 @@ class StoreLocator extends $.Tools.class {
      * @param options - Options to overwrite default ones.
      * @returns Currently selected dom node.
      */
-    initialize(options:Object = {}):$DomNode {
+    initialize(options:Object = {}):$Deferred<$DomNode> {
         // region properties
         this.currentSearchResults = []
         this.currentSearchText = null
@@ -269,59 +269,59 @@ class StoreLocator extends $.Tools.class {
         // Merges given options with default options recursively.
         super.initialize(options)
         if (this._options.startLocation)
-            this.initializeMap()
-        else {
-            // IgnoreTypeCheck
-            this._options.startLocation = this._options.fallbackLocation
-            /*
-                NOTE: If request is slower than the timeout parameter for jsonp
-                request the padding function isn't set anymore so an error
-                occurs. That's why we use our own timeout implementation.
-            */
-            let loaded:boolean = false
-            setTimeout(():void => {
-                if (!loaded) {
-                    loaded = true
-                    this.initializeMap()
-                }
-            }, this._options.ipToLocation.timeoutInMilliseconds)
-            $.ajax({
-                url: this.constructor.stringFormat(
-                    this._options.ipToLocation.applicationInterfaceURL,
-                    document.location.protocol.substring(
-                        0, document.location.protocol.length - 1
-                    ), this._options.ip || ''
-                ),
-                dataType: 'jsonp', cache: true
-            }).always((currentLocation:Position, textStatus:string):void => {
-                if (!loaded) {
-                    loaded = true
-                    if (textStatus === 'success')
-                        /*
-                            Check if determined location is within defined
-                            bounds.
-                        */
-                        if (!this._options.ipToLocation.bounds || (
-                            new context.google.maps.LatLngBounds(
-                                new context.google.maps.LatLng(
-                                    this._options.ipToLocation.bounds.southWest
-                                        .latitude,
-                                    this._options.ipToLocation.bounds.southWest
-                                        .longitude),
-                                new context.google.maps.LatLng(
-                                    this._options.ipToLocation.bounds.northEast
-                                        .latitude,
-                                    this._options.ipToLocation.bounds.northEast
-                                        .longitude))
-                        ).contains(new context.google.maps.LatLng(
-                            currentLocation.latitude, currentLocation.longitude
-                        )))
-                            this._options.startLocation = currentLocation
-                    this.initializeMap()
-                }
-            })
-        }
-        return this.$domNode
+            return this.initializeMap()
+        // IgnoreTypeCheck
+        this._options.startLocation = this._options.fallbackLocation
+        /*
+            NOTE: If request is slower than the timeout parameter for jsonp
+            request the padding function isn't set anymore so an error
+            occurs. That's why we use our own timeout implementation.
+        */
+        let loaded:boolean = false
+        const deferred:$Deferred<$DomNode> = $.Deferred()
+        const fallbackTimeoutID:number = setTimeout(():void => {
+            loaded = true
+            this.initializeMap().then(():$Deferred<$DomNode> =>
+                deferred.resolve(this.$domNode))
+        }, this._options.ipToLocation.timeoutInMilliseconds)
+        $.ajax({
+            url: this.constructor.stringFormat(
+                this._options.ipToLocation.applicationInterfaceURL,
+                document.location.protocol.substring(
+                    0, document.location.protocol.length - 1
+                ), this._options.ip || ''
+            ),
+            dataType: 'jsonp', cache: true
+        }).always((currentLocation:Position, textStatus:string):void => {
+            if (!loaded) {
+                clearTimeout(fallbackTimeoutID)
+                loaded = true
+                if (textStatus === 'success')
+                    /*
+                        Check if determined location is within defined
+                        bounds.
+                    */
+                    if (!this._options.ipToLocation.bounds || (
+                        new context.google.maps.LatLngBounds(
+                            new context.google.maps.LatLng(
+                                this._options.ipToLocation.bounds.southWest
+                                    .latitude,
+                                this._options.ipToLocation.bounds.southWest
+                                    .longitude),
+                            new context.google.maps.LatLng(
+                                this._options.ipToLocation.bounds.northEast
+                                    .latitude,
+                                this._options.ipToLocation.bounds.northEast
+                                    .longitude))
+                    ).contains(new context.google.maps.LatLng(
+                        currentLocation.latitude, currentLocation.longitude
+                    )))
+                        this._options.startLocation = currentLocation
+                this.initializeMap().then(():$Deferred<$DomNode> =>
+                    deferred.resolve(this.$domNode))
+            }
+        })
+        return deferred
     }
     /**
      * Initializes cluster, info windows and marker.
