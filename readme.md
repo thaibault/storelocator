@@ -38,7 +38,7 @@ Usage
 <!--|deDE:Designvorgaben für die Store-Locator Beispiele-->
 ### Adding some style to our store locator examples
 
-<!--showExample:css-->
+<!--showExample:cascadingStyleSheet-->
 
     #!CSS
 
@@ -68,7 +68,7 @@ Usage
 <!--|deDE:Laden einiger benötigter Ressourcen-->
 ### Load needed dependencies
 
-<!--showExample:hidden-->
+<!--showExample:javaScript-->
 
     #!JavaScript
 
@@ -85,7 +85,7 @@ Usage
         'http://torben.website/jQuery-storeLocator/data/distributionBundle/' +
         'index.compiled.js'))
 
-<!--|deDE:Einfache Beispiel-->
+<!--|deDE:Einfaches Beispiel-->
 ### Simple example
 
 <!--showExample-->
@@ -277,7 +277,7 @@ Usage
 <!--|deDE:Initialisierung der Store-Locator Beispiele-->
 ### Initialize both store locator examples
 
-<!--showExample:js-->
+<!--showExample:javaScript-->
 
     #!JavaScript
 
