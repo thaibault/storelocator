@@ -54,7 +54,7 @@ Usage
     }
     body div.simple-store-locator input.form-control,
     body div.advanced-store-locator input.form-control {
-        margin-top: 27px;
+        margin-top: 9px;
         width: 230px;
         display: none;
     }
