@@ -136,14 +136,14 @@ Usage
             inputFadeInOption: {duration: 'fast'},
             distanceToMoveByDuplicatedEntries: 0.0001,
             marker: {
-                cluster: {gridSize: 100, maxZoom: 11},
+                //cluster: {gridSize: 100, maxZoom: 11},
                 imagePath:
                     'https://cdn.rawgit.com/googlemaps/' +
-                    'js-marker-clusterer/gh-pages/images/m',
+                    'js-marker-clusterer/gh-pages/images/m'/*,
                 icon: {
                     size: {width: 44, height: 49, unit: 'px'},
                     scaledSize: {width: 44, height: 49, unit: 'px'}
-                }
+                }*/
             },
             successfulSearchZoom: 12,
             infoWindow: {
