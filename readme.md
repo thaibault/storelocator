@@ -100,8 +100,8 @@ Usage
     </script>
     <div class="simple-store-locator"><input class="form-control" /></div>
 
-<!--|deDE:Erweitertes Beispiel-->
-### Advanced example with all available options.
+<!--|deDE:Erweitertes Beispiel mit allen verfügbaren (standart) Optionen-->
+### Advanced example with all available (default) options
 
 <!--showExample-->
 
