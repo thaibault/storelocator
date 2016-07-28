@@ -114,7 +114,8 @@ Usage
             stores: {
                 northEast: {latitude: 85, longitude: 180},
                 southWest: {latitude: -85, longitude: -180},
-                number: 100, generateProperties: (store:Object):Object => store
+                number: 100,
+                generateProperties: (store) => store
             },
             addtionalStoreProperties: {},
             iconPath: '/webAsset/image/storeLocator/',
