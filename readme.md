@@ -80,7 +80,8 @@ Usage
             'http://torben.website/jQuery-tools/data/distributionBundle/' +
             'index.compiled.js')
     }).then(() => $.getScript(
-        'https://cdn.jobrad.org/markerclusterer_compiled.js'
+        'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/' +
+        'markerclusterer.js'
     )).then(() => $.getScript(
         'http://torben.website/jQuery-storeLocator/data/distributionBundle/' +
         'index.compiled.js'))
@@ -93,7 +94,7 @@ Usage
     #!HTML
 
     <script>
-        window.initializeSimple = () => $(
+        const initializeSimple = () => $(
             'body div.simple-store-locator'
         ).StoreLocator()
     </script>
@@ -107,7 +108,7 @@ Usage
     #!HTML
 
     <script>
-        window.initializeAdvanced = () => $(
+        const initializeAdvanced = () => $(
             'body div.advanced-store-locator'
         ).StoreLocator({
             /*
@@ -282,8 +283,8 @@ Usage
     #!JavaScript
 
     window.initialize = () => {
-        window.initializeSimple()
-        window.initializeAdvanced()
+        initializeSimple()
+        initializeAdvanced()
     }
     dependenciesLoadPromise.then(() => $.getScript(
         'http://maps.googleapis.com/maps/api/js' +
