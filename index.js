@@ -281,7 +281,7 @@ class StoreLocator extends $.Tools.class {
                 }
             }, this._options.ipToLocation.timeoutInMilliseconds)
             $.ajax({
-                url: this.stringFormat(
+                url: this.constructor.stringFormat(
                     this._options.ipToLocation.applicationInterfaceURL,
                     document.location.protocol.substring(
                         0, document.location.protocol.length - 1
