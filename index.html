@@ -182,7 +182,8 @@
 53
 54
 55
-56</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+56
+57</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
     <span class="kr">const</span> <span class="nx">initializeAdvanced</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">$</span><span class="p">(</span>
         <span class="s1">'body div.advanced-store-locator'</span>
     <span class="p">).</span><span class="nx">StoreLocator</span><span class="p">({</span>
@@ -211,14 +212,15 @@
         <span class="nx">inputFadeInOption</span><span class="o">:</span> <span class="p">{</span><span class="nx">duration</span><span class="o">:</span> <span class="s1">'fast'</span><span class="p">},</span>
         <span class="nx">distanceToMoveByDuplicatedEntries</span><span class="o">:</span> <span class="mf">0.0001</span><span class="p">,</span>
         <span class="nx">marker</span><span class="o">:</span> <span class="p">{</span>
-            <span class="nx">cluster</span><span class="o">:</span> <span class="p">{</span><span class="nx">gridSize</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nx">maxZoom</span><span class="o">:</span> <span class="mi">11</span><span class="p">},</span>
-            <span class="nx">imagePath</span><span class="o">:</span>
-                <span class="s1">'https://cdn.rawgit.com/googlemaps/'</span> <span class="o">+</span>
-                <span class="s1">'js-marker-clusterer/gh-pages/images/m'</span><span class="cm">/*,</span>
-<span class="cm">            icon: {</span>
-<span class="cm">                size: {width: 44, height: 49, unit: 'px'},</span>
-<span class="cm">                scaledSize: {width: 44, height: 49, unit: 'px'}</span>
-<span class="cm">            }*/</span>
+            <span class="nx">cluster</span><span class="o">:</span> <span class="p">{</span>
+                <span class="nx">gridSize</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nx">maxZoom</span><span class="o">:</span> <span class="mi">11</span><span class="p">,</span> <span class="nx">imagePath</span><span class="o">:</span>
+                    <span class="s1">'https://cdn.rawgit.com/googlemaps/'</span> <span class="o">+</span>
+                    <span class="s1">'js-marker-clusterer/gh-pages/images/m'</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="nx">icon</span><span class="o">:</span> <span class="p">{</span>
+                <span class="nx">size</span><span class="o">:</span> <span class="p">{</span><span class="nx">width</span><span class="o">:</span> <span class="mi">44</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span> <span class="mi">49</span><span class="p">,</span> <span class="nx">unit</span><span class="o">:</span> <span class="s1">'px'</span><span class="p">},</span>
+                <span class="nx">scaledSize</span><span class="o">:</span> <span class="p">{</span><span class="nx">width</span><span class="o">:</span> <span class="mi">44</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span> <span class="mi">49</span><span class="p">,</span> <span class="nx">unit</span><span class="o">:</span> <span class="s1">'px'</span><span class="p">}</span>
+            <span class="p">}</span>
         <span class="p">},</span>
         <span class="nx">successfulSearchZoom</span><span class="o">:</span> <span class="mi">12</span><span class="p">,</span>
         <span class="nx">infoWindow</span><span class="o">:</span> <span class="p">{</span>
