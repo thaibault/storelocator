@@ -49,11 +49,11 @@ browserAPI((window:Window, alreadyLoaded:boolean):void => {
     // region mock-up
     $('body div#qunit-fixture').append(
         '<store-locator><input></store-locator>')
-    const storeLocatorDeferred:$Deferred<$DomNode> = $(
+    const $storeLocatorDeferred:$Deferred<$DomNode> = $(
         'store-locator'
     ).StoreLocator()
     // endregion
-    storeLocatorDeferred.always(($storeLocatorDomNode:$DomNode):void => {
+    $storeLocatorDeferred.always(($storeLocatorDomNode:$DomNode):void => {
         const storeLocator:$Deferred<StoreLocator> = $storeLocatorDomNode.data(
             'StoreLocator')
         // region tests

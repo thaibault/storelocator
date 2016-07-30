@@ -163,8 +163,6 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * the maximum number of search results was reached and the store locator
  * instance as third argument. If nothing is provided all available data will
  * be listed in a generic info window.
- * @property _options.onLoaded {Function} - Function to call if map is fully
- * initialized.
  * @property _options.onInfoWindowOpen {Function} - Triggers if a marker info
  * window will be opened.
  * @property _options.onInfoWindowOpened {Function} - Triggers if a marker info
@@ -256,7 +254,6 @@ class StoreLocator extends $.Tools.class {
                 loadingContent: '<div class="idle">loading...</div>'
             },
             searchBox: 50,
-            onLoaded: $.noop,
             onInfoWindowOpen: $.noop,
             onInfoWindowOpened: $.noop,
             onAddSearchResults: $.noop,
@@ -278,11 +275,11 @@ class StoreLocator extends $.Tools.class {
             occurs. That's why we use our own timeout implementation.
         */
         let loaded:boolean = false
-        const deferred:$Deferred<$DomNode> = $.Deferred()
+        const $deferred:$Deferred<$DomNode> = $.Deferred()
         const fallbackTimeoutID:number = setTimeout(():void => {
             loaded = true
             this.initializeMap().then(():$Deferred<$DomNode> =>
-                deferred.resolve(this.$domNode))
+                $deferred.resolve(this.$domNode))
         }, this._options.ipToLocation.timeoutInMilliseconds)
         $.ajax({
             url: this.constructor.stringFormat(
@@ -318,16 +315,17 @@ class StoreLocator extends $.Tools.class {
                     )))
                         this._options.startLocation = currentLocation
                 this.initializeMap().then(():$Deferred<$DomNode> =>
-                    deferred.resolve(this.$domNode))
+                    $deferred.resolve(this.$domNode))
             }
         })
-        return deferred
+        return $deferred
     }
     /**
      * Initializes cluster, info windows and marker.
      * @returns The current instance.
      */
-    initializeMap():StoreLocator {
+    initializeMap():$Deferred<$DomNode> {
+        // TODO: Get google maps via dependencies (as cluster map).
         this._options.map.center = new context.google.maps.LatLng(
             this._options.startLocation.latitude,
             this._options.startLocation.longitude)
@@ -339,12 +337,16 @@ class StoreLocator extends $.Tools.class {
             markerCluster = new context.MarkerClusterer(
                 this.map, [], this._options.marker.cluster)
         // Add a marker for each retrieved store.
+        const $addMarkerDeferred:$Deferred<Array<Object>> = $.Deferred()
+        const markerList:Array<Object> = []
         if ($.isArray(this._options.stores))
             for (const store:Object of this._options.stores) {
                 $.extend(true, store, this._options.addtionalStoreProperties)
                 const marker:Object = this.createMarker(store)
                 if (markerCluster)
                     markerCluster.addMarker(marker)
+                markerList.push(marker)
+                $addMarkerDeferred.resolve(markerList)
             }
         else if ($.type(this._options.stores) === 'string')
             $.getJSON(this._options.stores, (stores:Array<Object>):void => {
@@ -354,7 +356,9 @@ class StoreLocator extends $.Tools.class {
                     const marker:Object = this.createMarker(store)
                     if (markerCluster)
                         markerCluster.addMarker(marker)
+                    markerList.push(marker)
                 }
+                $addMarkerDeferred.resolve(markerList)
             })
         else {
             const southWest:Object = new context.google.maps.LatLng(
@@ -377,7 +381,9 @@ class StoreLocator extends $.Tools.class {
                     store, this._options.stores.generateProperties(store)))
                 if (markerCluster)
                     markerCluster.addMarker(marker)
+                markerList.push(marker)
             }
+            $addMarkerDeferred.resolve(markerList)
         }
         // Create the search box and link it to the UI element.
         this.map.controls[context.google.maps.ControlPosition.TOP_LEFT].push(
@@ -419,8 +425,11 @@ class StoreLocator extends $.Tools.class {
                 this.currentlyOpenWindow.close()
             }
         })
-        this.fireEvent('loaded')
-        return this
+        const $mapLoadedDeferred:$Deferred<$DomNode> = $.Deferred()
+        context.google.maps.event.addListenerOnce(this.map, 'idle', (
+        ):$Deferred<Array<Object>> => $addMarkerDeferred.then((
+        ):$Deferred<$DomNode> => $mapLoadedDeferred.resolve(this.$domNode)))
+        return $mapLoadedDeferred
     }
     /**
      * Position search results right below the search input field.
