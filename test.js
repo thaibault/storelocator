@@ -49,8 +49,7 @@ browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
     else if (!alreadyLoaded)
         QUnit.start()
     // region mock-up
-    $('body div#qunit-fixture').append(
-        '<store-locator><input></store-locator>')
+    $('#qunit-fixture').append('<store-locator><input></store-locator>')
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
         'store-locator'
     ).StoreLocator()
@@ -63,6 +62,9 @@ browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
         // //  region special
         QUnit.test('initialize', (assert:Object):void => {
             assert.ok(storeLocator)
+            assert.ok($storeLocatorDomNode.children('div').length)
+            assert.ok($storeLocatorDomNode.find('input').length)
+            // TODO maybe needed in jsdom mode: browser.window.close()
         })
         // // endregion
         // / endregion
@@ -77,13 +79,13 @@ browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
                 NOTE: We have to delay status indicator reset because qunits
                 status updates are delayed as well.
             */
-            setTimeout(():void => {
+            $storeLocatorDeferred.always(():void => setTimeout(():void => {
                 if (!$('.fail').length) {
                     browser.window.document.title = '✔ test'
                     $('#qunit-banner').removeClass('qunit-fail').addClass(
                         'qunit-pass')
                 }
-            }, 0)
+            }, 0))
             $('#qunit-tests').html('')
             console.clear()
         })
