@@ -4,8 +4,6 @@
 !data/**/*.compiled.*
 !api/**/*.compiled
 !api/**/*.compiled.*
-.dynamicConfiguration-*.json
--*.dll-manifest.json
 
 ## Generic
 
@@ -18,7 +16,7 @@ apiDocumentation/
 *.compiled.*
 *.compiled
 .dynamicConfiguration-*.json
--*.dll-manifest.json
+*.dll-manifest.json
 
 # Profiling data.
 *.profile
