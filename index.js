@@ -21,7 +21,9 @@
 import $ from 'jquery'
 import type {PromiseCallbackFunction} from 'webOptimizer/type'
 import 'jQuery-tools'
-import * as GoogleMarkerClusterer from 'js-marker-clusterer'
+// IgnoreTypeCheck
+const GoogleMarkerClusterer:any = require(
+    'exports?MarkerClusterer!js-marker-clusterer')
 /* eslint-disable no-duplicate-imports */
 import type {$DomNode, $Deferred} from 'jQuery-tools'
 /* eslint-enable no-duplicate-imports */
@@ -272,12 +274,14 @@ class StoreLocator extends $.Tools.class {
         // endregion
         // Merges given options with default options recursively.
         super.initialize(options)
-        if (!this.constructor._apiLoad)
+        if (typeof this.constructor._apiLoad !== 'object')
             this.constructor._apiLoad = $.Deferred()
         const result:$Deferred<$DomNode> = this.constructor._apiLoad.then(
             this.getMethod(this.bootstrap))
-        if (!this.constructor._apiLoad.isResolved(
-        ) && 'google' in context && 'maps' in context.google.maps)
+        if (
+            !this.constructor._apiLoad.state() === 'resolved' &&
+            'google' in context && 'maps' in context.google.maps
+        )
             this.constructor._apiLoad.resolve(this.$domNode)
         else {
             let callbackName:?string = this._options.api.callbackName
@@ -285,7 +289,10 @@ class StoreLocator extends $.Tools.class {
                 callbackName = this.constructor.determineUniqueScopeName()
             context[callbackName] = ():$Deferred<$DomNode> =>
                 this.constructor._apiLoad.resolve(this.$domNode)
-            $.getScript(this._options.api.url.stringFormat(callbackName))
+            $.getScript(this.constructor.stringFormat(
+                this._options.api.url, callbackName
+            )).always(():$Deferred<$DomNode> =>
+                this.constructor._apiLoad.resolve(this.$domNode))
         }
         return result
     }
@@ -360,7 +367,7 @@ class StoreLocator extends $.Tools.class {
             this.$domNode
         )[0], this._options.map)
         let markerCluster:?Object = null
-        if (this._options.marker.cluster)
+        if (this._options.marker.cluster && false)
             markerCluster = new GoogleMarkerClusterer(
                 this.map, [], this._options.marker.cluster)
         // Add a marker for each retrieved store.

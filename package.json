@@ -33,5 +33,11 @@
         "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git",
         "js-marker-clusterer": ">=1.0.0"
     },
-    "devDependencies": {"source-map-support": ">=0.4.2"}
+    "devDependencies": {
+        "canvas": ">=1.4.0",
+        "jsdom": ">=9.4.1",
+        "qunitjs": ">=2.0.0",
+        "qunit-cli": ">=0.2.0*",
+        "source-map-support": ">=0.4.2"
+    }
 }
