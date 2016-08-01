@@ -94,7 +94,7 @@ Usage
     #!HTML
 
     <script>
-        const initializeSimple = () => $(
+        dependenciesLoadPromise.always(() => $(
             'body div.simple-store-locator'
         ).StoreLocator()
     </script>
@@ -108,9 +108,14 @@ Usage
     #!HTML
 
     <script>
-        const initializeAdvanced = () => $(
+        dependenciesLoadPromise.always(() => $(
             'body div.advanced-store-locator'
         ).StoreLocator({
+            api: {
+                url: 'http://maps.googleapis.com/maps/api/js' +
+                    '?v=3&sensor=false&libraries=places,geometry&callback={1}',
+                callbackName: null
+            },
             stores: {
                 northEast: {latitude: 85, longitude: 180},
                 southWest: {latitude: -85, longitude: -180},
@@ -161,24 +166,9 @@ Usage
             onOpenSearchResults: $.noop,
             onCloseSearchResults: $.noop,
             onMarkerHighlighted: $.noop
-        })
+        }))
     </script>
     <div class="advanced-store-locator"><input class="form-control"></div>
-
-<!--|deDE:Initialisierung der Store-Locator Beispiele-->
-### Initialize both store locator examples
-
-<!--showExample:javaScript-->
-
-    #!JavaScript
-
-    window.initialize = () => {
-        initializeSimple()
-        initializeAdvanced()
-    }
-    dependenciesLoadPromise.then(() => $.getScript(
-        'http://maps.googleapis.com/maps/api/js' +
-        '?v=3&sensor=false&libraries=places,geometry&callback=initialize'))
 
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:

@@ -21,6 +21,7 @@
 import $ from 'jquery'
 import type {PromiseCallbackFunction} from 'webOptimizer/type'
 import 'jQuery-tools'
+import * as GoogleMarkerClusterer from 'js-marker-clusterer'
 /* eslint-disable no-duplicate-imports */
 import type {$DomNode, $Deferred} from 'jQuery-tools'
 /* eslint-enable no-duplicate-imports */
@@ -181,6 +182,7 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
 class StoreLocator extends $.Tools.class {
     // region static properties
     static _name:string = 'StoreLocator'
+    static _apiLoad:$Deferred<$DomNode>
     // endregion
     // region dynamic properties
     currentSearchResults:Array<Object>
@@ -212,6 +214,11 @@ class StoreLocator extends $.Tools.class {
         this.markers = []
         this.currentSearchResultRange = null
         this._options = {
+            api: {
+                url: 'http://maps.googleapis.com/maps/api/js' +
+                    '?v=3&sensor=false&libraries=places,geometry&callback={1}',
+                callbackName: null
+            },
             stores: {
                 northEast: {latitude: 85, longitude: 180},
                 southWest: {latitude: -85, longitude: -180},
@@ -265,9 +272,30 @@ class StoreLocator extends $.Tools.class {
         // endregion
         // Merges given options with default options recursively.
         super.initialize(options)
+        if (!this.constructor._apiLoad)
+            this.constructor._apiLoad = $.Deferred()
+        const result:$Deferred<$DomNode> = this.constructor._apiLoad.then(
+            this.getMethod(this.bootstrap))
+        if (!this.constructor._apiLoad.isResolved(
+        ) && 'google' in context && 'maps' in context.google.maps)
+            this.constructor._apiLoad.resolve(this.$domNode)
+        else {
+            let callbackName:?string = this._options.api.callbackName
+            if (!this._options.api.callbackName)
+                callbackName = this.constructor.determineUniqueScopeName()
+            context[callbackName] = ():$Deferred<$DomNode> =>
+                this.constructor._apiLoad.resolve(this.$domNode)
+            $.getScript(this._options.api.url.stringFormat(callbackName))
+        }
+        return result
+    }
+    /**
+     * Determines useful location cluster, info windows and marker.
+     * @returns The current instance.
+     */
+    bootstrap():$Deferred<$DomNode> {
         if (this._options.startLocation)
             return this.initializeMap()
-        // IgnoreTypeCheck
         this._options.startLocation = this._options.fallbackLocation
         /*
             NOTE: If request is slower than the timeout parameter for jsonp
@@ -325,7 +353,6 @@ class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     initializeMap():$Deferred<$DomNode> {
-        // TODO: Get google maps via dependencies (as cluster map).
         this._options.map.center = new context.google.maps.LatLng(
             this._options.startLocation.latitude,
             this._options.startLocation.longitude)
@@ -334,7 +361,7 @@ class StoreLocator extends $.Tools.class {
         )[0], this._options.map)
         let markerCluster:?Object = null
         if (this._options.marker.cluster)
-            markerCluster = new context.MarkerClusterer(
+            markerCluster = new GoogleMarkerClusterer(
                 this.map, [], this._options.marker.cluster)
         // Add a marker for each retrieved store.
         const $addMarkerDeferred:$Deferred<Array<Object>> = $.Deferred()
@@ -744,10 +771,11 @@ class StoreLocator extends $.Tools.class {
             )
                 return 1
             return context.google.maps.geometry.spherical
-            .computeDistanceBetween(
-                this.map.getCenter(), first.position
-            ) - context.google.maps.geometry.spherical.computeDistanceBetween(
-                this.map.getCenter(), second.position)
+                .computeDistanceBetween(
+                    this.map.getCenter(), first.position
+                ) - context.google.maps.geometry.spherical
+                    .computeDistanceBetween(
+                        this.map.getCenter(), second.position)
         })
         // Compile search results markup.
         const resultsRepresentation:Promise<any>|string =

@@ -30,7 +30,8 @@
     "license": "CC-BY-3.0",
     "dependencies": {
         "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
-        "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git"
+        "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git",
+        "js-marker-clusterer": ">=1.0.0"
     },
     "devDependencies": {"source-map-support": ">=0.4.2"}
 }

@@ -8,6 +8,7 @@
 
 # temporary excludes
 .+/systemjs-builder/test/fixtures/sourcemaps-expectations/.+\.json
+.+/js-marker-clusterer/examples/.+\.json
 
 [options]
 esproposal.class_static_fields=enable
