@@ -32,9 +32,10 @@ browserAPI((
     browser:Browser, alreadyLoaded:boolean
 ):void => browser.window.document.addEventListener('DOMContentLoaded', (
 ):void => {
+    // region initialize global context
     /*
-        NOTE: We have to define window globally before jQuery is loaded to
-        ensure that all jquery instances share the same window object.
+        NOTE: We have to define window globally before anything is loaded to
+        ensure that all future instances share the same window object.
     */
     if (typeof global !== 'undefined' && global !== browser.window) {
         global.window = browser.window
@@ -44,6 +45,7 @@ browserAPI((
             ))
                 global[key] = browser.window[key]
     }
+    // endregion
     const $:JQueryFunction = require('jquery')
     $.context = browser.window.document
     require('./index')
@@ -51,6 +53,7 @@ browserAPI((
         QUnit.load()
     else if (!alreadyLoaded)
         QUnit.start()
+    console.log('A')
     // region mock-up
     $('#qunit-fixture').append('<store-locator><input></store-locator>')
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
