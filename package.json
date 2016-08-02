@@ -32,11 +32,12 @@
         "development": {"openBrowser": {"url": {
             "__evaluate__": "((sourceFilePath) => `${self.development.server.protocol}://${self.development.server.host}:${self.development.server.port}/${path.basename(sourceFilePath.substring(sourceFilePath.lastIndexOf('!') + 1)).replace(/\\.[^.]+$/, '.html')}?notrycatch`)(self.files.defaultHTML.template)"
         }}},
-        "injection": {"internal": {"vendor": [
-            "jquery", "qunitjs", "webOptimizer/browserAPI",
-            "exports?MarkerClusterer!googleMarkerClusterer"
-        ]}},
-        "module": {"aliases": {"googleMarkerClusterer": "js-marker-clusterer"}}
+        "injection": {"internal": {"vendor": {
+            "__evaluate__": "self.contextType === 'main' && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['jquery', 'qunitjs', 'webOptimizer/browserAPI', 'exports?MarkerClusterer!googleMarkerClusterer'] : []"
+        }}},
+        "module": {"aliases": {
+            "googleMarkerClusterer$": "js-marker-clusterer"
+        }}
     },
     "dependencies": {
         "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
