@@ -79,15 +79,17 @@ browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
                 NOTE: We have to delay status indicator reset because qunits
                 status updates are delayed as well.
             */
-            $storeLocatorDeferred.always(():void => setTimeout(():void => {
-                if (!$('.fail').length) {
-                    browser.window.document.title = '✔ test'
-                    $('#qunit-banner').removeClass('qunit-fail').addClass(
-                        'qunit-pass')
-                }
-            }, 0))
-            $('#qunit-tests').html('')
-            console.clear()
+            $storeLocatorDeferred.always(():number => {
+                setTimeout(():void => {
+                    if (!$('.fail').length) {
+                        browser.window.document.title = '✔ test'
+                        $('#qunit-banner').removeClass('qunit-fail').addClass(
+                            'qunit-pass')
+                    }
+                }, 0)
+                $('#qunit-tests').html('')
+                console.clear()
+            })
         })
     }
     // endregion

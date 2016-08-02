@@ -28,9 +28,16 @@
         "watchDLL": "webOptimizer buildDLL --watch"
     },
     "license": "CC-BY-3.0",
-    "webOptimizer": {"development": {"openBrowser": {"url": {
-        "__evaluate__": "((sourceFilePath) => `${self.development.server.protocol}://${self.development.server.host}:${self.development.server.port}/${path.basename(sourceFilePath.substring(sourceFilePath.lastIndexOf('!') + 1)).replace(/\\.[^.]+$/, '.html')}?notrycatch`)(self.files.defaultHTML.template)"
-    }}}},
+    "webOptimizer": {
+        "development": {"openBrowser": {"url": {
+            "__evaluate__": "((sourceFilePath) => `${self.development.server.protocol}://${self.development.server.host}:${self.development.server.port}/${path.basename(sourceFilePath.substring(sourceFilePath.lastIndexOf('!') + 1)).replace(/\\.[^.]+$/, '.html')}?notrycatch`)(self.files.defaultHTML.template)"
+        }}},
+        "injection": {"internal": {"vendor": [
+            "jquery", "qunitjs", "webOptimizer/browserAPI",
+            "exports?MarkerClusterer!googleMarkerClusterer"
+        ]}},
+        "module": {"aliases": {"googleMarkerClusterer": "js-marker-clusterer"}}
+    },
     "dependencies": {
         "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
         "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git",
