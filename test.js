@@ -79,7 +79,7 @@ browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
                 NOTE: We have to delay status indicator reset because qunits
                 status updates are delayed as well.
             */
-            $storeLocatorDeferred.always(():number => {
+            $storeLocatorDeferred.always(():void => {
                 setTimeout(():void => {
                     if (!$('.fail').length) {
                         browser.window.document.title = '✔ test'

@@ -300,7 +300,7 @@ class StoreLocator extends $.Tools.class {
             let callbackName:?string = this._options.api.callbackName
             if (!this._options.api.callbackName)
                 callbackName = this.constructor.determineUniqueScopeName()
-            context[callbackName] = ():$Deferred<$DomNode> => {
+            context[callbackName] = ():void => {
                 this.constructor.maps = context.window.google.maps
                 this.constructor._apiLoad.resolve(this.$domNode)
             }
