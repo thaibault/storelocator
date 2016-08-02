@@ -49,11 +49,6 @@ browserAPI((
     const $:JQueryFunction = require('jquery')
     $.context = browser.window.document
     require('./index')
-    if (TARGET === 'node')
-        QUnit.load()
-    else if (!alreadyLoaded)
-        QUnit.start()
-    console.log('A')
     // region mock-up
     $('#qunit-fixture').append('<store-locator><input></store-locator>')
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
@@ -61,6 +56,10 @@ browserAPI((
     ).StoreLocator({marker: {cluster: null}})
     // endregion
     $storeLocatorDeferred.always(($storeLocatorDomNode:$DomNode):void => {
+        if (TARGET === 'node')
+            QUnit.load()
+        else if (!alreadyLoaded)
+            QUnit.start()
         const storeLocator:$Deferred<StoreLocator> = $storeLocatorDomNode.data(
             'StoreLocator')
         // region tests
