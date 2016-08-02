@@ -52,10 +52,8 @@ browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
     $('#qunit-fixture').append('<store-locator><input></store-locator>')
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
         'store-locator'
-    ).StoreLocator()
+    ).StoreLocator({marker: {cluster: null}})
     // endregion
-    // TODO
-    setTimeout(() => console.log('JAU'), 10000)
     $storeLocatorDeferred.always(($storeLocatorDomNode:$DomNode):void => {
         const storeLocator:$Deferred<StoreLocator> = $storeLocatorDomNode.data(
             'StoreLocator')
@@ -66,11 +64,12 @@ browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
             assert.ok(storeLocator)
             assert.ok($storeLocatorDomNode.children('div').length)
             assert.ok($storeLocatorDomNode.find('input').length)
-            // TODO maybe needed in jsdom mode: browser.window.close()
         })
         // // endregion
         // / endregion
         // endregion
+        if (TARGET === 'node')
+            browser.window.close()
     })
     //  region hot module replacement handler
     if (typeof module === 'object' && 'hot' in module && module.hot) {

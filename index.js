@@ -298,17 +298,19 @@ class StoreLocator extends $.Tools.class {
                 setTimeout(():$Deferred<$DomNode> =>
                     this.constructor._apiLoad.resolve(this.$domNode))
         } else if (!loadInitialized) {
-            let callbackName:?string = this._options.api.callbackName
-            if (!this._options.api.callbackName)
+            let callbackName:string
+            if (this._options.api.callbackName)
+                callbackName = this._options.api.callbackName
+            else
                 callbackName = this.constructor.determineUniqueScopeName()
-            context[callbackName] = ():void => {
-                console.log('TODO end loading')
+            context.window[callbackName] = ():void => {
                 this.constructor.maps = context.window.google.maps
                 this.constructor._apiLoad.resolve(this.$domNode)
             }
-            console.log('TODO start loading')
             $.getScript(this.constructor.stringFormat(
-                this._options.api.url, callbackName))
+                this._options.api.url, `window.${callbackName}`
+            )).catch((response:Object, error:Error):$Deferred<$DomNode> =>
+                this.constructor._apiLoad.reject((error)))
         }
         return result
     }
@@ -383,7 +385,7 @@ class StoreLocator extends $.Tools.class {
             this.$domNode
         )[0], this._options.map)
         let markerCluster:?Object = null
-        if (this._options.marker.cluster && false)
+        if (this._options.marker.cluster)
             markerCluster = new GoogleMarkerClusterer(
                 this.map, [], this._options.marker.cluster)
         // Add a marker for each retrieved store.
