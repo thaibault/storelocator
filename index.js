@@ -22,7 +22,8 @@ import $ from 'jquery'
 import type {PromiseCallbackFunction} from 'webOptimizer/type'
 import 'jQuery-tools'
 // IgnoreTypeCheck
-const GoogleMarkerClusterer:any = require('googleMarkerClusterer')
+const GoogleMarkerClusterer:any = require(
+    'exports?MarkerClusterer!googleMarkerClusterer')
 /* eslint-disable no-duplicate-imports */
 import type {$DomNode, $Deferred} from 'jQuery-tools'
 /* eslint-enable no-duplicate-imports */
