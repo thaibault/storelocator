@@ -54,6 +54,8 @@ browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
         'store-locator'
     ).StoreLocator()
     // endregion
+    // TODO
+    setTimeout(() => console.log('JAU'), 10000)
     $storeLocatorDeferred.always(($storeLocatorDomNode:$DomNode):void => {
         const storeLocator:$Deferred<StoreLocator> = $storeLocatorDomNode.data(
             'StoreLocator')

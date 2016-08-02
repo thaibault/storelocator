@@ -221,7 +221,7 @@ class StoreLocator extends $.Tools.class {
         this.currentSearchResultRange = null
         this._options = {
             api: {
-                url: 'http://maps.googleapis.com/maps/api/js' +
+                url: 'https://maps.googleapis.com/maps/api/js' +
                     '?v=3&sensor=false&libraries=places,geometry&callback={1}',
                 callbackName: null
             },
@@ -302,9 +302,11 @@ class StoreLocator extends $.Tools.class {
             if (!this._options.api.callbackName)
                 callbackName = this.constructor.determineUniqueScopeName()
             context[callbackName] = ():void => {
+                console.log('TODO end loading')
                 this.constructor.maps = context.window.google.maps
                 this.constructor._apiLoad.resolve(this.$domNode)
             }
+            console.log('TODO start loading')
             $.getScript(this.constructor.stringFormat(
                 this._options.api.url, callbackName))
         }
