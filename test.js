@@ -28,7 +28,10 @@ type JQueryFunction = (object:any) => Object
 // endregion
 const QUnit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
     'qunitjs')
-browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
+browserAPI((
+    browser:Browser, alreadyLoaded:boolean
+):void => browser.window.document.addEventListener('DOMContentLoaded', (
+):void => {
     /*
         NOTE: We have to define window globally before jQuery is loaded to
         ensure that all jquery instances share the same window object.
@@ -94,7 +97,7 @@ browserAPI((browser:Browser, alreadyLoaded:boolean):void => {
         })
     }
     // endregion
-})
+}))
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
