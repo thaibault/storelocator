@@ -21,9 +21,14 @@
 import $ from 'jquery'
 import type {PromiseCallbackFunction} from 'webOptimizer/type'
 import 'jQuery-tools'
+/*
+    NOTE: Bind marker clusters google instance to an empty object first to add
+    the runtime evaluated instance later to.
+*/
 // IgnoreTypeCheck
-const GoogleMarkerClusterer:any = require(
-    'exports?MarkerClusterer!googleMarkerClusterer')
+const googleMarkerClusterer:any = require(
+    'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
+    'googleMarkerClusterer')
 /* eslint-disable no-duplicate-imports */
 import type {$DomNode, $Deferred} from 'jQuery-tools'
 /* eslint-enable no-duplicate-imports */
@@ -385,9 +390,11 @@ class StoreLocator extends $.Tools.class {
             this.$domNode
         )[0], this._options.map)
         let markerCluster:?Object = null
-        if (this._options.marker.cluster)
-            markerCluster = new GoogleMarkerClusterer(
+        if (this._options.marker.cluster) {
+            googleMarkerClusterer.google.maps = this.constructor.maps
+            markerCluster = new googleMarkerClusterer.Class(
                 this.map, [], this._options.marker.cluster)
+        }
         // Add a marker for each retrieved store.
         const $addMarkerDeferred:$Deferred<Array<Object>> = $.Deferred()
         const markerList:Array<Object> = []

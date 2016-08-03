@@ -51,7 +51,7 @@ browserAPI((browserAPI:BrowserAPI):void => {
     $('#qunit-fixture').append('<store-locator><input></store-locator>')
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
         'store-locator'
-    ).StoreLocator({marker: {cluster: null}})
+    ).StoreLocator()
     // endregion
     $storeLocatorDeferred.always(($storeLocatorDomNode:$DomNode):void => {
         const storeLocator:$Deferred<StoreLocator> = $storeLocatorDomNode.data(
