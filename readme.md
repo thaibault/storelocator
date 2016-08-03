@@ -96,7 +96,7 @@ Usage
     <script>
         dependenciesLoadPromise.always(() => $(
             'body div.simple-store-locator'
-        ).StoreLocator()
+        ).StoreLocator())
     </script>
     <div class="simple-store-locator"><input class="form-control" /></div>
 
