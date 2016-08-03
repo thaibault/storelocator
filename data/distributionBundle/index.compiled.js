@@ -1,14 +1,14 @@
 'use strict';
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("jquery"), require("jQuery-tools"), require("qunitjs"));
+		module.exports = factory(require("jquery"), require("jQuery-tools"), require("js-marker-clusterer"), require("qunitjs"));
 	else if(typeof define === 'function' && define.amd)
-		define("jQuery-storeLocator", ["jquery", "jQuery-tools", "qunitjs"], factory);
+		define("jQuery-storeLocator", ["jquery", "jQuery-tools", "js-marker-clusterer", "qunitjs"], factory);
 	else if(typeof exports === 'object')
-		exports["jQuery-storeLocator"] = factory(require("jquery"), require("jQuery-tools"), require("qunitjs"));
+		exports["jQuery-storeLocator"] = factory(require("jquery"), require("jQuery-tools"), require("js-marker-clusterer"), require("qunitjs"));
 	else
-		root["jQuery-storeLocator"] = factory(root["jquery"], root["jQuery-tools"], root["qunitjs"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_8__) {
+		root["jQuery-storeLocator"] = factory(root["jquery"], root["jQuery-tools"], root["js-marker-clusterer"], root["qunitjs"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_8__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -100,8 +100,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    See http://creativecommons.org/licenses/by/3.0/deed.de
 	    endregion
 	*/ // region imports
-	exports.__esModule=true;var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol?"symbol":typeof obj;};var _jquery=__webpack_require__(2);var _jquery2=_interopRequireDefault(_jquery);__webpack_require__(7);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function");}}function _possibleConstructorReturn(self,call){if(!self){throw new ReferenceError("this hasn't been initialised - super() hasn't been called");}return call&&(typeof call==="object"||typeof call==="function")?call:self;}function _inherits(subClass,superClass){if(typeof superClass!=="function"&&superClass!==null){throw new TypeError("Super expression must either be null or a function, not "+typeof superClass);}subClass.prototype=Object.create(superClass&&superClass.prototype,{constructor:{value:subClass,enumerable:false,writable:true,configurable:true}});if(superClass)Object.setPrototypeOf?Object.setPrototypeOf(subClass,superClass):subClass.__proto__=superClass;} // IgnoreTypeCheck
-	var GoogleMarkerClusterer=__webpack_require__(5); /* eslint-disable no-duplicate-imports */ /* eslint-enable no-duplicate-imports */ // endregion
+	exports.__esModule=true;var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol?"symbol":typeof obj;};var _jquery=__webpack_require__(2);var _jquery2=_interopRequireDefault(_jquery);__webpack_require__(6);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError("Cannot call a class as a function");}}function _possibleConstructorReturn(self,call){if(!self){throw new ReferenceError("this hasn't been initialised - super() hasn't been called");}return call&&(typeof call==="object"||typeof call==="function")?call:self;}function _inherits(subClass,superClass){if(typeof superClass!=="function"&&superClass!==null){throw new TypeError("Super expression must either be null or a function, not "+typeof superClass);}subClass.prototype=Object.create(superClass&&superClass.prototype,{constructor:{value:subClass,enumerable:false,writable:true,configurable:true}});if(superClass)Object.setPrototypeOf?Object.setPrototypeOf(subClass,superClass):subClass.__proto__=superClass;} // IgnoreTypeCheck
+	var GoogleMarkerClusterer=__webpack_require__(7); /* eslint-disable no-duplicate-imports */ /* eslint-enable no-duplicate-imports */ // endregion
 	// region types
 	// endregion
 	var context=function(){if(_jquery2.default.type(window)==='undefined'){if(_jquery2.default.type(global)==='undefined')return _jquery2.default.type(module)==='undefined'?{}:module;return global;}return window;}();if(!context.hasOwnProperty('document')&&_jquery2.default.hasOwnProperty('context'))context.document=_jquery2.default.context; // region plugins/classes
@@ -397,7 +397,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global, module) {// #!/usr/bin/env node
+	/* WEBPACK VAR INJECTION */(function(module) {// #!/usr/bin/env node
 	// -*- coding: utf-8 -*-
 	'use strict'; /* !
 	    region header
@@ -411,1350 +411,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	    See http://creativecommons.org/licenses/by/3.0/deed.de
 	    endregion
 	*/ // region imports
-	var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol?"symbol":typeof obj;};var _browserAPI=__webpack_require__(6);var _browserAPI2=_interopRequireDefault(_browserAPI);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};} // endregion
+	var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol?"symbol":typeof obj;};var _browserAPI=__webpack_require__(5);var _browserAPI2=_interopRequireDefault(_browserAPI);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};} // endregion
 	// endregion
 	// region declaration
 	// endregion
 	// region types
-	var QUnit= false?require('qunit-cli'):__webpack_require__(8);(0,_browserAPI2.default)(function(browser,alreadyLoaded){ /*
-	        NOTE: We have to define window globally before jQuery is loaded to
-	        ensure that all jquery instances share the same window object.
-	    */if(typeof global!=='undefined'&&global!==browser.window){global.window=browser.window;for(var key in browser.window){if(browser.window.hasOwnProperty(key)&&!global.hasOwnProperty(key))global[key]=browser.window[key];}}var $=__webpack_require__(2);$.context=browser.window.document;__webpack_require__(3);if(false)QUnit.load();else if(!alreadyLoaded)QUnit.start(); // region mock-up
+	var QUnit= false?require('qunit-cli'):__webpack_require__(8);(0,_browserAPI2.default)(function(browserAPI,alreadyLoaded){var $=__webpack_require__(2);$.context=browserAPI.window.document;__webpack_require__(3); // region mock-up
 	$('#qunit-fixture').append('<store-locator><input></store-locator>');var $storeLocatorDeferred=$('store-locator').StoreLocator({marker:{cluster:null}}); // endregion
-	$storeLocatorDeferred.always(function($storeLocatorDomNode){var storeLocator=$storeLocatorDomNode.data('StoreLocator'); // region tests
+	$storeLocatorDeferred.always(function($storeLocatorDomNode){if(false)QUnit.load();else if(!alreadyLoaded)QUnit.start();var storeLocator=$storeLocatorDomNode.data('StoreLocator'); // region tests
 	// / region public methods
 	// //  region special
-	QUnit.test('initialize',function(assert){assert.ok(storeLocator);assert.ok($storeLocatorDomNode.children('div').length);assert.ok($storeLocatorDomNode.find('input').length);}); // // endregion
+	QUnit.test('initialize',function(assert){assert.ok(storeLocator);assert.ok($storeLocatorDomNode.children('div').length>0);assert.ok($storeLocatorDomNode.find('input').length>0);}); // // endregion
 	// / endregion
 	// endregion
-	if(false)browser.window.close();}); //  region hot module replacement handler
+	if(false)browserAPI.window.close();}); //  region hot module replacement handler
 	if(( false?'undefined':_typeof(module))==='object'&&'hot' in module&&module.hot){module.hot.accept(); // IgnoreTypeCheck
 	module.hot.dispose(function(){ /*
 	                NOTE: We have to delay status indicator reset because qunits
 	                status updates are delayed as well.
-	            */$storeLocatorDeferred.always(function(){setTimeout(function(){if(!$('.fail').length){browser.window.document.title='✔ test';$('#qunit-banner').removeClass('qunit-fail').addClass('qunit-pass');}},0);$('#qunit-tests').html('');console.clear();});});} // endregion
+	            */$storeLocatorDeferred.always(function(){setTimeout(function(){if(!$('.fail').length){browserAPI.window.document.title='✔ test';$('#qunit-banner').removeClass('qunit-fail').addClass('qunit-pass');}},0);$('#qunit-tests').html('');console.clear();});});} // endregion
 	}); // region vim modline
 	// vim: set tabstop=4 shiftwidth=4 expandtab:
 	// vim: foldmethod=marker foldmarker=region,endregion:
 	// endregion
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(1)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
 
 /***/ },
 /* 5 */
-/***/ function(module, exports) {
-
-	// ==ClosureCompiler==
-	// @compilation_level ADVANCED_OPTIMIZATIONS
-	// @externs_url http://closure-compiler.googlecode.com/svn/trunk/contrib/externs/maps/google_maps_api_v3_3.js
-	// ==/ClosureCompiler==
-	
-	/**
-	 * @name MarkerClusterer for Google Maps v3
-	 * @version version 1.0
-	 * @author Luke Mahe
-	 * @fileoverview
-	 * The library creates and manages per-zoom-level clusters for large amounts of
-	 * markers.
-	 * <br/>
-	 * This is a v3 implementation of the
-	 * <a href="http://gmaps-utility-library-dev.googlecode.com/svn/tags/markerclusterer/"
-	 * >v2 MarkerClusterer</a>.
-	 */
-	
-	/**
-	 * Licensed under the Apache License, Version 2.0 (the "License");
-	 * you may not use this file except in compliance with the License.
-	 * You may obtain a copy of the License at
-	 *
-	 *     http://www.apache.org/licenses/LICENSE-2.0
-	 *
-	 * Unless required by applicable law or agreed to in writing, software
-	 * distributed under the License is distributed on an "AS IS" BASIS,
-	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 * See the License for the specific language governing permissions and
-	 * limitations under the License.
-	 */
-	
-	
-	/**
-	 * A Marker Clusterer that clusters markers.
-	 *
-	 * @param {google.maps.Map} map The Google map to attach to.
-	 * @param {Array.<google.maps.Marker>=} opt_markers Optional markers to add to
-	 *   the cluster.
-	 * @param {Object=} opt_options support the following options:
-	 *     'gridSize': (number) The grid size of a cluster in pixels.
-	 *     'maxZoom': (number) The maximum zoom level that a marker can be part of a
-	 *                cluster.
-	 *     'zoomOnClick': (boolean) Whether the default behaviour of clicking on a
-	 *                    cluster is to zoom into it.
-	 *     'averageCenter': (boolean) Wether the center of each cluster should be
-	 *                      the average of all markers in the cluster.
-	 *     'minimumClusterSize': (number) The minimum number of markers to be in a
-	 *                           cluster before the markers are hidden and a count
-	 *                           is shown.
-	 *     'styles': (object) An object that has style properties:
-	 *       'url': (string) The image url.
-	 *       'height': (number) The image height.
-	 *       'width': (number) The image width.
-	 *       'anchor': (Array) The anchor position of the label text.
-	 *       'textColor': (string) The text color.
-	 *       'textSize': (number) The text size.
-	 *       'backgroundPosition': (string) The position of the backgound x, y.
-	 *       'iconAnchor': (Array) The anchor position of the icon x, y.
-	 * @constructor
-	 * @extends google.maps.OverlayView
-	 */
-	function MarkerClusterer(map, opt_markers, opt_options) {
-	  // MarkerClusterer implements google.maps.OverlayView interface. We use the
-	  // extend function to extend MarkerClusterer with google.maps.OverlayView
-	  // because it might not always be available when the code is defined so we
-	  // look for it at the last possible moment. If it doesn't exist now then
-	  // there is no point going ahead :)
-	  this.extend(MarkerClusterer, google.maps.OverlayView);
-	  this.map_ = map;
-	
-	  /**
-	   * @type {Array.<google.maps.Marker>}
-	   * @private
-	   */
-	  this.markers_ = [];
-	
-	  /**
-	   *  @type {Array.<Cluster>}
-	   */
-	  this.clusters_ = [];
-	
-	  this.sizes = [53, 56, 66, 78, 90];
-	
-	  /**
-	   * @private
-	   */
-	  this.styles_ = [];
-	
-	  /**
-	   * @type {boolean}
-	   * @private
-	   */
-	  this.ready_ = false;
-	
-	  var options = opt_options || {};
-	
-	  /**
-	   * @type {number}
-	   * @private
-	   */
-	  this.gridSize_ = options['gridSize'] || 60;
-	
-	  /**
-	   * @private
-	   */
-	  this.minClusterSize_ = options['minimumClusterSize'] || 2;
-	
-	
-	  /**
-	   * @type {?number}
-	   * @private
-	   */
-	  this.maxZoom_ = options['maxZoom'] || null;
-	
-	  this.styles_ = options['styles'] || [];
-	
-	  /**
-	   * @type {string}
-	   * @private
-	   */
-	  this.imagePath_ = options['imagePath'] ||
-	      this.MARKER_CLUSTER_IMAGE_PATH_;
-	
-	  /**
-	   * @type {string}
-	   * @private
-	   */
-	  this.imageExtension_ = options['imageExtension'] ||
-	      this.MARKER_CLUSTER_IMAGE_EXTENSION_;
-	
-	  /**
-	   * @type {boolean}
-	   * @private
-	   */
-	  this.zoomOnClick_ = true;
-	
-	  if (options['zoomOnClick'] != undefined) {
-	    this.zoomOnClick_ = options['zoomOnClick'];
-	  }
-	
-	  /**
-	   * @type {boolean}
-	   * @private
-	   */
-	  this.averageCenter_ = false;
-	
-	  if (options['averageCenter'] != undefined) {
-	    this.averageCenter_ = options['averageCenter'];
-	  }
-	
-	  this.setupStyles_();
-	
-	  this.setMap(map);
-	
-	  /**
-	   * @type {number}
-	   * @private
-	   */
-	  this.prevZoom_ = this.map_.getZoom();
-	
-	  // Add the map event listeners
-	  var that = this;
-	  google.maps.event.addListener(this.map_, 'zoom_changed', function() {
-	    var zoom = that.map_.getZoom();
-	
-	    if (that.prevZoom_ != zoom) {
-	      that.prevZoom_ = zoom;
-	      that.resetViewport();
-	    }
-	  });
-	
-	  google.maps.event.addListener(this.map_, 'idle', function() {
-	    that.redraw();
-	  });
-	
-	  // Finally, add the markers
-	  if (opt_markers && opt_markers.length) {
-	    this.addMarkers(opt_markers, false);
-	  }
-	}
-	
-	
-	/**
-	 * The marker cluster image path.
-	 *
-	 * @type {string}
-	 * @private
-	 */
-	MarkerClusterer.prototype.MARKER_CLUSTER_IMAGE_PATH_ =
-	    'http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/' +
-	    'images/m';
-	
-	
-	/**
-	 * The marker cluster image path.
-	 *
-	 * @type {string}
-	 * @private
-	 */
-	MarkerClusterer.prototype.MARKER_CLUSTER_IMAGE_EXTENSION_ = 'png';
-	
-	
-	/**
-	 * Extends a objects prototype by anothers.
-	 *
-	 * @param {Object} obj1 The object to be extended.
-	 * @param {Object} obj2 The object to extend with.
-	 * @return {Object} The new extended object.
-	 * @ignore
-	 */
-	MarkerClusterer.prototype.extend = function(obj1, obj2) {
-	  return (function(object) {
-	    for (var property in object.prototype) {
-	      this.prototype[property] = object.prototype[property];
-	    }
-	    return this;
-	  }).apply(obj1, [obj2]);
-	};
-	
-	
-	/**
-	 * Implementaion of the interface method.
-	 * @ignore
-	 */
-	MarkerClusterer.prototype.onAdd = function() {
-	  this.setReady_(true);
-	};
-	
-	/**
-	 * Implementaion of the interface method.
-	 * @ignore
-	 */
-	MarkerClusterer.prototype.draw = function() {};
-	
-	/**
-	 * Sets up the styles object.
-	 *
-	 * @private
-	 */
-	MarkerClusterer.prototype.setupStyles_ = function() {
-	  if (this.styles_.length) {
-	    return;
-	  }
-	
-	  for (var i = 0, size; size = this.sizes[i]; i++) {
-	    this.styles_.push({
-	      url: this.imagePath_ + (i + 1) + '.' + this.imageExtension_,
-	      height: size,
-	      width: size
-	    });
-	  }
-	};
-	
-	/**
-	 *  Fit the map to the bounds of the markers in the clusterer.
-	 */
-	MarkerClusterer.prototype.fitMapToMarkers = function() {
-	  var markers = this.getMarkers();
-	  var bounds = new google.maps.LatLngBounds();
-	  for (var i = 0, marker; marker = markers[i]; i++) {
-	    bounds.extend(marker.getPosition());
-	  }
-	
-	  this.map_.fitBounds(bounds);
-	};
-	
-	
-	/**
-	 *  Sets the styles.
-	 *
-	 *  @param {Object} styles The style to set.
-	 */
-	MarkerClusterer.prototype.setStyles = function(styles) {
-	  this.styles_ = styles;
-	};
-	
-	
-	/**
-	 *  Gets the styles.
-	 *
-	 *  @return {Object} The styles object.
-	 */
-	MarkerClusterer.prototype.getStyles = function() {
-	  return this.styles_;
-	};
-	
-	
-	/**
-	 * Whether zoom on click is set.
-	 *
-	 * @return {boolean} True if zoomOnClick_ is set.
-	 */
-	MarkerClusterer.prototype.isZoomOnClick = function() {
-	  return this.zoomOnClick_;
-	};
-	
-	/**
-	 * Whether average center is set.
-	 *
-	 * @return {boolean} True if averageCenter_ is set.
-	 */
-	MarkerClusterer.prototype.isAverageCenter = function() {
-	  return this.averageCenter_;
-	};
-	
-	
-	/**
-	 *  Returns the array of markers in the clusterer.
-	 *
-	 *  @return {Array.<google.maps.Marker>} The markers.
-	 */
-	MarkerClusterer.prototype.getMarkers = function() {
-	  return this.markers_;
-	};
-	
-	
-	/**
-	 *  Returns the number of markers in the clusterer
-	 *
-	 *  @return {Number} The number of markers.
-	 */
-	MarkerClusterer.prototype.getTotalMarkers = function() {
-	  return this.markers_.length;
-	};
-	
-	
-	/**
-	 *  Sets the max zoom for the clusterer.
-	 *
-	 *  @param {number} maxZoom The max zoom level.
-	 */
-	MarkerClusterer.prototype.setMaxZoom = function(maxZoom) {
-	  this.maxZoom_ = maxZoom;
-	};
-	
-	
-	/**
-	 *  Gets the max zoom for the clusterer.
-	 *
-	 *  @return {number} The max zoom level.
-	 */
-	MarkerClusterer.prototype.getMaxZoom = function() {
-	  return this.maxZoom_;
-	};
-	
-	
-	/**
-	 *  The function for calculating the cluster icon image.
-	 *
-	 *  @param {Array.<google.maps.Marker>} markers The markers in the clusterer.
-	 *  @param {number} numStyles The number of styles available.
-	 *  @return {Object} A object properties: 'text' (string) and 'index' (number).
-	 *  @private
-	 */
-	MarkerClusterer.prototype.calculator_ = function(markers, numStyles) {
-	  var index = 0;
-	  var count = markers.length;
-	  var dv = count;
-	  while (dv !== 0) {
-	    dv = parseInt(dv / 10, 10);
-	    index++;
-	  }
-	
-	  index = Math.min(index, numStyles);
-	  return {
-	    text: count,
-	    index: index
-	  };
-	};
-	
-	
-	/**
-	 * Set the calculator function.
-	 *
-	 * @param {function(Array, number)} calculator The function to set as the
-	 *     calculator. The function should return a object properties:
-	 *     'text' (string) and 'index' (number).
-	 *
-	 */
-	MarkerClusterer.prototype.setCalculator = function(calculator) {
-	  this.calculator_ = calculator;
-	};
-	
-	
-	/**
-	 * Get the calculator function.
-	 *
-	 * @return {function(Array, number)} the calculator function.
-	 */
-	MarkerClusterer.prototype.getCalculator = function() {
-	  return this.calculator_;
-	};
-	
-	
-	/**
-	 * Add an array of markers to the clusterer.
-	 *
-	 * @param {Array.<google.maps.Marker>} markers The markers to add.
-	 * @param {boolean=} opt_nodraw Whether to redraw the clusters.
-	 */
-	MarkerClusterer.prototype.addMarkers = function(markers, opt_nodraw) {
-	  for (var i = 0, marker; marker = markers[i]; i++) {
-	    this.pushMarkerTo_(marker);
-	  }
-	  if (!opt_nodraw) {
-	    this.redraw();
-	  }
-	};
-	
-	
-	/**
-	 * Pushes a marker to the clusterer.
-	 *
-	 * @param {google.maps.Marker} marker The marker to add.
-	 * @private
-	 */
-	MarkerClusterer.prototype.pushMarkerTo_ = function(marker) {
-	  marker.isAdded = false;
-	  if (marker['draggable']) {
-	    // If the marker is draggable add a listener so we update the clusters on
-	    // the drag end.
-	    var that = this;
-	    google.maps.event.addListener(marker, 'dragend', function() {
-	      marker.isAdded = false;
-	      that.repaint();
-	    });
-	  }
-	  this.markers_.push(marker);
-	};
-	
-	
-	/**
-	 * Adds a marker to the clusterer and redraws if needed.
-	 *
-	 * @param {google.maps.Marker} marker The marker to add.
-	 * @param {boolean=} opt_nodraw Whether to redraw the clusters.
-	 */
-	MarkerClusterer.prototype.addMarker = function(marker, opt_nodraw) {
-	  this.pushMarkerTo_(marker);
-	  if (!opt_nodraw) {
-	    this.redraw();
-	  }
-	};
-	
-	
-	/**
-	 * Removes a marker and returns true if removed, false if not
-	 *
-	 * @param {google.maps.Marker} marker The marker to remove
-	 * @return {boolean} Whether the marker was removed or not
-	 * @private
-	 */
-	MarkerClusterer.prototype.removeMarker_ = function(marker) {
-	  var index = -1;
-	  if (this.markers_.indexOf) {
-	    index = this.markers_.indexOf(marker);
-	  } else {
-	    for (var i = 0, m; m = this.markers_[i]; i++) {
-	      if (m == marker) {
-	        index = i;
-	        break;
-	      }
-	    }
-	  }
-	
-	  if (index == -1) {
-	    // Marker is not in our list of markers.
-	    return false;
-	  }
-	
-	  marker.setMap(null);
-	
-	  this.markers_.splice(index, 1);
-	
-	  return true;
-	};
-	
-	
-	/**
-	 * Remove a marker from the cluster.
-	 *
-	 * @param {google.maps.Marker} marker The marker to remove.
-	 * @param {boolean=} opt_nodraw Optional boolean to force no redraw.
-	 * @return {boolean} True if the marker was removed.
-	 */
-	MarkerClusterer.prototype.removeMarker = function(marker, opt_nodraw) {
-	  var removed = this.removeMarker_(marker);
-	
-	  if (!opt_nodraw && removed) {
-	    this.resetViewport();
-	    this.redraw();
-	    return true;
-	  } else {
-	   return false;
-	  }
-	};
-	
-	
-	/**
-	 * Removes an array of markers from the cluster.
-	 *
-	 * @param {Array.<google.maps.Marker>} markers The markers to remove.
-	 * @param {boolean=} opt_nodraw Optional boolean to force no redraw.
-	 */
-	MarkerClusterer.prototype.removeMarkers = function(markers, opt_nodraw) {
-	  var removed = false;
-	
-	  for (var i = 0, marker; marker = markers[i]; i++) {
-	    var r = this.removeMarker_(marker);
-	    removed = removed || r;
-	  }
-	
-	  if (!opt_nodraw && removed) {
-	    this.resetViewport();
-	    this.redraw();
-	    return true;
-	  }
-	};
-	
-	
-	/**
-	 * Sets the clusterer's ready state.
-	 *
-	 * @param {boolean} ready The state.
-	 * @private
-	 */
-	MarkerClusterer.prototype.setReady_ = function(ready) {
-	  if (!this.ready_) {
-	    this.ready_ = ready;
-	    this.createClusters_();
-	  }
-	};
-	
-	
-	/**
-	 * Returns the number of clusters in the clusterer.
-	 *
-	 * @return {number} The number of clusters.
-	 */
-	MarkerClusterer.prototype.getTotalClusters = function() {
-	  return this.clusters_.length;
-	};
-	
-	
-	/**
-	 * Returns the google map that the clusterer is associated with.
-	 *
-	 * @return {google.maps.Map} The map.
-	 */
-	MarkerClusterer.prototype.getMap = function() {
-	  return this.map_;
-	};
-	
-	
-	/**
-	 * Sets the google map that the clusterer is associated with.
-	 *
-	 * @param {google.maps.Map} map The map.
-	 */
-	MarkerClusterer.prototype.setMap = function(map) {
-	  this.map_ = map;
-	};
-	
-	
-	/**
-	 * Returns the size of the grid.
-	 *
-	 * @return {number} The grid size.
-	 */
-	MarkerClusterer.prototype.getGridSize = function() {
-	  return this.gridSize_;
-	};
-	
-	
-	/**
-	 * Sets the size of the grid.
-	 *
-	 * @param {number} size The grid size.
-	 */
-	MarkerClusterer.prototype.setGridSize = function(size) {
-	  this.gridSize_ = size;
-	};
-	
-	
-	/**
-	 * Returns the min cluster size.
-	 *
-	 * @return {number} The grid size.
-	 */
-	MarkerClusterer.prototype.getMinClusterSize = function() {
-	  return this.minClusterSize_;
-	};
-	
-	/**
-	 * Sets the min cluster size.
-	 *
-	 * @param {number} size The grid size.
-	 */
-	MarkerClusterer.prototype.setMinClusterSize = function(size) {
-	  this.minClusterSize_ = size;
-	};
-	
-	
-	/**
-	 * Extends a bounds object by the grid size.
-	 *
-	 * @param {google.maps.LatLngBounds} bounds The bounds to extend.
-	 * @return {google.maps.LatLngBounds} The extended bounds.
-	 */
-	MarkerClusterer.prototype.getExtendedBounds = function(bounds) {
-	  var projection = this.getProjection();
-	
-	  // Turn the bounds into latlng.
-	  var tr = new google.maps.LatLng(bounds.getNorthEast().lat(),
-	      bounds.getNorthEast().lng());
-	  var bl = new google.maps.LatLng(bounds.getSouthWest().lat(),
-	      bounds.getSouthWest().lng());
-	
-	  // Convert the points to pixels and the extend out by the grid size.
-	  var trPix = projection.fromLatLngToDivPixel(tr);
-	  trPix.x += this.gridSize_;
-	  trPix.y -= this.gridSize_;
-	
-	  var blPix = projection.fromLatLngToDivPixel(bl);
-	  blPix.x -= this.gridSize_;
-	  blPix.y += this.gridSize_;
-	
-	  // Convert the pixel points back to LatLng
-	  var ne = projection.fromDivPixelToLatLng(trPix);
-	  var sw = projection.fromDivPixelToLatLng(blPix);
-	
-	  // Extend the bounds to contain the new bounds.
-	  bounds.extend(ne);
-	  bounds.extend(sw);
-	
-	  return bounds;
-	};
-	
-	
-	/**
-	 * Determins if a marker is contained in a bounds.
-	 *
-	 * @param {google.maps.Marker} marker The marker to check.
-	 * @param {google.maps.LatLngBounds} bounds The bounds to check against.
-	 * @return {boolean} True if the marker is in the bounds.
-	 * @private
-	 */
-	MarkerClusterer.prototype.isMarkerInBounds_ = function(marker, bounds) {
-	  return bounds.contains(marker.getPosition());
-	};
-	
-	
-	/**
-	 * Clears all clusters and markers from the clusterer.
-	 */
-	MarkerClusterer.prototype.clearMarkers = function() {
-	  this.resetViewport(true);
-	
-	  // Set the markers a empty array.
-	  this.markers_ = [];
-	};
-	
-	
-	/**
-	 * Clears all existing clusters and recreates them.
-	 * @param {boolean} opt_hide To also hide the marker.
-	 */
-	MarkerClusterer.prototype.resetViewport = function(opt_hide) {
-	  // Remove all the clusters
-	  for (var i = 0, cluster; cluster = this.clusters_[i]; i++) {
-	    cluster.remove();
-	  }
-	
-	  // Reset the markers to not be added and to be invisible.
-	  for (var i = 0, marker; marker = this.markers_[i]; i++) {
-	    marker.isAdded = false;
-	    if (opt_hide) {
-	      marker.setMap(null);
-	    }
-	  }
-	
-	  this.clusters_ = [];
-	};
-	
-	/**
-	 *
-	 */
-	MarkerClusterer.prototype.repaint = function() {
-	  var oldClusters = this.clusters_.slice();
-	  this.clusters_.length = 0;
-	  this.resetViewport();
-	  this.redraw();
-	
-	  // Remove the old clusters.
-	  // Do it in a timeout so the other clusters have been drawn first.
-	  window.setTimeout(function() {
-	    for (var i = 0, cluster; cluster = oldClusters[i]; i++) {
-	      cluster.remove();
-	    }
-	  }, 0);
-	};
-	
-	
-	/**
-	 * Redraws the clusters.
-	 */
-	MarkerClusterer.prototype.redraw = function() {
-	  this.createClusters_();
-	};
-	
-	
-	/**
-	 * Calculates the distance between two latlng locations in km.
-	 * @see http://www.movable-type.co.uk/scripts/latlong.html
-	 *
-	 * @param {google.maps.LatLng} p1 The first lat lng point.
-	 * @param {google.maps.LatLng} p2 The second lat lng point.
-	 * @return {number} The distance between the two points in km.
-	 * @private
-	*/
-	MarkerClusterer.prototype.distanceBetweenPoints_ = function(p1, p2) {
-	  if (!p1 || !p2) {
-	    return 0;
-	  }
-	
-	  var R = 6371; // Radius of the Earth in km
-	  var dLat = (p2.lat() - p1.lat()) * Math.PI / 180;
-	  var dLon = (p2.lng() - p1.lng()) * Math.PI / 180;
-	  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-	    Math.cos(p1.lat() * Math.PI / 180) * Math.cos(p2.lat() * Math.PI / 180) *
-	    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-	  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-	  var d = R * c;
-	  return d;
-	};
-	
-	
-	/**
-	 * Add a marker to a cluster, or creates a new cluster.
-	 *
-	 * @param {google.maps.Marker} marker The marker to add.
-	 * @private
-	 */
-	MarkerClusterer.prototype.addToClosestCluster_ = function(marker) {
-	  var distance = 40000; // Some large number
-	  var clusterToAddTo = null;
-	  var pos = marker.getPosition();
-	  for (var i = 0, cluster; cluster = this.clusters_[i]; i++) {
-	    var center = cluster.getCenter();
-	    if (center) {
-	      var d = this.distanceBetweenPoints_(center, marker.getPosition());
-	      if (d < distance) {
-	        distance = d;
-	        clusterToAddTo = cluster;
-	      }
-	    }
-	  }
-	
-	  if (clusterToAddTo && clusterToAddTo.isMarkerInClusterBounds(marker)) {
-	    clusterToAddTo.addMarker(marker);
-	  } else {
-	    var cluster = new Cluster(this);
-	    cluster.addMarker(marker);
-	    this.clusters_.push(cluster);
-	  }
-	};
-	
-	
-	/**
-	 * Creates the clusters.
-	 *
-	 * @private
-	 */
-	MarkerClusterer.prototype.createClusters_ = function() {
-	  if (!this.ready_) {
-	    return;
-	  }
-	
-	  // Get our current map view bounds.
-	  // Create a new bounds object so we don't affect the map.
-	  var mapBounds = new google.maps.LatLngBounds(this.map_.getBounds().getSouthWest(),
-	      this.map_.getBounds().getNorthEast());
-	  var bounds = this.getExtendedBounds(mapBounds);
-	
-	  for (var i = 0, marker; marker = this.markers_[i]; i++) {
-	    if (!marker.isAdded && this.isMarkerInBounds_(marker, bounds)) {
-	      this.addToClosestCluster_(marker);
-	    }
-	  }
-	};
-	
-	
-	/**
-	 * A cluster that contains markers.
-	 *
-	 * @param {MarkerClusterer} markerClusterer The markerclusterer that this
-	 *     cluster is associated with.
-	 * @constructor
-	 * @ignore
-	 */
-	function Cluster(markerClusterer) {
-	  this.markerClusterer_ = markerClusterer;
-	  this.map_ = markerClusterer.getMap();
-	  this.gridSize_ = markerClusterer.getGridSize();
-	  this.minClusterSize_ = markerClusterer.getMinClusterSize();
-	  this.averageCenter_ = markerClusterer.isAverageCenter();
-	  this.center_ = null;
-	  this.markers_ = [];
-	  this.bounds_ = null;
-	  this.clusterIcon_ = new ClusterIcon(this, markerClusterer.getStyles(),
-	      markerClusterer.getGridSize());
-	}
-	
-	/**
-	 * Determins if a marker is already added to the cluster.
-	 *
-	 * @param {google.maps.Marker} marker The marker to check.
-	 * @return {boolean} True if the marker is already added.
-	 */
-	Cluster.prototype.isMarkerAlreadyAdded = function(marker) {
-	  if (this.markers_.indexOf) {
-	    return this.markers_.indexOf(marker) != -1;
-	  } else {
-	    for (var i = 0, m; m = this.markers_[i]; i++) {
-	      if (m == marker) {
-	        return true;
-	      }
-	    }
-	  }
-	  return false;
-	};
-	
-	
-	/**
-	 * Add a marker the cluster.
-	 *
-	 * @param {google.maps.Marker} marker The marker to add.
-	 * @return {boolean} True if the marker was added.
-	 */
-	Cluster.prototype.addMarker = function(marker) {
-	  if (this.isMarkerAlreadyAdded(marker)) {
-	    return false;
-	  }
-	
-	  if (!this.center_) {
-	    this.center_ = marker.getPosition();
-	    this.calculateBounds_();
-	  } else {
-	    if (this.averageCenter_) {
-	      var l = this.markers_.length + 1;
-	      var lat = (this.center_.lat() * (l-1) + marker.getPosition().lat()) / l;
-	      var lng = (this.center_.lng() * (l-1) + marker.getPosition().lng()) / l;
-	      this.center_ = new google.maps.LatLng(lat, lng);
-	      this.calculateBounds_();
-	    }
-	  }
-	
-	  marker.isAdded = true;
-	  this.markers_.push(marker);
-	
-	  var len = this.markers_.length;
-	  if (len < this.minClusterSize_ && marker.getMap() != this.map_) {
-	    // Min cluster size not reached so show the marker.
-	    marker.setMap(this.map_);
-	  }
-	
-	  if (len == this.minClusterSize_) {
-	    // Hide the markers that were showing.
-	    for (var i = 0; i < len; i++) {
-	      this.markers_[i].setMap(null);
-	    }
-	  }
-	
-	  if (len >= this.minClusterSize_) {
-	    marker.setMap(null);
-	  }
-	
-	  this.updateIcon();
-	  return true;
-	};
-	
-	
-	/**
-	 * Returns the marker clusterer that the cluster is associated with.
-	 *
-	 * @return {MarkerClusterer} The associated marker clusterer.
-	 */
-	Cluster.prototype.getMarkerClusterer = function() {
-	  return this.markerClusterer_;
-	};
-	
-	
-	/**
-	 * Returns the bounds of the cluster.
-	 *
-	 * @return {google.maps.LatLngBounds} the cluster bounds.
-	 */
-	Cluster.prototype.getBounds = function() {
-	  var bounds = new google.maps.LatLngBounds(this.center_, this.center_);
-	  var markers = this.getMarkers();
-	  for (var i = 0, marker; marker = markers[i]; i++) {
-	    bounds.extend(marker.getPosition());
-	  }
-	  return bounds;
-	};
-	
-	
-	/**
-	 * Removes the cluster
-	 */
-	Cluster.prototype.remove = function() {
-	  this.clusterIcon_.remove();
-	  this.markers_.length = 0;
-	  delete this.markers_;
-	};
-	
-	
-	/**
-	 * Returns the center of the cluster.
-	 *
-	 * @return {number} The cluster center.
-	 */
-	Cluster.prototype.getSize = function() {
-	  return this.markers_.length;
-	};
-	
-	
-	/**
-	 * Returns the center of the cluster.
-	 *
-	 * @return {Array.<google.maps.Marker>} The cluster center.
-	 */
-	Cluster.prototype.getMarkers = function() {
-	  return this.markers_;
-	};
-	
-	
-	/**
-	 * Returns the center of the cluster.
-	 *
-	 * @return {google.maps.LatLng} The cluster center.
-	 */
-	Cluster.prototype.getCenter = function() {
-	  return this.center_;
-	};
-	
-	
-	/**
-	 * Calculated the extended bounds of the cluster with the grid.
-	 *
-	 * @private
-	 */
-	Cluster.prototype.calculateBounds_ = function() {
-	  var bounds = new google.maps.LatLngBounds(this.center_, this.center_);
-	  this.bounds_ = this.markerClusterer_.getExtendedBounds(bounds);
-	};
-	
-	
-	/**
-	 * Determines if a marker lies in the clusters bounds.
-	 *
-	 * @param {google.maps.Marker} marker The marker to check.
-	 * @return {boolean} True if the marker lies in the bounds.
-	 */
-	Cluster.prototype.isMarkerInClusterBounds = function(marker) {
-	  return this.bounds_.contains(marker.getPosition());
-	};
-	
-	
-	/**
-	 * Returns the map that the cluster is associated with.
-	 *
-	 * @return {google.maps.Map} The map.
-	 */
-	Cluster.prototype.getMap = function() {
-	  return this.map_;
-	};
-	
-	
-	/**
-	 * Updates the cluster icon
-	 */
-	Cluster.prototype.updateIcon = function() {
-	  var zoom = this.map_.getZoom();
-	  var mz = this.markerClusterer_.getMaxZoom();
-	
-	  if (mz && zoom > mz) {
-	    // The zoom is greater than our max zoom so show all the markers in cluster.
-	    for (var i = 0, marker; marker = this.markers_[i]; i++) {
-	      marker.setMap(this.map_);
-	    }
-	    return;
-	  }
-	
-	  if (this.markers_.length < this.minClusterSize_) {
-	    // Min cluster size not yet reached.
-	    this.clusterIcon_.hide();
-	    return;
-	  }
-	
-	  var numStyles = this.markerClusterer_.getStyles().length;
-	  var sums = this.markerClusterer_.getCalculator()(this.markers_, numStyles);
-	  this.clusterIcon_.setCenter(this.center_);
-	  this.clusterIcon_.setSums(sums);
-	  this.clusterIcon_.show();
-	};
-	
-	
-	/**
-	 * A cluster icon
-	 *
-	 * @param {Cluster} cluster The cluster to be associated with.
-	 * @param {Object} styles An object that has style properties:
-	 *     'url': (string) The image url.
-	 *     'height': (number) The image height.
-	 *     'width': (number) The image width.
-	 *     'anchor': (Array) The anchor position of the label text.
-	 *     'textColor': (string) The text color.
-	 *     'textSize': (number) The text size.
-	 *     'backgroundPosition: (string) The background postition x, y.
-	 * @param {number=} opt_padding Optional padding to apply to the cluster icon.
-	 * @constructor
-	 * @extends google.maps.OverlayView
-	 * @ignore
-	 */
-	function ClusterIcon(cluster, styles, opt_padding) {
-	  cluster.getMarkerClusterer().extend(ClusterIcon, google.maps.OverlayView);
-	
-	  this.styles_ = styles;
-	  this.padding_ = opt_padding || 0;
-	  this.cluster_ = cluster;
-	  this.center_ = null;
-	  this.map_ = cluster.getMap();
-	  this.div_ = null;
-	  this.sums_ = null;
-	  this.visible_ = false;
-	
-	  this.setMap(this.map_);
-	}
-	
-	
-	/**
-	 * Triggers the clusterclick event and zoom's if the option is set.
-	 */
-	ClusterIcon.prototype.triggerClusterClick = function() {
-	  var markerClusterer = this.cluster_.getMarkerClusterer();
-	
-	  // Trigger the clusterclick event.
-	  google.maps.event.trigger(markerClusterer, 'clusterclick', this.cluster_);
-	
-	  if (markerClusterer.isZoomOnClick()) {
-	    // Zoom into the cluster.
-	    this.map_.fitBounds(this.cluster_.getBounds());
-	  }
-	};
-	
-	
-	/**
-	 * Adding the cluster icon to the dom.
-	 * @ignore
-	 */
-	ClusterIcon.prototype.onAdd = function() {
-	  this.div_ = document.createElement('DIV');
-	  if (this.visible_) {
-	    var pos = this.getPosFromLatLng_(this.center_);
-	    this.div_.style.cssText = this.createCss(pos);
-	    this.div_.innerHTML = this.sums_.text;
-	  }
-	
-	  var panes = this.getPanes();
-	  panes.overlayMouseTarget.appendChild(this.div_);
-	
-	  var that = this;
-	  google.maps.event.addDomListener(this.div_, 'click', function() {
-	    that.triggerClusterClick();
-	  });
-	};
-	
-	
-	/**
-	 * Returns the position to place the div dending on the latlng.
-	 *
-	 * @param {google.maps.LatLng} latlng The position in latlng.
-	 * @return {google.maps.Point} The position in pixels.
-	 * @private
-	 */
-	ClusterIcon.prototype.getPosFromLatLng_ = function(latlng) {
-	  var pos = this.getProjection().fromLatLngToDivPixel(latlng);
-	
-	  if (typeof this.iconAnchor_ === 'object' && this.iconAnchor_.length === 2) {
-	    pos.x -= this.iconAnchor_[0];
-	    pos.y -= this.iconAnchor_[1];
-	  } else {
-	    pos.x -= parseInt(this.width_ / 2, 10);
-	    pos.y -= parseInt(this.height_ / 2, 10);
-	  }
-	  return pos;
-	};
-	
-	
-	/**
-	 * Draw the icon.
-	 * @ignore
-	 */
-	ClusterIcon.prototype.draw = function() {
-	  if (this.visible_) {
-	    var pos = this.getPosFromLatLng_(this.center_);
-	    this.div_.style.top = pos.y + 'px';
-	    this.div_.style.left = pos.x + 'px';
-	  }
-	};
-	
-	
-	/**
-	 * Hide the icon.
-	 */
-	ClusterIcon.prototype.hide = function() {
-	  if (this.div_) {
-	    this.div_.style.display = 'none';
-	  }
-	  this.visible_ = false;
-	};
-	
-	
-	/**
-	 * Position and show the icon.
-	 */
-	ClusterIcon.prototype.show = function() {
-	  if (this.div_) {
-	    var pos = this.getPosFromLatLng_(this.center_);
-	    this.div_.style.cssText = this.createCss(pos);
-	    this.div_.style.display = '';
-	  }
-	  this.visible_ = true;
-	};
-	
-	
-	/**
-	 * Remove the icon from the map
-	 */
-	ClusterIcon.prototype.remove = function() {
-	  this.setMap(null);
-	};
-	
-	
-	/**
-	 * Implementation of the onRemove interface.
-	 * @ignore
-	 */
-	ClusterIcon.prototype.onRemove = function() {
-	  if (this.div_ && this.div_.parentNode) {
-	    this.hide();
-	    this.div_.parentNode.removeChild(this.div_);
-	    this.div_ = null;
-	  }
-	};
-	
-	
-	/**
-	 * Set the sums of the icon.
-	 *
-	 * @param {Object} sums The sums containing:
-	 *   'text': (string) The text to display in the icon.
-	 *   'index': (number) The style index of the icon.
-	 */
-	ClusterIcon.prototype.setSums = function(sums) {
-	  this.sums_ = sums;
-	  this.text_ = sums.text;
-	  this.index_ = sums.index;
-	  if (this.div_) {
-	    this.div_.innerHTML = sums.text;
-	  }
-	
-	  this.useStyle();
-	};
-	
-	
-	/**
-	 * Sets the icon to the the styles.
-	 */
-	ClusterIcon.prototype.useStyle = function() {
-	  var index = Math.max(0, this.sums_.index - 1);
-	  index = Math.min(this.styles_.length - 1, index);
-	  var style = this.styles_[index];
-	  this.url_ = style['url'];
-	  this.height_ = style['height'];
-	  this.width_ = style['width'];
-	  this.textColor_ = style['textColor'];
-	  this.anchor_ = style['anchor'];
-	  this.textSize_ = style['textSize'];
-	  this.backgroundPosition_ = style['backgroundPosition'];
-	  this.iconAnchor_ = style['iconAnchor'];
-	};
-	
-	
-	/**
-	 * Sets the center of the icon.
-	 *
-	 * @param {google.maps.LatLng} center The latlng to set as the center.
-	 */
-	ClusterIcon.prototype.setCenter = function(center) {
-	  this.center_ = center;
-	};
-	
-	
-	/**
-	 * Create the css text based on the position of the icon.
-	 *
-	 * @param {google.maps.Point} pos The position.
-	 * @return {string} The css style text.
-	 */
-	ClusterIcon.prototype.createCss = function(pos) {
-	  var style = [];
-	  style.push('background-image:url(' + this.url_ + ');');
-	  var backgroundPosition = this.backgroundPosition_ ? this.backgroundPosition_ : '0 0';
-	  style.push('background-position:' + backgroundPosition + ';');
-	
-	  if (typeof this.anchor_ === 'object') {
-	    if (typeof this.anchor_[0] === 'number' && this.anchor_[0] > 0 &&
-	        this.anchor_[0] < this.height_) {
-	      style.push('height:' + (this.height_ - this.anchor_[0]) +
-	          'px; padding-top:' + this.anchor_[0] + 'px;');
-	    } else if (typeof this.anchor_[0] === 'number' && this.anchor_[0] < 0 &&
-	        -this.anchor_[0] < this.height_) {
-	      style.push('height:' + this.height_ + 'px; line-height:' + (this.height_ + this.anchor_[0]) +
-	          'px;');
-	    } else {
-	      style.push('height:' + this.height_ + 'px; line-height:' + this.height_ +
-	          'px;');
-	    }
-	    if (typeof this.anchor_[1] === 'number' && this.anchor_[1] > 0 &&
-	        this.anchor_[1] < this.width_) {
-	      style.push('width:' + (this.width_ - this.anchor_[1]) +
-	          'px; padding-left:' + this.anchor_[1] + 'px;');
-	    } else {
-	      style.push('width:' + this.width_ + 'px; text-align:center;');
-	    }
-	  } else {
-	    style.push('height:' + this.height_ + 'px; line-height:' +
-	        this.height_ + 'px; width:' + this.width_ + 'px; text-align:center;');
-	  }
-	
-	  var txtColor = this.textColor_ ? this.textColor_ : 'black';
-	  var txtSize = this.textSize_ ? this.textSize_ : 11;
-	
-	  style.push('cursor:pointer; top:' + pos.y + 'px; left:' +
-	      pos.x + 'px; color:' + txtColor + '; position:absolute; font-size:' +
-	      txtSize + 'px; font-family:Arial,sans-serif; font-weight:bold');
-	  return style.join('');
-	};
-	
-	
-	// Export Symbols for Closure
-	// If you are not going to compile with closure then you can remove the
-	// code below.
-	window['MarkerClusterer'] = MarkerClusterer;
-	MarkerClusterer.prototype['addMarker'] = MarkerClusterer.prototype.addMarker;
-	MarkerClusterer.prototype['addMarkers'] = MarkerClusterer.prototype.addMarkers;
-	MarkerClusterer.prototype['clearMarkers'] =
-	    MarkerClusterer.prototype.clearMarkers;
-	MarkerClusterer.prototype['fitMapToMarkers'] =
-	    MarkerClusterer.prototype.fitMapToMarkers;
-	MarkerClusterer.prototype['getCalculator'] =
-	    MarkerClusterer.prototype.getCalculator;
-	MarkerClusterer.prototype['getGridSize'] =
-	    MarkerClusterer.prototype.getGridSize;
-	MarkerClusterer.prototype['getExtendedBounds'] =
-	    MarkerClusterer.prototype.getExtendedBounds;
-	MarkerClusterer.prototype['getMap'] = MarkerClusterer.prototype.getMap;
-	MarkerClusterer.prototype['getMarkers'] = MarkerClusterer.prototype.getMarkers;
-	MarkerClusterer.prototype['getMaxZoom'] = MarkerClusterer.prototype.getMaxZoom;
-	MarkerClusterer.prototype['getStyles'] = MarkerClusterer.prototype.getStyles;
-	MarkerClusterer.prototype['getTotalClusters'] =
-	    MarkerClusterer.prototype.getTotalClusters;
-	MarkerClusterer.prototype['getTotalMarkers'] =
-	    MarkerClusterer.prototype.getTotalMarkers;
-	MarkerClusterer.prototype['redraw'] = MarkerClusterer.prototype.redraw;
-	MarkerClusterer.prototype['removeMarker'] =
-	    MarkerClusterer.prototype.removeMarker;
-	MarkerClusterer.prototype['removeMarkers'] =
-	    MarkerClusterer.prototype.removeMarkers;
-	MarkerClusterer.prototype['resetViewport'] =
-	    MarkerClusterer.prototype.resetViewport;
-	MarkerClusterer.prototype['repaint'] =
-	    MarkerClusterer.prototype.repaint;
-	MarkerClusterer.prototype['setCalculator'] =
-	    MarkerClusterer.prototype.setCalculator;
-	MarkerClusterer.prototype['setGridSize'] =
-	    MarkerClusterer.prototype.setGridSize;
-	MarkerClusterer.prototype['setMaxZoom'] =
-	    MarkerClusterer.prototype.setMaxZoom;
-	MarkerClusterer.prototype['onAdd'] = MarkerClusterer.prototype.onAdd;
-	MarkerClusterer.prototype['draw'] = MarkerClusterer.prototype.draw;
-	
-	Cluster.prototype['getCenter'] = Cluster.prototype.getCenter;
-	Cluster.prototype['getSize'] = Cluster.prototype.getSize;
-	Cluster.prototype['getMarkers'] = Cluster.prototype.getMarkers;
-	
-	ClusterIcon.prototype['onAdd'] = ClusterIcon.prototype.onAdd;
-	ClusterIcon.prototype['draw'] = ClusterIcon.prototype.draw;
-	ClusterIcon.prototype['onRemove'] = ClusterIcon.prototype.onRemove;
-	
-	
-	/*** EXPORTS FROM exports-loader ***/
-	module.exports = MarkerClusterer;
-
-/***/ },
-/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// #!/usr/bin/env node
+	/* WEBPACK VAR INJECTION */(function(global) {// #!/usr/bin/env node
 	
 	// -*- coding: utf-8 -*-
 	'use strict';
@@ -1770,61 +456,54 @@ return /******/ (function(modules) { // webpackBootstrap
 	    endregion
 	*/
 	// region imports
+	/* eslint-disable no-unused-vars */
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
 	// endregion
-	// region constants
+	// region variables
 	
+	/* eslint-enable no-unused-vars */
 	// endregion
 	// region declaration
-	const onDomContentLoadedListener = [];
-	// endregion
-	// region functions
-	let windowWithLoadedDomContent = null;
-	const onDomContentLoaded = (window, metaDOM) => {
-	    windowWithLoadedDomContent = { window, metaDOM };
-	    for (const callback of onDomContentLoadedListener) callback({ window, metaDOM }, false);
-	};
-	const registerOnDomContentLoaded = (window, metaDOM = null) => window.document.addEventListener('DOMContentLoaded', () => onDomContentLoaded(window, metaDOM));
+	const onCreatedListener = [];
+	let browserAPI;
 	// endregion
 	// region ensure presence of common browser environment
 	if (false) {
 	    // region mock browser environment
+	    const fileSystem = require('fs');
 	    const path = require('path');
 	    const metaDOM = require('jsdom');
+	    const virtualConsole = metaDOM.createVirtualConsole().sendTo(console, { omitJsdomErrors: true });
+	    virtualConsole.on('jsdomError', error => {
+	        if (!browserAPI.debug && ['XMLHttpRequest', 'resource loading'
+	        // IgnoreTypeCheck
+	        ].includes(error.type)) console.warn(`Loading resource failed: ${ error.toString() }.`);else console.error(error);
+	    });
+	    let templateFilePath = path.join(__dirname, 'test.compiled.html');
+	    try {
+	        fileSystem.accessSync(templateFilePath, fileSystem.F_OK);
+	    } catch (error) {
+	        templateFilePath = path.join(process.cwd(), __dirname, 'node_modules/webOptimizer/test.compiled.html');
+	    }
 	    metaDOM.env({
 	        created: (error, window) => {
-	            if (error) throw error;else registerOnDomContentLoaded(window, metaDOM);
+	            browserAPI = {
+	                debug: false, domContentLoaded: false, metaDOM, window };
+	            browserAPI.window.document.addEventListener('DOMContentLoaded', () => {
+	                browserAPI.domContentLoaded = true;
+	            });
+	            if (error) throw error;else for (const callback of onCreatedListener) callback(browserAPI, false);
 	        },
 	        features: {
 	            FetchExternalResources: ['script', 'frame', 'iframe', 'link', 'img'],
 	            ProcessExternalResources: ['script'],
 	            SkipExternalResources: false
 	        },
-	        html: `
-	            <!doctype html>
-	                <html>
-	                    <head>
-	                        <meta charset="UTF-8">
-	                        <!--Prevent browser caching-->
-	                        <meta http-equiv="cache-control" content="no-cache">
-	                        <meta http-equiv="expires" content="0">
-	                        <meta http-equiv="pragma" content="no-cache">
-	                        <title>test</title>
-	                        <link
-	                            href="/node_modules/qunitjs/qunit/qunit.css"
-	                            rel="stylesheet" type="text/css"
-	                        >
-	                    </head>
-	                <body>
-	                    <div id="qunit"></div>
-	                    <div id="qunit-fixture"></div>
-	                </body>
-	            </html>
-	        `,
+	        html: fileSystem.readFileSync(templateFilePath, { encoding: 'utf-8' }),
 	        resourceLoader: (resource, callback) => {
 	            if (resource.url.hostname === 'localhost') {
 	                resource.url.host = resource.url.hostname = '';
@@ -1833,23 +512,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	                resource.url.href = resource.url.href.replace(/^[a-zA-Z]+:\/\/localhost(?::[0-9]+)?/, `file://${ process.cwd() }`);
 	                resource.url.path = resource.url.pathname = path.join(process.cwd(), resource.url.path);
 	            }
-	            return resource.defaultFetch(callback);
+	            if (browserAPI.debug) console.info(`Load resource "${ resource.url.href }".`);
+	            return resource.defaultFetch(function (error) {
+	                if (!error) callback.apply(this, arguments);
+	            });
 	        },
-	        url: 'http://localhost'
+	        url: 'http://localhost',
+	        virtualConsole
 	    });
 	    // endregion
-	} else registerOnDomContentLoaded(window);
+	} else {
+	        browserAPI = { debug: false, domContentLoaded: false, metaDOM: null, window };
+	        window.document.addEventListener('DOMContentLoaded', () => {
+	            browserAPI.domContentLoaded = true;
+	            for (const callback of onCreatedListener) callback(browserAPI, false);
+	        });
+	    }
 	// endregion
 	
-	exports.default = callback => {
-	    if (windowWithLoadedDomContent) callback(windowWithLoadedDomContent, true);else onDomContentLoadedListener.push(callback);
+	exports.default = (callback, clear = true) => {
+	    // region initialize global context
+	    /*
+	        NOTE: We have to define window globally before anything is loaded to
+	        ensure that all future instances share the same window object.
+	    */
+	    if (clear && typeof global !== 'undefined' && global !== browserAPI.window) {
+	        global.window = browserAPI.window;
+	        for (const key in browserAPI.window) if (browserAPI.window.hasOwnProperty(key) && !global.hasOwnProperty(key)) global[key] = browserAPI.window[key];
+	    }
+	    // endregion
+	    if (false) return browserAPI ? callback(browserAPI, true) : onCreatedListener.push(callback);
+	    return browserAPI.domContentLoaded ? callback(browserAPI, true) : onCreatedListener.push(callback);
 	};
 	// region vim modline
 	// vim: set tabstop=4 shiftwidth=4 expandtab:
 	// vim: foldmethod=marker foldmarker=region,endregion:
 	// endregion
 	
-	//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImJyb3dzZXJBUEkuanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7O0FBRUE7QUFDQTtBQUNBOzs7Ozs7Ozs7OztBQVdBOzs7Ozs7QUFXQTtBQUNBOztBQUxDO0FBQ0Q7QUFLQSxNQUFNLDZCQUF1RSxFQUE3RTtBQUNBO0FBQ0E7QUFDQSxJQUFJLDZCQUFzQyxJQUExQztBQUNBLE1BQU0scUJBQThCLENBQUMsTUFBRCxFQUFnQixPQUFoQixLQUF5QztBQUN6RSxpQ0FBNkIsRUFBQyxNQUFELEVBQVMsT0FBVCxFQUE3QjtBQUNBLFNBQ0ksTUFBTSxRQURWLElBRUksMEJBRkosRUFJSSxTQUFTLEVBQUMsTUFBRCxFQUFTLE9BQVQsRUFBVCxFQUE0QixLQUE1QjtBQUNQLENBUEQ7QUFRQSxNQUFNLDZCQUFzQyxDQUN4QyxNQUR3QyxFQUN6QixVQUFrQixJQURPLEtBR3hDLE9BQU8sUUFBUCxDQUFnQixnQkFBaEIsQ0FBaUMsa0JBQWpDLEVBQXFELE1BQ2pELG1CQUFtQixNQUFuQixFQUEyQixPQUEzQixDQURKLENBSEo7QUFLQTtBQUNBO0FBQ0EsSUFBSSxPQUFPLE1BQVAsS0FBa0IsV0FBbEIsSUFBaUMsV0FBVyxNQUFoRCxFQUF3RDtBQUNwRDtBQUNBLFVBQU0sT0FBYyxRQUFRLE1BQVIsQ0FBcEI7QUFDQSxVQUFNLFVBQWlCLFFBQVEsT0FBUixDQUF2QjtBQUNBLFlBQVEsR0FBUixDQUFZO0FBQ1IsaUJBQVMsQ0FBQyxLQUFELEVBQWUsTUFBZixLQUFzQztBQUMzQyxnQkFBSSxLQUFKLEVBQ0ksTUFBTSxLQUFOLENBREosS0FHSSwyQkFBMkIsTUFBM0IsRUFBbUMsT0FBbkM7QUFDUCxTQU5PO0FBT1Isa0JBQVU7QUFDTixvQ0FBd0IsQ0FDcEIsUUFEb0IsRUFDVixPQURVLEVBQ0QsUUFEQyxFQUNTLE1BRFQsRUFDaUIsS0FEakIsQ0FEbEI7QUFJTixzQ0FBMEIsQ0FBQyxRQUFELENBSnBCO0FBS04sbUNBQXVCO0FBTGpCLFNBUEY7QUFjUixjQUFPOzs7Ozs7Ozs7Ozs7Ozs7Ozs7OztTQWRDO0FBbUNSLHdCQUFnQixDQUNaLFFBRFksRUFpQlQsUUFqQlMsS0FrQk47QUFDTixnQkFBSSxTQUFTLEdBQVQsQ0FBYSxRQUFiLEtBQTBCLFdBQTlCLEVBQTJDO0FBQ3ZDLHlCQUFTLEdBQVQsQ0FBYSxJQUFiLEdBQW9CLFNBQVMsR0FBVCxDQUFhLFFBQWIsR0FBd0IsRUFBNUM7QUFDQSx5QkFBUyxHQUFULENBQWEsSUFBYixHQUFvQixJQUFwQjtBQUNBLHlCQUFTLEdBQVQsQ0FBYSxRQUFiLEdBQXdCLE9BQXhCO0FBQ0EseUJBQVMsR0FBVCxDQUFhLElBQWIsR0FBb0IsU0FBUyxHQUFULENBQWEsSUFBYixDQUFrQixPQUFsQixDQUNoQixzQ0FEZ0IsRUFFZixXQUFTLFFBQVEsR0FBUixFQUFjLEdBRlIsQ0FBcEI7QUFHQSx5QkFBUyxHQUFULENBQWEsSUFBYixHQUFvQixTQUFTLEdBQVQsQ0FBYSxRQUFiLEdBQXdCLEtBQUssSUFBTCxDQUN4QyxRQUFRLEdBQVIsRUFEd0MsRUFDekIsU0FBUyxHQUFULENBQWEsSUFEWSxDQUE1QztBQUVIO0FBQ0QsbUJBQU8sU0FBUyxZQUFULENBQXNCLFFBQXRCLENBQVA7QUFDSCxTQWpFTztBQWtFUixhQUFLO0FBbEVHLEtBQVo7QUFvRUE7QUFDSCxDQXpFRCxNQTBFSSwyQkFBMkIsTUFBM0I7QUFDSjs7a0JBQ2dCLFFBQUQsSUFBc0Q7QUFDakUsUUFBSSwwQkFBSixFQUNJLFNBQVMsMEJBQVQsRUFBcUMsSUFBckMsRUFESixLQUdJLDJCQUEyQixJQUEzQixDQUFnQyxRQUFoQztBQUNQLEM7QUFDRDtBQUNBO0FBQ0E7QUFDQSIsImZpbGUiOiJicm93c2VyQVBJLmNvbXBpbGVkLmpzIiwic291cmNlc0NvbnRlbnQiOlsiLy8gIyEvdXNyL2Jpbi9lbnYgbm9kZVxuLy8gQGZsb3dcbi8vIC0qLSBjb2Rpbmc6IHV0Zi04IC0qLVxuJ3VzZSBzdHJpY3QnXG4vKiAhXG4gICAgcmVnaW9uIGhlYWRlclxuICAgIENvcHlyaWdodCBUb3JiZW4gU2lja2VydCAoaW5mb1tcIn5hdH5cIl10b3JiZW4ud2Vic2l0ZSkgMTYuMTIuMjAxMlxuXG4gICAgTGljZW5zZVxuICAgIC0tLS0tLS1cblxuICAgIFRoaXMgbGlicmFyeSB3cml0dGVuIGJ5IFRvcmJlbiBTaWNrZXJ0IHN0YW5kIHVuZGVyIGEgY3JlYXRpdmUgY29tbW9ucyBuYW1pbmdcbiAgICAzLjAgdW5wb3J0ZWQgbGljZW5zZS4gc2VlIGh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LzMuMC9kZWVkLmRlXG4gICAgZW5kcmVnaW9uXG4qL1xuLy8gcmVnaW9uIGltcG9ydHNcbmltcG9ydCB0eXBlIHtcbiAgICBCcm93c2VyLFxuICAgIERvbU5vZGUsXG4gICAgT25Eb21Db250ZW50TG9hZGVkTGlzdGVuZXJGdW5jdGlvbixcbiAgICBXaW5kb3dcbn0gZnJvbSAnLi90eXBlJ1xuIC8vIGVuZHJlZ2lvblxuLy8gcmVnaW9uIGRlY2xhcmF0aW9uXG5kZWNsYXJlIHZhciBUQVJHRVQ6c3RyaW5nXG5kZWNsYXJlIHZhciB3aW5kb3c6V2luZG93XG4vLyBlbmRyZWdpb25cbi8vIHJlZ2lvbiBjb25zdGFudHNcbmNvbnN0IG9uRG9tQ29udGVudExvYWRlZExpc3RlbmVyOkFycmF5PE9uRG9tQ29udGVudExvYWRlZExpc3RlbmVyRnVuY3Rpb24+ID0gW11cbi8vIGVuZHJlZ2lvblxuLy8gcmVnaW9uIGZ1bmN0aW9uc1xubGV0IHdpbmRvd1dpdGhMb2FkZWREb21Db250ZW50Oj9Ccm93c2VyID0gbnVsbFxuY29uc3Qgb25Eb21Db250ZW50TG9hZGVkOkZ1bmN0aW9uID0gKHdpbmRvdzpXaW5kb3csIG1ldGFET006P09iamVjdCk6dm9pZCA9PiB7XG4gICAgd2luZG93V2l0aExvYWRlZERvbUNvbnRlbnQgPSB7d2luZG93LCBtZXRhRE9NfVxuICAgIGZvciAoXG4gICAgICAgIGNvbnN0IGNhbGxiYWNrOk9uRG9tQ29udGVudExvYWRlZExpc3RlbmVyRnVuY3Rpb24gb2ZcbiAgICAgICAgb25Eb21Db250ZW50TG9hZGVkTGlzdGVuZXJcbiAgICApXG4gICAgICAgIGNhbGxiYWNrKHt3aW5kb3csIG1ldGFET019LCBmYWxzZSlcbn1cbmNvbnN0IHJlZ2lzdGVyT25Eb21Db250ZW50TG9hZGVkOkZ1bmN0aW9uID0gKFxuICAgIHdpbmRvdzpXaW5kb3csIG1ldGFET006P09iamVjdCA9IG51bGxcbik6dm9pZCA9PlxuICAgIHdpbmRvdy5kb2N1bWVudC5hZGRFdmVudExpc3RlbmVyKCdET01Db250ZW50TG9hZGVkJywgKCk6dm9pZCA9PlxuICAgICAgICBvbkRvbUNvbnRlbnRMb2FkZWQod2luZG93LCBtZXRhRE9NKSlcbi8vIGVuZHJlZ2lvblxuLy8gcmVnaW9uIGVuc3VyZSBwcmVzZW5jZSBvZiBjb21tb24gYnJvd3NlciBlbnZpcm9ubWVudFxuaWYgKHR5cGVvZiBUQVJHRVQgPT09ICd1bmRlZmluZWQnIHx8IFRBUkdFVCA9PT0gJ25vZGUnKSB7XG4gICAgLy8gcmVnaW9uIG1vY2sgYnJvd3NlciBlbnZpcm9ubWVudFxuICAgIGNvbnN0IHBhdGg6T2JqZWN0ID0gcmVxdWlyZSgncGF0aCcpXG4gICAgY29uc3QgbWV0YURPTTpPYmplY3QgPSByZXF1aXJlKCdqc2RvbScpXG4gICAgbWV0YURPTS5lbnYoe1xuICAgICAgICBjcmVhdGVkOiAoZXJyb3I6P0Vycm9yLCB3aW5kb3c6T2JqZWN0KTp2b2lkID0+IHtcbiAgICAgICAgICAgIGlmIChlcnJvcilcbiAgICAgICAgICAgICAgICB0aHJvdyBlcnJvclxuICAgICAgICAgICAgZWxzZVxuICAgICAgICAgICAgICAgIHJlZ2lzdGVyT25Eb21Db250ZW50TG9hZGVkKHdpbmRvdywgbWV0YURPTSlcbiAgICAgICAgfSxcbiAgICAgICAgZmVhdHVyZXM6IHtcbiAgICAgICAgICAgIEZldGNoRXh0ZXJuYWxSZXNvdXJjZXM6IFtcbiAgICAgICAgICAgICAgICAnc2NyaXB0JywgJ2ZyYW1lJywgJ2lmcmFtZScsICdsaW5rJywgJ2ltZydcbiAgICAgICAgICAgIF0sXG4gICAgICAgICAgICBQcm9jZXNzRXh0ZXJuYWxSZXNvdXJjZXM6IFsnc2NyaXB0J10sXG4gICAgICAgICAgICBTa2lwRXh0ZXJuYWxSZXNvdXJjZXM6IGZhbHNlXG4gICAgICAgIH0sXG4gICAgICAgIGh0bWw6IGBcbiAgICAgICAgICAgIDwhZG9jdHlwZSBodG1sPlxuICAgICAgICAgICAgICAgIDxodG1sPlxuICAgICAgICAgICAgICAgICAgICA8aGVhZD5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxtZXRhIGNoYXJzZXQ9XCJVVEYtOFwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPCEtLVByZXZlbnQgYnJvd3NlciBjYWNoaW5nLS0+XG4gICAgICAgICAgICAgICAgICAgICAgICA8bWV0YSBodHRwLWVxdWl2PVwiY2FjaGUtY29udHJvbFwiIGNvbnRlbnQ9XCJuby1jYWNoZVwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPG1ldGEgaHR0cC1lcXVpdj1cImV4cGlyZXNcIiBjb250ZW50PVwiMFwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPG1ldGEgaHR0cC1lcXVpdj1cInByYWdtYVwiIGNvbnRlbnQ9XCJuby1jYWNoZVwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPHRpdGxlPnRlc3Q8L3RpdGxlPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGxpbmtcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICBocmVmPVwiL25vZGVfbW9kdWxlcy9xdW5pdGpzL3F1bml0L3F1bml0LmNzc1wiXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgcmVsPVwic3R5bGVzaGVldFwiIHR5cGU9XCJ0ZXh0L2Nzc1wiXG4gICAgICAgICAgICAgICAgICAgICAgICA+XG4gICAgICAgICAgICAgICAgICAgIDwvaGVhZD5cbiAgICAgICAgICAgICAgICA8Ym9keT5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInF1bml0XCI+PC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJxdW5pdC1maXh0dXJlXCI+PC9kaXY+XG4gICAgICAgICAgICAgICAgPC9ib2R5PlxuICAgICAgICAgICAgPC9odG1sPlxuICAgICAgICBgLFxuICAgICAgICByZXNvdXJjZUxvYWRlcjogKFxuICAgICAgICAgICAgcmVzb3VyY2U6e1xuICAgICAgICAgICAgICAgIGVsZW1lbnQ6RG9tTm9kZTtcbiAgICAgICAgICAgICAgICB1cmw6e1xuICAgICAgICAgICAgICAgICAgICBob3N0bmFtZTpzdHJpbmc7XG4gICAgICAgICAgICAgICAgICAgIGhvc3Q6c3RyaW5nO1xuICAgICAgICAgICAgICAgICAgICBwb3J0Oj9zdHJpbmc7XG4gICAgICAgICAgICAgICAgICAgIHByb3RvY29sOnN0cmluZztcbiAgICAgICAgICAgICAgICAgICAgaHJlZjpzdHJpbmc7XG4gICAgICAgICAgICAgICAgICAgIHBhdGg6c3RyaW5nO1xuICAgICAgICAgICAgICAgICAgICBwYXRobmFtZTpzdHJpbmc7XG4gICAgICAgICAgICAgICAgfTtcbiAgICAgICAgICAgICAgICBjb29raWU6c3RyaW5nO1xuICAgICAgICAgICAgICAgIGJhc2VVcmw6c3RyaW5nO1xuICAgICAgICAgICAgICAgIGRlZmF1bHRGZXRjaDooY2FsbGJhY2s6KFxuICAgICAgICAgICAgICAgICAgICBlcnJvcjo/RXJyb3IsIGJvZHk6c3RyaW5nXG4gICAgICAgICAgICAgICAgKSA9PiB2b2lkKSA9PiB2b2lkXG4gICAgICAgICAgICB9LCBjYWxsYmFjazooZXJyb3I6P0Vycm9yLCBib2R5OnN0cmluZykgPT4gdm9pZFxuICAgICAgICApOnZvaWQgPT4ge1xuICAgICAgICAgICAgaWYgKHJlc291cmNlLnVybC5ob3N0bmFtZSA9PT0gJ2xvY2FsaG9zdCcpIHtcbiAgICAgICAgICAgICAgICByZXNvdXJjZS51cmwuaG9zdCA9IHJlc291cmNlLnVybC5ob3N0bmFtZSA9ICcnXG4gICAgICAgICAgICAgICAgcmVzb3VyY2UudXJsLnBvcnQgPSBudWxsXG4gICAgICAgICAgICAgICAgcmVzb3VyY2UudXJsLnByb3RvY29sID0gJ2ZpbGU6J1xuICAgICAgICAgICAgICAgIHJlc291cmNlLnVybC5ocmVmID0gcmVzb3VyY2UudXJsLmhyZWYucmVwbGFjZShcbiAgICAgICAgICAgICAgICAgICAgL15bYS16QS1aXSs6XFwvXFwvbG9jYWxob3N0KD86OlswLTldKyk/LyxcbiAgICAgICAgICAgICAgICAgICAgYGZpbGU6Ly8ke3Byb2Nlc3MuY3dkKCl9YClcbiAgICAgICAgICAgICAgICByZXNvdXJjZS51cmwucGF0aCA9IHJlc291cmNlLnVybC5wYXRobmFtZSA9IHBhdGguam9pbihcbiAgICAgICAgICAgICAgICAgICAgcHJvY2Vzcy5jd2QoKSwgcmVzb3VyY2UudXJsLnBhdGgpXG4gICAgICAgICAgICB9XG4gICAgICAgICAgICByZXR1cm4gcmVzb3VyY2UuZGVmYXVsdEZldGNoKGNhbGxiYWNrKVxuICAgICAgICB9LFxuICAgICAgICB1cmw6ICdodHRwOi8vbG9jYWxob3N0J1xuICAgIH0pXG4gICAgLy8gZW5kcmVnaW9uXG59IGVsc2VcbiAgICByZWdpc3Rlck9uRG9tQ29udGVudExvYWRlZCh3aW5kb3cpXG4vLyBlbmRyZWdpb25cbmV4cG9ydCBkZWZhdWx0IChjYWxsYmFjazpPbkRvbUNvbnRlbnRMb2FkZWRMaXN0ZW5lckZ1bmN0aW9uKTp2b2lkID0+IHtcbiAgICBpZiAod2luZG93V2l0aExvYWRlZERvbUNvbnRlbnQpXG4gICAgICAgIGNhbGxiYWNrKHdpbmRvd1dpdGhMb2FkZWREb21Db250ZW50LCB0cnVlKVxuICAgIGVsc2VcbiAgICAgICAgb25Eb21Db250ZW50TG9hZGVkTGlzdGVuZXIucHVzaChjYWxsYmFjaylcbn1cbi8vIHJlZ2lvbiB2aW0gbW9kbGluZVxuLy8gdmltOiBzZXQgdGFic3RvcD00IHNoaWZ0d2lkdGg9NCBleHBhbmR0YWI6XG4vLyB2aW06IGZvbGRtZXRob2Q9bWFya2VyIGZvbGRtYXJrZXI9cmVnaW9uLGVuZHJlZ2lvbjpcbi8vIGVuZHJlZ2lvblxuIl19
+	//# sourceMappingURL=data:application/json;base64,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QWQ7QUFDWDtBQUNEO0FBQ0EsUUFBSSxPQUFPLE1BQVAsS0FBa0IsV0FBbEIsSUFBaUMsV0FBVyxNQUFoRCxFQUNJLE9BQVEsVUFBRCxHQUFlLFNBQ2xCLFVBRGtCLEVBQ04sSUFETSxDQUFmLEdBRUgsa0JBQWtCLElBQWxCLENBQXVCLFFBQXZCLENBRko7QUFHSixXQUFRLFdBQVcsZ0JBQVosR0FBZ0MsU0FDbkMsVUFEbUMsRUFDdkIsSUFEdUIsQ0FBaEMsR0FFSCxrQkFBa0IsSUFBbEIsQ0FBdUIsUUFBdkIsQ0FGSjtBQUdILEM7QUFDRDtBQUNBO0FBQ0E7QUFDQSIsImZpbGUiOiJicm93c2VyQVBJLmNvbXBpbGVkLmpzIiwic291cmNlc0NvbnRlbnQiOlsiLy8gIyEvdXNyL2Jpbi9lbnYgbm9kZVxuLy8gQGZsb3dcbi8vIC0qLSBjb2Rpbmc6IHV0Zi04IC0qLVxuJ3VzZSBzdHJpY3QnXG4vKiAhXG4gICAgcmVnaW9uIGhlYWRlclxuICAgIENvcHlyaWdodCBUb3JiZW4gU2lja2VydCAoaW5mb1tcIn5hdH5cIl10b3JiZW4ud2Vic2l0ZSkgMTYuMTIuMjAxMlxuXG4gICAgTGljZW5zZVxuICAgIC0tLS0tLS1cblxuICAgIFRoaXMgbGlicmFyeSB3cml0dGVuIGJ5IFRvcmJlbiBTaWNrZXJ0IHN0YW5kIHVuZGVyIGEgY3JlYXRpdmUgY29tbW9ucyBuYW1pbmdcbiAgICAzLjAgdW5wb3J0ZWQgbGljZW5zZS4gc2VlIGh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LzMuMC9kZWVkLmRlXG4gICAgZW5kcmVnaW9uXG4qL1xuLy8gcmVnaW9uIGltcG9ydHNcbi8qIGVzbGludC1kaXNhYmxlIG5vLXVudXNlZC12YXJzICovXG5pbXBvcnQgdHlwZSB7QnJvd3NlckFQSSwgRG9tTm9kZSwgV2luZG93fSBmcm9tICcuL3R5cGUnXG4vKiBlc2xpbnQtZW5hYmxlIG5vLXVudXNlZC12YXJzICovXG4gLy8gZW5kcmVnaW9uXG4vLyByZWdpb24gZGVjbGFyYXRpb25cbmRlY2xhcmUgdmFyIFRBUkdFVDpzdHJpbmdcbmRlY2xhcmUgdmFyIHdpbmRvdzpXaW5kb3dcbi8vIGVuZHJlZ2lvblxuLy8gcmVnaW9uIHZhcmlhYmxlc1xuY29uc3Qgb25DcmVhdGVkTGlzdGVuZXI6QXJyYXk8RnVuY3Rpb24+ID0gW11cbmxldCBicm93c2VyQVBJOkJyb3dzZXJBUElcbi8vIGVuZHJlZ2lvblxuLy8gcmVnaW9uIGVuc3VyZSBwcmVzZW5jZSBvZiBjb21tb24gYnJvd3NlciBlbnZpcm9ubWVudFxuaWYgKHR5cGVvZiBUQVJHRVQgPT09ICd1bmRlZmluZWQnIHx8IFRBUkdFVCA9PT0gJ25vZGUnKSB7XG4gICAgLy8gcmVnaW9uIG1vY2sgYnJvd3NlciBlbnZpcm9ubWVudFxuICAgIGNvbnN0IGZpbGVTeXN0ZW06T2JqZWN0ID0gcmVxdWlyZSgnZnMnKVxuICAgIGNvbnN0IHBhdGg6T2JqZWN0ID0gcmVxdWlyZSgncGF0aCcpXG4gICAgY29uc3QgbWV0YURPTTpPYmplY3QgPSByZXF1aXJlKCdqc2RvbScpXG4gICAgY29uc3QgdmlydHVhbENvbnNvbGU6T2JqZWN0ID0gbWV0YURPTS5jcmVhdGVWaXJ0dWFsQ29uc29sZSgpLnNlbmRUbyhcbiAgICAgICAgY29uc29sZSwge29taXRKc2RvbUVycm9yczogdHJ1ZX0pXG4gICAgdmlydHVhbENvbnNvbGUub24oJ2pzZG9tRXJyb3InLCAoZXJyb3I6RXJyb3IpOnZvaWQgPT4ge1xuICAgICAgICBpZiAoIWJyb3dzZXJBUEkuZGVidWcgJiYgW1xuICAgICAgICAgICAgJ1hNTEh0dHBSZXF1ZXN0JywgJ3Jlc291cmNlIGxvYWRpbmcnXG4gICAgICAgIC8vIElnbm9yZVR5cGVDaGVja1xuICAgICAgICBdLmluY2x1ZGVzKGVycm9yLnR5cGUpKVxuICAgICAgICAgICAgY29uc29sZS53YXJuKGBMb2FkaW5nIHJlc291cmNlIGZhaWxlZDogJHtlcnJvci50b1N0cmluZygpfS5gKVxuICAgICAgICBlbHNlXG4gICAgICAgICAgICBjb25zb2xlLmVycm9yKGVycm9yKVxuICAgIH0pXG4gICAgbGV0IHRlbXBsYXRlRmlsZVBhdGg6c3RyaW5nID0gcGF0aC5qb2luKF9fZGlybmFtZSwgJ3Rlc3QuY29tcGlsZWQuaHRtbCcpXG4gICAgdHJ5IHtcbiAgICAgICAgZmlsZVN5c3RlbS5hY2Nlc3NTeW5jKHRlbXBsYXRlRmlsZVBhdGgsIGZpbGVTeXN0ZW0uRl9PSylcbiAgICB9IGNhdGNoIChlcnJvcikge1xuICAgICAgICB0ZW1wbGF0ZUZpbGVQYXRoID0gcGF0aC5qb2luKFxuICAgICAgICAgICAgcHJvY2Vzcy5jd2QoKSwgX19kaXJuYW1lLFxuICAgICAgICAgICAgJ25vZGVfbW9kdWxlcy93ZWJPcHRpbWl6ZXIvdGVzdC5jb21waWxlZC5odG1sJylcbiAgICB9XG4gICAgbWV0YURPTS5lbnYoe1xuICAgICAgICBjcmVhdGVkOiAoZXJyb3I6P0Vycm9yLCB3aW5kb3c6T2JqZWN0KTp2b2lkID0+IHtcbiAgICAgICAgICAgIGJyb3dzZXJBUEkgPSB7XG4gICAgICAgICAgICAgICAgZGVidWc6IGZhbHNlLCBkb21Db250ZW50TG9hZGVkOiBmYWxzZSwgbWV0YURPTSwgd2luZG93fVxuICAgICAgICAgICAgYnJvd3NlckFQSS53aW5kb3cuZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIChcbiAgICAgICAgICAgICk6dm9pZCA9PiB7XG4gICAgICAgICAgICAgICAgYnJvd3NlckFQSS5kb21Db250ZW50TG9hZGVkID0gdHJ1ZVxuICAgICAgICAgICAgfSlcbiAgICAgICAgICAgIGlmIChlcnJvcilcbiAgICAgICAgICAgICAgICB0aHJvdyBlcnJvclxuICAgICAgICAgICAgZWxzZVxuICAgICAgICAgICAgICAgIGZvciAoY29uc3QgY2FsbGJhY2s6RnVuY3Rpb24gb2Ygb25DcmVhdGVkTGlzdGVuZXIpXG4gICAgICAgICAgICAgICAgICAgIGNhbGxiYWNrKGJyb3dzZXJBUEksIGZhbHNlKVxuICAgICAgICB9LFxuICAgICAgICBmZWF0dXJlczoge1xuICAgICAgICAgICAgRmV0Y2hFeHRlcm5hbFJlc291cmNlczogW1xuICAgICAgICAgICAgICAgICdzY3JpcHQnLCAnZnJhbWUnLCAnaWZyYW1lJywgJ2xpbmsnLCAnaW1nJ1xuICAgICAgICAgICAgXSxcbiAgICAgICAgICAgIFByb2Nlc3NFeHRlcm5hbFJlc291cmNlczogWydzY3JpcHQnXSxcbiAgICAgICAgICAgIFNraXBFeHRlcm5hbFJlc291cmNlczogZmFsc2VcbiAgICAgICAgfSxcbiAgICAgICAgaHRtbDogZmlsZVN5c3RlbS5yZWFkRmlsZVN5bmModGVtcGxhdGVGaWxlUGF0aCwge2VuY29kaW5nOiAndXRmLTgnfSksXG4gICAgICAgIHJlc291cmNlTG9hZGVyOiAoXG4gICAgICAgICAgICByZXNvdXJjZTp7XG4gICAgICAgICAgICAgICAgZWxlbWVudDpEb21Ob2RlO1xuICAgICAgICAgICAgICAgIHVybDp7XG4gICAgICAgICAgICAgICAgICAgIGhvc3RuYW1lOnN0cmluZztcbiAgICAgICAgICAgICAgICAgICAgaG9zdDpzdHJpbmc7XG4gICAgICAgICAgICAgICAgICAgIHBvcnQ6P3N0cmluZztcbiAgICAgICAgICAgICAgICAgICAgcHJvdG9jb2w6c3RyaW5nO1xuICAgICAgICAgICAgICAgICAgICBocmVmOnN0cmluZztcbiAgICAgICAgICAgICAgICAgICAgcGF0aDpzdHJpbmc7XG4gICAgICAgICAgICAgICAgICAgIHBhdGhuYW1lOnN0cmluZztcbiAgICAgICAgICAgICAgICB9O1xuICAgICAgICAgICAgICAgIGNvb2tpZTpzdHJpbmc7XG4gICAgICAgICAgICAgICAgYmFzZVVybDpzdHJpbmc7XG4gICAgICAgICAgICAgICAgZGVmYXVsdEZldGNoOihjYWxsYmFjazooXG4gICAgICAgICAgICAgICAgICAgIGVycm9yOj9FcnJvciwgYm9keTpzdHJpbmdcbiAgICAgICAgICAgICAgICApID0+IHZvaWQpID0+IHZvaWRcbiAgICAgICAgICAgIH0sIGNhbGxiYWNrOihlcnJvcjo/RXJyb3IsIGJvZHk6c3RyaW5nKSA9PiB2b2lkXG4gICAgICAgICk6dm9pZCA9PiB7XG4gICAgICAgICAgICBpZiAocmVzb3VyY2UudXJsLmhvc3RuYW1lID09PSAnbG9jYWxob3N0Jykge1xuICAgICAgICAgICAgICAgIHJlc291cmNlLnVybC5ob3N0ID0gcmVzb3VyY2UudXJsLmhvc3RuYW1lID0gJydcbiAgICAgICAgICAgICAgICByZXNvdXJjZS51cmwucG9ydCA9IG51bGxcbiAgICAgICAgICAgICAgICByZXNvdXJjZS51cmwucHJvdG9jb2wgPSAnZmlsZTonXG4gICAgICAgICAgICAgICAgcmVzb3VyY2UudXJsLmhyZWYgPSByZXNvdXJjZS51cmwuaHJlZi5yZXBsYWNlKFxuICAgICAgICAgICAgICAgICAgICAvXlthLXpBLVpdKzpcXC9cXC9sb2NhbGhvc3QoPzo6WzAtOV0rKT8vLFxuICAgICAgICAgICAgICAgICAgICBgZmlsZTovLyR7cHJvY2Vzcy5jd2QoKX1gKVxuICAgICAgICAgICAgICAgIHJlc291cmNlLnVybC5wYXRoID0gcmVzb3VyY2UudXJsLnBhdGhuYW1lID0gcGF0aC5qb2luKFxuICAgICAgICAgICAgICAgICAgICBwcm9jZXNzLmN3ZCgpLCByZXNvdXJjZS51cmwucGF0aClcbiAgICAgICAgICAgIH1cbiAgICAgICAgICAgIGlmIChicm93c2VyQVBJLmRlYnVnKVxuICAgICAgICAgICAgICAgIGNvbnNvbGUuaW5mbyhgTG9hZCByZXNvdXJjZSBcIiR7cmVzb3VyY2UudXJsLmhyZWZ9XCIuYClcbiAgICAgICAgICAgIHJldHVybiByZXNvdXJjZS5kZWZhdWx0RmV0Y2goZnVuY3Rpb24oZXJyb3I6P0Vycm9yKTp2b2lkIHtcbiAgICAgICAgICAgICAgICBpZiAoIWVycm9yKVxuICAgICAgICAgICAgICAgICAgICBjYWxsYmFjay5hcHBseSh0aGlzLCBhcmd1bWVudHMpXG4gICAgICAgICAgICB9KVxuICAgICAgICB9LFxuICAgICAgICB1cmw6ICdodHRwOi8vbG9jYWxob3N0JyxcbiAgICAgICAgdmlydHVhbENvbnNvbGVcbiAgICB9KVxuICAgIC8vIGVuZHJlZ2lvblxufSBlbHNlIHtcbiAgICBicm93c2VyQVBJID0ge2RlYnVnOiBmYWxzZSwgZG9tQ29udGVudExvYWRlZDogZmFsc2UsIG1ldGFET006IG51bGwsIHdpbmRvd31cbiAgICB3aW5kb3cuZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsICgpOnZvaWQgPT4ge1xuICAgICAgICBicm93c2VyQVBJLmRvbUNvbnRlbnRMb2FkZWQgPSB0cnVlXG4gICAgICAgIGZvciAoY29uc3QgY2FsbGJhY2s6RnVuY3Rpb24gb2Ygb25DcmVhdGVkTGlzdGVuZXIpXG4gICAgICAgICAgICBjYWxsYmFjayhicm93c2VyQVBJLCBmYWxzZSlcbiAgICB9KVxufVxuLy8gZW5kcmVnaW9uXG5leHBvcnQgZGVmYXVsdCAoY2FsbGJhY2s6RnVuY3Rpb24sIGNsZWFyOmJvb2xlYW4gPSB0cnVlKTphbnkgPT4ge1xuICAgIC8vIHJlZ2lvbiBpbml0aWFsaXplIGdsb2JhbCBjb250ZXh0XG4gICAgLypcbiAgICAgICAgTk9URTogV2UgaGF2ZSB0byBkZWZpbmUgd2luZG93IGdsb2JhbGx5IGJlZm9yZSBhbnl0aGluZyBpcyBsb2FkZWQgdG9cbiAgICAgICAgZW5zdXJlIHRoYXQgYWxsIGZ1dHVyZSBpbnN0YW5jZXMgc2hhcmUgdGhlIHNhbWUgd2luZG93IG9iamVjdC5cbiAgICAqL1xuICAgIGlmIChcbiAgICAgICAgY2xlYXIgJiYgdHlwZW9mIGdsb2JhbCAhPT0gJ3VuZGVmaW5lZCcgJiYgZ2xvYmFsICE9PSBicm93c2VyQVBJLndpbmRvd1xuICAgICkge1xuICAgICAgICBnbG9iYWwud2luZG93ID0gYnJvd3NlckFQSS53aW5kb3dcbiAgICAgICAgZm9yIChjb25zdCBrZXkgaW4gYnJvd3NlckFQSS53aW5kb3cpXG4gICAgICAgICAgICBpZiAoYnJvd3NlckFQSS53aW5kb3cuaGFzT3duUHJvcGVydHkoXG4gICAgICAgICAgICAgICAga2V5XG4gICAgICAgICAgICApICYmICFnbG9iYWwuaGFzT3duUHJvcGVydHkoa2V5KSlcbiAgICAgICAgICAgICAgICBnbG9iYWxba2V5XSA9IGJyb3dzZXJBUEkud2luZG93W2tleV1cbiAgICB9XG4gICAgLy8gZW5kcmVnaW9uXG4gICAgaWYgKHR5cGVvZiBUQVJHRVQgPT09ICd1bmRlZmluZWQnIHx8IFRBUkdFVCA9PT0gJ25vZGUnKVxuICAgICAgICByZXR1cm4gKGJyb3dzZXJBUEkpID8gY2FsbGJhY2soXG4gICAgICAgICAgICBicm93c2VyQVBJLCB0cnVlXG4gICAgICAgICkgOiBvbkNyZWF0ZWRMaXN0ZW5lci5wdXNoKGNhbGxiYWNrKVxuICAgIHJldHVybiAoYnJvd3NlckFQSS5kb21Db250ZW50TG9hZGVkKSA/IGNhbGxiYWNrKFxuICAgICAgICBicm93c2VyQVBJLCB0cnVlXG4gICAgKSA6IG9uQ3JlYXRlZExpc3RlbmVyLnB1c2goY2FsbGJhY2spXG59XG4vLyByZWdpb24gdmltIG1vZGxpbmVcbi8vIHZpbTogc2V0IHRhYnN0b3A9NCBzaGlmdHdpZHRoPTQgZXhwYW5kdGFiOlxuLy8gdmltOiBmb2xkbWV0aG9kPW1hcmtlciBmb2xkbWFya2VyPXJlZ2lvbixlbmRyZWdpb246XG4vLyBlbmRyZWdpb25cbiJdfQ==
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_6__;
 
 /***/ },
 /* 7 */
