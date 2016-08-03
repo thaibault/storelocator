@@ -28,21 +28,32 @@ type JQueryFunction = (object:any) => Object
 // endregion
 const QUnit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
     'qunitjs')
-browserAPI((browserAPI:BrowserAPI, alreadyLoaded:boolean):void => {
+browserAPI((browserAPI:BrowserAPI):void => {
     const $:JQueryFunction = require('jquery')
     $.context = browserAPI.window.document
     require('./index')
-    // region mock-up
+    // region configuration
+    QUnit.config = $.extend(QUnit.config || {}, {
+        /*
+        notrycatch: true,
+        noglobals: true,
+        */
+        altertitle: true,
+        autostart: true,
+        fixture: '',
+        hidepassed: false,
+        maxDepth: 3,
+        reorder: false,
+        requireExpects: false,
+        testTimeout: 30 * 1000,
+        scrolltop: false
+    })
     $('#qunit-fixture').append('<store-locator><input></store-locator>')
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
         'store-locator'
     ).StoreLocator({marker: {cluster: null}})
     // endregion
     $storeLocatorDeferred.always(($storeLocatorDomNode:$DomNode):void => {
-        if (TARGET === 'node')
-            QUnit.load()
-        else if (!alreadyLoaded)
-            QUnit.start()
         const storeLocator:$Deferred<StoreLocator> = $storeLocatorDomNode.data(
             'StoreLocator')
         // region tests
@@ -56,31 +67,25 @@ browserAPI((browserAPI:BrowserAPI, alreadyLoaded:boolean):void => {
         // // endregion
         // / endregion
         // endregion
-        if (TARGET === 'node')
+        if (TARGET === 'node') {
             browserAPI.window.close()
+            QUnit.load()
+        }
     })
-    //  region hot module replacement handler
-    if (typeof module === 'object' && 'hot' in module && module.hot) {
-        module.hot.accept()
-        // IgnoreTypeCheck
-        module.hot.dispose(():void => {
-            /*
-                NOTE: We have to delay status indicator reset because qunits
-                status updates are delayed as well.
-            */
-            $storeLocatorDeferred.always(():void => {
-                setTimeout(():void => {
-                    if (!$('.fail').length) {
-                        browserAPI.window.document.title = '✔ test'
-                        $('#qunit-banner').removeClass('qunit-fail').addClass(
-                            'qunit-pass')
-                    }
-                }, 0)
-                $('#qunit-tests').html('')
+    // region hot module replacement
+    /*
+        NOTE: hot module replacement doesn't work with async tests yet since
+        qunit is not resetable yet:
+
+        if (typeof module === 'object' && 'hot' in module && module.hot) {
+            module.hot.accept()
+            // IgnoreTypeCheck
+            module.hot.dispose(():void => {
+                QUnit.reset()
                 console.clear()
-            })
-        })
-    }
+            }
+        }
+    */
     // endregion
 })
 // region vim modline
