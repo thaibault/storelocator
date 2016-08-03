@@ -16,7 +16,7 @@
 */
 // region imports
 import browserAPI from 'webOptimizer/browserAPI'
-import type {Browser} from 'webOptimizer/type'
+import type {BrowserAPI} from 'webOptimizer/type'
 import type {$DomNode, $Deferred} from 'jQuery-tools'
 import type StoreLocator from './index'
 // endregion
@@ -28,26 +28,9 @@ type JQueryFunction = (object:any) => Object
 // endregion
 const QUnit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
     'qunitjs')
-browserAPI((
-    browser:Browser, alreadyLoaded:boolean
-):void => browser.window.document.addEventListener('DOMContentLoaded', (
-):void => {
-    // region initialize global context
-    /*
-        NOTE: We have to define window globally before anything is loaded to
-        ensure that all future instances share the same window object.
-    */
-    if (typeof global !== 'undefined' && global !== browser.window) {
-        global.window = browser.window
-        for (const key in browser.window)
-            if (browser.window.hasOwnProperty(key) && !global.hasOwnProperty(
-                key
-            ))
-                global[key] = browser.window[key]
-    }
-    // endregion
+browserAPI((browserAPI:BrowserAPI, alreadyLoaded:boolean):void => {
     const $:JQueryFunction = require('jquery')
-    $.context = browser.window.document
+    $.context = browserAPI.window.document
     require('./index')
     // region mock-up
     $('#qunit-fixture').append('<store-locator><input></store-locator>')
@@ -67,14 +50,14 @@ browserAPI((
         // //  region special
         QUnit.test('initialize', (assert:Object):void => {
             assert.ok(storeLocator)
-            assert.ok($storeLocatorDomNode.children('div').length)
-            assert.ok($storeLocatorDomNode.find('input').length)
+            assert.ok($storeLocatorDomNode.children('div').length > 0)
+            assert.ok($storeLocatorDomNode.find('input').length > 0)
         })
         // // endregion
         // / endregion
         // endregion
         if (TARGET === 'node')
-            browser.window.close()
+            browserAPI.window.close()
     })
     //  region hot module replacement handler
     if (typeof module === 'object' && 'hot' in module && module.hot) {
@@ -88,7 +71,7 @@ browserAPI((
             $storeLocatorDeferred.always(():void => {
                 setTimeout(():void => {
                     if (!$('.fail').length) {
-                        browser.window.document.title = '✔ test'
+                        browserAPI.window.document.title = '✔ test'
                         $('#qunit-banner').removeClass('qunit-fail').addClass(
                             'qunit-pass')
                     }
@@ -99,7 +82,7 @@ browserAPI((
         })
     }
     // endregion
-}))
+})
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:

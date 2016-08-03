@@ -36,7 +36,9 @@
             "vendor": {
                 "__evaluate__": "self.contextType === 'main' && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['jquery', 'jQuery-tools', 'qunitjs', 'webOptimizer/browserAPI', 'exports?MarkerClusterer!googleMarkerClusterer'] : []"
             },
-            "index": "test"
+            "index": {
+                "__evaluate__": "['test'].concat(self.debug && self.dllManifestFilePaths.length ? [`webpack-dev-server/client?${self.development.server.protocol}://0.0.0.0:${self.development.server.port}`, 'webpack/hot/dev-server'] : [])"
+            }
         }},
         "module": {"aliases": {
             "googleMarkerClusterer$": "js-marker-clusterer"
