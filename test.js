@@ -21,13 +21,14 @@ import type {$DomNode, $Deferred} from 'jQuery-tools'
 import type StoreLocator from './index'
 // endregion
 // region declaration
-declare var TARGET:string
+declare var TARGET_TECHNOLOGY:string
 // endregion
 // region types
 type JQueryFunction = (object:any) => Object
 // endregion
-const QUnit:Object = (TARGET === 'node') ? require('qunit-cli') : require(
-    'qunitjs')
+const QUnit:Object = (TARGET_TECHNOLOGY === 'node') ? require(
+    'qunit-cli'
+) : require('qunitjs')
 browserAPI((browserAPI:BrowserAPI):void => {
     const $:JQueryFunction = require('jquery')
     $.context = browserAPI.window.document
@@ -62,12 +63,17 @@ browserAPI((browserAPI:BrowserAPI):void => {
         QUnit.test('initialize', (assert:Object):void => {
             assert.ok(storeLocator)
             assert.ok($storeLocatorDomNode.children('div').length > 0)
-            assert.ok($storeLocatorDomNode.find('input').length > 0)
+            const $inputDomNode:$DomNode = $storeLocatorDomNode.find('input')
+            assert.ok($inputDomNode.length > 0)
+            $inputDomNode.val('a')
+            const $resultsDomNode:$DomNode = $storeLocatorDomNode.find(
+                '.store-locator-search-results')
+            assert.ok($resultsDomNode.length)
         })
         // // endregion
         // / endregion
         // endregion
-        if (TARGET === 'node') {
+        if (TARGET_TECHNOLOGY === 'node') {
             browserAPI.window.close()
             QUnit.load()
         }

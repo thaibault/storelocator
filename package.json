@@ -37,7 +37,7 @@
                 "__evaluate__": "self.contextType === 'main' && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['jquery', 'jQuery-tools', 'qunitjs', 'webOptimizer/browserAPI', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'] : []"
             },
             "index": {
-                "__evaluate__": "['test'].concat(self.debug && self.dllManifestFilePaths.length ? [`webpack-dev-server/client?${self.development.server.protocol}://0.0.0.0:${self.development.server.port}`, 'webpack/hot/dev-server'] : [])"
+                "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'build' ? '__auto__' : self.contextType === 'main' && ['test'].concat(self.debug && self.dllManifestFilePaths.length ? [`webpack-dev-server/client?${self.development.server.protocol}://0.0.0.0:${self.development.server.port}`, 'webpack/hot/dev-server'] : [])"
             }
         }},
         "module": {"aliases": {
