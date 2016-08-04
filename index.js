@@ -25,10 +25,16 @@ import 'jQuery-tools'
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
 */
+/* eslint-disable no-undef */
 // IgnoreTypeCheck
-const googleMarkerClusterer:any = require(
+const googleMarkerClusterer:Object = (EXPORT_FORMAT === 'var') ? {
+    // IgnoreTypeCheck
+    Class: MarkerClusterer
+    // IgnoreTypeCheck
+} : require(
     'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
     'googleMarkerClusterer')
+/* eslint-enable no-undef */
 /* eslint-disable no-duplicate-imports */
 import type {$DomNode, $Deferred} from 'jQuery-tools'
 /* eslint-enable no-duplicate-imports */
