@@ -29,9 +29,9 @@ let googleMarkerClusterer:Object
 /* eslint-disable no-undef */
 // IgnoreTypeCheck
 if (EXPORT_FORMAT === 'var') {
-    require('googleMarkerClusterer')
     // IgnoreTypeCheck
-    googleMarkerClusterer = {Class: MarkerClusterer}
+    require('googleMarkerClusterer')
+    googleMarkerClusterer = {Class: window.MarkerClusterer}
 } else
     // IgnoreTypeCheck
     googleMarkerClusterer = require(
