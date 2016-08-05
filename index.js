@@ -235,9 +235,12 @@ class StoreLocator extends $.Tools.class {
         this.currentSearchResultRange = null
         this._options = {
             api: {
-                url: 'https://maps.googleapis.com/maps/api/js' +
-                    '?v=3&sensor=false&libraries=places,geometry&callback={1}',
-                callbackName: null
+                url:
+                    'https://maps.googleapis.com/maps/api/js' +
+                    '?{1}v=3&sensor=false&libraries=places,geometry&' +
+                    'callback={2}',
+                callbackName: null,
+                key: null
             },
             stores: {
                 northEast: {latitude: 85, longitude: 180},
@@ -322,7 +325,9 @@ class StoreLocator extends $.Tools.class {
                 this.constructor._apiLoad.resolve(this.$domNode)
             }
             $.getScript(this.constructor.stringFormat(
-                this._options.api.url, `window.${callbackName}`
+                this._options.api.url,
+                (this._options.api.key) ? `key=${this._options.api.key}&` : '',
+                `window.${callbackName}`
             )).catch((response:Object, error:Error):$Deferred<$DomNode> =>
                 this.constructor._apiLoad.reject((error)))
         }
@@ -454,6 +459,7 @@ class StoreLocator extends $.Tools.class {
             $addMarkerDeferred.resolve(markerList)
         }
         // Create the search box and link it to the UI element.
+        // TODO
         console.log('A', this.$domNode.find('input'))
         this.map.controls[this.constructor.maps.ControlPosition.TOP_LEFT].push(
             this.$domNode.find('input')[0])

@@ -95,7 +95,10 @@ Usage
     <script>
         dependenciesLoadPromise.always(() => $(
             'body simple-store-locator'
-        ).StoreLocator())
+        ).StoreLocator({api: {
+            // NOTE: You should use your own google maps api key.
+            key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
+        }}))
     </script>
     <simple-store-locator><input class="form-control"></simple-store-locator>
 
@@ -112,8 +115,11 @@ Usage
         ).StoreLocator({
             api: {
                 url: 'http://maps.googleapis.com/maps/api/js' +
-                    '?v=3&sensor=false&libraries=places,geometry&callback={1}',
-                callbackName: null
+                    '?{1}v=3&sensor=false&libraries=places,geometry&' +
+                    'callback={2}',
+                callbackName: null,
+                // NOTE: You should use your own google maps api key.
+                key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
             },
             stores: {
                 northEast: {latitude: 85, longitude: 180},
