@@ -173,6 +173,23 @@ Examples
         <input class="form-control">
     </advanced-store-locator>
 
+<!--|deDE:Beispiel mit individuellen Orten-->
+### Example with custom stores
+
+<!--showExample-->
+
+    #!HTML
+
+    <script>
+        dependenciesLoadPromise.always(() => $(
+            'body div.store-locator-with-stores'
+        ).StoreLocator({api: {
+            // NOTE: You should use your own google maps api key.
+            key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
+        }}))
+    </script>
+    <div class="store-locator-with-stores"><input class="form-control"></div>
+
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:
 vim: foldmethod=marker foldmarker=region,endregion:
