@@ -31,10 +31,6 @@ Content
 Examples
 --------
 
-<!--|deDE:Verwendung-->
-Usage
------
-
 <!--|deDE:Designvorgaben für die Store-Locator Beispiele-->
 ### Adding some style to our store locator examples
 
