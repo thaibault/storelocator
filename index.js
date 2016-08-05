@@ -454,6 +454,7 @@ class StoreLocator extends $.Tools.class {
             $addMarkerDeferred.resolve(markerList)
         }
         // Create the search box and link it to the UI element.
+        console.log('A', this.$domNode.find('input'))
         this.map.controls[this.constructor.maps.ControlPosition.TOP_LEFT].push(
             this.$domNode.find('input')[0])
         if ($.type(this._options.searchBox) === 'number')

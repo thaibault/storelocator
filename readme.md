@@ -95,10 +95,10 @@ Usage
 
     <script>
         dependenciesLoadPromise.always(() => $(
-            'body div.simple-store-locator'
+            'body [simple-store-locator]'
         ).StoreLocator())
     </script>
-    <div class="simple-store-locator"><input class="form-control" /></div>
+    <simple-store-locator><input class="form-control" /></simple-store-locator>
 
 <!--|deDE:Erweitertes Beispiel mit allen verfügbaren (standart) Optionen-->
 ### Advanced example with all available (default) options
@@ -109,7 +109,7 @@ Usage
 
     <script>
         dependenciesLoadPromise.always(() => $(
-            'body div.advanced-store-locator'
+            'body [advanced-store-locator]'
         ).StoreLocator({
             api: {
                 url: 'http://maps.googleapis.com/maps/api/js' +
@@ -168,7 +168,8 @@ Usage
             onMarkerHighlighted: $.noop
         }))
     </script>
-    <div class="advanced-store-locator"><input class="form-control"></div>
+    <advanced-store-locator><input class="form-control">
+    </advanced-store-locator>
 
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:
