@@ -17,6 +17,7 @@ apiDocumentation/
 *.compiled
 .dynamicConfiguration-*.json
 *.dll-manifest.json
+*Bundle.*
 
 # Profiling data.
 *.profile

@@ -42,24 +42,23 @@ Usage
 
     #!CSS
 
-    body div.simple-store-locator, body div.advanced-store-locator {
+    body simple-store-locator, body advanced-store-locator {
         width: 100%;
         height: 400px;
         margin: 0px;
         padding: 0px
     }
-    body div.simple-store-locator > div,
-    body div.advanced-store-locator > div {
+    body simple-store-locator > div, body advanced-store-locator > div {
         height: 100%;
     }
-    body div.simple-store-locator input.form-control,
-    body div.advanced-store-locator input.form-control {
+    body simple-store-locator input.form-control,
+    body advanced-store-locator input.form-control {
         margin-top: 9px;
         width: 230px;
         display: none;
     }
-    body div.simple-store-locator div.gm-style-iw > div,
-    body div.advanced-store-locator div.gm-style-iw > div {
+    body simple-store-locator div.gm-style-iw > div,
+    body advanced-store-locator div.gm-style-iw > div {
         width: 225px;
         height: 60px;
         padding: 5px;
