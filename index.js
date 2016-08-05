@@ -25,19 +25,14 @@ import 'jQuery-tools'
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
 */
-let googleMarkerClusterer:Object
-/* eslint-disable no-undef */
-// IgnoreTypeCheck
-if (EXPORT_FORMAT === 'var') {
+declare var EXPORT_FORMAT:string
+const googleMarkerClusterer:Object = (EXPORT_FORMAT === 'var') ? {
     // IgnoreTypeCheck
-    require('googleMarkerClusterer')
-    googleMarkerClusterer = {Class: window.MarkerClusterer}
-} else
+    Class: require('googleMarkerClusterer'), google: {}
     // IgnoreTypeCheck
-    googleMarkerClusterer = require(
-        'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
-        'googleMarkerClusterer')
-/* eslint-enable no-undef */
+} : require(
+    'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
+    'googleMarkerClusterer')
 /* eslint-disable no-duplicate-imports */
 import type {$DomNode, $Deferred} from 'jQuery-tools'
 /* eslint-enable no-duplicate-imports */
@@ -405,7 +400,6 @@ class StoreLocator extends $.Tools.class {
         )[0], this._options.map)
         let markerCluster:?Object = null
         if (this._options.marker.cluster) {
-            console.log('A', googleMarkerClusterer.Class, MarkerClusterer)
             googleMarkerClusterer.google.maps = this.constructor.maps
             markerCluster = new googleMarkerClusterer.Class(
                 this.map, [], this._options.marker.cluster)

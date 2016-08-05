@@ -32,14 +32,20 @@
         "development": {"openBrowser": {"url": {
             "__evaluate__": "((sourceFilePath) => `${self.development.server.protocol}://${self.development.server.host}:${self.development.server.port}/${path.basename(sourceFilePath.substring(sourceFilePath.lastIndexOf('!') + 1)).replace(/\\.[^.]+$/, '.html')}?notrycatch`)(self.files.defaultHTML.template)"
         }}},
-        "injection": {"internal": {
-            "vendor": {
-                "__evaluate__": "self.contextType === 'main' && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['jquery', 'jQuery-tools', 'qunitjs', 'webOptimizer/browserAPI', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'] : []"
+        "injection": {
+            "externalAliases": {
+                "googleMarkerClusterer": "MarkerClusterer",
+                "jQuery-tools": "$.Tools"
             },
-            "index": {
-                "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'build' ? '__auto__' : self.contextType === 'main' && ['test'].concat(self.debug && self.dllManifestFilePaths.length ? [`webpack-dev-server/client?${self.development.server.protocol}://0.0.0.0:${self.development.server.port}`, 'webpack/hot/dev-server'] : [])"
+            "internal": {
+                "vendor": {
+                    "__evaluate__": "self.contextType === 'main' && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['jquery', 'jQuery-tools', 'qunitjs', 'webOptimizer/browserAPI', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'] : []"
+                },
+                "index": {
+                    "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'build' ? '__auto__' : self.contextType === 'main' && ['test'].concat(self.debug && self.dllManifestFilePaths.length ? [`webpack-dev-server/client?${self.development.server.protocol}://0.0.0.0:${self.development.server.port}`, 'webpack/hot/dev-server'] : [])"
+                }
             }
-        }},
+        },
         "module": {"aliases": {
             "googleMarkerClusterer$": "js-marker-clusterer"
         }}
