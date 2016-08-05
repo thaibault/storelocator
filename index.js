@@ -405,7 +405,7 @@ class StoreLocator extends $.Tools.class {
         )[0], this._options.map)
         let markerCluster:?Object = null
         if (this._options.marker.cluster) {
-            console.log('A', googleMarkerClusterer.Class)
+            console.log('A', googleMarkerClusterer.Class, MarkerClusterer)
             googleMarkerClusterer.google.maps = this.constructor.maps
             markerCluster = new googleMarkerClusterer.Class(
                 this.map, [], this._options.marker.cluster)
