@@ -58,7 +58,7 @@ Examples
     }
     simple-store-locator div.gm-style-iw > div,
     advanced-store-locator div.gm-style-iw > div,
-    div.store-locator-with-stores > div {
+    div.store-locator-with-stores div.gm-style-iw > div {
         width: 225px;
         height: 60px;
         padding: 5px;
