@@ -109,7 +109,8 @@ Examples
             'body advanced-store-locator'
         ).StoreLocator({
             api: {
-                url: 'http://maps.googleapis.com/maps/api/js' +
+                url:
+                    'https://maps.googleapis.com/maps/api/js' +
                     '?{1}v=3&sensor=false&libraries=places,geometry&' +
                     'callback={2}',
                 callbackName: null,
@@ -120,7 +121,7 @@ Examples
                 northEast: {latitude: 85, longitude: 180},
                 southWest: {latitude: -85, longitude: -180},
                 number: 100,
-                generateProperties: (store) => store
+                generateProperties: (store:Object):Object => store
             },
             addtionalStoreProperties: {},
             iconPath: '/webAsset/image/storeLocator/',
@@ -138,13 +139,16 @@ Examples
             },
             map: {zoom: 3},
             showInputAfterLoadedDelayInMilliseconds: 500,
-            inputFadeInOption: {duration: 'fast'},
+            input: {
+                hide: {opacity: 0},
+                showAnimation: [{opacity: 1}, {duration: 'fast'}]
+            },
             distanceToMoveByDuplicatedEntries: 0.0001,
             marker: {
                 cluster: {
                     gridSize: 100, maxZoom: 11, imagePath:
                         'https://cdn.rawgit.com/googlemaps/' +
-                        'js-marker-clusterer/gh-pages/images/m',
+                        'js-marker-clusterer/gh-pages/images/m'
                 },
                 icon: {
                     size: {width: 44, height: 49, unit: 'px'},
@@ -158,7 +162,6 @@ Examples
                 loadingContent: '<div class="idle">loading...</div>'
             },
             searchBox: 50,
-            onLoaded: $.noop,
             onInfoWindowOpen: $.noop,
             onInfoWindowOpened: $.noop,
             onAddSearchResults: $.noop,
