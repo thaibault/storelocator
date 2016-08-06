@@ -395,8 +395,8 @@ class StoreLocator extends $.Tools.class {
         this._options.map.center = new this.constructor.google.maps.LatLng(
             this._options.startLocation.latitude,
             this._options.startLocation.longitude)
-        this.map = new this.constructor.google.maps.Map($('<div>').appendTo(
-            this.$domNode
+        this.map = new this.constructor.google.maps.Map(this.$domNode.css(
+            'display', 'block'
         )[0], this._options.map)
         let markerCluster:?Object = null
         if (this._options.marker.cluster) {
