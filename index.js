@@ -195,7 +195,7 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  */
 class StoreLocator extends $.Tools.class {
     // region static properties
-    static maps:Object
+    static google:Object
     static _name:string = 'StoreLocator'
     static _apiLoad:$Deferred<$DomNode>
     // endregion
@@ -298,14 +298,14 @@ class StoreLocator extends $.Tools.class {
         const result:$Deferred<$DomNode> = this.constructor._apiLoad.then(
             this.getMethod(this.bootstrap))
         if ('google' in context && 'maps' in context.google) {
-            this.constructor.maps = context.google.maps
+            this.constructor.google = context.google
             if (this.constructor._apiLoad.state() !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
                     this.constructor._apiLoad.resolve(this.$domNode))
         } else if (
             'google' in context.window && 'maps' in context.window.google
         ) {
-            this.constructor.maps = context.window.google.maps
+            this.constructor.google = context.window.google
             if (this.constructor._apiLoad.state() !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
                     this.constructor._apiLoad.resolve(this.$domNode))
@@ -316,7 +316,7 @@ class StoreLocator extends $.Tools.class {
             else
                 callbackName = this.constructor.determineUniqueScopeName()
             context.window[callbackName] = ():void => {
-                this.constructor.maps = context.window.google.maps
+                this.constructor.google = context.window.google
                 this.constructor._apiLoad.resolve(this.$domNode)
             }
             $.getScript(this.constructor.stringFormat(
@@ -366,18 +366,18 @@ class StoreLocator extends $.Tools.class {
                         bounds.
                     */
                     if (!this._options.ipToLocation.bounds || (
-                        new this.constructor.maps.LatLngBounds(
-                            new this.constructor.maps.LatLng(
+                        new this.constructor.google.maps.LatLngBounds(
+                            new this.constructor.google.maps.LatLng(
                                 this._options.ipToLocation.bounds.southWest
                                     .latitude,
                                 this._options.ipToLocation.bounds.southWest
                                     .longitude),
-                            new this.constructor.maps.LatLng(
+                            new this.constructor.google.maps.LatLng(
                                 this._options.ipToLocation.bounds.northEast
                                     .latitude,
                                 this._options.ipToLocation.bounds.northEast
                                     .longitude))
-                    ).contains(new this.constructor.maps.LatLng(
+                    ).contains(new this.constructor.google.maps.LatLng(
                         currentLocation.latitude, currentLocation.longitude
                     )))
                         this._options.startLocation = currentLocation
@@ -392,15 +392,20 @@ class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     initializeMap():$Deferred<$DomNode> {
-        this._options.map.center = new this.constructor.maps.LatLng(
+        this._options.map.center = new this.constructor.google.maps.LatLng(
             this._options.startLocation.latitude,
             this._options.startLocation.longitude)
-        this.map = new this.constructor.maps.Map($('<div>').appendTo(
+        this.map = new this.constructor.google.maps.Map($('<div>').appendTo(
             this.$domNode
         )[0], this._options.map)
         let markerCluster:?Object = null
         if (this._options.marker.cluster) {
-            googleMarkerClusterer.google.maps = this.constructor.maps
+            $.extend(googleMarkerClusterer.google, this.constructor.google)
+            console.log(
+                'TODO',
+                googleMarkerClusterer.Class,
+                googleMarkerClusterer.google
+            )
             markerCluster = new googleMarkerClusterer.Class(
                 this.map, [], this._options.marker.cluster)
         }
@@ -429,10 +434,10 @@ class StoreLocator extends $.Tools.class {
                 $addMarkerDeferred.resolve(markerList)
             })
         else {
-            const southWest:Object = new this.constructor.maps.LatLng(
+            const southWest:Object = new this.constructor.google.maps.LatLng(
                 this._options.stores.southWest.latitude,
                 this._options.stores.southWest.longitude)
-            const northEast:Object = new this.constructor.maps.LatLng(
+            const northEast:Object = new this.constructor.google.maps.LatLng(
                 this._options.stores.northEast.latitude,
                 this._options.stores.northEast.longitude)
             for (
@@ -454,15 +459,17 @@ class StoreLocator extends $.Tools.class {
             $addMarkerDeferred.resolve(markerList)
         }
         // Create the search box and link it to the UI element.
-        this.map.controls[this.constructor.maps.ControlPosition.TOP_LEFT].push(
-            this.$domNode.find('input')[0])
+        this.map.controls[
+            this.constructor.google.maps.ControlPosition.TOP_LEFT
+        ].push(this.$domNode.find('input')[0])
         if ($.type(this._options.searchBox) === 'number')
             this.initializeGenericSearchBox()
         else {
-            this.constructor.maps.event.addListener(this.map, 'click', (
+            this.constructor.google.maps.event.addListener(this.map, 'click', (
             ):StoreLocator => this.closeSearchResults())
-            this.constructor.maps.event.addListener(this.map, 'dragstart', (
-            ):StoreLocator => this.closeSearchResults())
+            this.constructor.google.maps.event.addListener(
+                this.map, 'dragstart', ():StoreLocator =>
+                    this.closeSearchResults())
             this._options.searchBox = $.extend(true, {
                 maximumNumberOfResults: 50,
                 numberOfAdditionalGenericPlaces: [2, 5],
@@ -481,20 +488,20 @@ class StoreLocator extends $.Tools.class {
             this.initializeDataSourceSearchBox()
         }
         // Close marker if zoom level is bigger than the aggregation.
-        this.constructor.maps.event.addListener(this.map, 'zoom_changed', (
-        ):void => {
-            if (
-                typeof this.currentlyOpenWindow === 'object' &&
-                this.currentlyOpenWindow &&
-                this.currentlyOpenWindow.isOpen &&
-                this.map.getZoom() <= this._options.marker.cluster.maxZoom
-            ) {
-                this.currentlyOpenWindow.isOpen = false
-                this.currentlyOpenWindow.close()
-            }
-        })
+        this.constructor.google.maps.event.addListener(
+            this.map, 'zoom_changed', ():void => {
+                if (
+                    typeof this.currentlyOpenWindow === 'object' &&
+                    this.currentlyOpenWindow &&
+                    this.currentlyOpenWindow.isOpen &&
+                    this.map.getZoom() <= this._options.marker.cluster.maxZoom
+                ) {
+                    this.currentlyOpenWindow.isOpen = false
+                    this.currentlyOpenWindow.close()
+                }
+            })
         const $mapLoadedDeferred:$Deferred<$DomNode> = $.Deferred()
-        this.constructor.maps.event.addListenerOnce(this.map, 'idle', (
+        this.constructor.google.maps.event.addListenerOnce(this.map, 'idle', (
         ):$Deferred<Array<Object>> => $addMarkerDeferred.then((
         ):$Deferred<$DomNode> => $mapLoadedDeferred.resolve(this.$domNode)))
         return $mapLoadedDeferred
@@ -605,12 +612,12 @@ class StoreLocator extends $.Tools.class {
             if (this.currentSearchText)
                 this.openSearchResults()
         })
-        this.constructor.maps.event.addListener(this.map, 'center_changed', (
-        ):void => {
-            // NOTE: Search results depends on current position.
-            if (this.currentSearchText && this.resultsDomNode)
-                this.searchResultsDirty = true
-        })
+        this.constructor.google.maps.event.addListener(
+            this.map, 'center_changed', ():void => {
+                // NOTE: Search results depends on current position.
+                if (this.currentSearchText && this.resultsDomNode)
+                    this.searchResultsDirty = true
+            })
         this.on(
             this.$domNode.find('input'), 'keyup',
             this.getUpdateSearchResultsHandler())
@@ -622,7 +629,7 @@ class StoreLocator extends $.Tools.class {
      */
     getUpdateSearchResultsHandler():Function {
         const placesService:Object =
-            new this.constructor.maps.places.PlacesService(this.map)
+            new this.constructor.google.maps.places.PlacesService(this.map)
         return this.debounce((event:Object):void => {
             for (const name:string in this.keyCode)
                 if (event && event.keyCode === this.keyCode[name] && ![
@@ -703,16 +710,18 @@ class StoreLocator extends $.Tools.class {
         for (const place:Object of places.sort((
             firstPlace:Object, secondPlace:Object
         ):number =>
-            this.constructor.maps.geometry.spherical.computeDistanceBetween(
+            this.constructor.google.maps.geometry.spherical
+            .computeDistanceBetween(
                 this.map.getCenter(), firstPlace.geometry.location
-            ) - this.constructor.maps.geometry.spherical
+            ) - this.constructor.google.maps.geometry.spherical
                 .computeDistanceBetween(this.map.getCenter(
                 ), secondPlace.geometry.location)
         )) {
             index += 1
-            const distance:number = this.constructor.maps.geometry.spherical
-                .computeDistanceBetween(this.map.getCenter(
-                ), place.geometry.location)
+            const distance:number =
+                this.constructor.google.maps.geometry.spherical
+                    .computeDistanceBetween(this.map.getCenter(
+                    ), place.geometry.location)
             if (distance > this._options.searchBox.maximalDistanceInMeter)
                 break
             if (this._options.searchBox.genericPlaceFilter(place)) {
@@ -812,10 +821,10 @@ class StoreLocator extends $.Tools.class {
                 !second.infoWindow && first.infoWindow
             )
                 return 1
-            return this.constructor.maps.geometry.spherical
+            return this.constructor.google.maps.geometry.spherical
                 .computeDistanceBetween(
                     this.map.getCenter(), first.position
-                ) - this.constructor.maps.geometry.spherical
+                ) - this.constructor.google.maps.geometry.spherical
                     .computeDistanceBetween(
                         this.map.getCenter(), second.position)
         })
@@ -906,20 +915,21 @@ class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     initializeGenericSearchBox():StoreLocator {
-        const searchBox:Object = new this.constructor.maps.places.SearchBox(
-            this.$domNode.find('input')[0])
+        const searchBox:Object =
+            new this.constructor.google.maps.places.SearchBox(
+                this.$domNode.find('input')[0])
         /*
             Bias the search box results towards places that are within the
             bounds of the current map's viewport.
         */
-        this.constructor.maps.event.addListener(
+        this.constructor.google.maps.event.addListener(
             this.map, 'bounds_changed', ():void => searchBox.setBounds(
                 this.map.getBounds()))
         /*
             Listen for the event fired when the user selects an item from the
             pick list. Retrieve the matching places for that item.
         */
-        this.constructor.maps.event.addListener(
+        this.constructor.google.maps.event.addListener(
             searchBox, 'places_changed', ():Promise<Array<Object>> =>
                 this.ensurePlaceLocations(searchBox.getPlaces()).then((
                     places:Array<Object>
@@ -931,7 +941,7 @@ class StoreLocator extends $.Tools.class {
                         let matchingMarker:?Object = null
                         for (const marker:Object of this.markers) {
                             const distanceInMeter:number =
-                                this.constructor.maps.geometry.spherical
+                                this.constructor.google.maps.geometry.spherical
                                     .computeDistanceBetween(
                                         foundPlace.geometry.location,
                                         marker.position)
@@ -971,7 +981,7 @@ class StoreLocator extends $.Tools.class {
     ensurePlaceLocations(places:Array<Object>):Promise<Array<Object>> {
         return new Promise((resolve:PromiseCallbackFunction):void => {
             let runningGeocodes:number = 0
-            const geocoder:Object = new this.constructor.maps.Geocoder()
+            const geocoder:Object = new this.constructor.google.maps.Geocoder()
             for (const place:Object of places)
                 if (!('geometry' in place && 'location' in place.geometry)) {
                     this.warn(
@@ -987,7 +997,9 @@ class StoreLocator extends $.Tools.class {
                         results:Array<Object>, status:number
                     ):void => {
                         runningGeocodes -= 1
-                        if (status === this.constructor.maps.GeocoderStatus.OK)
+                        if (status === this.constructor.google.maps
+                            .GeocoderStatus.OK
+                        )
                             place.geometry = results[0].geometry
                         else {
                             delete places[places.indexOf(place)]
@@ -1014,8 +1026,8 @@ class StoreLocator extends $.Tools.class {
         if (candidates.length) {
             let shortestDistanceInMeter:number = Number.MAX_VALUE
             for (const candidate:Object of candidates) {
-                const distanceInMeter:number = this.constructor.maps.geometry
-                    .spherical.computeDistanceBetween(
+                const distanceInMeter:number = this.constructor.google.maps
+                    .geometry.spherical.computeDistanceBetween(
                         candidate.geometry.location, this.map.getCenter())
                 if (distanceInMeter < shortestDistanceInMeter) {
                     result = candidate
@@ -1055,7 +1067,7 @@ class StoreLocator extends $.Tools.class {
         }
         this.seenLocations.push(`${store.latitude}-${store.longitude}`)
         const marker:Object = {
-            position: new this.constructor.maps.LatLng(
+            position: new this.constructor.google.maps.LatLng(
                 store.latitude, store.longitude),
             map: this.map,
             data: store
@@ -1065,11 +1077,11 @@ class StoreLocator extends $.Tools.class {
         ) {
             marker.icon = $.extend({}, this._options.marker.icon)
             if (marker.icon.size)
-                marker.icon.size = new this.constructor.maps.Size(
+                marker.icon.size = new this.constructor.google.maps.Size(
                     marker.icon.size.width, marker.icon.size.height,
                     marker.icon.size.unit, marker.icon.size.unit)
             if (marker.icon.scaledSize)
-                marker.icon.scaledSize = new this.constructor.maps.Size(
+                marker.icon.scaledSize = new this.constructor.google.maps.Size(
                     marker.icon.scaledSize.width,
                     marker.icon.scaledSize.height,
                     marker.icon.scaledSize.unit,
@@ -1083,14 +1095,15 @@ class StoreLocator extends $.Tools.class {
         }
         if (store.title)
             marker.title = store.title
-        marker.infoWindow = new this.constructor.maps.InfoWindow({content: ''})
+        marker.infoWindow = new this.constructor.google.maps.InfoWindow({
+            content: ''})
         marker.infoWindow.isOpen = false
-        this.constructor.maps.event.addListener(
+        this.constructor.google.maps.event.addListener(
             marker.infoWindow, 'closeclick', ():void => {
                 marker.infoWindow.isOpen = false
             })
-        marker.nativeMarker = new this.constructor.maps.Marker(marker)
-        this.constructor.maps.event.addListener(
+        marker.nativeMarker = new this.constructor.google.maps.Marker(marker)
+        this.constructor.google.maps.event.addListener(
             marker.nativeMarker, 'click', this.getMethod(
                 'openMarker', this, marker))
         this.markers.push(marker)
@@ -1211,7 +1224,8 @@ class StoreLocator extends $.Tools.class {
                     marker.nativeMarker
                 ) {
                     marker.nativeMarker.setAnimation(
-                        this.constructor.maps.Animation[type.toUpperCase()])
+                        this.constructor.google.maps.Animation[
+                            type.toUpperCase()])
                     marker.isHighlighted = true
                     this.currentlyHighlightedMarker = marker
                 }
