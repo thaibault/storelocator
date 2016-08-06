@@ -45,6 +45,10 @@ Examples
         margin: 0px;
         padding: 0px
     }
+    simple-store-locator > div, advanced-store-locator > div,
+    div.store-locator-with-stores > div {
+        height: 100%;
+    }
     simple-store-locator input.form-control,
     advanced-store-locator input.form-control,
     div.store-locator-with-stores input.form-control {
@@ -121,7 +125,7 @@ Examples
                 northEast: {latitude: 85, longitude: 180},
                 southWest: {latitude: -85, longitude: -180},
                 number: 100,
-                generateProperties: (store:Object):Object => store
+                generateProperties: (store) => store
             },
             addtionalStoreProperties: {},
             iconPath: '/webAsset/image/storeLocator/',
