@@ -38,26 +38,28 @@ Examples
 
     #!CSS
 
-    simple-store-locator, advanced-store-locator,
-    div.store-locator-with-stores {
+    body.documentation simple-store-locator,
+    body.documentation advanced-store-locator,
+    body.documentation div.store-locator-with-stores {
         width: 100%;
         height: 400px;
         margin: 0px;
         padding: 0px
     }
-    simple-store-locator > div, advanced-store-locator > div,
-    div.store-locator-with-stores > div {
+    body.documentation simple-store-locator > div,
+    body.documentation advanced-store-locator > div,
+    body.documentation div.store-locator-with-stores > div {
         height: 100%;
     }
-    simple-store-locator input.form-control,
-    advanced-store-locator input.form-control,
-    div.store-locator-with-stores input.form-control {
+    body.documentation simple-store-locator input.form-control,
+    body.documentation advanced-store-locator input.form-control,
+    body.documentation div.store-locator-with-stores input.form-control {
         margin-top: 9px;
         width: 230px;
     }
-    simple-store-locator div.gm-style-iw > div,
-    advanced-store-locator div.gm-style-iw > div,
-    div.store-locator-with-stores div.gm-style-iw > div {
+    body.documentation simple-store-locator div.gm-style-iw > div,
+    body.documentation advanced-store-locator div.gm-style-iw > div,
+    body.documentation div.store-locator-with-stores div.gm-style-iw > div {
         width: 225px;
         height: 60px;
         padding: 5px;
