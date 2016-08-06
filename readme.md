@@ -38,23 +38,27 @@ Examples
 
     #!CSS
 
-    body simple-store-locator, body advanced-store-locator {
+    simple-store-locator, advanced-store-locator,
+    div.store-locator-with-stores {
         width: 100%;
         height: 400px;
         margin: 0px;
         padding: 0px
     }
-    body simple-store-locator > div, body advanced-store-locator > div {
+    simple-store-locator > div, advanced-store-locator > div,
+    div.store-locator-with-stores > div {
         height: 100%;
     }
-    body simple-store-locator input.form-control,
-    body advanced-store-locator input.form-control {
+    simple-store-locator input.form-control,
+    advanced-store-locator input.form-control,
+    div.store-locator-with-stores input.form-control {
         margin-top: 9px;
         width: 230px;
         display: none;
     }
-    body simple-store-locator div.gm-style-iw > div,
-    body advanced-store-locator div.gm-style-iw > div {
+    simple-store-locator div.gm-style-iw > div,
+    advanced-store-locator div.gm-style-iw > div,
+    div.store-locator-with-stores > div {
         width: 225px;
         height: 60px;
         padding: 5px;
