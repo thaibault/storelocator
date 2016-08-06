@@ -45,16 +45,11 @@ Examples
         margin: 0px;
         padding: 0px
     }
-    simple-store-locator > div, advanced-store-locator > div,
-    div.store-locator-with-stores > div {
-        height: 100%;
-    }
     simple-store-locator input.form-control,
     advanced-store-locator input.form-control,
     div.store-locator-with-stores input.form-control {
         margin-top: 9px;
         width: 230px;
-        display: none;
     }
     simple-store-locator div.gm-style-iw > div,
     advanced-store-locator div.gm-style-iw > div,

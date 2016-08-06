@@ -259,7 +259,10 @@ class StoreLocator extends $.Tools.class {
             },
             map: {zoom: 3},
             showInputAfterLoadedDelayInMilliseconds: 500,
-            inputFadeInOption: {duration: 'fast'},
+            input: {
+                hide: {opacity: 0},
+                showAnimation: [{opacity: 1}, {duration: 'fast'}]
+            },
             distanceToMoveByDuplicatedEntries: 0.0001,
             marker: {
                 cluster: {
@@ -290,13 +293,15 @@ class StoreLocator extends $.Tools.class {
         // endregion
         // Merges given options with default options recursively.
         super.initialize(options)
+        this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
         if (typeof this.constructor._apiLoad !== 'object') {
             loadInitialized = false
             this.constructor._apiLoad = $.Deferred()
         }
         const result:$Deferred<$DomNode> = this.constructor._apiLoad.then(
-            this.getMethod(this.bootstrap))
+            this.getMethod(this.bootstrap)
+        ).done(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in context && 'maps' in context.google) {
             this.constructor.google = context.google
             if (this.constructor._apiLoad.state() !== 'resolved')
@@ -1037,8 +1042,8 @@ class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     onLoaded():StoreLocator {
-        setTimeout(():$DomNode => this.$domNode.find('input').fadeIn(
-            this._options.inputFadeInOption
+        setTimeout(():$DomNode => this.$domNode.find('input').animate.apply(
+            this.$domNode.find('input'), this._options.input.showAnimation
         ), this._options.showInputAfterLoadedDelayInMilliseconds)
         return this
     }
