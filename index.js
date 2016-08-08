@@ -258,6 +258,13 @@ class StoreLocator extends $.Tools.class {
                 }
             },
             map: {zoom: 3},
+            limit: {
+                zoom: {minimum: 1, maximum: 11},
+                bounds: {
+                    northEeast: {latitude: 85, longitude: 180},
+                    southWest: {latitude: -85, longitude: -180}
+                }
+            },
             showInputAfterLoadedDelayInMilliseconds: 500,
             input: {
                 hide: {opacity: 0},
@@ -403,6 +410,51 @@ class StoreLocator extends $.Tools.class {
         this.map = new this.constructor.google.maps.Map($('<div>').appendTo(
             this.$domNode.css('display', 'block')
         )[0], this._options.map)
+        if (this._options.limit.bounds)
+            this.constructor.google.maps.event.addListener(
+                this.map, 'dragend', ():void => {
+                    const limitBounds:Object =
+                        this.constructor.google.maps.LatLngBounds(
+                            new this.constructor.google.maps.LatLng(
+                                this._options.limit.bounds.southWest.latitude,
+                                this._options.limit.bounds.southWest.longitude
+                        ))
+                    const currentCenter:Object = this.map.getCenter()
+                    if (!limitBounds.contains(currentCenter)) {
+                        const newCenter:{
+                            latitude:number;
+                            longitude:number;
+                        } = {latitude: 0, longitude: 0}
+                        if (currentCenter.lng() < limitBounds.getSouthWest(
+                        ).lng())
+                            newCenter.longitude = limitBounds.getSouthWest(
+                            ).lng()
+                        if (currentCenter.lng() > limitBounds.getNorthEast(
+                        ).lng())
+                            newCenter.longitude = limitBounds.getNorthEast(
+                            ).lng()
+                        if (currentCenter.lat() < limitBounds.getSouthWest(
+                        ).lat())
+                            newCenter.latitude = limitBounds.getSouthWest(
+                            ).lat()
+                        if (currentCenter.lat() > limitBounds.getNorthEast(
+                        ).lat())
+                            newCenter.latitude = limitBounds.getNorthEast(
+                            ).lat()
+                        this.map.setCenter(
+                            new this.constructor.google.maps.LatLng(
+                                newCenter.latitude, newCenter.longitude))
+                    }
+                })
+        if (this._options.limit.zoom)
+            this.constructor.google.maps.event.addListener(
+                this.map, 'zoom_changed', ():void => {
+                    if (this.map.getZoom() < this._options.limit.zoom.minimum)
+                        this.map.setZoom(this._options.limit.zoom.minimum)
+                    else if (this.map.getZoom(
+                    ) > this._options.limit.zoom.maximum)
+                        this.map.setZoom(this._options.limit.zoom.maximum)
+                })
         let markerCluster:?Object = null
         if (this._options.marker.cluster) {
             $.extend(googleMarkerClusterer.google, this.constructor.google)
