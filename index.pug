@@ -49,10 +49,11 @@ html
                 northEast: {latitude: 55.12, longitude: 14.89},
                 southWest: {latitude: 47.32, longitude: 5.50}
             }
+            window.$ = application.index.default
             $('body div.store-locator-with-bounds').StoreLocator({
                 ipToLocation: {bounds},
-                map: {zoom: 6},
-                limit: {zoom: {minimum: 6}, bounds}
+                map: {zoom: 5},
+                limit: {zoom: {minimum: 5}, bounds}
             })
         }
 body: div.store-locator-with-bounds: input.form-control
