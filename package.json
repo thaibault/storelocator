@@ -25,7 +25,8 @@
         "preinstall": "webOptimizer preinstall",
         "postinstall": "webOptimizer build",
         "watch": "webOptimizer build --watch",
-        "watchDLL": "webOptimizer buildDLL --watch"
+        "watchDLL": "webOptimizer buildDLL --watch",
+        "watchExport": "webOptimizer build --watch '{exportFormat:\"var\"}'"
     },
     "license": "CC-BY-3.0",
     "webOptimizer": {

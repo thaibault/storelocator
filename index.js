@@ -19,7 +19,6 @@
 */
 // region imports
 import $ from 'jquery'
-import type {PromiseCallbackFunction} from 'webOptimizer/type'
 import 'jQuery-tools'
 /*
     NOTE: Bind marker clusters google instance to an empty object first to add
@@ -258,9 +257,9 @@ class StoreLocator extends $.Tools.class {
                 }
             },
             limit: {
-                zoom: {minimum: 1, maximum: 11},
+                zoom: {minimum: 1, maximum: 9999},
                 bounds: {
-                    northEeast: {latitude: 85, longitude: 180},
+                    northEast: {latitude: 85, longitude: 180},
                     southWest: {latitude: -85, longitude: -180}
                 }
             },
@@ -414,7 +413,7 @@ class StoreLocator extends $.Tools.class {
             this.constructor.google.maps.event.addListener(
                 this.map, 'dragend', ():void => {
                     const limitBounds:Object =
-                        this.constructor.google.maps.LatLngBounds(
+                        new this.constructor.google.maps.LatLngBounds(
                             new this.constructor.google.maps.LatLng(
                                 this._options.limit.bounds.southWest.latitude,
                                 this._options.limit.bounds.southWest.longitude
@@ -425,7 +424,10 @@ class StoreLocator extends $.Tools.class {
                             ))
                     const currentCenter:Object = this.map.getCenter()
                     if (!limitBounds.contains(currentCenter)) {
-                        const newCenter:Position = {latitude: 0, longitude: 0}
+                        const newCenter:Position = {
+                            latitude: currentCenter.lat(),
+                            longitude: currentCenter.lng()
+                        }
                         if (currentCenter.lng() < limitBounds.getSouthWest(
                         ).lng())
                             newCenter.longitude = limitBounds.getSouthWest(
@@ -442,9 +444,8 @@ class StoreLocator extends $.Tools.class {
                         ).lat())
                             newCenter.latitude = limitBounds.getNorthEast(
                             ).lat()
-                        this.map.setCenter(
-                            new this.constructor.google.maps.LatLng(
-                                newCenter.latitude, newCenter.longitude))
+                        this.map.panTo(new this.constructor.google.maps.LatLng(
+                            newCenter.latitude, newCenter.longitude))
                     }
                 })
         if (this._options.limit.zoom)
@@ -882,7 +883,7 @@ class StoreLocator extends $.Tools.class {
                         this.map.getCenter(), second.position)
         })
         // Compile search results markup.
-        const resultsRepresentation:Promise<any>|string =
+        const resultsRepresentation:$Deferred<any>|string =
             this.makeSearchResults(searchResults, limitReached)
         if ($.type(resultsRepresentation) === 'string') {
             const resultsRepresentationDomNode:$DomNode = $(
@@ -903,7 +904,7 @@ class StoreLocator extends $.Tools.class {
             setTimeout(():StoreLocator => this.releaseLock(
                 `${this.constructor._name}Search`
             ), 0)
-        } else if (resultsRepresentation instanceof Promise)
+        } else if (resultsRepresentation instanceof Object)
             resultsRepresentation.then((resultsRepresentation:string):void => {
                 const resultsRepresentationDomNode:$DomNode = $(
                     resultsRepresentation)
@@ -983,7 +984,7 @@ class StoreLocator extends $.Tools.class {
             pick list. Retrieve the matching places for that item.
         */
         this.constructor.google.maps.event.addListener(
-            searchBox, 'places_changed', ():Promise<Array<Object>> =>
+            searchBox, 'places_changed', ():$Deferred<Array<Object>> =>
                 this.ensurePlaceLocations(searchBox.getPlaces()).then((
                     places:Array<Object>
                 ):Array<Object> => {
@@ -1031,42 +1032,44 @@ class StoreLocator extends $.Tools.class {
      * @param places - Places to check for.
      * @returns A promise which will be resolved if all places are ensured.
      */
-    ensurePlaceLocations(places:Array<Object>):Promise<Array<Object>> {
-        return new Promise((resolve:PromiseCallbackFunction):void => {
-            let runningGeocodes:number = 0
-            const geocoder:Object = new this.constructor.google.maps.Geocoder()
-            for (const place:Object of places)
-                if (!('geometry' in place && 'location' in place.geometry)) {
-                    this.warn(
-                        'Found place "{1}" doesn\'t have a location. Full ' +
-                        'object:', place.name)
-                    this.warn(place)
-                    this.info(
-                        'Geocode will be determined separately. With address' +
-                        ' "{1}".', place.name)
-                    runningGeocodes += 1
-                    /* eslint-disable no-loop-func */
-                    geocoder.geocode({address: place.name}, (
-                        results:Array<Object>, status:number
-                    ):void => {
-                        runningGeocodes -= 1
-                        if (status === this.constructor.google.maps
-                            .GeocoderStatus.OK
-                        )
-                            place.geometry = results[0].geometry
-                        else {
-                            delete places[places.indexOf(place)]
-                            this.warn(
-                                'Found place "{1}" couldn\'t be geocoded by ' +
-                                'google. Removing it from the places list.',
-                                place.name)
-                        }
-                        if (runningGeocodes === 0)
-                            resolve(places)
-                    })
-                    /* eslint-enable no-loop-func */
-                }
-        })
+    ensurePlaceLocations(places:Array<Object>):$Deferred<Array<Object>> {
+        const result:$Deferred<Array<Object>> = $.Deferred()
+        let runningGeocodes:number = 0
+        const geocoder:Object = new this.constructor.google.maps.Geocoder()
+        for (const place:Object of places)
+            if (!('geometry' in place && 'location' in place.geometry)) {
+                this.warn(
+                    'Found place "{1}" doesn\'t have a location. Full object:',
+                    place.name)
+                this.warn(place)
+                this.info(
+                    'Geocode will be determined separately. With address ' +
+                    '"{1}".', place.name)
+                runningGeocodes += 1
+                /* eslint-disable no-loop-func */
+                geocoder.geocode({address: place.name}, (
+                    results:Array<Object>, status:number
+                ):void => {
+                    runningGeocodes -= 1
+                    if (status === this.constructor.google.maps.GeocoderStatus
+                        .OK
+                    )
+                        place.geometry = results[0].geometry
+                    else {
+                        delete places[places.indexOf(place)]
+                        this.warn(
+                            'Found place "{1}" couldn\'t be geocoded by ' +
+                            'google. Removing it from the places list.',
+                            place.name)
+                    }
+                    if (runningGeocodes === 0)
+                        result.resolve(places)
+                })
+                /* eslint-enable no-loop-func */
+            }
+        if (runningGeocodes === 0)
+            result.resolve(places)
+        return result
     }
     /**
      * Determines the best search result from given list of candidates.
@@ -1309,7 +1312,7 @@ class StoreLocator extends $.Tools.class {
      * @param searchResults - Search result to generate markup for.
      * @returns Generated markup.
      */
-    makeSearchResults(searchResults:Array<Object>):Promise<any>|string {
+    makeSearchResults(searchResults:Array<Object>):$Deferred<any>|string {
         if ($.isFunction(this._options.searchBox.content))
             return this._options.searchBox.content.apply(this, arguments)
         if ('content' in this._options.searchBox.content)

@@ -198,10 +198,7 @@ Examples
                     key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
                 },
                 ipToLocation: {bounds},
-                limit: {
-                    zoom: {minimum: 1, maximum: 11},
-                    bounds
-                }
+                limit: {zoom: {minimum: 6}, bounds}
             })
         })
     </script>
