@@ -40,7 +40,7 @@ Examples
 
     body.documentation simple-store-locator,
     body.documentation advanced-store-locator,
-    body.documentation div.store-locator-with-stores {
+    body.documentation div.store-locator-with-bounds {
         width: 100%;
         height: 400px;
         margin: 0px;
@@ -48,18 +48,18 @@ Examples
     }
     body.documentation simple-store-locator > div,
     body.documentation advanced-store-locator > div,
-    body.documentation div.store-locator-with-stores > div {
+    body.documentation div.store-locator-with-bounds > div {
         height: 100%;
     }
     body.documentation simple-store-locator input.form-control,
     body.documentation advanced-store-locator input.form-control,
-    body.documentation div.store-locator-with-stores input.form-control {
+    body.documentation div.store-locator-with-bounds input.form-control {
         margin-top: 9px;
         width: 230px;
     }
     body.documentation simple-store-locator div.gm-style-iw > div,
     body.documentation advanced-store-locator div.gm-style-iw > div,
-    body.documentation div.store-locator-with-stores div.gm-style-iw > div {
+    body.documentation div.store-locator-with-bounds div.gm-style-iw > div {
         width: 225px;
         height: 60px;
         padding: 5px;
@@ -181,22 +181,33 @@ Examples
         <input class="form-control">
     </advanced-store-locator>
 
-<!--|deDE:Beispiel mit individuellen Orten-->
-### Example with custom stores
+<!--|deDE:Beispiel mit limitiertem traversierbarem Bereich (Deutschland)-->
+### Example with limited traversable area (Germany)
 
 <!--showExample-->
 
     #!HTML
 
     <script>
-        dependenciesLoadPromise.always(() => $(
-            'body div.store-locator-with-stores'
-        ).StoreLocator({api: {
-            // NOTE: You should use your own google maps api key.
-            key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
-        }}))
+        dependenciesLoadPromise.always(() => {
+            const bounds = {
+                northEast: {latitude: 55.12, longitude: 14.89},
+                southWest: {latitude: 47.32, longitude: 5.50}
+            }
+            $('body div.store-locator-with-bounds').StoreLocator({
+                api: {
+                    // NOTE: You should use your own google maps api key.
+                    key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
+                },
+                ipToLocation: {bounds},
+                limit: {
+                    zoom: {minimum: 1, maximum: 11},
+                    bounds
+                }
+            })
+        })
     </script>
-    <div class="store-locator-with-stores"><input class="form-control"></div>
+    <div class="store-locator-with-bounds"><input class="form-control"></div>
 
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:
