@@ -74,7 +74,7 @@ Examples
 
     const dependenciesLoadPromise = documentationWebsiteJQuery.getScript(
         'https://code.jquery.com/jquery-3.1.0.js'
-    ).then(() => return $.getScript(
+    ).then(() => $.getScript(
         'http://torben.website/jQuery-tools/data/distributionBundle/' +
         'index.compiled.js'
     )).then(() => $.getScript(
