@@ -24,8 +24,8 @@ import 'jQuery-tools'
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
 */
-declare var EXPORT_FORMAT:string
-const googleMarkerClusterer:Object = (EXPORT_FORMAT === 'var') ? {
+declare var EXTERNAL_EXPORT_FORMAT:string
+const googleMarkerClusterer:Object = (EXTERNAL_EXPORT_FORMAT === 'var') ? {
     // IgnoreTypeCheck
     Class: require('googleMarkerClusterer'), google: {}
     // IgnoreTypeCheck
@@ -1332,8 +1332,8 @@ class StoreLocator extends $.Tools.class {
 $.fn.StoreLocator = function():any {
     return $.Tools().controller(StoreLocator, arguments, this)
 }
-/** The jQuery-storeLocator plugin class. */
-export default StoreLocator
+/** jQuery extended with jQuery-storeLocator plugin. */
+export default $
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
