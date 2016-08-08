@@ -257,7 +257,6 @@ class StoreLocator extends $.Tools.class {
                     southWest: {latitude: -85, longitude: -180}
                 }
             },
-            map: {zoom: 3},
             limit: {
                 zoom: {minimum: 1, maximum: 11},
                 bounds: {
@@ -265,6 +264,7 @@ class StoreLocator extends $.Tools.class {
                     southWest: {latitude: -85, longitude: -180}
                 }
             },
+            map: {zoom: 3},
             showInputAfterLoadedDelayInMilliseconds: 500,
             input: {
                 hide: {opacity: 0},
@@ -418,13 +418,14 @@ class StoreLocator extends $.Tools.class {
                             new this.constructor.google.maps.LatLng(
                                 this._options.limit.bounds.southWest.latitude,
                                 this._options.limit.bounds.southWest.longitude
-                        ))
+                            ),
+                            new this.constructor.google.maps.LatLng(
+                                this._options.limit.bounds.northEast.latitude,
+                                this._options.limit.bounds.northEast.longitude
+                            ))
                     const currentCenter:Object = this.map.getCenter()
                     if (!limitBounds.contains(currentCenter)) {
-                        const newCenter:{
-                            latitude:number;
-                            longitude:number;
-                        } = {latitude: 0, longitude: 0}
+                        const newCenter:Position = {latitude: 0, longitude: 0}
                         if (currentCenter.lng() < limitBounds.getSouthWest(
                         ).lng())
                             newCenter.longitude = limitBounds.getSouthWest(
