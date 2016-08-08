@@ -35,6 +35,7 @@
         "injection": {
             "externalAliases": {
                 "googleMarkerClusterer": "MarkerClusterer",
+                "jquery": "jQuery",
                 "jQuery-tools": "$.Tools"
             },
             "internal": {
