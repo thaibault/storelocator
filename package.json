@@ -36,14 +36,9 @@
                 "jquery": "jQuery",
                 "jQuery-tools": "$.Tools"
             },
-            "internal": {
-                "vendor": {
-                    "__evaluate__": "self.contextType === 'main' && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['jquery', 'jQuery-tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['qunitjs', 'webOptimizer/browserAPI']) : []"
-                },
-                "index": {
-                    "__evaluate__": "2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'build' ? '__auto__' : self.contextType === 'main' ? (self.debug && self.dllManifestFilePaths.length ? [`webpack-dev-server/client?${self.development.server.protocol}://0.0.0.0:${self.development.server.port}`, 'webpack/hot/dev-server'] : []).concat(2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'serve' ? 'index' : 'test') : []"
-                }
-            }
+            "internal": {"vendor": {
+                "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['jquery', 'jQuery-tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['qunitjs', 'webOptimizer/browserAPI']) : []"
+            }}
         },
         "module": {"aliases": {
             "googleMarkerClusterer$": "js-marker-clusterer"
