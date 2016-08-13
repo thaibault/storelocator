@@ -30,9 +30,6 @@
     },
     "license": "CC-BY-3.0",
     "webOptimizer": {
-        "development": {"openBrowser": {"url": {
-            "__evaluate__": "((sourceFilePath) => `${self.development.server.protocol}://${self.development.server.host}:${self.development.server.port}/${path.basename(sourceFilePath.substring(sourceFilePath.lastIndexOf('!') + 1)).replace(/\\.[^.]+$/, '.html')}${2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'serve' ? '' : '?notrycatch'}`)(self.files.defaultHTML.template)"
-        }}},
         "injection": {
             "externalAliases": {
                 "googleMarkerClusterer": "MarkerClusterer",

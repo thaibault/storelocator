@@ -49,8 +49,10 @@ html
                 northEast: {latitude: 55.12, longitude: 14.89},
                 southWest: {latitude: 47.32, longitude: 5.50}
             }
-            window.$ = jQueryStoreLocator.index.default
-            $('body div.store-locator-with-bounds').StoreLocator({
+            jQueryStoreLocator.index.default(
+                'body div.store-locator-with-bounds'
+            ).StoreLocator({
+                api: {key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'},
                 ipToLocation: {bounds},
                 map: {zoom: 5},
                 limit: {zoom: {minimum: 5}, bounds}
