@@ -43,9 +43,9 @@ export type Position = {
 }
 // endregion
 const context:Object = (():Object => {
-    if ($.type(window) === 'undefined') {
-        if ($.type(global) === 'undefined')
-            return ($.type(module) === 'undefined') ? {} : module
+    if (typeof window === 'undefined') {
+        if (typeof global === 'undefined')
+            return (typeof module === 'undefined') ? {} : module
         return global
     }
     return window
