@@ -155,28 +155,37 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * the info window during info window load.
  * @property _options.searchBox {number|Object} - If a number is given a
  * generic search will be provided and given number will be interpret as search
- * result precision tolerance to identify a marker as search result. If an
- * object is given it indicates what should be search for. The object can hold
- * up to nine keys. "properties" to specify which store data should contain
- * given search text, "maximumNumberOfResults" to limit the auto complete
- * result, "loadingContent" to display while the results are loading,
- * "numberOfAdditionalGenericPlaces" a tuple describing a range of minimal to
- * maximal limits of additional generic google suggestions depending on number
- * of local search results, "maximalDistanceInMeter" to specify maximal
- * distance from current position to search suggestions, "genericPlaceFilter"
- * specifies a function which gets a relevant place to decide if the place
- * should be included (returns a boolean value), "prefereGenericResults"
- * specifies a boolean value indicating if generic search results should be the
- * first results, "genericPlaceSearchOptions" specifies how a generic place
- * search should be done (google maps request object specification) and
- * "content" to render the search results. "content" can be a function or
- * string returning or representing the search results. If a function is given
- * and a promise is returned the info box will be filled with the given loading
- * content and updated with the resolved data. The function becomes search
- * results as first argument, a boolean value as second argument indicating if
- * the maximum number of search results was reached and the store locator
- * instance as third argument. If nothing is provided all available data will
- * be listed in a generic info window.
+ * result precision tolerance to identify a marker as search result.
+ * @property _options.searchBox.properties {Object} - Specify which store data
+ * should contain given search text.
+ * @property _options.searchBox.maximumNumberOfResults {number} - Limits the
+ * auto complete result list.
+ * @property _options.searchBox.loadingContent {string} - Markup to display
+ * while the results are loading.
+ * @property _options.searchBox.numberOfAdditionalGenericPlaces
+ * {Array<number, number>} - A tuple describing a range of minimal to maximal
+ * limits of additional generic google suggestions depending on number
+ * of local search results.
+ * @property _options.searchBox.maximalDistanceInMeter {number} - Range to
+ * specify maximal distance from current position to search suggestions.
+ * @property _options.searchBox.genericPlaceFilter {Function} - Specifies a
+ * callback which gets a relevant place to decide if the place should be
+ * included (returns a boolean value).
+ * @property _options.searchBox.prefereGenericResults {boolean} - Specifies a
+ * boolean value indicating if generic search results should be the first
+ * results.
+ * @property _options.searchBox.genericPlaceSearchOptions {Object}- Specifies
+ * how a generic place search should be done (google maps request object
+ * specification).
+ * @property _options.searchBox.content {Function|string} - Defines how to
+ * render the search results. This can be a callback or a string returning or
+ * representing the search results. If a function is given and a promise is
+ * returned the info box will be filled with the given loading content and
+ * updated with the resolved data. The function becomes search results as first
+ * argument, a boolean value as second argument indicating if the maximum
+ * number of search results was reached and the store locator instance itself
+ * as third argument. If nothing is provided all available data will be listed
+ * in a generic info window.
  * @property _options.onInfoWindowOpen {Function} - Triggers if a marker info
  * window will be opened.
  * @property _options.onInfoWindowOpened {Function} - Triggers if a marker info
@@ -684,7 +693,7 @@ class StoreLocator extends $.Tools.class {
     getUpdateSearchResultsHandler():Function {
         const placesService:Object =
             new this.constructor.google.maps.places.PlacesService(this.map)
-        return this.debounce((event:Object):void => {
+        return this.constructor.debounce((event:Object):void => {
             for (const name:string in this.keyCode)
                 if (event && event.keyCode === this.keyCode[name] && ![
                     'DELETE', 'BACKSPACE'
@@ -1171,9 +1180,7 @@ class StoreLocator extends $.Tools.class {
      * @param event - Event which has triggered the marker opening call.
      * @returns The current instance.
      */
-    openMarker(marker:Object, event:?Object):StoreLocator {
-        if (event)
-            event.stopPropagation()
+    openMarker(location:Object, marker:?Object):StoreLocator {
         this.highlightMarker(marker, event, 'stop')
         /*
             We have to ensure that the minimum zoom level has one more then
@@ -1296,10 +1303,12 @@ class StoreLocator extends $.Tools.class {
      * @returns Info window markup.
      */
     makeInfoWindow(marker:Object):string|Object {
-        if ($.isFunction(this._options.infoWindow.content))
-            return this._options.infoWindow.content.apply(this, arguments)
-        if ('content' in this._options.infoWindow)
-            return this._options.infoWindow.content
+        if ('content' in this._options.infoWindow) {
+            if ($.isFunction(this._options.infoWindow.content))
+                return this._options.infoWindow.content.apply(this, arguments)
+            if (this._options.infoWindow.content)
+                return this._options.infoWindow.content
+        }
         let content:string = '<div>'
         for (const name:string in marker.data)
             if (marker.data.hasOwnProperty(name))
