@@ -28,7 +28,8 @@ type JQueryFunction = (object:any) => Object
 // endregion
 const QUnit:Object = (
     typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node'
-) ? require('qunit-cli') : require('qunitjs')
+) ? require('qunit-cli') : (
+    DEBUG ? require('qunitjs') : (require('script!qunitjs') && window.QUnit))
 browserAPI((browserAPI:BrowserAPI):void => {
     const $:JQueryFunction = require('jquery')
     $.context = browserAPI.window.document

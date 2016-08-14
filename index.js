@@ -1175,12 +1175,14 @@ class StoreLocator extends $.Tools.class {
         return marker.nativeMarker
     }
     /**
-     * Opens given marker info window. And closes a potential opened windows.
+     * Opens given marker info window. And closes potentially opened windows.
      * @param marker - Marker to open.
      * @param event - Event which has triggered the marker opening call.
      * @returns The current instance.
      */
-    openMarker(location:Object, marker:?Object):StoreLocator {
+    openMarker(marker:Object, event:?Object):StoreLocator {
+        if (event && 'stopPropagation' in event)
+            event.stopPropagation()
         this.highlightMarker(marker, event, 'stop')
         /*
             We have to ensure that the minimum zoom level has one more then
