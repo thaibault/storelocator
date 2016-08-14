@@ -21,6 +21,7 @@ import type {$DomNode, $Deferred} from 'jQuery-tools'
 import type StoreLocator from './index'
 // endregion
 // region declaration
+declare var DEBUG:boolean
 declare var TARGET_TECHNOLOGY:string
 // endregion
 // region types
