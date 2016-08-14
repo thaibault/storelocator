@@ -27,6 +27,7 @@ import 'jQuery-tools'
 declare var EXTERNAL_EXPORT_FORMAT:string
 const googleMarkerClusterer:Object = (EXTERNAL_EXPORT_FORMAT === 'var') ? {
     Class: require('googleMarkerClusterer'), google: {}
+    // IgnoreTypeCheck
 } : require(
     'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
     'googleMarkerClusterer')

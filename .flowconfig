@@ -15,7 +15,7 @@ esproposal.class_static_fields=enable
 
 module.name_mapper='^\./index\.compiled$' -> './index'
 module.name_mapper='^script!qunitjs$' -> 'qunitjs'
-module.name_mapper='^(exports\?Class=MarkerClusterer,google=google!imports\?google=>{}!)?googleMarkerClusterer$' -> 'js-marker-clusterer'
+module.name_mapper='^googleMarkerClusterer$' -> 'js-marker-clusterer'
 
 module.file_ext=.js
 module.file_ext=.compiled.js
