@@ -79,7 +79,7 @@ Examples
         $.getScript(
             'http://torben.website/jQuery-tools/data/distributionBundle/' +
             'index.compiled.js')
-    ).then(() => $.getScript(
+    }).then(() => $.getScript(
         'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/' +
         'markerclusterer.js'
     )).then(() => $.getScript(
