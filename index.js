@@ -1258,7 +1258,7 @@ class StoreLocator extends $.Tools.class {
     highlightMarker(
         marker:Object, event:?Object, type:string = 'bounce'
     ):StoreLocator {
-        if (event && 'stopPropagation' event)
+        if (event && 'stopPropagation' in event)
             event.stopPropagation()
         if (this.currentlyHighlightedMarker) {
             if ('nativeMarker' in this.currentlyHighlightedMarker)
