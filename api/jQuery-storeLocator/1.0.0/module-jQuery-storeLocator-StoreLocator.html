@@ -369,6 +369,125 @@ template level.</td>
 
         <tr>
             
+                <td class="name"><code>api</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">To store api options in.
+                <h6>Properties</h6>
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>url</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">URL tor retrieve google maps api.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callbackName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Global resource path to
+callback function to trigger when google has finished loading the api.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">API-key to authenticate against google
+maps api.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>stores</code></td>
             
 
@@ -1264,28 +1383,262 @@ the info window during info window load.</td>
 
             <td class="description last">If a number is given a
 generic search will be provided and given number will be interpret as search
-result precision tolerance to identify a marker as search result. If an
-object is given it indicates what should be search for. The object can hold
-up to nine keys. "properties" to specify which store data should contain
-given search text, "maximumNumberOfResults" to limit the auto complete
-result, "loadingContent" to display while the results are loading,
-"numberOfAdditionalGenericPlaces" a tuple describing a range of minimal to
-maximal limits of additional generic google suggestions depending on number
-of local search results, "maximalDistanceInMeter" to specify maximal
-distance from current position to search suggestions, "genericPlaceFilter"
-specifies a function which gets a relevant place to decide if the place
-should be included (returns a boolean value), "prefereGenericResults"
-specifies a boolean value indicating if generic search results should be the
-first results, "genericPlaceSearchOptions" specifies how a generic place
-search should be done (google maps request object specification) and
-"content" to render the search results. "content" can be a function or
-string returning or representing the search results. If a function is given
-and a promise is returned the info box will be filled with the given loading
-content and updated with the resolved data. The function becomes search
-results as first argument, a boolean value as second argument indicating if
-the maximum number of search results was reached and the store locator
-instance as third argument. If nothing is provided all available data will
-be listed in a generic info window.</td>
+result precision tolerance to identify a marker as search result.
+                <h6>Properties</h6>
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>properties</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specify which store data
+should contain given search text.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maximumNumberOfResults</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Limits the
+auto complete result list.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>loadingContent</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Markup to display
+while the results are loading.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>numberOfAdditionalGenericPlaces</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number, number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">- A tuple describing a range of minimal to maximal
+limits of additional generic google suggestions depending on number
+of local search results.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maximalDistanceInMeter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Range to
+specify maximal distance from current position to search suggestions.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>genericPlaceFilter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies a
+callback which gets a relevant place to decide if the place should be
+included (returns a boolean value).</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>prefereGenericResults</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies a
+boolean value indicating if generic search results should be the first
+results.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>genericPlaceSearchOptions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies
+how a generic place search should be done (google maps request object
+specification).</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>content</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Defines how to
+render the search results. This can be a callback or a string returning or
+representing the search results. If a function is given and a promise is
+returned the info box will be filled with the given loading content and
+updated with the resolved data. The function becomes search results as first
+argument, a boolean value as second argument indicating if the maximum
+number of search results was reached and the store locator instance itself
+as third argument. If nothing is provided all available data will be listed
+in a generic info window.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -1499,7 +1852,7 @@ starts to highlight.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line225">line 225</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line233">line 233</a>
     </li></ul></dd>
     
 
@@ -1599,7 +1952,7 @@ starts to highlight.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line239">line 239</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line247">line 247</a>
     </li></ul></dd>
     
 
@@ -1736,7 +2089,7 @@ triggered to close search results.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line307">line 307</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line315">line 315</a>
     </li></ul></dd>
     
 
@@ -1872,7 +2225,7 @@ triggered to close search results.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line333">line 333</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line341">line 341</a>
     </li></ul></dd>
     
 
@@ -2009,7 +2362,7 @@ Currently the nearest result to current viewport will be preferred.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line326">line 326</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line334">line 334</a>
     </li></ul></dd>
     
 
@@ -2145,7 +2498,7 @@ Currently the nearest result to current viewport will be preferred.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line321">line 321</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line329">line 329</a>
     </li></ul></dd>
     
 
@@ -2237,7 +2590,7 @@ Currently the nearest result to current viewport will be preferred.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line271">line 271</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line279">line 279</a>
     </li></ul></dd>
     
 
@@ -2392,7 +2745,7 @@ results.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line281">line 281</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line289">line 289</a>
     </li></ul></dd>
     
 
@@ -2565,7 +2918,7 @@ highlighting requested.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line354">line 354</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line362">line 362</a>
     </li></ul></dd>
     
 
@@ -2701,7 +3054,7 @@ highlighting requested.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line232">line 232</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line240">line 240</a>
     </li></ul></dd>
     
 
@@ -2794,7 +3147,7 @@ matching marker.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line261">line 261</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line269">line 269</a>
     </li></ul></dd>
     
 
@@ -2886,7 +3239,7 @@ matching marker.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line255">line 255</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line263">line 263</a>
     </li></ul></dd>
     
 
@@ -2979,7 +3332,7 @@ focus them.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line311">line 311</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line319">line 319</a>
     </li></ul></dd>
     
 
@@ -3071,7 +3424,7 @@ focus them.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line249">line 249</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line257">line 257</a>
     </li></ul></dd>
     
 
@@ -3208,7 +3561,7 @@ window.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line363">line 363</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line371">line 371</a>
     </li></ul></dd>
     
 
@@ -3345,7 +3698,7 @@ results.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line368">line 368</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line376">line 376</a>
     </li></ul></dd>
     
 
@@ -3437,7 +3790,7 @@ results.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line329">line 329</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line337">line 337</a>
     </li></ul></dd>
     
 
@@ -3485,7 +3838,7 @@ results.
 
 
 <div class="description">
-    Opens given marker info window. And closes a potential opened windows.
+    Opens given marker info window. And closes potentially opened windows.
 </div>
 
 
@@ -3591,7 +3944,7 @@ results.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line338">line 338</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line346">line 346</a>
     </li></ul></dd>
     
 
@@ -3745,7 +4098,7 @@ results.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line347">line 347</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line355">line 355</a>
     </li></ul></dd>
     
 
@@ -3882,7 +4235,7 @@ triggered to show search results.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line302">line 302</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line310">line 310</a>
     </li></ul></dd>
     
 
@@ -4036,7 +4389,7 @@ triggered to show search results.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line289">line 289</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line297">line 297</a>
     </li></ul></dd>
     
 
@@ -4094,7 +4447,7 @@ triggered to show search results.</td>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Aug 08 2016 15:23:40 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Aug 15 2016 12:46:49 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
