@@ -27,6 +27,72 @@ Content
 <!--Place for automatic generated table of contents.-->
 [TOC]
 
+<!--|deDE:Installation-->
+Installation
+------------
+
+<!--|deDE:Klassische Dom-Integration-->
+### Classical dom injection
+
+You can simply download the compiled version as zip file here and inject it
+after needed dependencies:
+<!--deDE:
+    Du kannst einfach das Plugin als Zip-Archiv herunterladen und per
+    Script-Tag in deine Webseite integrieren:
+-->
+
+    #!HTML
+
+    <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
+    <script src="http://torben.website/jQuery-tools/data/distributionBundle/index.compiled.js"></script>
+    <script src="https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js"></script>
+    <!--Inject downloaded file:-->
+    <script src="/index.compiled.js"></script>
+    <!--Or integrate via cdn:
+    <script src="http://torben.website/jQuery-storeLocator/data/distributionBundle/index.compiled.js"></script>
+    -->
+
+The compiled format supports AMD, commonjs, commonjs2 and variable injection
+into given context (UMD) as export format: You can use a module bundler if you
+want.
+
+<!--|deDE:Paket-Management und Modul-Komposition-->
+### Package managed and module bundled
+
+If you are using npm as package manager and/or a module bundler you can simply
+add this tool to your "package.json" as dependency:
+<!--deDE:
+    Nutzt du npm als Paket-Manager und/oder hast einen Module-Bundler, dann
+    solltest du einfach deine "package.json" erweitern:
+-->
+
+    #!JSON
+
+    ...
+    "dependencies": {
+        ...
+        "jQuery-storeLocator": "git+ssh://git@github.com/thaibault/jQuery-storeLocator.git",
+        ...
+    },
+    ...
+
+After updating your packages you can simply depend on this script and let
+a module bundler to the hard stuff or access it via a exported variable name
+into given context.
+<!--deDE:
+    Nach einem Update deiner Pakete kannst du dieses Plugin einfach in deine
+    JavaScript-Module importieren oder die exportiert Variable im gegebenen
+    Context referenzieren.
+-->
+
+    #!JavaScript
+
+    ...
+    $ = require('jQuery-storeLocator')
+    ...
+    $('body').StoreLocator().isEquivalentDom('<div>', '<script>') // false
+    ...
+
 <!--|deDE:Beispiele-->
 Examples
 --------
