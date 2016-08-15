@@ -18,7 +18,6 @@
         "buildDLL": "webOptimizer buildDLL",
         "clear": "webOptimizer clear",
         "document": "webOptimizer document",
-        "export": "webOptimizer build '{exportFormat:{external:\"var\",self:\"var\"}}'",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
         "serve": "webOptimizer serve",
         "test": "webOptimizer test",
