@@ -78,6 +78,12 @@ if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
  * search result range. This is useful for pagination implementations in
  * template level.
  * @property _options - Saves all plugin interface options.
+ * @property _options.api {Object} - To store api options in.
+ * @property _options.api.url {string} - URL tor retrieve google maps api.
+ * @property _options.api.callbackName {string} - Global resource path to
+ * callback function to trigger when google has finished loading the api.
+ * @property _options.api.key {string} - API-key to authenticate against google
+ * maps api.
  * @property _options.stores
  * {string|Array.<string>|Object.<string, number|Function>} - URL to retrieve
  * stores, list of stores or object describing bounds to create random stores
