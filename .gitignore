@@ -9,6 +9,10 @@ apiDocumentation/
 # Temporary compile files
 *.compiled.*
 *.compiled
+!/api/**/*.compiled.*
+!/api/**/*.compiled
+!/data/**/*.compiled.*
+!/data/**/*.compiled
 .dynamicConfiguration-*.json
 *.dll-manifest.json
 *Bundle.*
