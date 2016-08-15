@@ -74,10 +74,12 @@ Examples
 
     const dependenciesLoadPromise = documentationWebsiteJQuery.getScript(
         'https://code.jquery.com/jquery-3.1.0.js'
+    ).then(() => {
+        window.jquery = $
+        $.getScript(
+            'http://torben.website/jQuery-tools/data/distributionBundle/' +
+            'index.compiled.js')
     ).then(() => $.getScript(
-        'http://torben.website/jQuery-tools/data/distributionBundle/' +
-        'index.compiled.js'
-    )).then(() => $.getScript(
         'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/' +
         'markerclusterer.js'
     )).then(() => $.getScript(
