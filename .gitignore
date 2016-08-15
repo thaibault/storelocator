@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
 
-!data/**/*.compiled
-!data/**/*.compiled.*
-!api/**/*.compiled
-!api/**/*.compiled.*
-
 ## Generic
 
 # Generated documentations
 documentation/build
-api
 apiDocumentation/
 
 # Temporary compile files
