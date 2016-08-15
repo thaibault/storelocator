@@ -52,9 +52,14 @@ after needed dependencies:
     <script src="http://torben.website/jQuery-storeLocator/data/distributionBundle/index.compiled.js"></script>
     -->
 
-The compiled format supports AMD, commonjs, commonjs2 and variable injection
+The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
 into given context (UMD) as export format: You can use a module bundler if you
 want.
+<!--deDE:
+    Das kompilierte Bundle unterstützt AMD, commonjs, commonjs2 und
+    Variable-Injection in den gegebenen Context (UMD) als Export-Format:
+    Dadurch können verschiedene Module-Bundler genutzt werden.
+-->
 
 <!--|deDE:Paket-Management und Modul-Komposition-->
 ### Package managed and module bundled
