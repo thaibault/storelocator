@@ -1186,8 +1186,6 @@ class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     openMarker(marker:Object, event:?Object):StoreLocator {
-        if (event && 'stopPropagation' in event)
-            event.stopPropagation()
         this.highlightMarker(marker, event, 'stop')
         /*
             We have to ensure that the minimum zoom level has one more then
@@ -1260,7 +1258,7 @@ class StoreLocator extends $.Tools.class {
     highlightMarker(
         marker:Object, event:?Object, type:string = 'bounce'
     ):StoreLocator {
-        if (event)
+        if (event && 'stopPropagation' event)
             event.stopPropagation()
         if (this.currentlyHighlightedMarker) {
             if ('nativeMarker' in this.currentlyHighlightedMarker)
