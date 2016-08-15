@@ -65,10 +65,10 @@ want.
 ### Package managed and module bundled
 
 If you are using npm as package manager and/or a module bundler you can simply
-add this tool to your "package.json" as dependency:
+add this tool to your **package.json** as dependency:
 <!--deDE:
     Nutzt du npm als Paket-Manager und/oder hast einen Module-Bundler, dann
-    solltest du einfach deine "package.json" erweitern:
+    solltest du einfach deine <strong>package.json</strong> erweitern:
 -->
 
     #!JSON

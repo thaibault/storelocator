@@ -20,6 +20,7 @@
         "document": "webOptimizer document",
         "lint": "webOptimizer typeCheck && webOptimizer lint",
         "serve": "webOptimizer serve",
+        "start": "npm run serve",
         "test": "webOptimizer test",
         "testInBrowser": "webOptimizer testInBrowser",
         "preinstall": "webOptimizer preinstall",
