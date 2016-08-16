@@ -9,13 +9,11 @@ apiDocumentation/
 # Temporary compile files
 *.compiled.*
 *.compiled
-!/api/**/*.compiled.*
-!/api/**/*.compiled
-!/data/**/*.compiled.*
-!/data/**/*.compiled
+!/api/**/*
+*Bundle.*
+!/data/**/*
 .dynamicConfiguration-*.json
 *.dll-manifest.json
-*Bundle.*
 
 # Profiling data.
 *.profile
