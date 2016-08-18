@@ -1,0 +1,441 @@
+//!/usr/bin/env lessc
+// -*- coding: utf-8 -*-
+/* region header
+Copyright Torben Sickert 16.12.2012
+
+License
+-------
+
+This library written by Torben Sickert stand under a creative commons naming
+3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
+*/
+// endregion
+// region imports
+@import '~jQuery-website';
+// endregion
+/* region style sheets */
+body.documentation {
+    // region constants
+    @imagePath: '../image/';
+
+    @darkFontColor: #373737;
+    @brightFontColor: #fff;
+    @linkColor: #0090ff;
+    @linkHoverColor: #0069ba;
+
+    @languageButtonColor: #ababab;
+    @currentLanguageButtonColor: #5a5a5a;
+    @hoverLanguageButtonColor: #898989;
+
+    @darkBackgroundColor: #212121;
+    @brightBackgroundColor: @brightFontColor;
+
+    @codeLineNumberColor: #cbcbcd;
+    @codeBackgroundColor: #fbfbfc;
+    @codeLineNumberBackgroundColor: #f7f7f9;
+    @codeBorderColor: #ddd;
+    // endregion
+    /* region global */
+    @import 'pygment-vim-like-highlighting';
+
+    .website;
+    .website.bootstrap;
+    .website.bootstrap.fixes;
+    .website.bootstrap.fixes.nested-labels;
+
+    color: @darkFontColor;
+    background: @darkBackgroundColor;
+    line-height: 1.5;
+    /** region grid */
+    .outer { width: 100%; }
+    .inner {
+        position: relative;
+        padding: 20px 10px;
+        margin: 0 auto;
+    }
+    /** endregion */
+    /** region symbol */
+    span {
+        &.arrow-left-home, &.arrow-left-api {
+            margin-right: 10px;
+            margin-top: 10px;
+            float: left;
+        }
+        &.arrow-left-api { margin-top: 38px; }
+    }
+    /** endregion */
+    /** region headline */
+    h1, h2, h3, h4, h5, h6 {
+        margin: 10px 0;
+        color: #222222;
+        letter-spacing: -1px;
+        font-family: @fontFamilyCondensed;
+        font-size: 2em;
+    }
+    h1 { font-size: 4em; }
+    h2 { font-size: 3em; }
+    /** endregion */
+    /** region link */
+    a, a:visited, a:focus {
+        color: @linkColor;
+        text-shadow: none;
+        outline: none !important;
+
+        transition: color 0.5s ease;
+        transition: text-shadow 0.5s ease;
+
+        &:hover { color: @linkHoverColor; }
+        &.api-link {
+            padding-top: 36px;
+            float: left;
+        }
+        &[href="#top"] {
+            position: fixed;
+            z-index: 4;
+            bottom: 30px;
+            right: 45px;
+        }
+    }
+    /*** region language links */
+    a[href^="#lang-"] { color: @languageButtonColor; }
+    > div.header-wrap > header > section.header-links
+    > a[href^="#lang-"] {
+        padding-right: 10px;
+        padding-top: 35px;
+        float: right;
+    }
+    a[href^="#lang-"].current { color: @currentLanguageButtonColor; }
+    a[href^="#lang-"]:hover { color: @hoverLanguageButtonColor; }
+    /*** endregion */
+    /** endregion */
+    /** region image */
+    /*** region generic */
+    // Sets pseudo icon tag properties.
+    .icon {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        vertical-align: text-top;
+        overflow: hidden;
+        background-image: url('@{imagePath}composition.png');
+        background-position: 14px 14px;
+        background-repeat: no-repeat;
+    }
+    [class^="icon-"], [class*=" icon-"] { .icon; }
+    /*
+        NOTE: We explicit inherit form ".icon" to prepare this class to be
+        super classes as well.
+    */
+    .icon-blacktocat {
+        .icon;
+        background-position: -92px 0px;
+        width: 30px;
+        height: 30px;
+    }
+    .icon-download {
+        .icon;
+        background-position: -99px -35px;
+        width: 16px;
+        height: 20px;
+    }
+    .icon-gray-archiv {
+        .icon;
+        background-position: 0px -68px;
+        width: 88px;
+        height: 72px;
+    }
+     .icon-blue-archiv {
+        .icon-gray-archiv;
+        background-position: 0px 2px;
+    }
+    /*** endregion */
+    i.icon- {
+        &github {
+            .icon-blacktocat;
+
+            margin-bottom: -2px;
+            margin-top: -6px;
+            margin-left: 8px;
+        }
+        &download-arrow {
+            .icon-download;
+
+            float: right;
+            margin-top: 39px;
+            margin-left: 20px;
+        }
+    }
+    /** endregion */
+    /* endregion */
+    /* region header */
+    div.header-wrap {
+        .genericStyle.linear-gradient(
+            @direction: top, @fallback: @darkBackgroundColor, @from: #373737,
+            @to: @darkBackgroundColor
+        );
+        header {
+            padding: 50px 10px 30px 10px;
+
+            a.forkme-banner {
+                .genericStyle.box-shadow(
+                    @horizontalPosition: 0, @verticalPosition: 0,
+                    @blurDistance: 10px, @color: rgba(0, 0, 0, .5));
+                .genericStyle.rounded-border(
+                    @topLeft: 0, @topRight: 0, @bottomLeft: 2px,
+                    @bottomRight: 2px);
+                display: block;
+                position: absolute;
+                top: 0;
+                right: 10px;
+                z-index: 10;
+                padding: 10px;
+                color: @brightFontColor;
+                background-color: @linkColor;
+                font-weight: 700;
+
+                &:hover { background-color: #585858; }
+            }
+            h1.project-title, h2.project-tagline {
+                border: none;
+                color: @brightFontColor;
+                text-shadow: #111 0px 0px 10px;
+
+                a {
+                    color: @brightFontColor;
+                    text-shadow: #111 0px 0px 10px;
+                }
+            }
+            h2.project-tagline {
+                font-weight: 300;
+                background: none;
+                font-size: 2em;
+            }
+            section.header-links {
+                padding: 0;
+                right: 0;
+                position: absolute;
+                z-index: 10;
+                bottom: -40px;
+                height: 70px;
+                /* region download buttons */
+                a {
+                    &.zip-source-download, &.zip-distribution-bundle-download,
+                    &.tar-gz-source-download, &.zip-source-download:hover,
+                    &.zip-distribution-bundle-download:hover,
+                    &.tar-gz-source-download:hover {
+                        color: @brightFontColor;
+                        width: 90px;
+                        height: 70px;
+                        padding-left: 3px;
+                    }
+                    &.zip-source-download, &.zip-distribution-bundle-download,
+                    &.tar-gz-source-download {
+                        .icon-gray-archiv;
+                        font-size: 1.2em;
+                        text-align: center;
+                        padding-top: 28px;
+                        padding-top: 29px;
+                        font-weight: bolder;
+                        display: block;
+                        float: right;
+                        overflow: hidden;
+                    }
+                    &.zip-source-download:hover,
+                    &.zip-distribution-bundle-download:hover,
+                    &.tar-gz-source-download:hover { .icon-blue-archiv; }
+                }
+                /* endregion */
+            }
+        }
+    }
+    /* endregion */
+    /* region content */
+    div.main-content-wrap {
+        background-color: @brightBackgroundColor;
+        overflow: auto;
+        word-wrap: break-word;
+        /* region content */
+        section {
+            padding-top: 40px;
+
+            &.main-content {
+                padding-top: 40px;
+                /* region code blocks */
+                // code
+                div {
+                    &.codehilite pre {
+                        .genericStyle.border-radius(@size: 0);
+
+                        border-color: @codeBorderColor;
+                        background-color: @codeBackgroundColor;
+                        margin: 20px 0 0 0;
+
+                        /* Don't highlight syntax errors. */
+                        .err { border: 0; }
+                    }
+                    &.table-responsive {
+                        border: 0;
+
+                        table.codehilitetable { width: 100%; }
+                    }
+                }
+                table {
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                    text-align: left;
+
+                    tbody tr {
+                        td.linenos, td.code {
+                            border-color: @codeBorderColor;
+                            padding: 0;
+
+                            div {
+                                &.linenodiv, &.codehilite {
+                                    pre {
+                                        border-color: @codeBorderColor;
+                                        white-space: pre;
+                                        margin: 0;
+                                    }
+                                }
+                                &.linenodiv pre {
+                                    .genericStyle.border-radius(@size: 0);
+
+                                    padding: 10px 8px 10px 0;
+                                    text-align: right;
+                                    color: @codeLineNumberColor;
+                                    background-color: @codeLineNumberBackgroundColor;
+                                }
+                                &.codehilite pre {
+                                    padding: 10px;
+                                    overflow: auto;
+                                    background-color: @codeBackgroundColor;
+                                    border-left: 0;
+
+                                    /* Don't highlight syntax errors. */
+                                    .err { border: 0; }
+                                }
+                            }
+                        }
+                    }
+                }
+                p { margin: 20px 0 0 0; }
+                /* endregion */
+                div.show-example-wrapper {
+                    @padding: 20px;
+                    border: 1px solid @codeBorderColor;
+                    border-top: 0;
+                    background-color: @codeBackgroundColor;
+                    padding: @padding;
+                    padding-top: @padding / 2;
+
+                    h3 {
+                        font-family: @fontFamily;
+                        font-size: .9em;
+                        font-weight: bold;
+                        color: #bbb;
+                        letter-spacing: 1px;
+                        margin-bottom: @padding / 2;
+                        margin-top: 0;
+                    }
+                    p { margin: 0; }
+                }
+            }
+        }
+        /* endregion */
+        /* region about this website */
+        section.about-this-website {
+            p { margin-bottom: 45px; }
+            a[href="#home"] {
+                float: left;
+                margin-top: 8px;
+            }
+        }
+        /* endregion */
+    }
+    /* endregion */
+    /* region footer */
+    div.footer-wrap > footer {
+        width: 100%;
+        text-align: center;
+        padding-left: 0;
+        padding-right: 0;
+
+        p { color: #f2f2f2; }
+        a:hover { color: #43adff; }
+    }
+    /* endregion */
+    /* region responsive */
+    /** region extra extra extra small */
+    a[href="#top"] {
+        visibility: hidden;
+    }
+    div.header-wrap > header > section.header-links {
+        width: 100%;
+
+        span.arrow-left-api {
+            visibility: hidden;
+            width: 0px;
+        }
+        a.api-link span { display: none !important; }
+    }
+    /** endregion */
+    /** region extra extra small */
+    @media (min-width: @minimumExtraExtraSmallWidthInPixel) {
+        div.header-wrap > header > section.header-links span.arrow-left-api {
+            visibility: visible;
+            width: initial;
+        }
+        /* endregion */
+        /* region extra small */
+        @media (min-width: @minimumExtraSmallWidthInPixel) {
+            div.header-wrap > header > section.header-links a.api-link
+            span {
+                display: initial !important;
+            }
+        /* endregion */
+            @media (min-width: @minimumSmallWidthInPixel) {
+                /* region small */
+                /** region headline */
+                h2 {
+                    padding-bottom: 10px;
+                    border-bottom: 1px dashed #bdbdbd;
+                }
+                /** endregion */
+                .inner { width: 715px; }
+                div {
+                    &.header-wrap > header > section.header-links {
+                        width: 706px;
+                    }
+                    &.main-content-wrap section.main-content {
+                        pre { font-size: 0.9em; }
+                        div.codehilite pre { width: 695px; }
+                        table tbody tr {
+                            td.linenos div.linenodiv pre { width: 42px; }
+                            td.code div.codehilite pre { width: 653px; }
+                        }
+                        div.show-example-wrapper { width: 100%; }
+                    }
+                }
+                a[href="#top"] {
+                    visibility: visible;
+                    position: fixed;
+                    z-index: 4;
+                    bottom: 30px;
+                    right: 5px;
+                }
+                /* endregion */
+                /* region medium */
+                @media (min-width: @minimumMediumWidthInPixel) {
+                    a[href="#top"] { right: 45px; }
+                }
+                /* endregion */
+            }
+        }
+    }
+    /* endregion */
+}
+/* endregion */
+// region vim modline
+// vim: set tabstop=4 shiftwidth=4 expandtab:
+// vim: foldmethod=marker foldmarker=region,endregion:
+// endregion

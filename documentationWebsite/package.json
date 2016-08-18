@@ -1,0 +1,85 @@
+{
+    "name": "documentationWebsite",
+    "version": "1.0.0",
+    "keywords": ["documentation", "website", "project", "homepage", "page"],
+    "description": "documentationWebsite",
+    "license": "CC-BY-3.0",
+    "files": ["source", "dummyDocumentation.pug"],
+    "main": "build/index.html",
+    "repository": {
+        "type": "git",
+        "url": "git@github.io:thaibault/documentationWebsite.git"
+    },
+    "dependencies": {
+        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
+        "jQuery-website": "git+ssh://git@github.com/thaibault/jQuery-website.git",
+        "legalNotes": "git+ssh://git@github.com/thaibault/legalNotes.git"
+    },
+    "devDependencies": {
+        "jsdom": ">=9.4.1",
+        "source-map-support": ">=0.4.2"
+    },
+    "webOptimizer": {
+        "buildDefinition": {
+            "GOOGLE_TRACKING_CODE": {
+                "__evaluate__": "`'${self.module.preprocessor.pug.locals.GOOGLE_TRACKING_CODE}'`"
+            },
+            "LANGUAGES": {
+                "__evaluate__": "`['${self.module.preprocessor.pug.locals.LANGUAGES.join(\"', '\")}']`"
+            }
+        },
+        "injection": {"internal": {
+            "vendor": {
+                "__evaluate__": "(self.offline ? ['offline-plugin/runtime'] : []).concat(self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? 'jQuery-website' : [])"
+            },
+            "index": {
+                "__evaluate__": "['less/index'].concat(self.debug ? [] : 'babel-polyfill').concat(self.debug && self.dllManifestFilePaths.length && 2 < self.givenCommandLineArguments.length && self.givenCommandLineArguments[2] === 'serve' ? [`webpack-dev-server/client?${self.development.server.protocol}://0.0.0.0:${self.development.server.port}`, 'webpack/hot/dev-server'] : []).concat('index')"
+            }
+        }},
+        "library": false,
+        "module": {
+            "aliases": {
+                "babel-polyfill$": "babel-polyfill/dist/polyfill.min",
+                "bootstrap.less$": "bootstrap/less/bootstrap",
+                "jQuery-scrollTo$": "jquery.scrollto/jquery.scrollTo",
+                "jQuery-spin$": "spin.js/jquery.spin",
+                "genericStyle.less$": "genericStyle/index.less",
+                "jQuery-website.less$": "jQuery-website/index.less"
+            },
+            "optimizer": {"htmlMinifier": {"ignoreCustomComments": [
+                {"__evaluate__": "/^\\|?[a-z]{2}[A-Z]{2}:/"},
+                {"__evaluate__": "/^[a-z]{2}[A-Z]{2}$/"},
+                {"__evaluate__": "/^showExample(?::[a-zA-Z]+)?$/"}
+            ]}},
+            "preprocessor": {"pug": {"locals": {
+                "API_DOCUMENTATION_PATH": "/apiDocumentation/",
+                "CONTENT_FILE_PATH": "dummyDocumentation.pug",
+                "DISTRIBUTION_BUNDLE_FILE_PATH": "dummyDistributionBundle.zip",
+                "LANGUAGES": ["deDE", "enUS", "frFR"],
+                "NAME": "documentationWebsite",
+                "RENDER_CONTENT": true,
+                "TAGLINE": "generic documentation website pattern"
+            }}},
+            "skipParseRegularExpression": {
+                "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|(?:spin)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
+            }
+        },
+        "path": {"asset": {"javaScript": "./"}}
+    },
+    "scripts": {
+        "build": "webOptimizer build",
+        "buildDLL": "webOptimizer buildDLL",
+        "buildWithStats": "webOptimizer build --profile --json >/tmp/stat.json && echo 'Results successfully written to \"/tmp/stat.json\".'",
+        "clear": "webOptimizer clear",
+        "document": "webOptimizer document",
+        "lint": "webOptimizer typeCheck && webOptimizer lint",
+        "postinstall": "npm run build",
+        "preinstall": "mkdir --parents build && touch build/index.html",
+        "serve": "webOptimizer serve",
+        "start": "npm run serve",
+        "test": "webOptimizer test",
+        "testInBrowser": "webOptimizer testInBrowser",
+        "watch": "webOptimizer build --watch",
+        "watchDLL": "webOptimizer buildDLL --watch"
+    }
+}
