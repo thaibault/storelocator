@@ -1,17 +1,15 @@
 {
-    "name": "jQuery-storeLocator",
+    "name": "storeLocator",
     "version": "1.0.0",
     "description": "serves a google maps store locator",
     "keywords": [
-        "jquery", "storeLocator", "store", "locator", "map", "location",
-        "finder"
+        "storeLocator", "store", "locator", "map", "location", "finder"
     ],
     "files": ["index.js"],
     "repository": {
-        "type": "git",
-        "url": "https://github.com/thaibault/jQuery-storeLocator"
+        "type": "git", "url": "https://github.com/thaibault/storeLocator"
     },
-    "homepage": "http://torben.website/jQuery-storeLocator",
+    "homepage": "http://torben.website/storeLocator",
     "main": "index.compiled.js",
     "scripts": {
         "build": "webOptimizer build",
@@ -33,20 +31,24 @@
         "injection": {
             "externalAliases": {
                 "googleMarkerClusterer": "MarkerClusterer",
-                "jquery": "jQuery",
-                "jQuery-tools": "$.Tools"
+                "tools": "$.Tools"
             },
             "internal": {"vendor": {
-                "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['jQuery-tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['qunitjs', 'webOptimizer/browserAPI']) : []"
+                "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['qunitjs', 'webOptimizer/browserAPI']) : []"
             }}
         },
-        "module": {"aliases": {
-            "googleMarkerClusterer$": "js-marker-clusterer"
-        }}
+        "module": {
+            "aliases": {
+                "googleMarkerClusterer$": "js-marker-clusterer"
+            },
+            "skipParseRegularExpression": {
+                "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
+            }
+        }
     },
     "dependencies": {
         "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
-        "jQuery-tools": "git+ssh://git@github.com/thaibault/jQuery-tools.git",
+        "tools": "git+ssh://git@github.com/thaibault/tools.git",
         "js-marker-clusterer": ">=1.0.0"
     },
     "devDependencies": {
@@ -55,5 +57,6 @@
         "qunitjs": ">=2.0.0",
         "qunit-cli": ">=0.2.0*",
         "source-map-support": ">=0.4.2"
-    }
+    },
+    "peerDependencies": {"jquery": ">=3.1.0"}
 }

@@ -1,11 +1,11 @@
 // @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
-/** @module jQuery-storeLocator */
+/** @module storeLocator */
 'use strict'
 /* !
     region header
-    [Project page](http://torben.website/jQuery-storeLocator)
+    [Project page](http://torben.website/storeLocator)
 
     Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
@@ -18,8 +18,7 @@
     endregion
 */
 // region imports
-import $ from 'jquery'
-import 'jQuery-tools'
+import $ from 'tools'
 /*
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
@@ -32,7 +31,7 @@ const googleMarkerClusterer:Object = (EXTERNAL_EXPORT_FORMAT === 'var') ? {
     'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
     'googleMarkerClusterer')
 /* eslint-disable no-duplicate-imports */
-import type {$DomNode, $Deferred} from 'jQuery-tools'
+import type {$DomNode, $Deferred} from 'tools'
 /* eslint-enable no-duplicate-imports */
 // endregion
 // region types
@@ -41,19 +40,9 @@ export type Position = {
     longitude:number;
 }
 // endregion
-const context:Object = (():Object => {
-    if (typeof window === 'undefined') {
-        if (typeof global === 'undefined')
-            return (typeof module === 'undefined') ? {} : module
-        return global
-    }
-    return window
-})()
-if (!context.hasOwnProperty('document') && $.hasOwnProperty('context'))
-    context.document = $.context
 // region plugins/classes
 /**
- * A jQuery storelocator plugin.
+ * A storelocator plugin.
  * Expected store data format:
  * {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}
  * @property static:maps - Holds the currently used maps class.
@@ -225,7 +214,7 @@ class StoreLocator extends $.Tools.class {
     currentSearchResultRange:?Array<number>;
     // endregion
     /**
-     * Entry point for object orientated jQuery plugin.
+     * Entry point for object orientated plugin.
      * @param options - Options to overwrite default ones.
      * @returns Currently selected dom node.
      */
@@ -322,15 +311,13 @@ class StoreLocator extends $.Tools.class {
         const result:$Deferred<$DomNode> = this.constructor._apiLoad.then(
             this.getMethod(this.bootstrap)
         ).done(():StoreLocator => this.fireEvent('loaded'))
-        if ('google' in context && 'maps' in context.google) {
-            this.constructor.google = context.google
+        if ('google' in $.global && 'maps' in $.global.google) {
+            this.constructor.google = $.global.google
             if (this.constructor._apiLoad.state() !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
                     this.constructor._apiLoad.resolve(this.$domNode))
-        } else if (
-            'google' in context.window && 'maps' in context.window.google
-        ) {
-            this.constructor.google = context.window.google
+        } else if ('google' in $.global && 'maps' in $.global.google) {
+            this.constructor.google = $.global.google
             if (this.constructor._apiLoad.state() !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
                     this.constructor._apiLoad.resolve(this.$domNode))
@@ -340,8 +327,8 @@ class StoreLocator extends $.Tools.class {
                 callbackName = this._options.api.callbackName
             else
                 callbackName = this.constructor.determineUniqueScopeName()
-            context.window[callbackName] = ():void => {
-                this.constructor.google = context.window.google
+            $.global[callbackName] = ():void => {
+                this.constructor.google = $.global.google
                 this.constructor._apiLoad.resolve(this.$domNode)
             }
             $.getScript(this.constructor.stringFormat(
@@ -1348,7 +1335,7 @@ class StoreLocator extends $.Tools.class {
 $.fn.StoreLocator = function():any {
     return $.Tools().controller(StoreLocator, arguments, this)
 }
-/** jQuery extended with jQuery-storeLocator plugin. */
+/** $ extended with storeLocator plugin. */
 export default $
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
