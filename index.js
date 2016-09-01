@@ -59,7 +59,7 @@ export type Position = {
  * @property currentlyOpenWindow - Saves currently opened window instance.
  * @property currentlyHighlightedMarker - Saves currently highlighted marker
  * instance.
- * @property searchResultsDirty - Indicates weather current search results
+ * @property searchResultsDirty - Indicates whether current search results
  * aren't valid anymore.
  * @property seenLocations - Saves all seen locations to recognize duplicates.
  * @property markers - Saves all recognized markers.
