@@ -44,12 +44,12 @@ after needed dependencies:
     #!HTML
 
     <script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
-    <script src="http://torben.website/jQuery-tools/data/distributionBundle/index.compiled.js"></script>
+    <script src="http://torben.website/clientNode/data/distributionBundle/index.compiled.js"></script>
     <script src="https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js"></script>
     <!--Inject downloaded file:-->
     <script src="/index.compiled.js"></script>
     <!--Or integrate via cdn:
-    <script src="http://torben.website/jQuery-storeLocator/data/distributionBundle/index.compiled.js"></script>
+    <script src="http://torben.website/storeLocator/data/distributionBundle/index.compiled.js"></script>
     -->
 
 The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
@@ -76,7 +76,7 @@ If you are using npm as package manager you can simply add this tool to your
     ...
     "dependencies": {
         ...
-        "jQuery-storeLocator": "git+ssh://git@github.com/thaibault/jQuery-storeLocator.git",
+        "storeLocator": "latest",
         ...
     },
     ...
@@ -93,7 +93,7 @@ into given context.
     #!JavaScript
 
     ...
-    $ = require('jQuery-storeLocator')
+    $ = require('storeLocator')
     ...
     $('body').StoreLocator().isEquivalentDom('<div>', '<script>') // false
     ...
@@ -146,13 +146,13 @@ Examples
     const dependenciesLoadPromise = documentationWebsiteJQuery.getScript(
         'https://code.jquery.com/jquery-3.1.0.js'
     ).then(() => $.getScript(
-        'http://torben.website/jQuery-tools/data/distributionBundle/' +
+        'http://torben.website/clientNode/data/distributionBundle/' +
         'index.compiled.js'
     )).then(() => $.getScript(
         'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/' +
         'markerclusterer.js'
     )).then(() => $.getScript(
-        'http://torben.website/jQuery-storeLocator/data/distributionBundle/' +
+        'http://torben.website/storeLocator/data/distributionBundle/' +
         'index.compiled.js'))
 
 <!--|deDE:Einfaches Beispiel-->
