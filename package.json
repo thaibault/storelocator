@@ -42,7 +42,7 @@
                 "googleMarkerClusterer$": "js-marker-clusterer"
             },
             "skipParseRegularExpression": {
-                "__evaluate__": "/\\/(?:(?:clientNode(?:\.compiled)?)|(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
+                "__evaluate__": "/\\/(?:(?:clientNode(?:\\.compiled)?)|(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
             }
         }
     },
