@@ -31,7 +31,7 @@
         "injection": {
             "externalAliases": {
                 "googleMarkerClusterer": "MarkerClusterer",
-                "tools": "$.Tools"
+                "clientNode": "$.Tools"
             },
             "internal": {"vendor": {
                 "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['qunitjs', 'webOptimizer/browserAPI']) : []"
@@ -42,21 +42,21 @@
                 "googleMarkerClusterer$": "js-marker-clusterer"
             },
             "skipParseRegularExpression": {
-                "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
+                "__evaluate__": "/\\/(?:(?:clientNode(?:\.compiled)?)|(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
             }
         }
     },
     "dependencies": {
-        "webOptimizer": "git+ssh://git@github.com/thaibault/webOptimizer.git",
-        "tools": "git+ssh://git@github.com/thaibault/tools.git",
-        "js-marker-clusterer": ">=1.0.0"
+        "clientNode": "latest",
+        "jquery": "latest",
+        "js-marker-clusterer": "latest"
     },
     "devDependencies": {
-        "canvas": ">=1.4.0",
-        "jsdom": ">=9.4.1",
-        "qunitjs": ">=2.0.0",
-        "qunit-cli": ">=0.2.0*",
-        "source-map-support": ">=0.4.2"
-    },
-    "peerDependencies": {"jquery": ">=3.1.0"}
+        "canvas": "latest",
+        "jsdom": "latest",
+        "qunitjs": "latest",
+        "qunit-cli": "latest",
+        "source-map-support": "latest",
+        "webOptimizer": "latest"
+    }
 }
