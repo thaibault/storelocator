@@ -63,6 +63,14 @@
         "clientNode/test$": "clientNode/test.compiled",
         "googleMarkerClusterer$": "js-marker-clusterer"
       },
+      "preprocessor": {
+        "babel": {
+          "presets": [
+            "latest",
+            "stage-0"
+          ]
+        }
+      },
       "skipParseRegularExpression": {
         "__evaluate__": "/\\/(?:(?:clientNode(?:\\.compiled)?)|(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
