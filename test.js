@@ -15,56 +15,27 @@
     endregion
 */
 // region imports
-import browserAPI from 'webOptimizer/browserAPI'
-import type {BrowserAPI} from 'webOptimizer/type'
-import type {$DomNode, $Deferred} from 'jQuery-tools'
+import type {$Deferred, $DomNode} from 'clientNode'
+import registerTest from 'clientNode/test'
 import type StoreLocator from './index'
 // endregion
-// region declaration
-declare var DEBUG:boolean
-declare var TARGET_TECHNOLOGY:string
-// endregion
-// region types
-type JQueryFunction = (object:any) => Object
-// endregion
-let QUnit:Object
-if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node')
-    QUnit = require('qunit-cli')
-else
-    QUnit = DEBUG ? require('qunitjs') : (
-        require('script!qunitjs') && window.QUnit)
-browserAPI((browserAPI:BrowserAPI):void => {
-    const $:JQueryFunction = require('jquery')
-    $.context = browserAPI.window.document
+registerTest(function(
+    roundType:string, targetTechnology:?string, $:any
+):$Deferred<$DomNode> {
     require('./index')
-    // region configuration
-    QUnit.config = $.extend(QUnit.config || {}, {
-        /*
-        notrycatch: true,
-        noglobals: true,
-        */
-        altertitle: true,
-        autostart: true,
-        fixture: '',
-        hidepassed: false,
-        maxDepth: 3,
-        reorder: false,
-        requireExpects: false,
-        testTimeout: 30 * 1000,
-        scrolltop: false
-    })
     $('#qunit-fixture').append('<store-locator><input></store-locator>')
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
         'store-locator'
     ).StoreLocator()
-    // endregion
-    $storeLocatorDeferred.always(($storeLocatorDomNode:$DomNode):void => {
+    return $storeLocatorDeferred.always((
+        $storeLocatorDomNode:$DomNode
+    ):void => {
         const storeLocator:$Deferred<StoreLocator> = $storeLocatorDomNode.data(
             'StoreLocator')
         // region tests
         // / region public methods
         // //  region special
-        QUnit.test('initialize', (assert:Object):void => {
+        this.test('initialize', (assert:Object):void => {
             assert.ok(storeLocator)
             assert.ok($storeLocatorDomNode.children('div').length > 0)
             const $inputDomNode:$DomNode = $storeLocatorDomNode.find('input')
@@ -77,30 +48,8 @@ browserAPI((browserAPI:BrowserAPI):void => {
         // // endregion
         // / endregion
         // endregion
-        if (
-            typeof TARGET_TECHNOLOGY === 'undefined' ||
-            TARGET_TECHNOLOGY === 'node'
-        ) {
-            browserAPI.window.close()
-            QUnit.load()
-        }
     })
-    // region hot module replacement
-    /*
-        NOTE: hot module replacement doesn't work with async tests yet since
-        qunit is not resetable yet:
-
-        if (typeof module === 'object' && 'hot' in module && module.hot) {
-            module.hot.accept()
-            // IgnoreTypeCheck
-            module.hot.dispose(():void => {
-                QUnit.reset()
-                console.clear()
-            }
-        }
-    */
-    // endregion
-})
+}, ['withJQuery'], true)
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:

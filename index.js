@@ -19,6 +19,10 @@
 */
 // region imports
 import {$} from 'clientNode'
+/* eslint-disable no-duplicate-imports */
+import type {$DomNode, $Deferred} from 'clientNode'
+/* eslint-enable no-duplicate-imports */
+
 /*
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
@@ -30,9 +34,6 @@ const googleMarkerClusterer:Object = (EXTERNAL_EXPORT_FORMAT === 'var') ? {
 } : require(
     'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
     'googleMarkerClusterer')
-/* eslint-disable no-duplicate-imports */
-import type {$DomNode, $Deferred} from 'tools'
-/* eslint-enable no-duplicate-imports */
 // endregion
 // region types
 export type Position = {
@@ -195,7 +196,7 @@ export type Position = {
  * @property _options.onMarkerHighlighted {Function} - Triggers after a marker
  * starts to highlight.
  */
-class StoreLocator extends $.Tools.class {
+export default class StoreLocator extends $.Tools.class {
     // region static properties
     static google:Object
     static _name:string = 'StoreLocator'
@@ -291,13 +292,13 @@ class StoreLocator extends $.Tools.class {
                 loadingContent: '<div class="idle">loading...</div>'
             },
             searchBox: 50,
-            onInfoWindowOpen: $.noop,
-            onInfoWindowOpened: $.noop,
-            onAddSearchResults: $.noop,
-            onRemoveSearchResults: $.noop,
-            onOpenSearchResults: $.noop,
-            onCloseSearchResults: $.noop,
-            onMarkerHighlighted: $.noop
+            onInfoWindowOpen: this.constructor.noop,
+            onInfoWindowOpened: this.constructor.noop,
+            onAddSearchResults: this.constructor.noop,
+            onRemoveSearchResults: this.constructor.noop,
+            onOpenSearchResults: this.constructor.noop,
+            onCloseSearchResults: this.constructor.noop,
+            onMarkerHighlighted: this.constructor.noop
         }
         // endregion
         // Merges given options with default options recursively.
@@ -460,26 +461,30 @@ class StoreLocator extends $.Tools.class {
                 })
         let markerCluster:?Object = null
         if (this._options.marker.cluster) {
-            $.extend(googleMarkerClusterer.google, this.constructor.google)
+            this.constructor.extendObject(
+                googleMarkerClusterer.google, this.constructor.google)
             markerCluster = new googleMarkerClusterer.Class(
                 this.map, [], this._options.marker.cluster)
         }
         // Add a marker for each retrieved store.
         const $addMarkerDeferred:$Deferred<Array<Object>> = $.Deferred()
         const markerList:Array<Object> = []
-        if ($.isArray(this._options.stores))
+        if (Array.isArray(this._options.stores))
             for (const store:Object of this._options.stores) {
-                $.extend(true, store, this._options.addtionalStoreProperties)
+                this.constructor.extendObject(
+                    true, store, this._options.addtionalStoreProperties)
                 const marker:Object = this.createMarker(store)
                 if (markerCluster)
                     markerCluster.addMarker(marker)
                 markerList.push(marker)
                 $addMarkerDeferred.resolve(markerList)
             }
-        else if ($.type(this._options.stores) === 'string')
+        else if (this.constructor.determineType(
+            this._options.stores
+        ) === 'string')
             $.getJSON(this._options.stores, (stores:Array<Object>):void => {
                 for (const store:Object of stores) {
-                    $.extend(
+                    this.constructor.extendObject(
                         true, store, this._options.addtionalStoreProperties)
                     const marker:Object = this.createMarker(store)
                     if (markerCluster)
@@ -499,14 +504,15 @@ class StoreLocator extends $.Tools.class {
                 let index:number = 0; index < this._options.stores.number;
                 index++
             ) {
-                const store:Object = $.extend({
+                const store:Object = this.constructor.extendObject({
                     latitude: southWest.lat() + (northEast.lat(
                     ) - southWest.lat()) * Math.random(),
                     longitude: southWest.lng() + (northEast.lng(
                     ) - southWest.lng()) * Math.random()
                 }, this._options.addtionalStoreProperties)
-                const marker:Object = this.createMarker($.extend(
-                    store, this._options.stores.generateProperties(store)))
+                const marker:Object = this.createMarker(
+                    this.constructor.extendObject(
+                        store, this._options.stores.generateProperties(store)))
                 if (markerCluster)
                     markerCluster.addMarker(marker)
                 markerList.push(marker)
@@ -517,7 +523,7 @@ class StoreLocator extends $.Tools.class {
         this.map.controls[
             this.constructor.google.maps.ControlPosition.TOP_LEFT
         ].push(this.$domNode.find('input')[0])
-        if ($.type(this._options.searchBox) === 'number')
+        if (this.determineType(this._options.searchBox) === 'number')
             this.initializeGenericSearchBox()
         else {
             this.constructor.google.maps.event.addListener(this.map, 'click', (
@@ -525,7 +531,7 @@ class StoreLocator extends $.Tools.class {
             this.constructor.google.maps.event.addListener(
                 this.map, 'dragstart', ():StoreLocator =>
                     this.closeSearchResults())
-            this._options.searchBox = $.extend(true, {
+            this._options.searchBox = this.constructor.extendObject(true, {
                 maximumNumberOfResults: 50,
                 numberOfAdditionalGenericPlaces: [2, 5],
                 maximalDistanceInMeter: 1000000,
@@ -733,7 +739,7 @@ class StoreLocator extends $.Tools.class {
                         the specified radius. However the radius is a string in
                         the examples provided by google.
                     */
-                    placesService.textSearch($.extend({
+                    placesService.textSearch(this.constructor.extendObject({
                         query: searchText, location: this.map.getCenter()
                     }, this._options.searchBox.genericPlaceSearchOptions), (
                         places:Array<Object>
@@ -786,7 +792,7 @@ class StoreLocator extends $.Tools.class {
                     open:(event:Object) => any;
                     highlight:(event:Object, type:string) => any;
                 } = {
-                    data: $.extend(place, {
+                    data: this.constructor.extendObject(place, {
                         logoFilePath: place.icon.replace(
                             /^http:(\/\/)/, `${document.location.protocol}$1`),
                         address: place.formatted_address,
@@ -886,7 +892,7 @@ class StoreLocator extends $.Tools.class {
         // Compile search results markup.
         const resultsRepresentation:$Deferred<any>|string =
             this.makeSearchResults(searchResults, limitReached)
-        if ($.type(resultsRepresentation) === 'string') {
+        if (this.determineType(resultsRepresentation) === 'string') {
             const resultsRepresentationDomNode:$DomNode = $(
                 resultsRepresentation)
             if (this.resultsDomNode && !this.fireEvent(
@@ -1132,7 +1138,8 @@ class StoreLocator extends $.Tools.class {
         if (
             store.markerIconFileName || this._options.defaultMarkerIconFileName
         ) {
-            marker.icon = $.extend({}, this._options.marker.icon)
+            marker.icon = this.constructor.extendObject(
+                {}, this._options.marker.icon)
             if (marker.icon.size)
                 marker.icon.size = new this.constructor.google.maps.Size(
                     marker.icon.size.width, marker.icon.size.height,
@@ -1188,6 +1195,7 @@ class StoreLocator extends $.Tools.class {
             this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
         this.closeSearchResults(event)
         if (
+            this.currentlyOpenWindow &&
             this.currentlyOpenWindow === marker.infoWindow &&
             this.currentlyOpenWindow.isOpen
         )
@@ -1298,7 +1306,7 @@ class StoreLocator extends $.Tools.class {
      */
     makeInfoWindow(marker:Object):string|Object {
         if ('content' in this._options.infoWindow) {
-            if ($.isFunction(this._options.infoWindow.content))
+            if (this.constructor.isFunction(this._options.infoWindow.content))
                 return this._options.infoWindow.content.apply(this, arguments)
             if (this._options.infoWindow.content)
                 return this._options.infoWindow.content
@@ -1316,7 +1324,7 @@ class StoreLocator extends $.Tools.class {
      * @returns Generated markup.
      */
     makeSearchResults(searchResults:Array<Object>):$Deferred<any>|string {
-        if ($.isFunction(this._options.searchBox.content))
+        if (this.constructor.isFunction(this._options.searchBox.content))
             return this._options.searchBox.content.apply(this, arguments)
         if ('content' in this._options.searchBox.content)
             return this._options.searchBox.content
@@ -1335,8 +1343,6 @@ class StoreLocator extends $.Tools.class {
 $.fn.StoreLocator = function():any {
     return $.Tools().controller(StoreLocator, arguments, this)
 }
-/** $ extended with storeLocator plugin. */
-export default $
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
