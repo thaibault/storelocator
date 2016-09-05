@@ -1,74 +1,84 @@
 {
-    "name": "storeLocator",
-    "version": "1.0.0",
-    "description": "serves a google maps store locator",
-    "keywords": [
-        "storeLocator", "store", "locator", "map", "location", "finder"
-    ],
-    "files": ["index.js"],
-    "repository": {
-        "type": "git", "url": "https://github.com/thaibault/storeLocator"
-    },
-    "homepage": "http://torben.website/storeLocator",
-    "main": "index.compiled.js",
-    "scripts": {
-        "build": "webOptimizer build",
-        "buildDLL": "webOptimizer buildDLL",
-        "clear": "webOptimizer clear",
-        "document": "webOptimizer document",
-        "lint": "webOptimizer typeCheck && webOptimizer lint",
-        "prepublish_": "npm run build",
-        "serve": "webOptimizer serve",
-        "start": "npm run serve",
-        "test": "webOptimizer test",
-        "testInBrowser": "webOptimizer testInBrowser",
-        "update": "npm version patch && npm publish",
-        "watch": "webOptimizer build --watch",
-        "watchDLL": "webOptimizer buildDLL --watch"
-    },
-    "license": "CC-BY-3.0",
-    "webOptimizer": {
-        "injection": {
-            "externalAliases": {
-                "googleMarkerClusterer": "MarkerClusterer",
-                "clientNode": "$.Tools"
-            },
-          "implicitExternalExcludePattern": [
-            {
-              "__evaluate__": "/^webOptimizer\\/browserAPI(?:\\.compiled)?(?:\\.js)?$/"
-            },
-            {
-              "__evaluate__": "/^clientNode\\/test(?:\\.compiled)?(?:\\.js)?$/"
-            },
-            {
-              "__evaluate__": "/\\/webpack\\/buildin\\/module\\.js$/"
-            }
-          ],
-            "internal": {"vendor": {
-                "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['qunitjs', 'webOptimizer/browserAPI']) : []"
-            }}
+  "name": "storeLocator",
+  "version": "1.0.1",
+  "description": "serves a google maps store locator",
+  "keywords": [
+    "storeLocator",
+    "store",
+    "locator",
+    "map",
+    "location",
+    "finder"
+  ],
+  "files": [
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thaibault/storeLocator"
+  },
+  "homepage": "http://torben.website/storeLocator",
+  "main": "index.compiled.js",
+  "scripts": {
+    "build": "webOptimizer build",
+    "buildDLL": "webOptimizer buildDLL",
+    "clear": "webOptimizer clear",
+    "document": "webOptimizer document",
+    "lint": "webOptimizer typeCheck && webOptimizer lint",
+    "prepublish_": "npm run build",
+    "serve": "webOptimizer serve",
+    "start": "npm run serve",
+    "test": "webOptimizer test",
+    "testInBrowser": "webOptimizer testInBrowser",
+    "update": "npm version patch && npm publish",
+    "watch": "webOptimizer build --watch",
+    "watchDLL": "webOptimizer buildDLL --watch"
+  },
+  "license": "CC-BY-3.0",
+  "webOptimizer": {
+    "injection": {
+      "externalAliases": {
+        "googleMarkerClusterer": "MarkerClusterer",
+        "clientNode": "$.Tools"
+      },
+      "implicitExternalExcludePattern": [
+        {
+          "__evaluate__": "/^webOptimizer\\/browserAPI(?:\\.compiled)?(?:\\.js)?$/"
         },
-        "module": {
-            "aliases": {
-              "clientNode/test$": "clientNode/test.compiled",
-                "googleMarkerClusterer$": "js-marker-clusterer"
-            },
-            "skipParseRegularExpression": {
-                "__evaluate__": "/\\/(?:(?:clientNode(?:\\.compiled)?)|(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
-            }
+        {
+          "__evaluate__": "/^clientNode\\/test(?:\\.compiled)?(?:\\.js)?$/"
+        },
+        {
+          "__evaluate__": "/\\/webpack\\/buildin\\/module\\.js$/"
         }
+      ],
+      "internal": {
+        "vendor": {
+          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['qunitjs', 'webOptimizer/browserAPI']) : []"
+        }
+      }
     },
-    "dependencies": {
-        "clientNode": "latest",
-        "jquery": "latest",
-        "js-marker-clusterer": "latest"
-    },
-    "devDependencies": {
-        "canvas": "latest",
-        "jsdom": "latest",
-        "qunitjs": "latest",
-        "qunit-cli": "latest",
-        "source-map-support": "latest",
-        "webOptimizer": "latest"
+    "module": {
+      "aliases": {
+        "clientNode/test$": "clientNode/test.compiled",
+        "googleMarkerClusterer$": "js-marker-clusterer"
+      },
+      "skipParseRegularExpression": {
+        "__evaluate__": "/\\/(?:(?:clientNode(?:\\.compiled)?)|(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
+      }
     }
+  },
+  "dependencies": {
+    "clientNode": "latest",
+    "jquery": "latest",
+    "js-marker-clusterer": "latest"
+  },
+  "devDependencies": {
+    "canvas": "latest",
+    "jsdom": "latest",
+    "qunitjs": "latest",
+    "qunit-cli": "latest",
+    "source-map-support": "latest",
+    "webOptimizer": "latest"
+  }
 }
