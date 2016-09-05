@@ -18,7 +18,7 @@
     endregion
 */
 // region imports
-import $ from 'tools'
+import {$} from 'clientNode'
 /*
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
