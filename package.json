@@ -25,7 +25,7 @@
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "lint": "webOptimizer typeCheck && webOptimizer lint",
-    "prepublish_": "npm run build",
+    "prepublish": "npm run build",
     "serve": "webOptimizer serve",
     "start": "npm run serve",
     "test": "webOptimizer test",
