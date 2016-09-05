@@ -26,7 +26,7 @@ registerTest(function(
     $('#qunit-fixture').append('<store-locator><input></store-locator>')
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
         'store-locator'
-    ).StoreLocator()
+    ).StoreLocator({api: {key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'}})
     return $storeLocatorDeferred.always((
         $storeLocatorDomNode:$DomNode
     ):void => {

@@ -523,7 +523,9 @@ export default class StoreLocator extends $.Tools.class {
         this.map.controls[
             this.constructor.google.maps.ControlPosition.TOP_LEFT
         ].push(this.$domNode.find('input')[0])
-        if (this.determineType(this._options.searchBox) === 'number')
+        if (this.constructor.determineType(
+            this._options.searchBox
+        ) === 'number')
             this.initializeGenericSearchBox()
         else {
             this.constructor.google.maps.event.addListener(this.map, 'click', (
@@ -892,7 +894,9 @@ export default class StoreLocator extends $.Tools.class {
         // Compile search results markup.
         const resultsRepresentation:$Deferred<any>|string =
             this.makeSearchResults(searchResults, limitReached)
-        if (this.determineType(resultsRepresentation) === 'string') {
+        if (this.constructor.determineType(
+            resultsRepresentation
+        ) === 'string') {
             const resultsRepresentationDomNode:$DomNode = $(
                 resultsRepresentation)
             if (this.resultsDomNode && !this.fireEvent(
