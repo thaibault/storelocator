@@ -1,6 +1,6 @@
 {
   "name": "storelocator",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "serves a google maps store locator",
   "keywords": [
     "storeLocator",
@@ -71,7 +71,9 @@
           ]
         }
       },
-      "provide": {"$": "jquery"},
+      "provide": {
+        "$": "jquery"
+      },
       "skipParseRegularExpression": {
         "__evaluate__": "/\\/(?:(?:clientNode(?:\\.compiled)?)|(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
