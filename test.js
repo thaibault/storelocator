@@ -15,8 +15,8 @@
     endregion
 */
 // region imports
-import type {$Deferred, $DomNode} from 'clientNode'
-import registerTest from 'clientNode/test'
+import type {$Deferred, $DomNode} from 'clientnode'
+import registerTest from 'clientnode/test'
 import type StoreLocator from './index'
 // endregion
 registerTest(function(

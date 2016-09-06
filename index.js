@@ -1,7 +1,7 @@
 // @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
-/** @module storeLocator */
+/** @module storelocator */
 'use strict'
 /* !
     region header
@@ -18,9 +18,9 @@
     endregion
 */
 // region imports
-import {$} from 'clientNode'
+import {$} from 'clientnode'
 /* eslint-disable no-duplicate-imports */
-import type {$DomNode, $Deferred} from 'clientNode'
+import type {$DomNode, $Deferred} from 'clientnode'
 /* eslint-enable no-duplicate-imports */
 
 /*

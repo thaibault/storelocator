@@ -39,14 +39,14 @@
     "injection": {
       "externalAliases": {
         "googleMarkerClusterer": "MarkerClusterer",
-        "clientNode": "$.Tools"
+        "clientnode": "$.Tools"
       },
       "implicitExternalExcludePattern": [
         {
-          "__evaluate__": "/^webOptimizer\\/browserAPI(?:\\.compiled)?(?:\\.js)?$/"
+          "__evaluate__": "/^weboptimizer\\/browserAPI(?:\\.compiled)?(?:\\.js)?$/"
         },
         {
-          "__evaluate__": "/^clientNode\\/test(?:\\.compiled)?(?:\\.js)?$/"
+          "__evaluate__": "/^clientnode\\/test(?:\\.compiled)?(?:\\.js)?$/"
         },
         {
           "__evaluate__": "/\\/webpack\\/buildin\\/module\\.js$/"
@@ -54,13 +54,13 @@
       ],
       "internal": {
         "vendor": {
-          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'webOptimizer/browserAPI']) : []"
+          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI']) : []"
         }
       }
     },
     "module": {
       "aliases": {
-        "clientNode/test$": "clientNode/test.compiled",
+        "clientnode/test$": "clientnode/test.compiled",
         "googleMarkerClusterer$": "js-marker-clusterer"
       },
       "preprocessor": {
@@ -75,12 +75,12 @@
         "$": "jquery"
       },
       "skipParseRegularExpression": {
-        "__evaluate__": "/\\/(?:(?:clientNode(?:\\.compiled)?)|(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
+        "__evaluate__": "/\\/(?:(?:clientnode(?:\\.compiled)?)|(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
     }
   },
   "dependencies": {
-    "clientNode": "latest",
+    "clientnode": "latest",
     "jquery": "latest",
     "js-marker-clusterer": "latest"
   },
@@ -90,6 +90,6 @@
     "qunitjs": "latest",
     "qunit-cli": "latest",
     "source-map-support": "latest",
-    "webOptimizer": "latest"
+    "weboptimizer": "latest"
   }
 }
