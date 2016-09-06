@@ -4,7 +4,7 @@
 .*/_.*\.js
 .*/.+\.compiled\(\.js\)?
 # Ignore all webOptimizer modules except "browserAPI" and "type".
-\(.*/\)?node_modules/webOptimizer/\(\([^tb].*\)\|\(t[^y].*\)\|\(ty[^p].*\)\|\(typ[^e].*\)\|\(type.+\)\|\(..?.?\)\|\(......?.?.?.?\)\|\(brow\)\|\(b[^r].*\)\|\(br[^o].*\)\|\(bro[^w].*\)\|\(brow[^s].*\)\|\(brows[^e].*\)\|\(browse[^r].*\)\|\(browser[^A].*\)\|\(browserA[^P].*\)\|\(browserAP[^I].*\)\|\(browserAPI.+\)\)\.js
+\(.*/\)?node_modules/weboptimizer/\(\([^tb].*\)\|\(t[^y].*\)\|\(ty[^p].*\)\|\(typ[^e].*\)\|\(type.+\)\|\(..?.?\)\|\(......?.?.?.?\)\|\(brow\)\|\(b[^r].*\)\|\(br[^o].*\)\|\(bro[^w].*\)\|\(brow[^s].*\)\|\(brows[^e].*\)\|\(browse[^r].*\)\|\(browser[^A].*\)\|\(browserA[^P].*\)\|\(browserAP[^I].*\)\|\(browserAPI.+\)\)\.js
 
 # temporary excludes
 .+/systemjs-builder/test/fixtures/sourcemaps-expectations/.+\.json
