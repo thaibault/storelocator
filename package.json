@@ -1,5 +1,5 @@
 {
-  "name": "storeLocator",
+  "name": "storelocator",
   "version": "1.0.3",
   "description": "serves a google maps store locator",
   "keywords": [
@@ -54,7 +54,7 @@
       ],
       "internal": {
         "vendor": {
-          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? ['script!jquery'] : ['jquery', 'script!qunitjs', 'webOptimizer/browserAPI']) : []"
+          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['tools', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'webOptimizer/browserAPI']) : []"
         }
       }
     },
@@ -71,6 +71,7 @@
           ]
         }
       },
+      "provide": {"$": "jquery"},
       "skipParseRegularExpression": {
         "__evaluate__": "/\\/(?:(?:clientNode(?:\\.compiled)?)|(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
