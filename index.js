@@ -18,7 +18,7 @@
     endregion
 */
 // region imports
-import {$} from 'clientnode'
+import {$ as binding} from 'clientnode'
 /* eslint-disable no-duplicate-imports */
 import type {$DomNode, $Deferred} from 'clientnode'
 /* eslint-enable no-duplicate-imports */
@@ -34,6 +34,7 @@ const googleMarkerClusterer:Object = (EXTERNAL_EXPORT_FORMAT === 'var') ? {
 } : require(
     'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
     'googleMarkerClusterer')
+export const $:any = binding
 // endregion
 // region types
 export type Position = {
