@@ -364,8 +364,8 @@ export default class StoreLocator extends $.Tools.class {
         $.ajax({
             url: this.constructor.stringFormat(
                 this._options.ipToLocation.applicationInterfaceURL,
-                document.location.protocol.substring(
-                    0, document.location.protocol.length - 1
+                $.global.location.protocol.substring(
+                    0, $.global.location.protocol.length - 1
                 ), this._options.ip || ''
             ),
             dataType: 'jsonp', cache: true
@@ -796,7 +796,7 @@ export default class StoreLocator extends $.Tools.class {
                 } = {
                     data: this.constructor.extendObject(place, {
                         logoFilePath: place.icon.replace(
-                            /^http:(\/\/)/, `${document.location.protocol}$1`),
+                            /^http:(\/\/)/, `${$.global.location.protocol}$1`),
                         address: place.formatted_address,
                         distance: distance
                     }),
