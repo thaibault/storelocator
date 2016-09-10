@@ -1,11 +1,14 @@
 {
   "name": "storelocator",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "serves a google maps store locator",
   "documentationWebsite": {
     "tagline": "Serves a google maps store locator<!--deDE:Bietet einen Google-Maps-Storelocator-->",
     "trackingCode": "UA-40192634-10",
-    "languages": ["deDE", "enUS"]
+    "languages": [
+      "deDE",
+      "enUS"
+    ]
   },
   "keywords": [
     "storeLocator",
