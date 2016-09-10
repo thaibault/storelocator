@@ -1,7 +1,0 @@
-{
-    "name": "jQuery-storeLocator",
-    "tagline": "Serves a google maps store locator<!--deDE:Bietet einen Google-Maps-Storelocator-->",
-    "google": "UA-40192634-10",
-    "language": "en",
-    "languages": ["deDE", "enUS"]
-}
