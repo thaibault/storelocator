@@ -47,7 +47,7 @@ after needed dependencies:
     <script src="http://torben.website/clientNode/data/distributionBundle/index.compiled.js"></script>
     <script src="https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js"></script>
     <!--Inject downloaded file:-->
-    <script src="/index.compiled.js"></script>
+    <script src="index.compiled.js"></script>
     <!--Or integrate via cdn:
     <script src="http://torben.website/storeLocator/data/distributionBundle/index.compiled.js"></script>
     -->
