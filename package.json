@@ -39,7 +39,7 @@
     "test": "webOptimizer test",
     "testInBrowser": "webOptimizer testInBrowser",
     "update": "npm version patch && npm publish",
-    "updateDocumentation": "documentationWebsite",
+    "updateDocumentation": "documentationWebsite --log-level info",
     "watch": "webOptimizer build --watch",
     "watchDLL": "webOptimizer buildDLL --watch"
   },
