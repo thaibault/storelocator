@@ -5,7 +5,7 @@
   "documentationWebsite": {
     "tagline": "Serves a google maps store locator<!--deDE:Bietet einen Google-Maps-Storelocator-->",
     "trackingCode": "UA-40192634-10",
-    "language": {"selection": ["deDE", "enUS"]}
+    "languages": ["deDE", "enUS"]
   },
   "keywords": [
     "storeLocator",
