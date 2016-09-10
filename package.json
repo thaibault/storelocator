@@ -36,6 +36,7 @@
     "test": "webOptimizer test",
     "testInBrowser": "webOptimizer testInBrowser",
     "update": "npm version patch && npm publish",
+    "updateDocumentation": "documentationWebsite",
     "watch": "webOptimizer build --watch",
     "watchDLL": "webOptimizer buildDLL --watch"
   },
@@ -87,6 +88,7 @@
     "js-marker-clusterer": "latest"
   },
   "devDependencies": {
+    "documentation-website": "latest",
     "canvas": "latest",
     "jsdom": "latest",
     "qunitjs": "latest",
