@@ -26,7 +26,7 @@
     
 
 
-    <h3>jQuery-storeLocator 1.0.0</h3>
+    <h3>storelocator 1.0.6</h3>
 
 
 
@@ -73,12 +73,12 @@ after needed dependencies:
 <pre class="prettyprint source"><code>#!HTML
 
 &lt;script src=&quot;https://code.jquery.com/jquery-3.1.0.js&quot; integrity=&quot;sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=&quot; crossorigin=&quot;anonymous&quot;>&lt;/script>
-&lt;script src=&quot;http://torben.website/jQuery-tools/data/distributionBundle/index.compiled.js&quot;>&lt;/script>
+&lt;script src=&quot;http://torben.website/clientNode/data/distributionBundle/index.compiled.js&quot;>&lt;/script>
 &lt;script src=&quot;https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js&quot;>&lt;/script>
 &lt;!--Inject downloaded file:-->
-&lt;script src=&quot;/index.compiled.js&quot;>&lt;/script>
+&lt;script src=&quot;index.compiled.js&quot;>&lt;/script>
 &lt;!--Or integrate via cdn:
-&lt;script src=&quot;http://torben.website/jQuery-storeLocator/data/distributionBundle/index.compiled.js&quot;>&lt;/script>
+&lt;script src=&quot;http://torben.website/storeLocator/data/distributionBundle/index.compiled.js&quot;>&lt;/script>
 --></code></pre><p>The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
 into given context (UMD) as export format: You can use a module bundler if you
 want.
@@ -88,32 +88,32 @@ want.
     Dadurch können verschiedene Module-Bundler genutzt werden.
 --></p>
 <!--|deDE:Paket-Management und Modul-Komposition-->
-<h3>Package managed and module bundled</h3><p>If you are using npm as package manager and/or a module bundler you can simply
-add this tool to your <strong>package.json</strong> as dependency:
+<h3>Package managed and module bundled</h3><p>If you are using npm as package manager you can simply add this tool to your
+<strong>package.json</strong> as dependency:
 <!--deDE:
-    Nutzt du npm als Paket-Manager und/oder hast einen Module-Bundler, dann
-    solltest du einfach deine <strong>package.json</strong> erweitern:
+    Nutzt du npm als Paket-Manager, dann solltest du einfach deine
+    <strong>package.json</strong> erweitern:
 --></p>
 <pre class="prettyprint source"><code>#!JSON
 
 ...
 &quot;dependencies&quot;: {
     ...
-    &quot;jQuery-storeLocator&quot;: &quot;git+ssh://git@github.com/thaibault/jQuery-storeLocator.git&quot;,
+    &quot;storelocator&quot;: &quot;latest&quot;,
     ...
 },
 ...</code></pre><p>After updating your packages you can simply depend on this script and let
-a module bundler to the hard stuff or access it via a exported variable name
+a module bundler do the hard stuff or access it via a exported variable name
 into given context.
 <!--deDE:
     Nach einem Update deiner Pakete kannst du dieses Plugin einfach in deine
-    JavaScript-Module importieren oder die exportiert Variable im gegebenen
+    JavaScript-Module importieren oder die exportierte Variable im gegebenen
     Context referenzieren.
 --></p>
 <pre class="prettyprint source"><code>#!JavaScript
 
 ...
-$ = require('jQuery-storeLocator')
+$ = require('storelocator')
 ...
 $('body').StoreLocator().isEquivalentDom('&lt;div>', '&lt;script>') // false
 ...</code></pre><!--|deDE:Beispiele-->
@@ -153,13 +153,13 @@ body.documentation div.store-locator-with-bounds div.gm-style-iw > div {
 const dependenciesLoadPromise = documentationWebsiteJQuery.getScript(
     'https://code.jquery.com/jquery-3.1.0.js'
 ).then(() => $.getScript(
-    'http://torben.website/jQuery-tools/data/distributionBundle/' +
+    'http://torben.website/clientNode/data/distributionBundle/' +
     'index.compiled.js'
 )).then(() => $.getScript(
     'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/' +
     'markerclusterer.js'
 )).then(() => $.getScript(
-    'http://torben.website/jQuery-storeLocator/data/distributionBundle/' +
+    'http://torben.website/storeLocator/data/distributionBundle/' +
     'index.compiled.js'))</code></pre><!--|deDE:Einfaches Beispiel-->
 <h3>Simple example</h3><!--showExample-->
 <pre class="prettyprint source"><code>#!HTML
@@ -286,7 +286,7 @@ endregion --></article>
 <header>
     
         <h2>
-            <span class="ancestors"><a href="module-jQuery-storeLocator.html">jQuery-storeLocator</a>~</span>index.compiled.js</h2>
+            <span class="ancestors"><a href="module-storelocator.html">storelocator</a>~</span>index.compiled.js</h2>
         
     
 </header>
@@ -345,7 +345,7 @@ This is a v3 implementation of the
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line395">line 395</a>
+        <a href="index.compiled.js.html">index.compiled.js</a>, <a href="index.compiled.js.html#line394">line 394</a>
     </li></ul></dd>
     
 
@@ -388,13 +388,13 @@ This is a v3 implementation of the
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-jQuery-storeLocator.html">jQuery-storeLocator</a></li></ul><h3>Classes</h3><ul><li><a href="module-jQuery-storeLocator-StoreLocator.html">StoreLocator</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-storelocator.html">storelocator</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Aug 18 2016 11:01:03 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.1</a> on Sun Sep 11 2016 02:02:45 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
