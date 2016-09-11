@@ -33,6 +33,7 @@
     "buildDLL": "webOptimizer buildDLL",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
+    "export": "webOptimizer build '{module:{preprocessor:{babel:{plugins:{__remove__:['transform-runtime']}}}}}'",
     "lint": "webOptimizer typeCheck && webOptimizer lint",
     "prepublish": "npm run build",
     "serve": "webOptimizer serve",
@@ -51,17 +52,11 @@
         "googleMarkerClusterer": "MarkerClusterer",
         "clientnode": "$.Tools"
       },
-      "implicitExternalExcludePattern": [
-        {
-          "__evaluate__": "/^weboptimizer\\/browserAPI(?:\\.compiled)?(?:\\.js)?$/"
-        },
+      "implicitExternalExcludePattern": {"__add__": [
         {
           "__evaluate__": "/^clientnode\\/test(?:\\.compiled)?(?:\\.js)?$/"
-        },
-        {
-          "__evaluate__": "/\\/webpack\\/buildin\\/module\\.js$/"
         }
-      ],
+      ]},
       "internal": {
         "vendor": {
           "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['clientnode', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI']) : []"
@@ -75,10 +70,7 @@
       },
       "preprocessor": {
         "babel": {
-          "presets": [
-            "latest",
-            "stage-0"
-          ]
+          "presets": {"__remove__": ["babili"]}
         }
       },
       "skipParseRegularExpression": {
