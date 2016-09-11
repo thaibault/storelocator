@@ -143,7 +143,7 @@ Examples
 
     #!JavaScript
 
-    const dependenciesLoadPromise = documentationWebsiteJQuery.getScript(
+    const dependenciesLoadPromise = $documentationWebsite.getScript(
         'https://code.jquery.com/jquery-3.1.0.js'
     ).then(() => $.getScript(
         'http://torben.website/clientNode/data/distributionBundle/' +
