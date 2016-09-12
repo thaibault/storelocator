@@ -49,8 +49,7 @@
   "webOptimizer": {
     "injection": {
       "externalAliases": {
-        "googleMarkerClusterer": "MarkerClusterer",
-        "clientnode": "$.Tools"
+        "googleMarkerClusterer": "MarkerClusterer"
       },
       "implicitExternalExcludePattern": {"__append__": {
         "__evaluate__": "/^clientnode\\/test(?:\\.compiled)?(?:\\.js)?$/"
