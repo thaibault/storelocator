@@ -1,6 +1,6 @@
 {
   "name": "storelocator",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "serves a google maps store locator",
   "documentationWebsite": {
     "name": "storeLocator",
@@ -51,9 +51,11 @@
       "externalAliases": {
         "googleMarkerClusterer": "MarkerClusterer"
       },
-      "implicitExternalExcludePattern": {"__append__": {
-        "__evaluate__": "/^clientnode\\/test(?:\\.compiled)?(?:\\.js)?$/"
-      }},
+      "implicitExternalExcludePattern": {
+        "__append__": {
+          "__evaluate__": "/^clientnode\\/test(?:\\.compiled)?(?:\\.js)?$/"
+        }
+      },
       "internal": {
         "vendor": {
           "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['clientnode', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI']) : []"
@@ -67,7 +69,9 @@
       },
       "preprocessor": {
         "babel": {
-          "presets": {"__remove__": "babili"}
+          "presets": {
+            "__remove__": "babili"
+          }
         }
       },
       "skipParseRegularExpression": {
