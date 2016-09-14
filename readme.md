@@ -82,8 +82,8 @@ If you are using npm as package manager you can simply add this tool to your
     ...
 
 After updating your packages you can simply depend on this script and let
-a module bundler do the hard stuff or access it via a exported variable name
-into given context.
+a module bundler do the hard stuff or access it via an exported variable name
+in given context.
 <!--deDE:
     Nach einem Update deiner Pakete kannst du dieses Plugin einfach in deine
     JavaScript-Module importieren oder die exportierte Variable im gegebenen
@@ -93,9 +93,17 @@ into given context.
     #!JavaScript
 
     ...
-    $ = require('storelocator')
-    ...
-    $('body').StoreLocator().isEquivalentDom('<div>', '<script>') // false
+    import StoreLocator from 'storelocator'
+    class SpecialStoreLocator extends StoreLocator...
+    // or
+    import {$} from 'storelocator'
+    class SpecialStoreLocator extends $.StoreLocator.class ...
+    // or
+    StoreLocator = require('storelocator').default
+    value instanceof StoreLocator
+    // or
+    $ = require('storelocator').$
+    $('[store-locator]').StoreLocator()
     ...
 
 <!--|deDE:Beispiele-->
