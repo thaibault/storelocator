@@ -21,8 +21,8 @@
 import {$ as binding} from 'clientnode'
 /* eslint-disable no-duplicate-imports */
 import type {$DomNode, $Deferred} from 'clientnode'
+import type {PlainObject} from 'weboptimizer/type'
 /* eslint-enable no-duplicate-imports */
-
 /*
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
@@ -52,6 +52,8 @@ export type Position = {
  * after name mangling.
  * @property static:_apiLoad - Holds the currently promise to retrieve a new
  * maps api.
+ * @property searchResultsStyleProperties - Dynamically computed CSS properties
+ * to append to search result list (derived from search input field).
  * @property currentSearchResults - Saves last found search results.
  * @property currentSearchText - Saves last searched string.
  * @property resultsDomNode - Saves currently opened results dom node or null
@@ -204,6 +206,7 @@ export default class StoreLocator extends $.Tools.class {
     static _apiLoad:$Deferred<$DomNode>
     // endregion
     // region dynamic properties
+    searchResultsStyleProperties:PlainObject
     currentSearchResults:Array<Object>
     currentSearchText:?string
     resultsDomNode:?$DomNode
@@ -222,6 +225,7 @@ export default class StoreLocator extends $.Tools.class {
      */
     initialize(options:Object = {}):$Deferred<$DomNode> {
         // region properties
+        this.searchResultsStyleProperties = {}
         this.currentSearchResults = []
         this.currentSearchText = null
         this.resultsDomNode = null
@@ -539,6 +543,8 @@ export default class StoreLocator extends $.Tools.class {
                 numberOfAdditionalGenericPlaces: [2, 5],
                 maximalDistanceInMeter: 1000000,
                 loadingContent: this._options.infoWindow.loadingContent,
+                noResultsContent:
+                    '<div class="no-results">No results found</div>',
                 genericPlaceFilter: (place:Object):boolean => (
                     place.formatted_address.indexOf(
                         ' Deutschland'
@@ -575,19 +581,26 @@ export default class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     initializeDataSourceSearchResultsBox():StoreLocator {
-        const cssProperties:Object = {}
-        for (const propertyName:string of [
-            'position', 'width', 'top', 'left', 'border'
-        ])
-            cssProperties[propertyName] = this.$domNode.find('input').css(
-                propertyName)
-        cssProperties.marginTop = this.$domNode.find('input').outerHeight(
-            true)
+        this.searchResultsStyleProperties = {}
+        const allStyleProperties:PlainObject = this.$domNode.find(
+            'input'
+        ).Tools('getStyle')
+        for (const propertyName:string in allStyleProperties)
+            if (!(['bottom', 'height'].includes(
+                propertyName
+            ) || propertyName.startsWith('-') || propertyName.toLowerCase(
+            ).startsWith('webkit') || propertyName.toLowerCase(
+            ).startsWith('moz')))
+                this.searchResultsStyleProperties[propertyName] =
+                    allStyleProperties[propertyName]
+        this.searchResultsStyleProperties.marginTop = this.$domNode.find(
+            'input'
+        ).outerHeight(true)
         // Prepare search result positioning.
         this.resultsDomNode = $('<div>').addClass(
             this.constructor.stringCamelCaseToDelimited(
-                `${this.__name__}SearchResults`)
-        ).css(cssProperties)
+                `${this.constructor._name}SearchResults`)
+        ).css(this.searchResultsStyleProperties)
         // Inject the final search results into the dom tree.
         this.$domNode.find('input').after(this.resultsDomNode)
         return this
@@ -619,7 +632,7 @@ export default class StoreLocator extends $.Tools.class {
                 if (this.currentlyHighlightedMarker)
                     currentIndex = this.currentSearchResults.indexOf(
                         this.currentlyHighlightedMarker)
-                if (event.keyCode === this.keyCode.DOWN)
+                if (event.keyCode === this.constructor.keyCode.DOWN)
                     if (
                         currentIndex === -1 ||
                         this.currentSearchResultRange[1] < currentIndex + 1
@@ -630,7 +643,7 @@ export default class StoreLocator extends $.Tools.class {
                     else
                         this.highlightMarker(
                             this.currentSearchResults[currentIndex + 1], event)
-                else if (event.keyCode === this.keyCode.UP)
+                else if (event.keyCode === this.constructor.keyCode.UP)
                     if ([this.currentSearchResultRange[0], -1].includes(
                         currentIndex
                     ))
@@ -642,7 +655,7 @@ export default class StoreLocator extends $.Tools.class {
                         this.highlightMarker(
                             this.currentSearchResults[currentIndex - 1], event)
                 else if (
-                    event.keyCode === this.keyCode.ENTER &&
+                    event.keyCode === this.constructor.keyCode.ENTER &&
                     this.currentlyHighlightedMarker
                 ) {
                     event.stopPropagation()
@@ -663,15 +676,12 @@ export default class StoreLocator extends $.Tools.class {
         this.on(this.$domNode.find('input'), 'keydown', (
             event:Object
         ):void => {
-            for (const name:string in this.keyCode)
-                if (
-                    this.keyCode.hasOwnProperty(name) &&
-                    event.keyCode === this.keyCode[name] && name !== 'DOWN'
-                )
-                    return
+            if (
+                this.constructor.keyCode.DOWN === event.keyCode &&
+                this.currentSearchText
+            )
+                this.openSearchResults()
         })
-        if (this.currentSearchText)
-            this.openSearchResults()
         this.on(this.$domNode.find('input'), 'click', ():void => {
             if (this.currentSearchText)
                 this.openSearchResults()
@@ -695,10 +705,12 @@ export default class StoreLocator extends $.Tools.class {
         const placesService:Object =
             new this.constructor.google.maps.places.PlacesService(this.map)
         return this.constructor.debounce((event:Object):void => {
-            for (const name:string in this.keyCode)
-                if (event && event.keyCode === this.keyCode[name] && ![
-                    'DELETE', 'BACKSPACE'
-                ].includes(name))
+            for (const name:string in this.constructor.keyCode)
+                if (
+                    event &&
+                    event.keyCode === this.constructor.keyCode[name] &&
+                    !['DELETE', 'BACKSPACE'].includes(name)
+                )
                     return
             this.acquireLock(`${this.constructor._name}Search`, ():void => {
                 const searchText:string = this.$domNode.find(
@@ -752,8 +764,8 @@ export default class StoreLocator extends $.Tools.class {
                     })
                 else
                     this.performLocalSearch(searchText)
-            }, 1000)
-        })
+            })
+        }, 1000)
     }
     /**
      * Sorts and filters search results given by the google api.
@@ -828,14 +840,18 @@ export default class StoreLocator extends $.Tools.class {
     ):StoreLocator {
         const numberOfGenericSearchResults:number = searchResults.length
         for (const marker:Object of this.markers)
-            for (const key:string of this._options.searchBox.properties)
+            for (const key:string of this._options.searchBox.hasOwnProperty(
+                'properties'
+            ) && this._options.searchBox.properties || Object.keys(
+                marker.data
+            ))
                 if ((
                     marker.data[key] || marker.data[key] === 0
                 ) && `${marker.data[key]}`.toLowerCase().replace(
                     /[-_&]+/g, ' '
-                ).indexOf(searchText.toLowerCase().replace(
+                ).includes(searchText.toLowerCase().replace(
                     /[-_&]+/g, ' '
-                )) !== -1) {
+                ))) {
                     marker.open = (event:Object):StoreLocator =>
                         this.openMarker(event, marker)
                     marker.highlight = (
@@ -894,7 +910,7 @@ export default class StoreLocator extends $.Tools.class {
         })
         // Compile search results markup.
         const resultsRepresentation:$Deferred<any>|string =
-            this.makeSearchResults(searchResults, limitReached)
+            this.makeSearchResults(searchResults, limitReached, searchText)
         if (this.constructor.determineType(
             resultsRepresentation
         ) === 'string') {
@@ -934,7 +950,7 @@ export default class StoreLocator extends $.Tools.class {
                         'removeSearchResults', false, this,
                         this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = resultsRepresentationDomNode
-                this.releaseLock(`${this._name}Search`)
+                this.releaseLock(`${this.constructor._name}Search`)
             })
         this.currentSearchText = searchText
         this.currentSearchResults = searchResults.slice()
@@ -949,13 +965,23 @@ export default class StoreLocator extends $.Tools.class {
     openSearchResults(event:?Object):StoreLocator {
         if (event)
             event.stopPropagation()
-        this.getUpdateSearchResultsHandler()(event)
         if (this.resultsDomNode && !this.resultsDomNode.hasClass(
             'open'
         ) && !this.fireEvent(
             'openSearchResults', false, this, event, this.resultsDomNode
-        ))
+        )) {
+            for (
+                const propertyName:string in this.searchResultsStyleProperties
+            )
+                if (this.searchResultsStyleProperties.hasOwnProperty(
+                    propertyName
+                ))
+                    // IgnoreTypeCheck
+                    this.resultsDomNode.css(
+                        propertyName,
+                        this.searchResultsStyleProperties[propertyName])
             this.resultsDomNode.addClass('open')
+        }
         return this
     }
     /**
@@ -971,8 +997,17 @@ export default class StoreLocator extends $.Tools.class {
             'open'
         ) && !this.fireEvent(
             'closeSearchResults', false, this, event, this.resultsDomNode
-        ))
+        )) {
+            for (
+                const propertyName:string in this.searchResultsStyleProperties
+            )
+                if (this.searchResultsStyleProperties.hasOwnProperty(
+                    propertyName
+                ))
+                    // IgnoreTypeCheck
+                    this.resultsDomNode.css(propertyName, '')
             this.resultsDomNode.removeClass('open')
+        }
         return this
     }
     /**
@@ -1326,22 +1361,38 @@ export default class StoreLocator extends $.Tools.class {
      * Takes the search results and creates the HTML content of the search
      * results.
      * @param searchResults - Search result to generate markup for.
+     * @param limitReached - Indicated weather defined limit was reached or
+     * not.
+     * @param searchText - Text to search for.
      * @returns Generated markup.
      */
-    makeSearchResults(searchResults:Array<Object>):$Deferred<any>|string {
-        if (this.constructor.isFunction(this._options.searchBox.content))
-            return this._options.searchBox.content.apply(this, arguments)
-        if ('content' in this._options.searchBox.content)
+    makeSearchResults(
+        searchResults:Array<Object>, limitReached:boolean, searchText:string
+    ):$Deferred<any>|string {
+        if ('content' in this._options.searchBox) {
+            if (this.constructor.isFunction(this._options.searchBox.content))
+                return this._options.searchBox.content.apply(this, arguments)
             return this._options.searchBox.content
-        let content:string = ''
-        for (const result:Object of searchResults) {
-            content += '<div>'
-            for (const name:string in result.data)
-                if (result.data.hasOwnProperty(name))
-                    content += `${name}: ${result.data[name]}<br />`
-            content += '</div>'
         }
-        return content
+        if (searchResults.length) {
+            let content:string = ''
+            for (const result:Object of searchResults) {
+                content += '<div>'
+                for (const name:string in result.data)
+                    if (result.data.hasOwnProperty(name) && ![
+                        'geometry', 'icon', 'id', 'photos', 'place_id',
+                        'reference', 'html_attributions', 'types',
+                        'logoFilePath', 'distance', 'logoFile', 'latitude',
+                        'longitude'
+                    ].includes(name))
+                        content += `${name}: ` + this.constructor.stringMark(
+                            resultText, searchText.split(' ')
+                        ) + `${resultText}<br />`
+                content += '</div>'
+            }
+            return content
+        }
+        return this._options.searchBox.noResultsContent
     }
 }
 // endregion

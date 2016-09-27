@@ -33,6 +33,12 @@ html
                 width: 230px;
                 height: 25px;
             }
+            store-locator .store-locator-search-results div {
+                border-bottom: 1px solid black;
+            }
+            store-locator .store-locator-search-results div .tools-mark {
+                color: blue;
+            }
     script.
         window.onload = () => {
             const bounds = {
@@ -44,7 +50,217 @@ html
                 ipToLocation: {bounds},
                 limit: {zoom: {minimum: 5}, bounds},
                 map: {zoom: 5},
-                stores: bounds
+                searchBox: {},
+                // Automatically generated stores: "stores: bounds"
+                stores: [
+                   {
+                      "4.0":false,
+                      "address":"Elgendorfer Str. 57, 56410 Montabaur, Deutschland",
+                      "city":"Montabaur",
+                      "eMailAddress":"info@fake-1.de",
+                      "id":24997,
+                      "jobRad":true,
+                      "latitude":50.4356,
+                      "logoFile":null,
+                      "longitude":7.81226,
+                      "name":"1 & 1 Telecom GmbH",
+                      "phoneNumber":"+49 721 9600",
+                      "premium":false,
+                      "premiumPlus":false,
+                      "streetAndStreetnumber":"Elgendorfer Str. 57",
+                      "websiteURL":false,
+                      "zipCode":56410
+                   },
+                   {
+                      "4.0":false,
+                      "address":"Freiheitsstr.1a, 53842 Troisdorf, Deutschland",
+                      "city":"Troisdorf",
+                      "eMailAddress":"1a@demo.de",
+                      "id":78192,
+                      "jobRad":true,
+                      "latitude":50.82791,
+                      "logoFile":{
+                         "hash":"512abb0d27ff2731017a0437059c117f",
+                         "name":"78192.jpeg"
+                      },
+                      "longitude":7.1219600000000005,
+                      "name":"1A-Bike&Parts GmbH",
+                      "phoneNumber":"02241 / 91 18 09 3",
+                      "premium":true,
+                      "premiumPlus":false,
+                      "streetAndStreetnumber":"Freiheitsstr.1a",
+                      "websiteURL":"http://www.1a-bike.bike",
+                      "zipCode":53842
+                   },
+                   {
+                      "4.0":true,
+                      "address":"Niederrheinische Str. 27, 34626 Neukirchen, Deutschland",
+                      "city":"Neukirchen",
+                      "eMailAddress":"tfddfa@de.de",
+                      "id":18852,
+                      "jobRad":true,
+                      "latitude":50.871640000000006,
+                      "logoFile":{
+                         "hash":"ece8f32f3b825ddf05c447008d396db7",
+                         "name":"18852.jpeg"
+                      },
+                      "longitude":9.337940000000001,
+                      "name":"1a Fahrradservice",
+                      "phoneNumber":"+49 (6694) 7878",
+                      "premium":false,
+                      "premiumPlus":false,
+                      "streetAndStreetnumber":"Niederrheinische Str. 27",
+                      "websiteURL":"http://www.1a-fahrradservice-diegelmann.de/",
+                      "zipCode":34626
+                   },
+                   {
+                      "4.0":false,
+                      "address":"D\u00fclmener Strasse 73, 48653 Coesfeld, Deutschland",
+                      "city":"Coesfeld",
+                      "eMailAddress":"12345@jobrad.org",
+                      "id":196,
+                      "jobRad":true,
+                      "latitude":51.93271000000001,
+                      "logoFile":{
+                         "hash":"8915ed56691b09a0158af336aae4e270",
+                         "name":"196.png"
+                      },
+                      "longitude":7.170630000000001,
+                      "name":"2-Rad-Baumeister",
+                      "phoneNumber":"+49 (2541) 2509",
+                      "premium":false,
+                      "premiumPlus":false,
+                      "streetAndStreetnumber":"D\u00fclmener Strasse 73",
+                      "websiteURL":"www.2rad-baumeister.de",
+                      "zipCode":48653
+                   },
+                   {
+                      "4.0":false,
+                      "address":"Friedrichstr. 100, 47475 Kamp - Lintfort, Deutschland",
+                      "city":"Kamp - Lintfort",
+                      "eMailAddress":"test@jobrad.org",
+                      "id":34619,
+                      "jobRad":true,
+                      "latitude":51.508750000000006,
+                      "logoFile":{
+                         "hash":"08bab9b7774b77bd1d503f786422f720",
+                         "name":"34619.jpeg"
+                      },
+                      "longitude":6.553020000000001,
+                      "name":"2 - Rad Behringer",
+                      "phoneNumber":"02842 / 42 471",
+                      "premium":false,
+                      "premiumPlus":false,
+                      "streetAndStreetnumber":"Friedrichstr. 100",
+                      "websiteURL":"www.zweirad-behringer.de",
+                      "zipCode":47475
+                   },
+                   {
+                      "4.0":false,
+                      "address":"Werster Str. 86, 32549 Bad Oeynhausen, Deutschland",
+                      "city":"Bad Oeynhausen",
+                      "eMailAddress":"test@jobrad.org",
+                      "id":190,
+                      "jobRad":true,
+                      "latitude":52.215630000000004,
+                      "logoFile":{
+                         "hash":"e4676ce3b22a9caf79cb76c2a9c2e224",
+                         "name":"190.jpeg"
+                      },
+                      "longitude":8.785,
+                      "name":"2Rad Berger Fahrradhandel & Tankstelle Marcus Berger",
+                      "phoneNumber":"+49 (5731) 28930",
+                      "premium":false,
+                      "premiumPlus":false,
+                      "streetAndStreetnumber":"Werster Str. 86",
+                      "websiteURL":"www.2radberger.de",
+                      "zipCode":32549
+                   },
+                   {
+                      "4.0":false,
+                      "address":"Rauchstr. 16, 34454 Bad Arolsen, Deutschland",
+                      "city":"Bad Arolsen",
+                      "eMailAddress":"test@jobrad.org",
+                      "id":24784,
+                      "jobRad":true,
+                      "latitude":51.38242,
+                      "logoFile":{
+                         "hash":"a53fcd4aabfc64d76e8757b720c0bc13",
+                         "name":"24784.jpeg"
+                      },
+                      "longitude":9.01524,
+                      "name":"2Rad Br\u00fcne",
+                      "phoneNumber":"05691 / 2220",
+                      "premium":false,
+                      "premiumPlus":false,
+                      "streetAndStreetnumber":"Rauchstr. 16",
+                      "websiteURL":"http://2rad-bruene.de",
+                      "zipCode":34454
+                   },
+                   {
+                      "4.0":false,
+                      "address":"Schneiderstr.40, 46244 Bottrop, Deutschland",
+                      "city":"Bottrop",
+                      "eMailAddress":"",
+                      "id":83385,
+                      "jobRad":true,
+                      "latitude":51.57477,
+                      "logoFile":{
+                         "hash":"40c11802365ea722109d41537a0925a8",
+                         "name":"83385.jpeg"
+                      },
+                      "longitude":6.90406,
+                      "name":"2 - Rad B\u00fcning",
+                      "phoneNumber":"02045 / 57 38",
+                      "premium":false,
+                      "premiumPlus":false,
+                      "streetAndStreetnumber":"Schneiderstr.40",
+                      "websiteURL":"http://www.2-rad-buening.de",
+                      "zipCode":46244
+                   },
+                   {
+                      "4.0":false,
+                      "address":"Butenwall 63, 46325 Borken, Deutschland",
+                      "city":"Borken",
+                      "eMailAddress":"test@jobrad.org",
+                      "id":191,
+                      "jobRad":true,
+                      "latitude":51.846050000000005,
+                      "logoFile":{
+                         "hash":"0ec7668751c6cac94025d2e5304b0160",
+                         "name":"191.png"
+                      },
+                      "longitude":6.8543,
+                      "name":"2Rad Busch",
+                      "phoneNumber":"+49 (2861) 2692",
+                      "premium":false,
+                      "premiumPlus":false,
+                      "streetAndStreetnumber":"Butenwall 63",
+                      "websiteURL":"www.2rad-busch.de ",
+                      "zipCode":46325
+                   },
+                   {
+                      "4.0":false,
+                      "address":"Herzebrockerstrasse 12, 33378 Rheda-Wiedenbr\u00fcck, Deutschland",
+                      "city":"Rheda-Wiedenbr\u00fcck",
+                      "eMailAddress":"test@jobrad.org",
+                      "id":63636,
+                      "jobRad":true,
+                      "latitude":51.85799,
+                      "logoFile":{
+                         "hash":"5bd864762cae057d53dd9f4cbc61f04e",
+                         "name":"63636.jpeg"
+                      },
+                      "longitude":8.28283,
+                      "name":"2-rad Butschko",
+                      "phoneNumber":"05242 / 4 31 61",
+                      "premium":false,
+                      "premiumPlus":false,
+                      "streetAndStreetnumber":"Herzebrockerstrasse 12",
+                      "websiteURL":"http://www.zweirad-butschko.de",
+                      "zipCode":33378
+                   }
+                ]
             })
         }
 body: store-locator: input
