@@ -715,7 +715,7 @@ export default class StoreLocator extends $.Tools.class {
             this.acquireLock(`${this.constructor._name}Search`, ():void => {
                 const searchText:string = this.$domNode.find(
                     'input'
-                ).val().trim()
+                ).val().toLowerCase().replace(/[-_& ]+/, ' ').trim()
                 if (
                     this.currentSearchText === searchText &&
                     !this.searchResultsDirty
@@ -839,27 +839,34 @@ export default class StoreLocator extends $.Tools.class {
         searchText:string, searchResults:Array<Object> = []
     ):StoreLocator {
         const numberOfGenericSearchResults:number = searchResults.length
-        for (const marker:Object of this.markers)
+        const searchWords:Array<string> = searchText.split(' ')
+        for (const marker:Object of this.markers) {
+            if (marker.hasOwnProperty('storeLocatorFoundWords'))
+                delete marker.storeLocatorFoundWords
             for (const key:string of this._options.searchBox.hasOwnProperty(
                 'properties'
             ) && this._options.searchBox.properties || Object.keys(
                 marker.data
             ))
-                if ((
-                    marker.data[key] || marker.data[key] === 0
-                ) && `${marker.data[key]}`.toLowerCase().replace(
-                    /[-_&]+/g, ' '
-                ).includes(searchText.toLowerCase().replace(
-                    /[-_&]+/g, ' '
-                ))) {
-                    marker.open = (event:Object):StoreLocator =>
-                        this.openMarker(event, marker)
-                    marker.highlight = (
-                        event:Object, type:string
-                    ):StoreLocator => this.highlightMarker(marker, event, type)
-                    searchResults.push(marker)
-                    break
-                }
+                for (const searchWord:string of searchWords)
+                    if ((
+                        marker.data[key] || marker.data[key] === 0
+                    ) && `${marker.data[key]}`.toLowerCase().replace(
+                        /[-_&]+/g, ' '
+                    ).includes(searchWord))
+                        if (marker.hasOwnProperty('storeLocatorFoundWords'))
+                            marker.storeLocatorFoundWords += 1
+                        else {
+                            marker.storeLocatorFoundWords = 1
+                            marker.open = (event:Object):StoreLocator =>
+                                this.openMarker(event, marker)
+                            marker.highlight = (
+                                event:Object, type:string
+                            ):StoreLocator => this.highlightMarker(
+                                marker, event, type)
+                            searchResults.push(marker)
+                        }
+        }
         /*
             Remove generic place results if there are enough local search
             results.
@@ -910,7 +917,7 @@ export default class StoreLocator extends $.Tools.class {
         })
         // Compile search results markup.
         const resultsRepresentation:$Deferred<any>|string =
-            this.makeSearchResults(searchResults, limitReached, searchText)
+            this.makeSearchResults(searchResults, limitReached, searchWords)
         if (this.constructor.determineType(
             resultsRepresentation
         ) === 'string') {
@@ -1367,7 +1374,8 @@ export default class StoreLocator extends $.Tools.class {
      * @returns Generated markup.
      */
     makeSearchResults(
-        searchResults:Array<Object>, limitReached:boolean, searchText:string
+        searchResults:Array<Object>, limitReached:boolean,
+        searchWords:Array<string>
     ):$Deferred<any>|string {
         if ('content' in this._options.searchBox) {
             if (this.constructor.isFunction(this._options.searchBox.content))
@@ -1386,8 +1394,8 @@ export default class StoreLocator extends $.Tools.class {
                         'longitude'
                     ].includes(name))
                         content += `${name}: ` + this.constructor.stringMark(
-                            resultText, searchText.split(' ')
-                        ) + `${resultText}<br />`
+                            `${result.data[name]}`, searchWords
+                        ) + '<br />'
                 content += '</div>'
             }
             return content
