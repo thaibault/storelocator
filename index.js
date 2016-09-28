@@ -1370,7 +1370,7 @@ export default class StoreLocator extends $.Tools.class {
      * @param searchResults - Search result to generate markup for.
      * @param limitReached - Indicated weather defined limit was reached or
      * not.
-     * @param searchText - Text to search for.
+     * @param searchWords - Text to search for.
      * @returns Generated markup.
      */
     makeSearchResults(
