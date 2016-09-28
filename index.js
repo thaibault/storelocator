@@ -768,7 +768,20 @@ export default class StoreLocator extends $.Tools.class {
                         the examples provided by google.
                     */
                     placesService.textSearch(this.constructor.extendObject({
-                        query: searchText, location: this.map.getCenter()
+                        query: searchText, location: this.map.getCenter(),
+                        types: [
+                            'administrative_area_level_1',
+                            'administrative_area_level_2',
+                            'administrative_area_level_3',
+                            'administrative_area_level_4',
+                            'administrative_area_level_5',
+                            'colloquial_area',
+                            'locality',
+                            'geocode',
+                            'political',
+                            'postal_code',
+                            'postal_town'
+                        ]
                     }, this._options.searchBox.genericPlaceSearchOptions), (
                         places:Array<Object>
                     ):void => {
@@ -1339,8 +1352,7 @@ export default class StoreLocator extends $.Tools.class {
                     this.map.getZoom() <=
                         this._options.marker.cluster.maxZoom &&
                     'position' in marker.nativeMarker &&
-                    this.map.getBounds().contains(
-                        marker.nativeMarker.positioning)
+                    this.map.getBounds().contains(marker.nativeMarker.position)
                 ) {
                     this.map.setCenter(marker.nativeMarker.position)
                     this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
@@ -1404,7 +1416,7 @@ export default class StoreLocator extends $.Tools.class {
                         'geometry', 'icon', 'id', 'photos', 'place_id',
                         'reference', 'html_attributions', 'types',
                         'logoFilePath', 'distance', 'logoFile', 'latitude',
-                        'longitude'
+                        'longitude', 'opening_hours'
                     ].includes(name))
                         content += `${name}: ` + this.constructor.stringMark(
                             `${result.data[name]}`, this.currentSearchWords
