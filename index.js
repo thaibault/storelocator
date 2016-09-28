@@ -1391,8 +1391,8 @@ export default class StoreLocator extends $.Tools.class {
     ):$Deferred<any>|string {
         if ('content' in this._options.searchBox) {
             if (this.constructor.isFunction(this._options.searchBox.content))
-                return this._options.searchBox.content(
-                    searchResults, limitReached)
+                return this._options.searchBox.content.call(
+                    this, searchResults, limitReached)
             return this._options.searchBox.content
         }
         if (searchResults.length) {
