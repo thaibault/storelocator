@@ -46,7 +46,9 @@ html
                 southWest: {latitude: 47.32, longitude: 5.50}
             }
             storelocator.index.$('store-locator').StoreLocator({
-                api: {key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'},
+                applicationInterface: {
+                    key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
+                },
                 ipToLocation: {bounds},
                 limit: {zoom: {minimum: 5}, bounds},
                 map: {zoom: 5},

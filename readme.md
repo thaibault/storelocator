@@ -15,7 +15,8 @@ endregion -->
 Use case
 --------
 
-A jQuery plugin to serve a store locator with google maps API.
+A jQuery plugin to serve a store locator with google maps Application
+interface.
 <!--deDE:
     Ein jQuery-Plugin zum Bereitstellen eines Google-Maps-Storelocator.
 -->
@@ -173,8 +174,9 @@ Examples
     <script>
         dependenciesLoadPromise.always(() => $(
             'body simple-store-locator'
-        ).StoreLocator({api: {
-            // NOTE: You should use your own google maps api key.
+        ).StoreLocator({applicationInterface: {
+            // NOTE: You should use your own google maps application interface
+            // key.
             key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
         }}))
     </script>
@@ -191,13 +193,14 @@ Examples
         dependenciesLoadPromise.always(() => $(
             'body advanced-store-locator'
         ).StoreLocator({
-            api: {
+            applicationInterface: {
                 url:
                     'https://maps.googleapis.com/maps/api/js' +
                     '?{1}v=3&sensor=false&libraries=places,geometry&' +
                     'callback={2}',
                 callbackName: null,
-                // NOTE: You should use your own google maps api key.
+                // NOTE: You should use your own google maps application
+                // interface key.
                 key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
             },
             stores: {
@@ -272,8 +275,9 @@ Examples
                 southWest: {latitude: 47.32, longitude: 5.50}
             }
             $('body div.store-locator-with-bounds').StoreLocator({
-                api: {
-                    // NOTE: You should use your own google maps api key.
+                applicationInterface: {
+                    // NOTE: You should use your own google maps applciation
+                    // interface key.
                     key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
                 },
                 ipToLocation: {bounds},

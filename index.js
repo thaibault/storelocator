@@ -50,8 +50,8 @@ export type Position = {
  * @property static:maps - Holds the currently used maps class.
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
- * @property static:_apiLoad - Holds the currently promise to retrieve a new
- * maps api.
+ * @property static:_applicationInterfaceLoad - Holds the currently promise to
+ * retrieve a new maps application interface.
  * @property searchResultsStyleProperties - Dynamically computed CSS properties
  * to append to search result list (derived from search input field).
  * @property currentSearchResults - Saves last found search results.
@@ -72,12 +72,16 @@ export type Position = {
  * search result range. This is useful for pagination implementations in
  * template level.
  * @property _options - Saves all plugin interface options.
- * @property _options.api {Object} - To store api options in.
- * @property _options.api.url {string} - URL tor retrieve google maps api.
- * @property _options.api.callbackName {string} - Global resource path to
- * callback function to trigger when google has finished loading the api.
- * @property _options.api.key {string} - API-key to authenticate against google
- * maps api.
+ * @property _options.applicationInterface {Object} - To store application
+ * interface options in.
+ * @property _options.applicationInterface.url {string} - URL tor retrieve
+ * google maps application interface.
+ * @property _options.applicationInterface.callbackName {string} - Global
+ * resource path to
+ * callback function to trigger when google has finished loading the
+ * application interface.
+ * @property _options.applicationInterface.key {string} - Application interface
+ * key to authenticate against google maps application interface.
  * @property _options.stores
  * {string|Array.<string>|Object.<string, number|Function>} - URL to retrieve
  * stores, list of stores or object describing bounds to create random stores
@@ -204,7 +208,7 @@ export default class StoreLocator extends $.Tools.class {
     // region static properties
     static google:Object
     static _name:string = 'StoreLocator'
-    static _apiLoad:$Deferred<$DomNode>
+    static _applicationInterfaceLoad:$Deferred<$DomNode>
     // endregion
     // region dynamic properties
     searchResultsStyleProperties:PlainObject
@@ -240,7 +244,7 @@ export default class StoreLocator extends $.Tools.class {
         this.markers = []
         this.currentSearchResultRange = null
         this._options = {
-            api: {
+            applicationInterface: {
                 url:
                     'https://maps.googleapis.com/maps/api/js' +
                     '?{1}v=3&sensor=false&libraries=places,geometry&' +
@@ -313,39 +317,45 @@ export default class StoreLocator extends $.Tools.class {
         super.initialize(options)
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
-        if (typeof this.constructor._apiLoad !== 'object') {
+        if (typeof this.constructor._applicationInterfaceLoad !== 'object') {
             loadInitialized = false
-            this.constructor._apiLoad = $.Deferred()
+            this.constructor._applicationInterfaceLoad = $.Deferred()
         }
-        const result:$Deferred<$DomNode> = this.constructor._apiLoad.then(
-            this.getMethod(this.bootstrap)
+        const result:$Deferred<$DomNode> =
+            this.constructor._applicationInterfaceLoad.then(this.getMethod(
+                this.bootstrap)
         ).done(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
             this.constructor.google = $.global.google
-            if (this.constructor._apiLoad.state() !== 'resolved')
+            if (this.constructor._applicationInterfaceLoad.state(
+            ) !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
-                    this.constructor._apiLoad.resolve(this.$domNode))
+                    this.constructor._applicationInterfaceLoad.resolve(
+                        this.$domNode))
         } else if ('google' in $.global && 'maps' in $.global.google) {
             this.constructor.google = $.global.google
-            if (this.constructor._apiLoad.state() !== 'resolved')
+            if (this.constructor._applicationInterface.state() !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
-                    this.constructor._apiLoad.resolve(this.$domNode))
+                    this.constructor._applicationInterface.resolve(
+                        this.$domNode))
         } else if (!loadInitialized) {
             let callbackName:string
-            if (this._options.api.callbackName)
-                callbackName = this._options.api.callbackName
+            if (this._options.applicationInterface.callbackName)
+                callbackName = this._options.applicationInterface.callbackName
             else
                 callbackName = this.constructor.determineUniqueScopeName()
             $.global[callbackName] = ():void => {
                 this.constructor.google = $.global.google
-                this.constructor._apiLoad.resolve(this.$domNode)
+                this.constructor._applicationInterfaceLoad.resolve(
+                    this.$domNode)
             }
             $.getScript(this.constructor.stringFormat(
-                this._options.api.url,
-                (this._options.api.key) ? `key=${this._options.api.key}&` : '',
+                this._options.applicationInterface.url, (
+                    this._options.applicationInterface.key
+                ) ? `key=${this._options.applicationInterface.key}&` : '',
                 `window.${callbackName}`
             )).catch((response:Object, error:Error):$Deferred<$DomNode> =>
-                this.constructor._apiLoad.reject((error)))
+                this.constructor._applicationInterfaceLoad.reject((error)))
         }
         return result
     }
@@ -771,7 +781,8 @@ export default class StoreLocator extends $.Tools.class {
         }, 1000)
     }
     /**
-     * Sorts and filters search results given by the google api.
+     * Sorts and filters search results given by google's aplication
+     * interface.
      * @param places - List of place objects.
      * @param searchText - Words which should occur in requested search
      * results.
