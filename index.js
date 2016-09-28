@@ -56,6 +56,7 @@ export type Position = {
  * to append to search result list (derived from search input field).
  * @property currentSearchResults - Saves last found search results.
  * @property currentSearchText - Saves last searched string.
+ * @property currentSearchWords - Saves last searched words.
  * @property resultsDomNode - Saves currently opened results dom node or null
  * if no results exists yet.
  * @property currentSearchResultsDomNode - Saves current search results content
@@ -209,6 +210,7 @@ export default class StoreLocator extends $.Tools.class {
     searchResultsStyleProperties:PlainObject
     currentSearchResults:Array<Object>
     currentSearchText:?string
+    currentSearchWords:Array<string>
     resultsDomNode:?$DomNode
     currentSearchResultsDomNode:?$DomNode
     currentlyOpenWindow:?Object
@@ -228,6 +230,7 @@ export default class StoreLocator extends $.Tools.class {
         this.searchResultsStyleProperties = {}
         this.currentSearchResults = []
         this.currentSearchText = null
+        this.currentSearchWords = []
         this.resultsDomNode = null
         this.currentSearchResultsDomNode = null
         this.currentlyOpenWindow = null
@@ -839,7 +842,7 @@ export default class StoreLocator extends $.Tools.class {
         searchText:string, searchResults:Array<Object> = []
     ):StoreLocator {
         const numberOfGenericSearchResults:number = searchResults.length
-        const searchWords:Array<string> = searchText.split(' ')
+        this.currentSearchWords = searchText.split(' ')
         for (const marker:Object of this.markers) {
             if (marker.hasOwnProperty('storeLocatorFoundWords'))
                 delete marker.storeLocatorFoundWords
@@ -848,7 +851,7 @@ export default class StoreLocator extends $.Tools.class {
             ) && this._options.searchBox.properties || Object.keys(
                 marker.data
             ))
-                for (const searchWord:string of searchWords)
+                for (const searchWord:string of this.currentSearchWords)
                     if ((
                         marker.data[key] || marker.data[key] === 0
                     ) && `${marker.data[key]}`.toLowerCase().replace(
@@ -917,7 +920,7 @@ export default class StoreLocator extends $.Tools.class {
         })
         // Compile search results markup.
         const resultsRepresentation:$Deferred<any>|string =
-            this.makeSearchResults(searchResults, limitReached, searchWords)
+            this.makeSearchResults(searchResults, limitReached)
         if (this.constructor.determineType(
             resultsRepresentation
         ) === 'string') {
@@ -1370,16 +1373,15 @@ export default class StoreLocator extends $.Tools.class {
      * @param searchResults - Search result to generate markup for.
      * @param limitReached - Indicated weather defined limit was reached or
      * not.
-     * @param searchWords - Text to search for.
      * @returns Generated markup.
      */
     makeSearchResults(
-        searchResults:Array<Object>, limitReached:boolean,
-        searchWords:Array<string>
+        searchResults:Array<Object>, limitReached:boolean
     ):$Deferred<any>|string {
         if ('content' in this._options.searchBox) {
             if (this.constructor.isFunction(this._options.searchBox.content))
-                return this._options.searchBox.content.apply(this, arguments)
+                return this._options.searchBox.content(
+                    searchResults, limitReached)
             return this._options.searchBox.content
         }
         if (searchResults.length) {
@@ -1394,7 +1396,7 @@ export default class StoreLocator extends $.Tools.class {
                         'longitude'
                     ].includes(name))
                         content += `${name}: ` + this.constructor.stringMark(
-                            `${result.data[name]}`, searchWords
+                            `${result.data[name]}`, this.currentSearchWords
                         ) + '<br />'
                 content += '</div>'
             }
