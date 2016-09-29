@@ -265,7 +265,7 @@ export default class StoreLocator extends $.Tools.class {
                 generateProperties: (store:Object):Object => store
             },
             addtionalStoreProperties: {},
-            iconPath: '/',
+            iconPath: '',
             defaultMarkerIconFileName: null,
             startLocation: null,
             fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
