@@ -21,8 +21,8 @@
 import {$ as binding} from 'clientnode'
 /* eslint-disable no-duplicate-imports */
 import type {$DomNode, $Deferred} from 'clientnode'
+import type {PlainObject} from 'weboptimizer/type'
 /* eslint-enable no-duplicate-imports */
-
 /*
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
@@ -50,10 +50,13 @@ export type Position = {
  * @property static:maps - Holds the currently used maps class.
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
- * @property static:_apiLoad - Holds the currently promise to retrieve a new
- * maps api.
+ * @property static:_applicationInterfaceLoad - Holds the currently promise to
+ * retrieve a new maps application interface.
+ * @property searchResultsStyleProperties - Dynamically computed CSS properties
+ * to append to search result list (derived from search input field).
  * @property currentSearchResults - Saves last found search results.
  * @property currentSearchText - Saves last searched string.
+ * @property currentSearchWords - Saves last searched words.
  * @property resultsDomNode - Saves currently opened results dom node or null
  * if no results exists yet.
  * @property currentSearchResultsDomNode - Saves current search results content
@@ -69,12 +72,16 @@ export type Position = {
  * search result range. This is useful for pagination implementations in
  * template level.
  * @property _options - Saves all plugin interface options.
- * @property _options.api {Object} - To store api options in.
- * @property _options.api.url {string} - URL tor retrieve google maps api.
- * @property _options.api.callbackName {string} - Global resource path to
- * callback function to trigger when google has finished loading the api.
- * @property _options.api.key {string} - API-key to authenticate against google
- * maps api.
+ * @property _options.applicationInterface {Object} - To store application
+ * interface options in.
+ * @property _options.applicationInterface.url {string} - URL tor retrieve
+ * google maps application interface.
+ * @property _options.applicationInterface.callbackName {string} - Global
+ * resource path to
+ * callback function to trigger when google has finished loading the
+ * application interface.
+ * @property _options.applicationInterface.key {string} - Application interface
+ * key to authenticate against google maps application interface.
  * @property _options.stores
  * {string|Array.<string>|Object.<string, number|Function>} - URL to retrieve
  * stores, list of stores or object describing bounds to create random stores
@@ -158,19 +165,19 @@ export type Position = {
  * auto complete result list.
  * @property _options.searchBox.loadingContent {string} - Markup to display
  * while the results are loading.
- * @property _options.searchBox.numberOfAdditionalGenericPlaces
- * {Array<number, number>} - A tuple describing a range of minimal to maximal
- * limits of additional generic google suggestions depending on number
- * of local search results.
- * @property _options.searchBox.maximalDistanceInMeter {number} - Range to
- * specify maximal distance from current position to search suggestions.
- * @property _options.searchBox.genericPlaceFilter {Function} - Specifies a
+ * @property _options.searchBox.generic {Object} - Specifies options for the
+ * additional generic search to add to specific search results.
+ * @property _options.searchBox.generic.number {Array<number, number>} - A
+ * tuple describing a range of minimal to maximal limits of additional generic
+ * google suggestions depending on number of local search results.
+ * @property _options.searchBox.generic.maximalDistanceInMeter {number} - Range
+ * to specify maximal distance from current position to search suggestions.
+ * @property _options.searchBox.generic.filter {Function} - Specifies a
  * callback which gets a relevant place to decide if the place should be
  * included (returns a boolean value).
- * @property _options.searchBox.prefereGenericResults {boolean} - Specifies a
- * boolean value indicating if generic search results should be the first
- * results.
- * @property _options.searchBox.genericPlaceSearchOptions {Object}- Specifies
+ * @property _options.searchBox.generic.prefer {boolean} - Specifies a boolean
+ * value indicating if generic search results should be the first results.
+ * @property _options.searchBox.generic.retrieveOptions {Object}- Specifies
  * how a generic place search should be done (google maps request object
  * specification).
  * @property _options.searchBox.content {Function|string} - Defines how to
@@ -201,11 +208,13 @@ export default class StoreLocator extends $.Tools.class {
     // region static properties
     static google:Object
     static _name:string = 'StoreLocator'
-    static _apiLoad:$Deferred<$DomNode>
+    static _applicationInterfaceLoad:$Deferred<$DomNode>
     // endregion
     // region dynamic properties
+    searchResultsStyleProperties:PlainObject
     currentSearchResults:Array<Object>
     currentSearchText:?string
+    currentSearchWords:Array<string>
     resultsDomNode:?$DomNode
     currentSearchResultsDomNode:?$DomNode
     currentlyOpenWindow:?Object
@@ -214,6 +223,7 @@ export default class StoreLocator extends $.Tools.class {
     seenLocations:Array<string>
     markers:Array<Object>
     currentSearchResultRange:?Array<number>;
+    defaultSearchBoxOptions:Object;
     // endregion
     /**
      * Entry point for object orientated plugin.
@@ -222,8 +232,10 @@ export default class StoreLocator extends $.Tools.class {
      */
     initialize(options:Object = {}):$Deferred<$DomNode> {
         // region properties
+        this.searchResultsStyleProperties = {}
         this.currentSearchResults = []
         this.currentSearchText = null
+        this.currentSearchWords = []
         this.resultsDomNode = null
         this.currentSearchResultsDomNode = null
         this.currentlyOpenWindow = null
@@ -233,7 +245,7 @@ export default class StoreLocator extends $.Tools.class {
         this.markers = []
         this.currentSearchResultRange = null
         this._options = {
-            api: {
+            applicationInterface: {
                 url:
                     'https://maps.googleapis.com/maps/api/js' +
                     '?{1}v=3&sensor=false&libraries=places,geometry&' +
@@ -304,41 +316,67 @@ export default class StoreLocator extends $.Tools.class {
         // endregion
         // Merges given options with default options recursively.
         super.initialize(options)
+        this.defaultSearchBoxOptions = {
+            generic: {
+                number: [2, 5],
+                maximalDistanceInMeter: 1000000,
+                filter: (place:Object):boolean => (
+                    place.formatted_address.indexOf(
+                        ' Deutschland'
+                    ) !== -1 || place.formatted_address.indexOf(
+                        ' Germany'
+                    ) !== -1
+                ),
+                prefer: true,
+                retrieveOptions: {radius: '50000'}
+            },
+            properties: ['formatted_address', 'name', 'street', 'address'],
+            maximumNumberOfResults: 50,
+            loadingContent: this._options.infoWindow.loadingContent,
+            noResultsContent:
+                '<div class="no-results">No results found</div>'
+        }
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
-        if (typeof this.constructor._apiLoad !== 'object') {
+        if (typeof this.constructor._applicationInterfaceLoad !== 'object') {
             loadInitialized = false
-            this.constructor._apiLoad = $.Deferred()
+            this.constructor._applicationInterfaceLoad = $.Deferred()
         }
-        const result:$Deferred<$DomNode> = this.constructor._apiLoad.then(
-            this.getMethod(this.bootstrap)
+        const result:$Deferred<$DomNode> =
+            this.constructor._applicationInterfaceLoad.then(this.getMethod(
+                this.bootstrap)
         ).done(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
             this.constructor.google = $.global.google
-            if (this.constructor._apiLoad.state() !== 'resolved')
+            if (this.constructor._applicationInterfaceLoad.state(
+            ) !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
-                    this.constructor._apiLoad.resolve(this.$domNode))
+                    this.constructor._applicationInterfaceLoad.resolve(
+                        this.$domNode))
         } else if ('google' in $.global && 'maps' in $.global.google) {
             this.constructor.google = $.global.google
-            if (this.constructor._apiLoad.state() !== 'resolved')
+            if (this.constructor._applicationInterface.state() !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
-                    this.constructor._apiLoad.resolve(this.$domNode))
+                    this.constructor._applicationInterface.resolve(
+                        this.$domNode))
         } else if (!loadInitialized) {
             let callbackName:string
-            if (this._options.api.callbackName)
-                callbackName = this._options.api.callbackName
+            if (this._options.applicationInterface.callbackName)
+                callbackName = this._options.applicationInterface.callbackName
             else
                 callbackName = this.constructor.determineUniqueScopeName()
             $.global[callbackName] = ():void => {
                 this.constructor.google = $.global.google
-                this.constructor._apiLoad.resolve(this.$domNode)
+                this.constructor._applicationInterfaceLoad.resolve(
+                    this.$domNode)
             }
             $.getScript(this.constructor.stringFormat(
-                this._options.api.url,
-                (this._options.api.key) ? `key=${this._options.api.key}&` : '',
+                this._options.applicationInterface.url, (
+                    this._options.applicationInterface.key
+                ) ? `key=${this._options.applicationInterface.key}&` : '',
                 `window.${callbackName}`
             )).catch((response:Object, error:Error):$Deferred<$DomNode> =>
-                this.constructor._apiLoad.reject((error)))
+                this.constructor._applicationInterfaceLoad.reject((error)))
         }
         return result
     }
@@ -534,21 +572,8 @@ export default class StoreLocator extends $.Tools.class {
             this.constructor.google.maps.event.addListener(
                 this.map, 'dragstart', ():StoreLocator =>
                     this.closeSearchResults())
-            this._options.searchBox = this.constructor.extendObject(true, {
-                maximumNumberOfResults: 50,
-                numberOfAdditionalGenericPlaces: [2, 5],
-                maximalDistanceInMeter: 1000000,
-                loadingContent: this._options.infoWindow.loadingContent,
-                genericPlaceFilter: (place:Object):boolean => (
-                    place.formatted_address.indexOf(
-                        ' Deutschland'
-                    ) !== -1 || place.formatted_address.indexOf(
-                        ' Germany'
-                    ) !== -1
-                ),
-                prefereGenericResults: true,
-                genericPlaceSearchOptions: {radius: '50000'}
-            }, this._options.searchBox)
+            this._options.searchBox = this.constructor.extendObject(
+                true, this.defaultSearchBoxOptions, this._options.searchBox)
             this.initializeDataSourceSearchBox()
         }
         // Close marker if zoom level is bigger than the aggregation.
@@ -575,19 +600,26 @@ export default class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     initializeDataSourceSearchResultsBox():StoreLocator {
-        const cssProperties:Object = {}
-        for (const propertyName:string of [
-            'position', 'width', 'top', 'left', 'border'
-        ])
-            cssProperties[propertyName] = this.$domNode.find('input').css(
-                propertyName)
-        cssProperties.marginTop = this.$domNode.find('input').outerHeight(
-            true)
+        this.searchResultsStyleProperties = {}
+        const allStyleProperties:PlainObject = this.$domNode.find(
+            'input'
+        ).Tools('getStyle')
+        for (const propertyName:string in allStyleProperties)
+            if (!(['bottom', 'height'].includes(
+                propertyName
+            ) || propertyName.startsWith('-') || propertyName.toLowerCase(
+            ).startsWith('webkit') || propertyName.toLowerCase(
+            ).startsWith('moz')))
+                this.searchResultsStyleProperties[propertyName] =
+                    allStyleProperties[propertyName]
+        this.searchResultsStyleProperties.marginTop = this.$domNode.find(
+            'input'
+        ).outerHeight(true)
         // Prepare search result positioning.
         this.resultsDomNode = $('<div>').addClass(
             this.constructor.stringCamelCaseToDelimited(
-                `${this.__name__}SearchResults`)
-        ).css(cssProperties)
+                `${this.constructor._name}SearchResults`)
+        ).css(this.searchResultsStyleProperties)
         // Inject the final search results into the dom tree.
         this.$domNode.find('input').after(this.resultsDomNode)
         return this
@@ -619,7 +651,7 @@ export default class StoreLocator extends $.Tools.class {
                 if (this.currentlyHighlightedMarker)
                     currentIndex = this.currentSearchResults.indexOf(
                         this.currentlyHighlightedMarker)
-                if (event.keyCode === this.keyCode.DOWN)
+                if (event.keyCode === this.constructor.keyCode.DOWN)
                     if (
                         currentIndex === -1 ||
                         this.currentSearchResultRange[1] < currentIndex + 1
@@ -630,7 +662,7 @@ export default class StoreLocator extends $.Tools.class {
                     else
                         this.highlightMarker(
                             this.currentSearchResults[currentIndex + 1], event)
-                else if (event.keyCode === this.keyCode.UP)
+                else if (event.keyCode === this.constructor.keyCode.UP)
                     if ([this.currentSearchResultRange[0], -1].includes(
                         currentIndex
                     ))
@@ -642,7 +674,7 @@ export default class StoreLocator extends $.Tools.class {
                         this.highlightMarker(
                             this.currentSearchResults[currentIndex - 1], event)
                 else if (
-                    event.keyCode === this.keyCode.ENTER &&
+                    event.keyCode === this.constructor.keyCode.ENTER &&
                     this.currentlyHighlightedMarker
                 ) {
                     event.stopPropagation()
@@ -663,15 +695,12 @@ export default class StoreLocator extends $.Tools.class {
         this.on(this.$domNode.find('input'), 'keydown', (
             event:Object
         ):void => {
-            for (const name:string in this.keyCode)
-                if (
-                    this.keyCode.hasOwnProperty(name) &&
-                    event.keyCode === this.keyCode[name] && name !== 'DOWN'
-                )
-                    return
+            if (
+                this.constructor.keyCode.DOWN === event.keyCode &&
+                this.currentSearchText
+            )
+                this.openSearchResults()
         })
-        if (this.currentSearchText)
-            this.openSearchResults()
         this.on(this.$domNode.find('input'), 'click', ():void => {
             if (this.currentSearchText)
                 this.openSearchResults()
@@ -695,15 +724,17 @@ export default class StoreLocator extends $.Tools.class {
         const placesService:Object =
             new this.constructor.google.maps.places.PlacesService(this.map)
         return this.constructor.debounce((event:Object):void => {
-            for (const name:string in this.keyCode)
-                if (event && event.keyCode === this.keyCode[name] && ![
-                    'DELETE', 'BACKSPACE'
-                ].includes(name))
+            for (const name:string in this.constructor.keyCode)
+                if (
+                    event &&
+                    event.keyCode === this.constructor.keyCode[name] &&
+                    !['DELETE', 'BACKSPACE'].includes(name)
+                )
                     return
             this.acquireLock(`${this.constructor._name}Search`, ():void => {
                 const searchText:string = this.$domNode.find(
                     'input'
-                ).val().trim()
+                ).val().toLowerCase().replace(/[-_& ]+/, ' ').trim()
                 if (
                     this.currentSearchText === searchText &&
                     !this.searchResultsDirty
@@ -736,7 +767,7 @@ export default class StoreLocator extends $.Tools.class {
                         'removeSearchResults', false, this,
                         this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = loadingDomNode
-                if (this._options.searchBox.numberOfAdditionalGenericPlaces)
+                if (this._options.searchBox.generic.number)
                     /*
                         NOTE: Google searches for more items than exists in the
                         the specified radius. However the radius is a string in
@@ -744,7 +775,7 @@ export default class StoreLocator extends $.Tools.class {
                     */
                     placesService.textSearch(this.constructor.extendObject({
                         query: searchText, location: this.map.getCenter()
-                    }, this._options.searchBox.genericPlaceSearchOptions), (
+                    }, this._options.searchBox.generic.retrieveOptions), (
                         places:Array<Object>
                     ):void => {
                         if (places)
@@ -752,11 +783,12 @@ export default class StoreLocator extends $.Tools.class {
                     })
                 else
                     this.performLocalSearch(searchText)
-            }, 1000)
-        })
+            })
+        }, 1000)
     }
     /**
-     * Sorts and filters search results given by the google api.
+     * Sorts and filters search results given by google's aplication
+     * interface.
      * @param places - List of place objects.
      * @param searchText - Words which should occur in requested search
      * results.
@@ -786,9 +818,12 @@ export default class StoreLocator extends $.Tools.class {
                 this.constructor.google.maps.geometry.spherical
                     .computeDistanceBetween(this.map.getCenter(
                     ), place.geometry.location)
-            if (distance > this._options.searchBox.maximalDistanceInMeter)
+            if (
+                distance >
+                this._options.searchBox.generic.maximalDistanceInMeter
+            )
                 break
-            if (this._options.searchBox.genericPlaceFilter(place)) {
+            if (this._options.searchBox.generic.filter(place)) {
                 const result:{
                     data:Object;
                     position:Position;
@@ -809,9 +844,7 @@ export default class StoreLocator extends $.Tools.class {
                     }
                 }
                 searchResults.push(result)
-                if (this._options.searchBox.numberOfAdditionalGenericPlaces[
-                    1
-                ] < index)
+                if (this._options.searchBox.generic.number[1] < index)
                     break
             }
         }
@@ -827,38 +860,49 @@ export default class StoreLocator extends $.Tools.class {
         searchText:string, searchResults:Array<Object> = []
     ):StoreLocator {
         const numberOfGenericSearchResults:number = searchResults.length
-        for (const marker:Object of this.markers)
-            for (const key:string of this._options.searchBox.properties)
-                if ((
-                    marker.data[key] || marker.data[key] === 0
-                ) && `${marker.data[key]}`.toLowerCase().replace(
-                    /[-_&]+/g, ' '
-                ).indexOf(searchText.toLowerCase().replace(
-                    /[-_&]+/g, ' '
-                )) !== -1) {
-                    marker.open = (event:Object):StoreLocator =>
-                        this.openMarker(event, marker)
-                    marker.highlight = (
-                        event:Object, type:string
-                    ):StoreLocator => this.highlightMarker(marker, event, type)
-                    searchResults.push(marker)
-                    break
-                }
+        this.currentSearchWords = searchText.split(' ')
+        for (const marker:Object of this.markers) {
+            if (marker.hasOwnProperty('storeLocatorFoundWords'))
+                delete marker.storeLocatorFoundWords
+            for (const key:string of this._options.searchBox.hasOwnProperty(
+                'properties'
+            ) && this._options.searchBox.properties || Object.keys(
+                marker.data
+            ))
+                for (const searchWord:string of this.currentSearchWords)
+                    if ((
+                        marker.data[key] || marker.data[key] === 0
+                    ) && `${marker.data[key]}`.toLowerCase().replace(
+                        /[-_&]+/g, ' '
+                    ).includes(searchWord))
+                        if (marker.hasOwnProperty('storeLocatorFoundWords'))
+                            marker.storeLocatorFoundWords += 1
+                        else {
+                            marker.storeLocatorFoundWords = 1
+                            marker.open = (event:Object):StoreLocator =>
+                                this.openMarker(event, marker)
+                            marker.highlight = (
+                                event:Object, type:string
+                            ):StoreLocator => this.highlightMarker(
+                                marker, event, type)
+                            searchResults.push(marker)
+                        }
+        }
         /*
             Remove generic place results if there are enough local search
             results.
         */
         if (
-            this._options.searchBox.numberOfAdditionalGenericPlaces &&
+            this._options.searchBox.generic.number &&
             searchResults.length && numberOfGenericSearchResults >
-                this._options.searchBox.numberOfAdditionalGenericPlaces[0] &&
+                this._options.searchBox.generic.number[0] &&
             searchResults.length >
-                this._options.searchBox.numberOfAdditionalGenericPlaces[1]
+                this._options.searchBox.generic.number[1]
         )
             searchResults.splice(
-                this._options.searchBox.numberOfAdditionalGenericPlaces[0],
+                this._options.searchBox.generic.number[0],
                 numberOfGenericSearchResults -
-                    this._options.searchBox.numberOfAdditionalGenericPlaces[0])
+                    this._options.searchBox.generic.number[0])
         // Slice additional unneeded local search results.
         let limitReached:boolean = false
         if (
@@ -876,12 +920,12 @@ export default class StoreLocator extends $.Tools.class {
         */
         searchResults.sort((first:Object, second:Object):number => {
             if (
-                this._options.searchBox.prefereGenericResults &&
+                this._options.searchBox.generic.prefer &&
                 !first.infoWindow && second.infoWindow
             )
                 return -1
             if (
-                this._options.searchBox.prefereGenericResults &&
+                this._options.searchBox.generic.prefer &&
                 !second.infoWindow && first.infoWindow
             )
                 return 1
@@ -934,7 +978,7 @@ export default class StoreLocator extends $.Tools.class {
                         'removeSearchResults', false, this,
                         this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = resultsRepresentationDomNode
-                this.releaseLock(`${this._name}Search`)
+                this.releaseLock(`${this.constructor._name}Search`)
             })
         this.currentSearchText = searchText
         this.currentSearchResults = searchResults.slice()
@@ -949,13 +993,23 @@ export default class StoreLocator extends $.Tools.class {
     openSearchResults(event:?Object):StoreLocator {
         if (event)
             event.stopPropagation()
-        this.getUpdateSearchResultsHandler()(event)
         if (this.resultsDomNode && !this.resultsDomNode.hasClass(
             'open'
         ) && !this.fireEvent(
             'openSearchResults', false, this, event, this.resultsDomNode
-        ))
+        )) {
+            for (
+                const propertyName:string in this.searchResultsStyleProperties
+            )
+                if (this.searchResultsStyleProperties.hasOwnProperty(
+                    propertyName
+                ))
+                    // IgnoreTypeCheck
+                    this.resultsDomNode.css(
+                        propertyName,
+                        this.searchResultsStyleProperties[propertyName])
             this.resultsDomNode.addClass('open')
+        }
         return this
     }
     /**
@@ -971,8 +1025,17 @@ export default class StoreLocator extends $.Tools.class {
             'open'
         ) && !this.fireEvent(
             'closeSearchResults', false, this, event, this.resultsDomNode
-        ))
+        )) {
+            for (
+                const propertyName:string in this.searchResultsStyleProperties
+            )
+                if (this.searchResultsStyleProperties.hasOwnProperty(
+                    propertyName
+                ))
+                    // IgnoreTypeCheck
+                    this.resultsDomNode.css(propertyName, '')
             this.resultsDomNode.removeClass('open')
+        }
         return this
     }
     /**
@@ -1283,8 +1346,7 @@ export default class StoreLocator extends $.Tools.class {
                     this.map.getZoom() <=
                         this._options.marker.cluster.maxZoom &&
                     'position' in marker.nativeMarker &&
-                    this.map.getBounds().contains(
-                        marker.nativeMarker.positioning)
+                    this.map.getBounds().contains(marker.nativeMarker.position)
                 ) {
                     this.map.setCenter(marker.nativeMarker.position)
                     this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
@@ -1326,22 +1388,38 @@ export default class StoreLocator extends $.Tools.class {
      * Takes the search results and creates the HTML content of the search
      * results.
      * @param searchResults - Search result to generate markup for.
+     * @param limitReached - Indicated weather defined limit was reached or
+     * not.
      * @returns Generated markup.
      */
-    makeSearchResults(searchResults:Array<Object>):$Deferred<any>|string {
-        if (this.constructor.isFunction(this._options.searchBox.content))
-            return this._options.searchBox.content.apply(this, arguments)
-        if ('content' in this._options.searchBox.content)
+    makeSearchResults(
+        searchResults:Array<Object>, limitReached:boolean
+    ):$Deferred<any>|string {
+        if ('content' in this._options.searchBox) {
+            if (this.constructor.isFunction(this._options.searchBox.content))
+                return this._options.searchBox.content.call(
+                    this, searchResults, limitReached)
             return this._options.searchBox.content
-        let content:string = ''
-        for (const result:Object of searchResults) {
-            content += '<div>'
-            for (const name:string in result.data)
-                if (result.data.hasOwnProperty(name))
-                    content += `${name}: ${result.data[name]}<br />`
-            content += '</div>'
         }
-        return content
+        if (searchResults.length) {
+            let content:string = ''
+            for (const result:Object of searchResults) {
+                content += '<div>'
+                for (const name:string in result.data)
+                    if (result.data.hasOwnProperty(
+                        name
+                    ) && (
+                        this._options.searchBox.properties.length === 0 ||
+                        this._options.searchBox.properties.includes(name)
+                    ))
+                        content += `${name}: ` + this.constructor.stringMark(
+                            `${result.data[name]}`, this.currentSearchWords
+                        ) + '<br />'
+                content += '</div>'
+            }
+            return content
+        }
+        return this._options.searchBox.noResultsContent
     }
 }
 // endregion
