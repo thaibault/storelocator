@@ -52,6 +52,8 @@ export type Position = {
  * after name mangling.
  * @property static:_applicationInterfaceLoad - Holds the currently promise to
  * retrieve a new maps application interface.
+ * @property map - Holds the currently used map instance.
+ * @property markerCluster - Holds the currently used marker cluster instance.
  * @property searchResultsStyleProperties - Dynamically computed CSS properties
  * to append to search result list (derived from search input field).
  * @property currentSearchResults - Saves last found search results.
@@ -211,6 +213,8 @@ export default class StoreLocator extends $.Tools.class {
     static _applicationInterfaceLoad:$Deferred<$DomNode>
     // endregion
     // region dynamic properties
+    map:Object
+    markerCluster:?Object
     searchResultsStyleProperties:PlainObject
     currentSearchResults:Array<Object>
     currentSearchText:?string
@@ -222,7 +226,7 @@ export default class StoreLocator extends $.Tools.class {
     searchResultsDirty:boolean
     seenLocations:Array<string>
     markers:Array<Object>
-    currentSearchResultRange:?Array<number>;
+    currentSearchResultRange:?Array<number>
     defaultSearchBoxOptions:Object;
     // endregion
     /**
@@ -232,6 +236,7 @@ export default class StoreLocator extends $.Tools.class {
      */
     initialize(options:Object = {}):$Deferred<$DomNode> {
         // region properties
+        this.markerCluster = null
         this.searchResultsStyleProperties = {}
         this.currentSearchResults = []
         this.currentSearchText = null
@@ -260,7 +265,7 @@ export default class StoreLocator extends $.Tools.class {
                 generateProperties: (store:Object):Object => store
             },
             addtionalStoreProperties: {},
-            iconPath: '/webAsset/image/storeLocator/',
+            iconPath: '/',
             defaultMarkerIconFileName: null,
             startLocation: null,
             fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
@@ -330,7 +335,13 @@ export default class StoreLocator extends $.Tools.class {
                 prefer: true,
                 retrieveOptions: {radius: '50000'}
             },
-            properties: ['formatted_address', 'name', 'street', 'address'],
+            properties: [
+                'eMailAddress', 'eMail', 'email',
+                'formattedAddress', 'formatted_address', 'address',
+                'name',
+                'street', 'streetAndStreetnumber',
+                'zip', 'zipCode', 'postalCode'
+            ],
             maximumNumberOfResults: 50,
             loadingContent: this._options.infoWindow.loadingContent,
             noResultsContent:
@@ -498,25 +509,38 @@ export default class StoreLocator extends $.Tools.class {
                     ) > this._options.limit.zoom.maximum)
                         this.map.setZoom(this._options.limit.zoom.maximum)
                 })
-        let markerCluster:?Object = null
         if (this._options.marker.cluster) {
             this.constructor.extendObject(
                 googleMarkerClusterer.google, this.constructor.google)
-            markerCluster = new googleMarkerClusterer.Class(
+            this.markerCluster = new googleMarkerClusterer.Class(
                 this.map, [], this._options.marker.cluster)
+            this.resetMarkerCluster = ():void => {
+                const markers:Array<Object> = []
+                for (const marker of this.markers) {
+                    marker.nativeMarker.setMap(null)
+                    delete marker.nativeMarker
+                    marker.nativeMarker =
+                        new this.constructor.google.maps.Marker(marker)
+                    this.attachMarkerEventListener(marker)
+                    markers.push(marker.nativeMarker)
+                }
+                if (this.markerCluster) {
+                    this.markerCluster.clearMarkers()
+                    this.markerCluster = new googleMarkerClusterer.Class(
+                        this.map, markers, this._options.marker.cluster)
+                }
+            }
         }
         // Add a marker for each retrieved store.
         const $addMarkerDeferred:$Deferred<Array<Object>> = $.Deferred()
-        const markerList:Array<Object> = []
         if (Array.isArray(this._options.stores))
             for (const store:Object of this._options.stores) {
                 this.constructor.extendObject(
                     true, store, this._options.addtionalStoreProperties)
                 const marker:Object = this.createMarker(store)
-                if (markerCluster)
-                    markerCluster.addMarker(marker)
-                markerList.push(marker)
-                $addMarkerDeferred.resolve(markerList)
+                if (this.markerCluster)
+                    this.markerCluster.addMarker(marker)
+                $addMarkerDeferred.resolve(this.markers)
             }
         else if (this.constructor.determineType(
             this._options.stores
@@ -526,11 +550,10 @@ export default class StoreLocator extends $.Tools.class {
                     this.constructor.extendObject(
                         true, store, this._options.addtionalStoreProperties)
                     const marker:Object = this.createMarker(store)
-                    if (markerCluster)
-                        markerCluster.addMarker(marker)
-                    markerList.push(marker)
+                    if (this.markerCluster)
+                        this.markerCluster.addMarker(marker)
                 }
-                $addMarkerDeferred.resolve(markerList)
+                $addMarkerDeferred.resolve(this.markers)
             })
         else {
             const southWest:Object = new this.constructor.google.maps.LatLng(
@@ -552,11 +575,10 @@ export default class StoreLocator extends $.Tools.class {
                 const marker:Object = this.createMarker(
                     this.constructor.extendObject(
                         store, this._options.stores.generateProperties(store)))
-                if (markerCluster)
-                    markerCluster.addMarker(marker)
-                markerList.push(marker)
+                if (this.markerCluster)
+                    this.markerCluster.addMarker(marker)
             }
-            $addMarkerDeferred.resolve(markerList)
+            $addMarkerDeferred.resolve(this.markers)
         }
         // Create the search box and link it to the UI element.
         this.map.controls[
@@ -744,7 +766,6 @@ export default class StoreLocator extends $.Tools.class {
                 if (!this.resultsDomNode)
                     this.initializeDataSourceSearchResultsBox()
                 if (!searchText && this.resultsDomNode) {
-                    this.currentSearchText = ''
                     this.currentSearchResults = []
                     this.resultsDomNode.html('')
                     this.currentSearchResultsDomNode = null
@@ -1230,16 +1251,25 @@ export default class StoreLocator extends $.Tools.class {
         marker.infoWindow = new this.constructor.google.maps.InfoWindow({
             content: ''})
         marker.infoWindow.isOpen = false
+        marker.nativeMarker = new this.constructor.google.maps.Marker(marker)
+        this.attachMarkerEventListener(marker)
+        this.markers.push(marker)
+        return marker.nativeMarker
+    }
+    /**
+     * Adds needed event listener to given marker.
+     * @param marker - Marker to attach event listener to.
+     * @returns The current instance.
+     */
+    attachMarkerEventListener(marker:Object):StoreLocator {
         this.constructor.google.maps.event.addListener(
             marker.infoWindow, 'closeclick', ():void => {
                 marker.infoWindow.isOpen = false
             })
-        marker.nativeMarker = new this.constructor.google.maps.Marker(marker)
         this.constructor.google.maps.event.addListener(
             marker.nativeMarker, 'click', this.getMethod(
                 'openMarker', this, marker))
-        this.markers.push(marker)
-        return marker.nativeMarker
+        return this
     }
     /**
      * Opens given marker info window. And closes potentially opened windows.

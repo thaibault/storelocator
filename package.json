@@ -70,7 +70,6 @@
     },
     "module": {
       "aliases": {
-        "clientnode/index$": "clientnode",
         "clientnode/test$": "clientnode/test.compiled",
         "googleMarkerClusterer$": "js-marker-clusterer"
       },

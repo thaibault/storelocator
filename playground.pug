@@ -45,6 +45,23 @@ html
                 northEast: {latitude: 55.12, longitude: 14.89},
                 southWest: {latitude: 47.32, longitude: 5.50}
             }
+            const markSearchResults = function() {
+                let changed = false
+                for (const marker of this.markers)
+                    if (marker.hasOwnProperty(
+                        'storeLocatorFoundWords'
+                    ) || this.currentSearchText === '') {
+                        if (marker.icon.url !== 'a.png') {
+                            marker.icon.url = 'a.png'
+                            changed = true
+                        }
+                    } else if (marker.icon.url !== 'g.png') {
+                        marker.icon.url = 'g.png'
+                        changed = true
+                    }
+                if (changed)
+                    this.resetMarkerCluster()
+            }
             storelocator.index.$('store-locator').StoreLocator({
                 applicationInterface: {
                     key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
@@ -53,13 +70,16 @@ html
                 limit: {zoom: {minimum: 5}, bounds},
                 map: {zoom: 5},
                 searchBox: {},
+                defaultMarkerIconFileName: 'a.png',
+                onAddSearchResults: markSearchResults,
+                onReomveSearchResults: markSearchResults,
                 // Automatically generated stores: "stores: bounds"
                 stores: [
                    {
                       "4.0":false,
-                      "address":"Elgendorfer Str. 57, 56410 Montabaur, Deutschland",
-                      "city":"Montabaur",
-                      "eMailAddress":"info@fake-1.de",
+                      address:"Elgendorfer Str. 57, 56410 Montabaur, Deutschland",
+                      city:"Montabaur",
+                      eMailAddress:"info@fake-1.de",
                       "id":24997,
                       "jobRad":true,
                       "latitude":50.4356,
