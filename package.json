@@ -1,6 +1,6 @@
 {
   "name": "storelocator",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "serves a google maps store locator",
   "documentationWebsite": {
     "name": "storeLocator",
