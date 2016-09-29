@@ -767,7 +767,11 @@ export default class StoreLocator extends $.Tools.class {
                     this.initializeDataSourceSearchResultsBox()
                 if (!searchText && this.resultsDomNode) {
                     this.currentSearchResults = []
+                    this.currentSearchText = ''
                     this.resultsDomNode.html('')
+                    this.fireEvent(
+                        'removeSearchResults', false, this,
+                        this.currentSearchResultsDomNode)
                     this.currentSearchResultsDomNode = null
                     this.closeSearchResults()
                     return this.releaseLock(`${this.constructor._name}Search`)
