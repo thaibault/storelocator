@@ -252,9 +252,8 @@ export default class StoreLocator extends $.Tools.class {
         this._options = {
             applicationInterface: {
                 url:
-                    'https://maps.googleapis.com/maps/api/js' +
-                    '?{1}v=3&sensor=false&libraries=places,geometry&' +
-                    'callback={2}',
+                    'https://maps.googleapis.com/maps/api/js?{1}v=3&' +
+                    'sensor=false&libraries=places,geometry&callback={2}',
                 callbackName: null,
                 key: null
             },
