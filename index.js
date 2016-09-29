@@ -775,7 +775,7 @@ export default class StoreLocator extends $.Tools.class {
                 this.openSearchResults()
                 const loadingDomNode:$DomNode = $(
                     this._options.searchBox.loadingContent)
-                if (this.resultsDomNode && !this.fireEvent(
+                if (this.resultsDomNode && this.fireEvent(
                     'addSearchResults', false, this, loadingDomNode,
                     this.resultsDomNode, this.currentSearchResultsDomNode || []
                 ))
@@ -965,7 +965,7 @@ export default class StoreLocator extends $.Tools.class {
         ) === 'string') {
             const resultsRepresentationDomNode:$DomNode = $(
                 resultsRepresentation)
-            if (this.resultsDomNode && !this.fireEvent(
+            if (this.resultsDomNode && this.fireEvent(
                 'addSearchResults', false, this, resultsRepresentationDomNode,
                 this.resultsDomNode, this.currentSearchResultsDomNode || []
             ))
@@ -985,7 +985,7 @@ export default class StoreLocator extends $.Tools.class {
             resultsRepresentation.then((resultsRepresentation:string):void => {
                 const resultsRepresentationDomNode:$DomNode = $(
                     resultsRepresentation)
-                if (this.resultsDomNode && !this.fireEvent(
+                if (this.resultsDomNode && this.fireEvent(
                     'addSearchResults', false, this,
                     resultsRepresentationDomNode, this.resultsDomNode,
                     this.currentSearchResultsDomNode || []
@@ -1016,7 +1016,7 @@ export default class StoreLocator extends $.Tools.class {
             event.stopPropagation()
         if (this.resultsDomNode && !this.resultsDomNode.hasClass(
             'open'
-        ) && !this.fireEvent(
+        ) && this.fireEvent(
             'openSearchResults', false, this, event, this.resultsDomNode
         )) {
             for (
@@ -1044,7 +1044,7 @@ export default class StoreLocator extends $.Tools.class {
             event.stopPropagation()
         if (this.resultsDomNode && this.resultsDomNode.hasClass(
             'open'
-        ) && !this.fireEvent(
+        ) && this.fireEvent(
             'closeSearchResults', false, this, event, this.resultsDomNode
         )) {
             for (
