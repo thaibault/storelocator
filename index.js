@@ -165,19 +165,19 @@ export type Position = {
  * auto complete result list.
  * @property _options.searchBox.loadingContent {string} - Markup to display
  * while the results are loading.
- * @property _options.searchBox.numberOfAdditionalGenericPlaces
- * {Array<number, number>} - A tuple describing a range of minimal to maximal
- * limits of additional generic google suggestions depending on number
- * of local search results.
- * @property _options.searchBox.maximalDistanceInMeter {number} - Range to
- * specify maximal distance from current position to search suggestions.
- * @property _options.searchBox.genericPlaceFilter {Function} - Specifies a
+ * @property _options.searchBox.generic {Object} - Specifies options for the
+ * additional generic search to add to specific search results.
+ * @property _options.searchBox.generic.number {Array<number, number>} - A
+ * tuple describing a range of minimal to maximal limits of additional generic
+ * google suggestions depending on number of local search results.
+ * @property _options.searchBox.generic.maximalDistanceInMeter {number} - Range
+ * to specify maximal distance from current position to search suggestions.
+ * @property _options.searchBox.generic.filter {Function} - Specifies a
  * callback which gets a relevant place to decide if the place should be
  * included (returns a boolean value).
- * @property _options.searchBox.prefereGenericResults {boolean} - Specifies a
- * boolean value indicating if generic search results should be the first
- * results.
- * @property _options.searchBox.genericPlaceSearchOptions {Object}- Specifies
+ * @property _options.searchBox.generic.prefer {boolean} - Specifies a boolean
+ * value indicating if generic search results should be the first results.
+ * @property _options.searchBox.generic.retrieveOptions {Object}- Specifies
  * how a generic place search should be done (google maps request object
  * specification).
  * @property _options.searchBox.content {Function|string} - Defines how to
@@ -223,6 +223,7 @@ export default class StoreLocator extends $.Tools.class {
     seenLocations:Array<string>
     markers:Array<Object>
     currentSearchResultRange:?Array<number>;
+    defaultSearchBoxOptions:Object;
     // endregion
     /**
      * Entry point for object orientated plugin.
@@ -315,6 +316,26 @@ export default class StoreLocator extends $.Tools.class {
         // endregion
         // Merges given options with default options recursively.
         super.initialize(options)
+        this.defaultSearchBoxOptions = {
+            generic: {
+                number: [2, 5],
+                maximalDistanceInMeter: 1000000,
+                filter: (place:Object):boolean => (
+                    place.formatted_address.indexOf(
+                        ' Deutschland'
+                    ) !== -1 || place.formatted_address.indexOf(
+                        ' Germany'
+                    ) !== -1
+                ),
+                prefer: true,
+                retrieveOptions: {radius: '50000'}
+            },
+            properties: ['formatted_address', 'name', 'street', 'address'],
+            maximumNumberOfResults: 50,
+            loadingContent: this._options.infoWindow.loadingContent,
+            noResultsContent:
+                '<div class="no-results">No results found</div>'
+        }
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
         if (typeof this.constructor._applicationInterfaceLoad !== 'object') {
@@ -551,23 +572,8 @@ export default class StoreLocator extends $.Tools.class {
             this.constructor.google.maps.event.addListener(
                 this.map, 'dragstart', ():StoreLocator =>
                     this.closeSearchResults())
-            this._options.searchBox = this.constructor.extendObject(true, {
-                maximumNumberOfResults: 50,
-                numberOfAdditionalGenericPlaces: [2, 5],
-                maximalDistanceInMeter: 1000000,
-                loadingContent: this._options.infoWindow.loadingContent,
-                noResultsContent:
-                    '<div class="no-results">No results found</div>',
-                genericPlaceFilter: (place:Object):boolean => (
-                    place.formatted_address.indexOf(
-                        ' Deutschland'
-                    ) !== -1 || place.formatted_address.indexOf(
-                        ' Germany'
-                    ) !== -1
-                ),
-                prefereGenericResults: true,
-                genericPlaceSearchOptions: {radius: '50000'}
-            }, this._options.searchBox)
+            this._options.searchBox = this.constructor.extendObject(
+                true, this.defaultSearchBoxOptions, this._options.searchBox)
             this.initializeDataSourceSearchBox()
         }
         // Close marker if zoom level is bigger than the aggregation.
@@ -761,28 +767,15 @@ export default class StoreLocator extends $.Tools.class {
                         'removeSearchResults', false, this,
                         this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = loadingDomNode
-                if (this._options.searchBox.numberOfAdditionalGenericPlaces)
+                if (this._options.searchBox.generic.number)
                     /*
                         NOTE: Google searches for more items than exists in the
                         the specified radius. However the radius is a string in
                         the examples provided by google.
                     */
                     placesService.textSearch(this.constructor.extendObject({
-                        query: searchText, location: this.map.getCenter(),
-                        types: [
-                            'administrative_area_level_1',
-                            'administrative_area_level_2',
-                            'administrative_area_level_3',
-                            'administrative_area_level_4',
-                            'administrative_area_level_5',
-                            'colloquial_area',
-                            'locality',
-                            'geocode',
-                            'political',
-                            'postal_code',
-                            'postal_town'
-                        ]
-                    }, this._options.searchBox.genericPlaceSearchOptions), (
+                        query: searchText, location: this.map.getCenter()
+                    }, this._options.searchBox.generic.retrieveOptions), (
                         places:Array<Object>
                     ):void => {
                         if (places)
@@ -825,9 +818,12 @@ export default class StoreLocator extends $.Tools.class {
                 this.constructor.google.maps.geometry.spherical
                     .computeDistanceBetween(this.map.getCenter(
                     ), place.geometry.location)
-            if (distance > this._options.searchBox.maximalDistanceInMeter)
+            if (
+                distance >
+                this._options.searchBox.generic.maximalDistanceInMeter
+            )
                 break
-            if (this._options.searchBox.genericPlaceFilter(place)) {
+            if (this._options.searchBox.generic.filter(place)) {
                 const result:{
                     data:Object;
                     position:Position;
@@ -848,9 +844,7 @@ export default class StoreLocator extends $.Tools.class {
                     }
                 }
                 searchResults.push(result)
-                if (this._options.searchBox.numberOfAdditionalGenericPlaces[
-                    1
-                ] < index)
+                if (this._options.searchBox.generic.number[1] < index)
                     break
             }
         }
@@ -899,16 +893,16 @@ export default class StoreLocator extends $.Tools.class {
             results.
         */
         if (
-            this._options.searchBox.numberOfAdditionalGenericPlaces &&
+            this._options.searchBox.generic.number &&
             searchResults.length && numberOfGenericSearchResults >
-                this._options.searchBox.numberOfAdditionalGenericPlaces[0] &&
+                this._options.searchBox.generic.number[0] &&
             searchResults.length >
-                this._options.searchBox.numberOfAdditionalGenericPlaces[1]
+                this._options.searchBox.generic.number[1]
         )
             searchResults.splice(
-                this._options.searchBox.numberOfAdditionalGenericPlaces[0],
+                this._options.searchBox.generic.number[0],
                 numberOfGenericSearchResults -
-                    this._options.searchBox.numberOfAdditionalGenericPlaces[0])
+                    this._options.searchBox.generic.number[0])
         // Slice additional unneeded local search results.
         let limitReached:boolean = false
         if (
@@ -926,12 +920,12 @@ export default class StoreLocator extends $.Tools.class {
         */
         searchResults.sort((first:Object, second:Object):number => {
             if (
-                this._options.searchBox.prefereGenericResults &&
+                this._options.searchBox.generic.prefer &&
                 !first.infoWindow && second.infoWindow
             )
                 return -1
             if (
-                this._options.searchBox.prefereGenericResults &&
+                this._options.searchBox.generic.prefer &&
                 !second.infoWindow && first.infoWindow
             )
                 return 1
@@ -1412,12 +1406,12 @@ export default class StoreLocator extends $.Tools.class {
             for (const result:Object of searchResults) {
                 content += '<div>'
                 for (const name:string in result.data)
-                    if (result.data.hasOwnProperty(name) && ![
-                        'geometry', 'icon', 'id', 'photos', 'place_id',
-                        'reference', 'html_attributions', 'types',
-                        'logoFilePath', 'distance', 'logoFile', 'latitude',
-                        'longitude', 'opening_hours'
-                    ].includes(name))
+                    if (result.data.hasOwnProperty(
+                        name
+                    ) && (
+                        this._options.searchBox.properties.length === 0 ||
+                        this._options.searchBox.properties.includes(name)
+                    ))
                         content += `${name}: ` + this.constructor.stringMark(
                             `${result.data[name]}`, this.currentSearchWords
                         ) + '<br />'
