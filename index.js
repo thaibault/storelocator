@@ -20,7 +20,7 @@
 // region imports
 import {$ as binding} from 'clientnode'
 /* eslint-disable no-duplicate-imports */
-import type {$DomNode, $Deferred} from 'clientnode'
+import type {$Deferred, $DomNode} from 'clientnode'
 import type {PlainObject} from 'weboptimizer/type'
 /* eslint-enable no-duplicate-imports */
 /*
@@ -362,13 +362,15 @@ export default class StoreLocator extends $.Tools.class {
             ) !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
                     this.constructor._applicationInterfaceLoad.resolve(
-                        this.$domNode))
+                        this.$domNode),
+                    0)
         } else if ('google' in $.global && 'maps' in $.global.google) {
             this.constructor.google = $.global.google
             if (this.constructor._applicationInterface.state() !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
                     this.constructor._applicationInterface.resolve(
-                        this.$domNode))
+                        this.$domNode),
+                    0)
         } else if (!loadInitialized) {
             let callbackName:string
             if (this._options.applicationInterface.callbackName)
@@ -744,7 +746,9 @@ export default class StoreLocator extends $.Tools.class {
     getUpdateSearchResultsHandler():Function {
         const placesService:Object =
             new this.constructor.google.maps.places.PlacesService(this.map)
-        return this.constructor.debounce((event:Object):void => {
+        return this.constructor.debounce(async (
+            event:Object
+        ):Promise<void> => {
             for (const name:string in this.constructor.keyCode)
                 if (
                     event &&
@@ -752,62 +756,60 @@ export default class StoreLocator extends $.Tools.class {
                     !['DELETE', 'BACKSPACE'].includes(name)
                 )
                     return
-            this.acquireLock(`${this.constructor._name}Search`, ():void => {
-                const searchText:string = this.$domNode.find(
-                    'input'
-                ).val().toLowerCase().replace(/[-_& ]+/, ' ').trim()
-                if (
-                    this.currentSearchText === searchText &&
-                    !this.searchResultsDirty
-                )
-                    return this.releaseLock(`${this.constructor._name}Search`)
-                this.searchResultsDirty = false
-                if (!this.resultsDomNode)
-                    this.initializeDataSourceSearchResultsBox()
-                if (!searchText && this.resultsDomNode) {
-                    this.currentSearchResults = []
-                    this.currentSearchText = ''
-                    this.resultsDomNode.html('')
-                    this.fireEvent(
-                        'removeSearchResults', false, this,
-                        this.currentSearchResultsDomNode)
-                    this.currentSearchResultsDomNode = null
-                    this.closeSearchResults()
-                    return this.releaseLock(`${this.constructor._name}Search`)
-                }
-                this.openSearchResults()
-                const loadingDomNode:$DomNode = $(
-                    this._options.searchBox.loadingContent)
-                if (this.resultsDomNode && this.fireEvent(
-                    'addSearchResults', false, this, loadingDomNode,
-                    this.resultsDomNode, this.currentSearchResultsDomNode || []
-                ))
-                    this.resultsDomNode.html(loadingDomNode)
-                if (
-                    this.currentSearchResultsDomNode &&
-                    this.currentSearchResultsDomNode.length
-                )
-                    this.fireEvent(
-                        'removeSearchResults', false, this,
-                        this.currentSearchResultsDomNode)
-                this.currentSearchResultsDomNode = loadingDomNode
-                if (this._options.searchBox.generic.number)
-                    /*
-                        NOTE: Google searches for more items than exists in the
-                        the specified radius. However the radius is a string in
-                        the examples provided by google.
-                    */
-                    placesService.textSearch(this.constructor.extendObject({
-                        query: searchText, location: this.map.getCenter()
-                    }, this._options.searchBox.generic.retrieveOptions), (
-                        places:Array<Object>
-                    ):void => {
-                        if (places)
-                            this.handleGenericSearchResults(places, searchText)
-                    })
-                else
-                    this.performLocalSearch(searchText)
-            })
+            await this.acquireLock(`${this.constructor._name}Search`)
+            const searchText:string = this.$domNode.find('input').val(
+            ).toLowerCase().replace(/[-_& ]+/, ' ').trim()
+            if (
+                this.currentSearchText === searchText &&
+                !this.searchResultsDirty
+            )
+                return this.releaseLock(`${this.constructor._name}Search`)
+            this.searchResultsDirty = false
+            if (!this.resultsDomNode)
+                this.initializeDataSourceSearchResultsBox()
+            if (!searchText && this.resultsDomNode) {
+                this.currentSearchResults = []
+                this.currentSearchText = ''
+                this.resultsDomNode.html('')
+                this.fireEvent(
+                    'removeSearchResults', false, this,
+                    this.currentSearchResultsDomNode)
+                this.currentSearchResultsDomNode = null
+                this.closeSearchResults()
+                return this.releaseLock(`${this.constructor._name}Search`)
+            }
+            this.openSearchResults()
+            const loadingDomNode:$DomNode = $(
+                this._options.searchBox.loadingContent)
+            if (this.resultsDomNode && this.fireEvent(
+                'addSearchResults', false, this, loadingDomNode,
+                this.resultsDomNode, this.currentSearchResultsDomNode || []
+            ))
+                this.resultsDomNode.html(loadingDomNode)
+            if (
+                this.currentSearchResultsDomNode &&
+                this.currentSearchResultsDomNode.length
+            )
+                this.fireEvent(
+                    'removeSearchResults', false, this,
+                    this.currentSearchResultsDomNode)
+            this.currentSearchResultsDomNode = loadingDomNode
+            if (this._options.searchBox.generic.number)
+                /*
+                    NOTE: Google searches for more items than exists in the
+                    specified radius. However the radius is a string in the
+                    examples provided by google.
+                */
+                placesService.textSearch(this.constructor.extendObject({
+                    query: searchText, location: this.map.getCenter()
+                }, this._options.searchBox.generic.retrieveOptions), (
+                    places:Array<Object>
+                ):void => {
+                    if (places)
+                        this.handleGenericSearchResults(places, searchText)
+                })
+            else
+                this.performLocalSearch(searchText)
         }, 1000)
     }
     /**
