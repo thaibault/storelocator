@@ -894,7 +894,9 @@ export default class StoreLocator extends $.Tools.class {
             ) && this._options.searchBox.properties || Object.keys(
                 marker.data
             ))
-                for (const searchWord:string of this.currentSearchWords)
+                for (const searchWord:string of this.currentSearchWords.concat(
+                    this.currentSearchWords.join(' ')
+                ))
                     if (!marker.foundWords.includes(searchWord) && (
                         marker.data[key] || marker.data[key] === 0
                     ) && `${marker.data[key]}`.toLowerCase().replace(
