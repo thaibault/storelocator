@@ -955,6 +955,10 @@ export default class StoreLocator extends $.Tools.class {
                 !second.infoWindow && first.infoWindow
             )
                 return 1
+            if (first.storeLocatorFoundWords < second.storeLocatorFoundWords)
+                return 1
+            if (second.storeLocatorFoundWords < first.storeLocatorFoundWords)
+                return -1
             return this.constructor.google.maps.geometry.spherical
                 .computeDistanceBetween(
                     this.map.getCenter(), first.position
