@@ -888,8 +888,9 @@ export default class StoreLocator extends $.Tools.class {
         const numberOfGenericSearchResults:number = searchResults.length
         this.currentSearchWords = searchText.split(' ')
         for (const marker:Object of this.markers) {
-            if (marker.hasOwnProperty('storeLocatorFoundWords'))
-                delete marker.storeLocatorFoundWords
+            if (marker.hasOwnProperty('storeLocatorNumberOfFoundWords'))
+                delete marker.storeLocatorNumberOfFoundWords
+            const foundWords:Array<string> = []
             for (const key:string of this._options.searchBox.hasOwnProperty(
                 'properties'
             ) && this._options.searchBox.properties || Object.keys(
@@ -901,10 +902,16 @@ export default class StoreLocator extends $.Tools.class {
                     ) && `${marker.data[key]}`.toLowerCase().replace(
                         /[-_&]+/g, ' '
                     ).includes(searchWord))
-                        if (marker.hasOwnProperty('storeLocatorFoundWords'))
-                            marker.storeLocatorFoundWords += 1
-                        else {
-                            marker.storeLocatorFoundWords = 1
+                        if (marker.hasOwnProperty(
+                            'storeLocatorNumberOfFoundWords'
+                        )) {
+                            if (!foundWords.includes(searchWord)) {
+                                foundWords.push(searchWord)
+                                marker.storeLocatorNumberOfFoundWords += 1
+                            }
+                        } else {
+                            foundWords.push(searchWord)
+                            marker.storeLocatorNumberOfFoundWords = 1
                             marker.open = (event:Object):StoreLocator =>
                                 this.openMarker(event, marker)
                             marker.highlight = (
@@ -955,9 +962,15 @@ export default class StoreLocator extends $.Tools.class {
                 !second.infoWindow && first.infoWindow
             )
                 return 1
-            if (first.storeLocatorFoundWords < second.storeLocatorFoundWords)
+            if (
+                first.storeLocatorNumberOfFoundWords <
+                second.storeLocatorNumberOfFoundWords
+            )
                 return 1
-            if (second.storeLocatorFoundWords < first.storeLocatorFoundWords)
+            if (
+                second.storeLocatorNumberOfFoundWords <
+                first.storeLocatorNumberOfFoundWords
+            )
                 return -1
             return this.constructor.google.maps.geometry.spherical
                 .computeDistanceBetween(
