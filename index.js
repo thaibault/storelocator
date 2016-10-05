@@ -758,7 +758,7 @@ export default class StoreLocator extends $.Tools.class {
                     return
             await this.acquireLock(`${this.constructor._name}Search`)
             const searchText:string = this.$domNode.find('input').val(
-            ).toLowerCase().replace(/[-_& ]+/, ' ').trim()
+            ).toLowerCase().replace(/[-_& ]+/g, ' ').trim()
             if (
                 this.currentSearchText === searchText &&
                 !this.searchResultsDirty
@@ -896,16 +896,13 @@ export default class StoreLocator extends $.Tools.class {
             ))
                 for (const searchWord:string of this.currentSearchWords.concat(
                     this.currentSearchWords.join(' ')
-                ))
+                )) {
                     if (!marker.foundWords.includes(searchWord) && (
                         marker.data[key] || marker.data[key] === 0
                     ) && `${marker.data[key]}`.toLowerCase().replace(
                         /[-_&]+/g, ' '
-                    ).includes(searchWord))
-                        if (marker.foundWords.length)
-                            marker.foundWords.push(searchWord)
-                        else {
-                            marker.foundWords.push(searchWord)
+                    ).includes(searchWord)) {
+                        if (marker.foundWords.length === 0) {
                             marker.open = (event:Object):StoreLocator =>
                                 this.openMarker(event, marker)
                             marker.highlight = (
@@ -914,6 +911,9 @@ export default class StoreLocator extends $.Tools.class {
                                 marker, event, type)
                             searchResults.push(marker)
                         }
+                        marker.foundWords.push(searchWord)
+                    }
+                }
         }
         /*
             Remove generic place results if there are enough local search
