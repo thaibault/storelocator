@@ -888,8 +888,6 @@ export default class StoreLocator extends $.Tools.class {
         const numberOfGenericSearchResults:number = searchResults.length
         this.currentSearchWords = searchText.split(' ')
         for (const marker:Object of this.markers) {
-            if (marker.hasOwnProperty('storeLocatorNumberOfFoundWords'))
-                delete marker.storeLocatorNumberOfFoundWords
             marker.foundWords = []
             for (const key:string of this._options.searchBox.hasOwnProperty(
                 'properties'
@@ -901,16 +899,19 @@ export default class StoreLocator extends $.Tools.class {
                         marker.data[key] || marker.data[key] === 0
                     ) && `${marker.data[key]}`.toLowerCase().replace(
                         /[-_&]+/g, ' '
-                    ).includes(searchWord)) {
-                        marker.foundWords.push(searchWord)
-                        marker.open = (event:Object):StoreLocator =>
-                            this.openMarker(event, marker)
-                        marker.highlight = (
-                            event:Object, type:string
-                        ):StoreLocator => this.highlightMarker(
-                            marker, event, type)
-                        searchResults.push(marker)
-                    }
+                    ).includes(searchWord))
+                        if (marker.foundWords.length)
+                            marker.foundWords.push(searchWord)
+                        else {
+                            marker.foundWords.push(searchWord)
+                            marker.open = (event:Object):StoreLocator =>
+                                this.openMarker(event, marker)
+                            marker.highlight = (
+                                event:Object, type:string
+                            ):StoreLocator => this.highlightMarker(
+                                marker, event, type)
+                            searchResults.push(marker)
+                        }
         }
         /*
             Remove generic place results if there are enough local search
@@ -927,17 +928,6 @@ export default class StoreLocator extends $.Tools.class {
                 this._options.searchBox.generic.number[0],
                 numberOfGenericSearchResults -
                     this._options.searchBox.generic.number[0])
-        // Slice additional unneeded local search results.
-        let limitReached:boolean = false
-        if (
-            this._options.searchBox.maximumNumberOfResults <
-            searchResults.length
-        ) {
-            limitReached = true
-            searchResults.splice(
-                this._options.searchBox.maximumNumberOfResults,
-                searchResults.length)
-        }
         /*
             Sort results by current map center form nearer to more fare away
             results.
@@ -964,6 +954,17 @@ export default class StoreLocator extends $.Tools.class {
                     .computeDistanceBetween(
                         this.map.getCenter(), second.position)
         })
+        // Slice additional unneeded local search results.
+        let limitReached:boolean = false
+        if (
+            this._options.searchBox.maximumNumberOfResults <
+            searchResults.length
+        ) {
+            limitReached = true
+            searchResults.splice(
+                this._options.searchBox.maximumNumberOfResults,
+                searchResults.length)
+        }
         // Compile search results markup.
         const resultsRepresentation:$Deferred<any>|string =
             this.makeSearchResults(searchResults, limitReached)
