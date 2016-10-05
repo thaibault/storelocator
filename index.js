@@ -890,36 +890,27 @@ export default class StoreLocator extends $.Tools.class {
         for (const marker:Object of this.markers) {
             if (marker.hasOwnProperty('storeLocatorNumberOfFoundWords'))
                 delete marker.storeLocatorNumberOfFoundWords
-            const foundWords:Array<string> = []
+            marker.foundWords = []
             for (const key:string of this._options.searchBox.hasOwnProperty(
                 'properties'
             ) && this._options.searchBox.properties || Object.keys(
                 marker.data
             ))
                 for (const searchWord:string of this.currentSearchWords)
-                    if ((
+                    if (!marker.foundWords.includes(searchWord) && (
                         marker.data[key] || marker.data[key] === 0
                     ) && `${marker.data[key]}`.toLowerCase().replace(
                         /[-_&]+/g, ' '
-                    ).includes(searchWord))
-                        if (marker.hasOwnProperty(
-                            'storeLocatorNumberOfFoundWords'
-                        )) {
-                            if (!foundWords.includes(searchWord)) {
-                                foundWords.push(searchWord)
-                                marker.storeLocatorNumberOfFoundWords += 1
-                            }
-                        } else {
-                            foundWords.push(searchWord)
-                            marker.storeLocatorNumberOfFoundWords = 1
-                            marker.open = (event:Object):StoreLocator =>
-                                this.openMarker(event, marker)
-                            marker.highlight = (
-                                event:Object, type:string
-                            ):StoreLocator => this.highlightMarker(
-                                marker, event, type)
-                            searchResults.push(marker)
-                        }
+                    ).includes(searchWord)) {
+                        marker.foundWords.push(searchWord)
+                        marker.open = (event:Object):StoreLocator =>
+                            this.openMarker(event, marker)
+                        marker.highlight = (
+                            event:Object, type:string
+                        ):StoreLocator => this.highlightMarker(
+                            marker, event, type)
+                        searchResults.push(marker)
+                    }
         }
         /*
             Remove generic place results if there are enough local search
@@ -962,15 +953,9 @@ export default class StoreLocator extends $.Tools.class {
                 !second.infoWindow && first.infoWindow
             )
                 return 1
-            if (
-                first.storeLocatorNumberOfFoundWords <
-                second.storeLocatorNumberOfFoundWords
-            )
+            if (first.foundWords.length < second.foundWords.length)
                 return 1
-            if (
-                second.storeLocatorNumberOfFoundWords <
-                first.storeLocatorNumberOfFoundWords
-            )
+            if (second.foundWords.length < first.foundWords.length)
                 return -1
             return this.constructor.google.maps.geometry.spherical
                 .computeDistanceBetween(
