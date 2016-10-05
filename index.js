@@ -758,7 +758,7 @@ export default class StoreLocator extends $.Tools.class {
                     return
             await this.acquireLock(`${this.constructor._name}Search`)
             const searchText:string = this.$domNode.find('input').val(
-            ).toLowerCase().replace(/[-_& ]+/g, ' ').trim()
+            ).toLowerCase().replace(/[& ]+/g, ' ').replace(/[-_]+/g, '').trim()
             if (
                 this.currentSearchText === searchText &&
                 !this.searchResultsDirty
@@ -900,8 +900,8 @@ export default class StoreLocator extends $.Tools.class {
                     if (!marker.foundWords.includes(searchWord) && (
                         marker.data[key] || marker.data[key] === 0
                     ) && `${marker.data[key]}`.toLowerCase().replace(
-                        /[-_&]+/g, ' '
-                    ).includes(searchWord)) {
+                        /[& ]+/g, ' '
+                    ).replace(/[-_]+/g, '').trim().includes(searchWord)) {
                         if (marker.foundWords.length === 0) {
                             marker.open = (event:Object):StoreLocator =>
                                 this.openMarker(event, marker)
