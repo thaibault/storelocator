@@ -191,6 +191,9 @@ export type Position = {
  * number of search results was reached and the store locator instance itself
  * as third argument. If nothing is provided all available data will be listed
  * in a generic info window.
+ * @property _options.searchBox.resultAggregation {string} - "Union" or "cut".
+ * @property _options.searchBox.normalize {Function} - Pure function to
+ * normalize strings before searching against them.
  * @property _options.onInfoWindowOpen {Function} - Triggers if a marker info
  * window will be opened.
  * @property _options.onInfoWindowOpened {Function} - Triggers if a marker info
@@ -344,7 +347,10 @@ export default class StoreLocator extends $.Tools.class {
             maximumNumberOfResults: 50,
             loadingContent: this._options.infoWindow.loadingContent,
             noResultsContent:
-                '<div class="no-results">No results found</div>'
+                '<div class="no-results">No results found</div>',
+            resultAggregation: 'cut',
+            normalize: (value:any):string => `${value}`.toLowerCase(
+            ).replace(/[& ]+/g, ' ').replace(/[-_]+/g, '').trim()
         }
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
@@ -757,8 +763,8 @@ export default class StoreLocator extends $.Tools.class {
                 )
                     return
             await this.acquireLock(`${this.constructor._name}Search`)
-            const searchText:string = this.$domNode.find('input').val(
-            ).toLowerCase().replace(/[& ]+/g, ' ').replace(/[-_]+/g, '').trim()
+            const searchText:string = this._options.searchBox.normalize(
+                this.$domNode.find('input').val())
             if (
                 this.currentSearchText === searchText &&
                 !this.searchResultsDirty
@@ -896,24 +902,34 @@ export default class StoreLocator extends $.Tools.class {
             ))
                 for (const searchWord:string of this.currentSearchWords.concat(
                     this.currentSearchWords.join(' ')
-                )) {
+                ))
                     if (!marker.foundWords.includes(searchWord) && (
                         marker.data[key] || marker.data[key] === 0
-                    ) && `${marker.data[key]}`.toLowerCase().replace(
-                        /[& ]+/g, ' '
-                    ).replace(/[-_]+/g, '').trim().includes(searchWord)) {
-                        if (marker.foundWords.length === 0) {
+                    ) && this._options.searchBox.normalize(
+                        marker.data[key]
+                    ).includes(searchWord)) {
+                        marker.foundWords.push(searchWord)
+                        if (marker.foundWords.length === 1) {
                             marker.open = (event:Object):StoreLocator =>
                                 this.openMarker(event, marker)
                             marker.highlight = (
                                 event:Object, type:string
                             ):StoreLocator => this.highlightMarker(
                                 marker, event, type)
-                            searchResults.push(marker)
+                            if (
+                                this._options.searchBox.resultAggregation ===
+                                'union'
+                            )
+                                searchResults.push(marker)
                         }
-                        marker.foundWords.push(searchWord)
+                        if (
+                            marker.foundWords.length ===
+                            this.currentSearchWords.length &&
+                            this._options.searchBox.resultAggregation ===
+                            'cut'
+                        )
+                            searchResults.push(marker)
                     }
-                }
         }
         /*
             Remove generic place results if there are enough local search
@@ -1453,7 +1469,9 @@ export default class StoreLocator extends $.Tools.class {
                         this._options.searchBox.properties.includes(name)
                     ))
                         content += `${name}: ` + this.constructor.stringMark(
-                            `${result.data[name]}`, this.currentSearchWords
+                            `${result.data[name]}`, this.currentSearchWords,
+                            '<span class="tools-mark">{1}</span>',
+                            this._options.searchBox.normalize
                         ) + '<br />'
                 content += '</div>'
             }
