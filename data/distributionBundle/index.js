@@ -20,7 +20,7 @@
 // region imports
 import {$ as binding} from 'clientnode'
 /* eslint-disable no-duplicate-imports */
-import type {$DomNode, $Deferred} from 'clientnode'
+import type {$Deferred, $DomNode} from 'clientnode'
 import type {PlainObject} from 'weboptimizer/type'
 /* eslint-enable no-duplicate-imports */
 /*
@@ -191,6 +191,9 @@ export type Position = {
  * number of search results was reached and the store locator instance itself
  * as third argument. If nothing is provided all available data will be listed
  * in a generic info window.
+ * @property _options.searchBox.resultAggregation {string} - "Union" or "cut".
+ * @property _options.searchBox.normalizer {Function} - Pure function to
+ * normalize strings before searching against them.
  * @property _options.onInfoWindowOpen {Function} - Triggers if a marker info
  * window will be opened.
  * @property _options.onInfoWindowOpened {Function} - Triggers if a marker info
@@ -252,9 +255,8 @@ export default class StoreLocator extends $.Tools.class {
         this._options = {
             applicationInterface: {
                 url:
-                    'https://maps.googleapis.com/maps/api/js' +
-                    '?{1}v=3&sensor=false&libraries=places,geometry&' +
-                    'callback={2}',
+                    'https://maps.googleapis.com/maps/api/js?{1}v=3&' +
+                    'sensor=false&libraries=places,geometry&callback={2}',
                 callbackName: null,
                 key: null
             },
@@ -345,7 +347,12 @@ export default class StoreLocator extends $.Tools.class {
             maximumNumberOfResults: 50,
             loadingContent: this._options.infoWindow.loadingContent,
             noResultsContent:
-                '<div class="no-results">No results found</div>'
+                '<div class="no-results">No results found</div>',
+            resultAggregation: 'cut',
+            normalizer: (value:any):string => `${value}`.toLowerCase(
+            ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
+                /(^| )str\.( |$)/g, 'strasse'
+            ).replace(/[& ]+/g, ' ')
         }
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
@@ -363,13 +370,15 @@ export default class StoreLocator extends $.Tools.class {
             ) !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
                     this.constructor._applicationInterfaceLoad.resolve(
-                        this.$domNode))
+                        this.$domNode),
+                    0)
         } else if ('google' in $.global && 'maps' in $.global.google) {
             this.constructor.google = $.global.google
             if (this.constructor._applicationInterface.state() !== 'resolved')
                 setTimeout(():$Deferred<$DomNode> =>
                     this.constructor._applicationInterface.resolve(
-                        this.$domNode))
+                        this.$domNode),
+                    0)
         } else if (!loadInitialized) {
             let callbackName:string
             if (this._options.applicationInterface.callbackName)
@@ -745,7 +754,9 @@ export default class StoreLocator extends $.Tools.class {
     getUpdateSearchResultsHandler():Function {
         const placesService:Object =
             new this.constructor.google.maps.places.PlacesService(this.map)
-        return this.constructor.debounce((event:Object):void => {
+        return this.constructor.debounce(async (
+            event:Object
+        ):Promise<void> => {
             for (const name:string in this.constructor.keyCode)
                 if (
                     event &&
@@ -753,62 +764,60 @@ export default class StoreLocator extends $.Tools.class {
                     !['DELETE', 'BACKSPACE'].includes(name)
                 )
                     return
-            this.acquireLock(`${this.constructor._name}Search`, ():void => {
-                const searchText:string = this.$domNode.find(
-                    'input'
-                ).val().toLowerCase().replace(/[-_& ]+/, ' ').trim()
-                if (
-                    this.currentSearchText === searchText &&
-                    !this.searchResultsDirty
-                )
-                    return this.releaseLock(`${this.constructor._name}Search`)
-                this.searchResultsDirty = false
-                if (!this.resultsDomNode)
-                    this.initializeDataSourceSearchResultsBox()
-                if (!searchText && this.resultsDomNode) {
-                    this.currentSearchResults = []
-                    this.currentSearchText = ''
-                    this.resultsDomNode.html('')
-                    this.fireEvent(
-                        'removeSearchResults', false, this,
-                        this.currentSearchResultsDomNode)
-                    this.currentSearchResultsDomNode = null
-                    this.closeSearchResults()
-                    return this.releaseLock(`${this.constructor._name}Search`)
-                }
-                this.openSearchResults()
-                const loadingDomNode:$DomNode = $(
-                    this._options.searchBox.loadingContent)
-                if (this.resultsDomNode && this.fireEvent(
-                    'addSearchResults', false, this, loadingDomNode,
-                    this.resultsDomNode, this.currentSearchResultsDomNode || []
-                ))
-                    this.resultsDomNode.html(loadingDomNode)
-                if (
-                    this.currentSearchResultsDomNode &&
-                    this.currentSearchResultsDomNode.length
-                )
-                    this.fireEvent(
-                        'removeSearchResults', false, this,
-                        this.currentSearchResultsDomNode)
-                this.currentSearchResultsDomNode = loadingDomNode
-                if (this._options.searchBox.generic.number)
-                    /*
-                        NOTE: Google searches for more items than exists in the
-                        the specified radius. However the radius is a string in
-                        the examples provided by google.
-                    */
-                    placesService.textSearch(this.constructor.extendObject({
-                        query: searchText, location: this.map.getCenter()
-                    }, this._options.searchBox.generic.retrieveOptions), (
-                        places:Array<Object>
-                    ):void => {
-                        if (places)
-                            this.handleGenericSearchResults(places, searchText)
-                    })
-                else
-                    this.performLocalSearch(searchText)
-            })
+            await this.acquireLock(`${this.constructor._name}Search`)
+            const searchText:string = this._options.searchBox.normalizer(
+                this.$domNode.find('input').val())
+            if (
+                this.currentSearchText === searchText &&
+                !this.searchResultsDirty
+            )
+                return this.releaseLock(`${this.constructor._name}Search`)
+            this.searchResultsDirty = false
+            if (!this.resultsDomNode)
+                this.initializeDataSourceSearchResultsBox()
+            if (!searchText && this.resultsDomNode) {
+                this.currentSearchResults = []
+                this.currentSearchText = ''
+                this.resultsDomNode.html('')
+                this.fireEvent(
+                    'removeSearchResults', false, this,
+                    this.currentSearchResultsDomNode)
+                this.currentSearchResultsDomNode = null
+                this.closeSearchResults()
+                return this.releaseLock(`${this.constructor._name}Search`)
+            }
+            this.openSearchResults()
+            const loadingDomNode:$DomNode = $(
+                this._options.searchBox.loadingContent)
+            if (this.resultsDomNode && this.fireEvent(
+                'addSearchResults', false, this, loadingDomNode,
+                this.resultsDomNode, this.currentSearchResultsDomNode || []
+            ))
+                this.resultsDomNode.html(loadingDomNode)
+            if (
+                this.currentSearchResultsDomNode &&
+                this.currentSearchResultsDomNode.length
+            )
+                this.fireEvent(
+                    'removeSearchResults', false, this,
+                    this.currentSearchResultsDomNode)
+            this.currentSearchResultsDomNode = loadingDomNode
+            if (this._options.searchBox.generic.number)
+                /*
+                    NOTE: Google searches for more items than exists in the
+                    specified radius. However the radius is a string in the
+                    examples provided by google.
+                */
+                placesService.textSearch(this.constructor.extendObject({
+                    query: searchText, location: this.map.getCenter()
+                }, this._options.searchBox.generic.retrieveOptions), (
+                    places:Array<Object>
+                ):void => {
+                    if (places)
+                        this.handleGenericSearchResults(places, searchText)
+                })
+            else
+                this.performLocalSearch(searchText)
         }, 1000)
     }
     /**
@@ -887,31 +896,42 @@ export default class StoreLocator extends $.Tools.class {
         const numberOfGenericSearchResults:number = searchResults.length
         this.currentSearchWords = searchText.split(' ')
         for (const marker:Object of this.markers) {
-            if (marker.hasOwnProperty('storeLocatorFoundWords'))
-                delete marker.storeLocatorFoundWords
+            marker.foundWords = []
             for (const key:string of this._options.searchBox.hasOwnProperty(
                 'properties'
             ) && this._options.searchBox.properties || Object.keys(
                 marker.data
             ))
-                for (const searchWord:string of this.currentSearchWords)
-                    if ((
+                for (const searchWord:string of this.currentSearchWords.concat(
+                    this.currentSearchWords.join(' ')
+                ))
+                    if (!marker.foundWords.includes(searchWord) && (
                         marker.data[key] || marker.data[key] === 0
-                    ) && `${marker.data[key]}`.toLowerCase().replace(
-                        /[-_&]+/g, ' '
-                    ).includes(searchWord))
-                        if (marker.hasOwnProperty('storeLocatorFoundWords'))
-                            marker.storeLocatorFoundWords += 1
-                        else {
-                            marker.storeLocatorFoundWords = 1
+                    ) && this._options.searchBox.normalizer(
+                        marker.data[key]
+                    ).includes(searchWord)) {
+                        marker.foundWords.push(searchWord)
+                        if (marker.foundWords.length === 1) {
                             marker.open = (event:Object):StoreLocator =>
                                 this.openMarker(event, marker)
                             marker.highlight = (
                                 event:Object, type:string
                             ):StoreLocator => this.highlightMarker(
                                 marker, event, type)
-                            searchResults.push(marker)
+                            if (
+                                this._options.searchBox.resultAggregation ===
+                                'union'
+                            )
+                                searchResults.push(marker)
                         }
+                        if (
+                            marker.foundWords.length ===
+                            this.currentSearchWords.length &&
+                            this._options.searchBox.resultAggregation ===
+                            'cut'
+                        )
+                            searchResults.push(marker)
+                    }
         }
         /*
             Remove generic place results if there are enough local search
@@ -928,17 +948,6 @@ export default class StoreLocator extends $.Tools.class {
                 this._options.searchBox.generic.number[0],
                 numberOfGenericSearchResults -
                     this._options.searchBox.generic.number[0])
-        // Slice additional unneeded local search results.
-        let limitReached:boolean = false
-        if (
-            this._options.searchBox.maximumNumberOfResults <
-            searchResults.length
-        ) {
-            limitReached = true
-            searchResults.splice(
-                this._options.searchBox.maximumNumberOfResults,
-                searchResults.length)
-        }
         /*
             Sort results by current map center form nearer to more fare away
             results.
@@ -954,6 +963,10 @@ export default class StoreLocator extends $.Tools.class {
                 !second.infoWindow && first.infoWindow
             )
                 return 1
+            if (first.foundWords.length < second.foundWords.length)
+                return 1
+            if (second.foundWords.length < first.foundWords.length)
+                return -1
             return this.constructor.google.maps.geometry.spherical
                 .computeDistanceBetween(
                     this.map.getCenter(), first.position
@@ -961,6 +974,17 @@ export default class StoreLocator extends $.Tools.class {
                     .computeDistanceBetween(
                         this.map.getCenter(), second.position)
         })
+        // Slice additional unneeded local search results.
+        let limitReached:boolean = false
+        if (
+            this._options.searchBox.maximumNumberOfResults <
+            searchResults.length
+        ) {
+            limitReached = true
+            searchResults.splice(
+                this._options.searchBox.maximumNumberOfResults,
+                searchResults.length)
+        }
         // Compile search results markup.
         const resultsRepresentation:$Deferred<any>|string =
             this.makeSearchResults(searchResults, limitReached)
@@ -1447,7 +1471,9 @@ export default class StoreLocator extends $.Tools.class {
                         this._options.searchBox.properties.includes(name)
                     ))
                         content += `${name}: ` + this.constructor.stringMark(
-                            `${result.data[name]}`, this.currentSearchWords
+                            `${result.data[name]}`, this.currentSearchWords,
+                            '<span class="tools-mark">{1}</span>',
+                            this._options.searchBox.normalizer
                         ) + '<br />'
                 content += '</div>'
             }
