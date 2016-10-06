@@ -350,9 +350,9 @@ export default class StoreLocator extends $.Tools.class {
                 '<div class="no-results">No results found</div>',
             resultAggregation: 'cut',
             normalizer: (value:any):string => `${value}`.toLowerCase(
-                ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
-                    /(^| )str\.( |$)/g, 'strasse'
-                ).replace(/[& ]+/g, ' ')
+            ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
+                /(^| )str\.( |$)/g, 'strasse'
+            ).replace(/[& ]+/g, ' ')
         }
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
