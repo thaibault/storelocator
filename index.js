@@ -351,7 +351,7 @@ export default class StoreLocator extends $.Tools.class {
             resultAggregation: 'cut',
             normalizer: (value:any):string => `${value}`.toLowerCase(
             ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
-                /(^| )str\.( |$)/g, 'strasse'
+                /(^| )str\./g, '$1strasse'
             ).replace(/[& ]+/g, ' ')
         }
         this.$domNode.find('input').css(this._options.input.hide)
