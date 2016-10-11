@@ -290,7 +290,12 @@ export default class StoreLocator extends $.Tools.class {
                     southWest: {latitude: -85, longitude: -180}
                 }
             },
-            map: {zoom: 3},
+            map: {
+                zoom: 3,
+                disableDefaultUI: true,
+                zoomControl: true,
+                streetViewControl: true
+            },
             showInputAfterLoadedDelayInMilliseconds: 500,
             input: {
                 hide: {opacity: 0},
