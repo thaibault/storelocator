@@ -161,6 +161,9 @@ export type Position = {
  * @property _options.searchBox {number|Object} - If a number is given a
  * generic search will be provided and given number will be interpret as search
  * result precision tolerance to identify a marker as search result.
+ * @property _options.searchBox.stylePropertiesToDeriveFromInputField
+ * {Array<string>} - List of cascading style properties to derive from input
+ * field and use for search box.
  * @property _options.searchBox.properties {Object} - Specify which store data
  * should contain given search text.
  * @property _options.searchBox.maximumNumberOfResults {number} - Limits the
@@ -349,6 +352,10 @@ export default class StoreLocator extends $.Tools.class {
             noResultsContent:
                 '<div class="no-results">No results found</div>',
             resultAggregation: 'cut',
+            stylePropertiesToDeriveFromInputField: [
+                'top', 'left', 'right', 'position', 'backgroundColor',
+                'paddingBottom', 'paddingLeft', 'paddingRight', 'paddingTop'
+            ],
             normalizer: (value:any):string => `${value}`.toLowerCase(
             ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
                 /(^| )str\./g, '$1strasse'
@@ -635,14 +642,16 @@ export default class StoreLocator extends $.Tools.class {
         const allStyleProperties:PlainObject = this.$domNode.find(
             'input'
         ).Tools('getStyle')
-        for (const propertyName:string in allStyleProperties)
-            if (!(['bottom', 'height'].includes(
-                propertyName
-            ) || propertyName.startsWith('-') || propertyName.toLowerCase(
-            ).startsWith('webkit') || propertyName.toLowerCase(
-            ).startsWith('moz')))
+        for (const propertyName:string in allStyleProperties) {
+            console.log(propertyName)
+            if (
+                this._options.searchBox
+                    .stylePropertiesToDeriveFromInputField.includes(
+                        propertyName)
+            )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
+        }
         this.searchResultsStyleProperties.marginTop = this.$domNode.find(
             'input'
         ).outerHeight(true)
