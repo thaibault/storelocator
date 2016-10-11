@@ -642,8 +642,7 @@ export default class StoreLocator extends $.Tools.class {
         const allStyleProperties:PlainObject = this.$domNode.find(
             'input'
         ).Tools('getStyle')
-        for (const propertyName:string in allStyleProperties) {
-            console.log(propertyName)
+        for (const propertyName:string in allStyleProperties)
             if (
                 this._options.searchBox
                     .stylePropertiesToDeriveFromInputField.includes(
@@ -651,7 +650,6 @@ export default class StoreLocator extends $.Tools.class {
             )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
-        }
         this.searchResultsStyleProperties.marginTop = this.$domNode.find(
             'input'
         ).outerHeight(true)
