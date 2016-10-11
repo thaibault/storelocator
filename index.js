@@ -354,7 +354,8 @@ export default class StoreLocator extends $.Tools.class {
             resultAggregation: 'cut',
             stylePropertiesToDeriveFromInputField: [
                 'top', 'left', 'right', 'position', 'backgroundColor',
-                'paddingBottom', 'paddingLeft', 'paddingRight', 'paddingTop'
+                'paddingBottom', 'paddingLeft', 'paddingRight', 'paddingTop',
+                'minWidth', 'maxWidth', 'width'
             ],
             normalizer: (value:any):string => `${value}`.toLowerCase(
             ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
