@@ -773,8 +773,11 @@ export default class StoreLocator extends $.Tools.class {
             for (const name:string in this.constructor.keyCode)
                 if (
                     event &&
-                    event.keyCode === this.constructor.keyCode[name] &&
-                    !['DELETE', 'BACKSPACE'].includes(name)
+                    event.keyCode === this.constructor.keyCode[name] && ![
+                        'DELETE', 'BACKSPACE', 'COMMA', 'PERIOD', 'NUMPAD_ADD',
+                        'NUMPAD_DECIMAL', 'NUMPAD_DIVIDE', 'NUMPAD_MULTIPLY',
+                        'NUMPAD_SUBTRACT'
+                    ].includes(name)
                 )
                     return
             await this.acquireLock(`${this.constructor._name}Search`)
@@ -1467,9 +1470,10 @@ export default class StoreLocator extends $.Tools.class {
         searchResults:Array<Object>, limitReached:boolean
     ):$Deferred<any>|string {
         if ('content' in this._options.searchBox) {
-            if (this.constructor.isFunction(this._options.searchBox.content))
+            if (this.constructor.isFunction(this._options.searchBox.content)) {
                 return this._options.searchBox.content.call(
                     this, searchResults, limitReached)
+            }
             return this._options.searchBox.content
         }
         if (searchResults.length) {
