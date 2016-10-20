@@ -1238,8 +1238,8 @@ export default class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     onLoaded():StoreLocator {
-        setTimeout(():$DomNode => this.$domNode.find('input').animate.apply(
-            this.$domNode.find('input'), this._options.input.showAnimation
+        setTimeout(():$DomNode => this.$domNode.find('input').animate(
+            ...this._options.input.showAnimation
         ), this._options.showInputAfterLoadedDelayInMilliseconds)
         return this
     }
@@ -1443,12 +1443,17 @@ export default class StoreLocator extends $.Tools.class {
      * Takes the marker for a store and creates the HTML content of the info
      * window.
      * @param marker - Marker to generate info window for.
+     * @param additionalParameter - Additional parameter to forward to options
+     * given render callback.
      * @returns Info window markup.
      */
-    makeInfoWindow(marker:Object):string|Object {
+    makeInfoWindow(
+        marker:Object, ...additionalParameter:Array<any>
+    ):string|Object {
         if ('content' in this._options.infoWindow) {
             if (this.constructor.isFunction(this._options.infoWindow.content))
-                return this._options.infoWindow.content.apply(this, arguments)
+                return this._options.infoWindow.content(
+                    marker, ...additionalParameter)
             if (this._options.infoWindow.content)
                 return this._options.infoWindow.content
         }
@@ -1470,10 +1475,9 @@ export default class StoreLocator extends $.Tools.class {
         searchResults:Array<Object>, limitReached:boolean
     ):$Deferred<any>|string {
         if ('content' in this._options.searchBox) {
-            if (this.constructor.isFunction(this._options.searchBox.content)) {
+            if (this.constructor.isFunction(this._options.searchBox.content))
                 return this._options.searchBox.content.call(
                     this, searchResults, limitReached)
-            }
             return this._options.searchBox.content
         }
         if (searchResults.length) {
@@ -1500,8 +1504,8 @@ export default class StoreLocator extends $.Tools.class {
     }
 }
 // endregion
-$.fn.StoreLocator = function():any {
-    return $.Tools().controller(StoreLocator, arguments, this)
+$.fn.StoreLocator = function(...parameter:Array<any>):any {
+    return $.Tools().controller(StoreLocator, parameter, this)
 }
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
