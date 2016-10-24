@@ -20,8 +20,7 @@
 // region imports
 import {$ as binding} from 'clientnode'
 /* eslint-disable no-duplicate-imports */
-import type {$Deferred, $DomNode} from 'clientnode'
-import type {PlainObject} from 'weboptimizer/type'
+import type {$Deferred, $DomNode, PlainObject} from 'clientnode'
 /* eslint-enable no-duplicate-imports */
 /*
     NOTE: Bind marker clusters google instance to an empty object first to add
