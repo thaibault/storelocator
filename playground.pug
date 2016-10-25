@@ -29,7 +29,8 @@ html
                 height: 100%;
             }
             store-locator input {
-                margin-top: 9px;
+                margin-left: 10px;
+                margin-top: 10px;
                 width: 230px;
                 height: 25px;
             }
@@ -47,16 +48,16 @@ html
             }
             const markSearchResults = function() {
                 let changed = false
-                for (let index = 0; index < this.markers.length; index++)
-                    if (this.markers[index].hasOwnProperty(
+                for (const marker of this.markers)
+                    if (marker.hasOwnProperty(
                         'storeLocatorFoundWords'
                     ) || this.currentSearchText === '') {
-                        if (this.markers[index].icon.url !== 'https://placeholdit.imgix.net/~text?txtsize=9&bg=0099ff&txtclr=ffffff&txt=match&w=50&h=50&fm=png') {
-                            this.markers[index].icon.url = 'https://placeholdit.imgix.net/~text?txtsize=9&bg=0099ff&txtclr=ffffff&txt=match&w=50&h=50&fm=png'
+                        if (marker.icon.url !== 'https://placeholdit.imgix.net/~text?txtsize=9&bg=0099ff&txtclr=ffffff&txt=match&w=50&h=50&fm=png') {
+                            marker.icon.url = 'https://placeholdit.imgix.net/~text?txtsize=9&bg=0099ff&txtclr=ffffff&txt=match&w=50&h=50&fm=png'
                             changed = true
                         }
-                    } else if (this.markers[index].icon.url !== 'https://placeholdit.imgix.net/~text?txtsize=9&txtclr=ffffff&txt=miss&w=50&h=50&fm=png') {
-                        this.markers[index].icon.url = 'https://placeholdit.imgix.net/~text?txtsize=9&txtclr=ffffff&txt=miss&w=50&h=50&fm=png'
+                    } else if (marker.icon.url !== 'https://placeholdit.imgix.net/~text?txtsize=9&txtclr=ffffff&txt=miss&w=50&h=50&fm=png') {
+                        marker.icon.url = 'https://placeholdit.imgix.net/~text?txtsize=9&txtclr=ffffff&txt=miss&w=50&h=50&fm=png'
                         changed = true
                     }
                 if (changed)
