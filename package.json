@@ -33,7 +33,7 @@
     "buildDLL": "webOptimizer buildDLL",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
-    "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{babel:{plugins:{__remove__:\"transform-runtime\"}}}}}'",
+    "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\"}}}}}}'",
     "lint": "webOptimizer typeCheck && webOptimizer lint",
     "prepublish": "npm run build",
     "serve": "webOptimizer serve",
