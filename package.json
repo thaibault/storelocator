@@ -1,6 +1,6 @@
 {
   "name": "storelocator",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "description": "serves a google maps store locator",
   "documentationWebsite": {
     "name": "storeLocator",
@@ -93,7 +93,6 @@
   },
   "devDependencies": {
     "babel-plugin-transform-proto-to-assign": "latest",
-
     "documentation-website": "latest",
     "canvas": "latest",
     "jsdom": "latest",
