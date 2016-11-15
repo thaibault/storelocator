@@ -34,6 +34,7 @@
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\"}}}}}}'",
+    "exportIE10Compatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"}}}}}}'",
     "lint": "webOptimizer typeCheck && webOptimizer lint",
     "prepublish": "npm run build",
     "serve": "webOptimizer serve",
@@ -91,6 +92,8 @@
     "js-marker-clusterer": "latest"
   },
   "devDependencies": {
+    "babel-plugin-transform-proto-to-assign": "latest",
+
     "documentation-website": "latest",
     "canvas": "latest",
     "jsdom": "latest",
