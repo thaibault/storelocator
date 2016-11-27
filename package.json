@@ -75,7 +75,7 @@
         "googleMarkerClusterer$": "js-marker-clusterer"
       },
       "skipParseRegularExpressions": {
-        "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
+        "__evaluate__": "/\\/(?:(?:jquery\\/dist\\/jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
     }
   },
