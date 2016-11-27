@@ -74,13 +74,6 @@
         "clientnode/test$": "clientnode/test.compiled",
         "googleMarkerClusterer$": "js-marker-clusterer"
       },
-      "preprocessor": {
-        "babel": {
-          "presets": {
-            "__remove__": "babili"
-          }
-        }
-      },
       "skipParseRegularExpressions": {
         "__evaluate__": "/\\/(?:(?:jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
