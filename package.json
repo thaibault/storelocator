@@ -1,7 +1,9 @@
 {
   "name": "storelocator",
   "version": "1.0.36",
+  "license": "CC-BY-3.0",
   "description": "serves a google maps store locator",
+  "homepage": "http://torben.website/storeLocator",
   "documentationWebsite": {
     "name": "storeLocator",
     "tagline": "Serves a google maps store locator<!--deDE:Bietet einen Google-Maps-Storelocator-->",
@@ -22,12 +24,11 @@
   "files": [
     "index.js"
   ],
+  "main": "index.compiled.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/thaibault/storeLocator"
   },
-  "homepage": "http://torben.website/storeLocator",
-  "main": "index.compiled.js",
   "scripts": {
     "build": "webOptimizer build",
     "buildDLL": "webOptimizer buildDLL",
@@ -46,7 +47,21 @@
     "watch": "webOptimizer build --watch",
     "watchDLL": "webOptimizer buildDLL --watch"
   },
-  "license": "CC-BY-3.0",
+  "dependencies": {
+    "clientnode": "latest",
+    "jquery": "latest",
+    "js-marker-clusterer": "latest"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-proto-to-assign": "latest",
+    "documentation-website": "latest",
+    "canvas": "latest",
+    "jsdom": "latest",
+    "qunitjs": "latest",
+    "qunit-cli": "latest",
+    "source-map-support": "latest",
+    "weboptimizer": "latest"
+  },
   "webOptimizer": {
     "injection": {
       "external": {
@@ -78,20 +93,5 @@
         "__evaluate__": "/\\/(?:(?:jquery\\/dist\\/jquery)|(?:module)|([^/]+\\.min))\\.js(?:\\?.+|$)/"
       }
     }
-  },
-  "dependencies": {
-    "clientnode": "latest",
-    "jquery": "latest",
-    "js-marker-clusterer": "latest"
-  },
-  "devDependencies": {
-    "babel-plugin-transform-proto-to-assign": "latest",
-    "documentation-website": "latest",
-    "canvas": "latest",
-    "jsdom": "latest",
-    "qunitjs": "latest",
-    "qunit-cli": "latest",
-    "source-map-support": "latest",
-    "weboptimizer": "latest"
   }
 }
