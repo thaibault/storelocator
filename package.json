@@ -5,13 +5,10 @@
   "description": "serves a google maps store locator",
   "homepage": "http://torben.website/storeLocator",
   "documentationWebsite": {
+    "languages": ["deDE", "enUS"],
     "name": "storeLocator",
     "tagline": "Serves a google maps store locator<!--deDE:Bietet einen Google-Maps-Storelocator-->",
-    "trackingCode": "UA-40192634-10",
-    "languages": [
-      "deDE",
-      "enUS"
-    ]
+    "trackingCode": "UA-40192634-10"
   },
   "keywords": [
     "storeLocator",
