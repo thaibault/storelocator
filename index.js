@@ -378,17 +378,9 @@ export default class StoreLocator extends $.Tools.class {
             this.constructor.google = $.global.google
             if (this.constructor._applicationInterfaceLoad.state(
             ) !== 'resolved')
-                setTimeout(():$Deferred<$DomNode> =>
+                this.constructor.timeout(():$Deferred<$DomNode> =>
                     this.constructor._applicationInterfaceLoad.resolve(
-                        this.$domNode),
-                    0)
-        } else if ('google' in $.global && 'maps' in $.global.google) {
-            this.constructor.google = $.global.google
-            if (this.constructor._applicationInterface.state() !== 'resolved')
-                setTimeout(():$Deferred<$DomNode> =>
-                    this.constructor._applicationInterface.resolve(
-                        this.$domNode),
-                    0)
+                        this.$domNode))
         } else if (!loadInitialized) {
             let callbackName:string
             if (this._options.applicationInterface.callbackName)
@@ -425,7 +417,7 @@ export default class StoreLocator extends $.Tools.class {
         */
         let loaded:boolean = false
         const $deferred:$Deferred<$DomNode> = $.Deferred()
-        const fallbackTimeoutID:number = setTimeout(():void => {
+        const fallbackTimeoutID:number = this.constructor.timeout(():void => {
             loaded = true
             this.initializeMap().then(():$Deferred<$DomNode> =>
                 $deferred.resolve(this.$domNode))
@@ -1019,9 +1011,8 @@ export default class StoreLocator extends $.Tools.class {
                     'removeSearchResults', false, this,
                     this.currentSearchResultsDomNode)
             this.currentSearchResultsDomNode = resultsRepresentationDomNode
-            setTimeout(():StoreLocator => this.releaseLock(
-                `${this.constructor._name}Search`
-            ), 0)
+            this.constructor.timeout(():StoreLocator => this.releaseLock(
+                `${this.constructor._name}Search`))
         } else if (resultsRepresentation instanceof Object)
             resultsRepresentation.then((resultsRepresentation:string):void => {
                 const resultsRepresentationDomNode:$DomNode = $(
@@ -1235,9 +1226,10 @@ export default class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     onLoaded():StoreLocator {
-        setTimeout(():$DomNode => this.$domNode.find('input').animate(
-            ...this._options.input.showAnimation
-        ), this._options.showInputAfterLoadedDelayInMilliseconds)
+        this.constructor.timeout(():$DomNode => this.$domNode.find(
+            'input'
+        ).animate(...this._options.input.showAnimation),
+        this._options.showInputAfterLoadedDelayInMilliseconds)
         return this
     }
     /**
