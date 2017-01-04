@@ -53,9 +53,6 @@
     "babel-plugin-transform-proto-to-assign": "latest",
     "documentation-website": "latest",
     "canvas": "latest",
-    "jsdom": "latest",
-    "qunitjs": "latest",
-    "qunit-cli": "latest",
     "source-map-support": "latest",
     "weboptimizer": "latest"
   },
