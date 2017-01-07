@@ -10,6 +10,7 @@ apiDocumentation/
 # Generated runtime bytecode files.
 __pycache__
 *.py[cod]
+**/*.ngfactory.ts
 
 # Runtime data
 database
