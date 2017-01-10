@@ -746,14 +746,14 @@ export default class StoreLocator extends $.Tools.class {
             })
         this.on(
             this.$domNode.find('input'), 'keyup',
-            this.getUpdateSearchResultsHandler())
+            this.updateSearchResultsHandler)
         return this
     }
     /**
      * Triggers on each search request.
      * @returns The current instance.
      */
-    getUpdateSearchResultsHandler():Function {
+    get updateSearchResultsHandler():Function {
         const placesService:Object =
             new this.constructor.google.maps.places.PlacesService(this.map)
         return this.constructor.debounce(async (
