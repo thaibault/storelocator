@@ -636,7 +636,7 @@ export default class StoreLocator extends $.Tools.class {
         this.searchResultsStyleProperties = {}
         const allStyleProperties:PlainObject = this.$domNode.find(
             'input'
-        ).Tools('getStyle')
+        ).Tools('style')
         for (const propertyName:string in allStyleProperties)
             if (
                 this._options.searchBox
