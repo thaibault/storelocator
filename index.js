@@ -417,11 +417,12 @@ export default class StoreLocator extends $.Tools.class {
         */
         let loaded:boolean = false
         const $deferred:$Deferred<$DomNode> = $.Deferred()
-        const fallbackTimeoutID:number = this.constructor.timeout(():void => {
-            loaded = true
-            this.initializeMap().then(():$Deferred<$DomNode> =>
-                $deferred.resolve(this.$domNode))
-        }, this._options.ipToLocation.timeoutInMilliseconds)
+        const fallbackTimeout:Promise<boolean> = this.constructor.timeout(
+            ():void => {
+                loaded = true
+                this.initializeMap().then(():$Deferred<$DomNode> =>
+                    $deferred.resolve(this.$domNode))
+            }, this._options.ipToLocation.timeoutInMilliseconds)
         $.ajax({
             url: this.constructor.stringFormat(
                 this._options.ipToLocation.applicationInterfaceURL,
@@ -432,7 +433,7 @@ export default class StoreLocator extends $.Tools.class {
             dataType: 'jsonp', cache: true
         }).always((currentLocation:Position, textStatus:string):void => {
             if (!loaded) {
-                clearTimeout(fallbackTimeoutID)
+                fallbackTimeout.clear()
                 loaded = true
                 if (textStatus === 'success')
                     /*
