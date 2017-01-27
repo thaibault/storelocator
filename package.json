@@ -34,8 +34,8 @@
     "buildDLL": "webOptimizer buildDLL",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
-    "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\"}}}}}}'",
-    "exportCompatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{configuration:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"},presets:[\"latest\",\"stage-0\"]}}}}}'",
+    "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\"}}}}}}'",
+    "exportCompatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"},presets:[\"latest\",\"stage-0\"]}}}}}'",
     "lint": "webOptimizer typeCheck && webOptimizer lint",
     "prepublish": "npm run build",
     "serve": "webOptimizer serve",
@@ -92,7 +92,7 @@
       },
       "preprocessor": {
         "javaScript": {
-          "configuration": {
+          "options": {
             "presets": {
               "__evaluate__": "(self.target === 'node' ? ['es2017-node7'] : [['modern-browsers', {loose: true}], 'es2017']).concat('stage-0')"
             }
