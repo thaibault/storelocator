@@ -19,10 +19,7 @@
 */
 // region imports
 import {$ as binding} from 'clientnode'
-/* eslint-disable no-duplicate-imports */
-import type {$Deferred, $DomNode} from 'clientnode'
-import type {PlainObject} from 'weboptimizer/type'
-/* eslint-enable no-duplicate-imports */
+import type {$Deferred, $DomNode, PlainObject} from 'clientnode'
 /*
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
@@ -161,6 +158,9 @@ export type Position = {
  * @property _options.searchBox {number|Object} - If a number is given a
  * generic search will be provided and given number will be interpret as search
  * result precision tolerance to identify a marker as search result.
+ * @property _options.searchBox.stylePropertiesToDeriveFromInputField
+ * {Array<string>} - List of cascading style properties to derive from input
+ * field and use for search box.
  * @property _options.searchBox.properties {Object} - Specify which store data
  * should contain given search text.
  * @property _options.searchBox.maximumNumberOfResults {number} - Limits the
@@ -287,7 +287,12 @@ export default class StoreLocator extends $.Tools.class {
                     southWest: {latitude: -85, longitude: -180}
                 }
             },
-            map: {zoom: 3},
+            map: {
+                zoom: 3,
+                disableDefaultUI: true,
+                zoomControl: true,
+                streetViewControl: true
+            },
             showInputAfterLoadedDelayInMilliseconds: 500,
             input: {
                 hide: {opacity: 0},
@@ -349,9 +354,14 @@ export default class StoreLocator extends $.Tools.class {
             noResultsContent:
                 '<div class="no-results">No results found</div>',
             resultAggregation: 'cut',
+            stylePropertiesToDeriveFromInputField: [
+                'top', 'left', 'right', 'position', 'backgroundColor',
+                'paddingBottom', 'paddingLeft', 'paddingRight', 'paddingTop',
+                'minWidth', 'maxWidth', 'width'
+            ],
             normalizer: (value:any):string => `${value}`.toLowerCase(
             ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
-                /(^| )str\.( |$)/g, 'strasse'
+                /(^| )str\./g, '$1strasse'
             ).replace(/[& ]+/g, ' ')
         }
         this.$domNode.find('input').css(this._options.input.hide)
@@ -368,17 +378,9 @@ export default class StoreLocator extends $.Tools.class {
             this.constructor.google = $.global.google
             if (this.constructor._applicationInterfaceLoad.state(
             ) !== 'resolved')
-                setTimeout(():$Deferred<$DomNode> =>
+                this.constructor.timeout(():$Deferred<$DomNode> =>
                     this.constructor._applicationInterfaceLoad.resolve(
-                        this.$domNode),
-                    0)
-        } else if ('google' in $.global && 'maps' in $.global.google) {
-            this.constructor.google = $.global.google
-            if (this.constructor._applicationInterface.state() !== 'resolved')
-                setTimeout(():$Deferred<$DomNode> =>
-                    this.constructor._applicationInterface.resolve(
-                        this.$domNode),
-                    0)
+                        this.$domNode))
         } else if (!loadInitialized) {
             let callbackName:string
             if (this._options.applicationInterface.callbackName)
@@ -415,11 +417,12 @@ export default class StoreLocator extends $.Tools.class {
         */
         let loaded:boolean = false
         const $deferred:$Deferred<$DomNode> = $.Deferred()
-        const fallbackTimeoutID:number = setTimeout(():void => {
-            loaded = true
-            this.initializeMap().then(():$Deferred<$DomNode> =>
-                $deferred.resolve(this.$domNode))
-        }, this._options.ipToLocation.timeoutInMilliseconds)
+        const fallbackTimeout:Promise<boolean> = this.constructor.timeout(
+            ():void => {
+                loaded = true
+                this.initializeMap().then(():$Deferred<$DomNode> =>
+                    $deferred.resolve(this.$domNode))
+            }, this._options.ipToLocation.timeoutInMilliseconds)
         $.ajax({
             url: this.constructor.stringFormat(
                 this._options.ipToLocation.applicationInterfaceURL,
@@ -430,7 +433,7 @@ export default class StoreLocator extends $.Tools.class {
             dataType: 'jsonp', cache: true
         }).always((currentLocation:Position, textStatus:string):void => {
             if (!loaded) {
-                clearTimeout(fallbackTimeoutID)
+                fallbackTimeout.clear()
                 loaded = true
                 if (textStatus === 'success')
                     /*
@@ -634,13 +637,13 @@ export default class StoreLocator extends $.Tools.class {
         this.searchResultsStyleProperties = {}
         const allStyleProperties:PlainObject = this.$domNode.find(
             'input'
-        ).Tools('getStyle')
+        ).Tools('style')
         for (const propertyName:string in allStyleProperties)
-            if (!(['bottom', 'height'].includes(
-                propertyName
-            ) || propertyName.startsWith('-') || propertyName.toLowerCase(
-            ).startsWith('webkit') || propertyName.toLowerCase(
-            ).startsWith('moz')))
+            if (
+                this._options.searchBox
+                    .stylePropertiesToDeriveFromInputField.includes(
+                        propertyName)
+            )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
         this.searchResultsStyleProperties.marginTop = this.$domNode.find(
@@ -744,14 +747,14 @@ export default class StoreLocator extends $.Tools.class {
             })
         this.on(
             this.$domNode.find('input'), 'keyup',
-            this.getUpdateSearchResultsHandler())
+            this.updateSearchResultsHandler)
         return this
     }
     /**
      * Triggers on each search request.
      * @returns The current instance.
      */
-    getUpdateSearchResultsHandler():Function {
+    get updateSearchResultsHandler():Function {
         const placesService:Object =
             new this.constructor.google.maps.places.PlacesService(this.map)
         return this.constructor.debounce(async (
@@ -760,8 +763,11 @@ export default class StoreLocator extends $.Tools.class {
             for (const name:string in this.constructor.keyCode)
                 if (
                     event &&
-                    event.keyCode === this.constructor.keyCode[name] &&
-                    !['DELETE', 'BACKSPACE'].includes(name)
+                    event.keyCode === this.constructor.keyCode[name] && ![
+                        'DELETE', 'BACKSPACE', 'COMMA', 'PERIOD', 'NUMPAD_ADD',
+                        'NUMPAD_DECIMAL', 'NUMPAD_DIVIDE', 'NUMPAD_MULTIPLY',
+                        'NUMPAD_SUBTRACT'
+                    ].includes(name)
                 )
                     return
             await this.acquireLock(`${this.constructor._name}Search`)
@@ -1006,9 +1012,8 @@ export default class StoreLocator extends $.Tools.class {
                     'removeSearchResults', false, this,
                     this.currentSearchResultsDomNode)
             this.currentSearchResultsDomNode = resultsRepresentationDomNode
-            setTimeout(():StoreLocator => this.releaseLock(
-                `${this.constructor._name}Search`
-            ), 0)
+            this.constructor.timeout(():StoreLocator => this.releaseLock(
+                `${this.constructor._name}Search`))
         } else if (resultsRepresentation instanceof Object)
             resultsRepresentation.then((resultsRepresentation:string):void => {
                 const resultsRepresentationDomNode:$DomNode = $(
@@ -1222,9 +1227,10 @@ export default class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     onLoaded():StoreLocator {
-        setTimeout(():$DomNode => this.$domNode.find('input').animate.apply(
-            this.$domNode.find('input'), this._options.input.showAnimation
-        ), this._options.showInputAfterLoadedDelayInMilliseconds)
+        this.constructor.timeout(():$DomNode => this.$domNode.find(
+            'input'
+        ).animate(...this._options.input.showAnimation),
+        this._options.showInputAfterLoadedDelayInMilliseconds)
         return this
     }
     /**
@@ -1427,12 +1433,17 @@ export default class StoreLocator extends $.Tools.class {
      * Takes the marker for a store and creates the HTML content of the info
      * window.
      * @param marker - Marker to generate info window for.
+     * @param additionalParameter - Additional parameter to forward to options
+     * given render callback.
      * @returns Info window markup.
      */
-    makeInfoWindow(marker:Object):string|Object {
+    makeInfoWindow(
+        marker:Object, ...additionalParameter:Array<any>
+    ):string|Object {
         if ('content' in this._options.infoWindow) {
             if (this.constructor.isFunction(this._options.infoWindow.content))
-                return this._options.infoWindow.content.apply(this, arguments)
+                return this._options.infoWindow.content(
+                    marker, ...additionalParameter)
             if (this._options.infoWindow.content)
                 return this._options.infoWindow.content
         }
@@ -1483,8 +1494,8 @@ export default class StoreLocator extends $.Tools.class {
     }
 }
 // endregion
-$.fn.StoreLocator = function():any {
-    return $.Tools().controller(StoreLocator, arguments, this)
+$.fn.StoreLocator = function(...parameter:Array<any>):any {
+    return $.Tools().controller(StoreLocator, parameter, this)
 }
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:

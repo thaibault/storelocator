@@ -1,9 +1,13 @@
 {
   "name": "documentation-website",
   "short_name": "documentation-website",
+  "description": null,
+  "dir": "auto",
+  "lang": "en-US",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "start_url": "/?homescreen=1",
+  "background_color": "white",
   "icons": [
     {
       "src": "android-chrome-36x36.png",
