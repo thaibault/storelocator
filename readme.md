@@ -135,6 +135,7 @@ Examples
     body.documentation advanced-store-locator input.form-control,
     body.documentation div.store-locator-with-bounds input.form-control {
         margin-top: 9px;
+        margin-left: 9px;
         width: 230px;
     }
     body.documentation simple-store-locator div.gm-style-iw > div,
@@ -153,7 +154,7 @@ Examples
     #!JavaScript
 
     const dependenciesLoadPromise = $documentationWebsite.getScript(
-        'https://code.jquery.com/jquery-3.1.0.js'
+        'https://code.jquery.com/jquery-3.1.1.min.js'
     ).then(() => $.getScript(
         'http://torben.website/clientNode/data/distributionBundle/' +
         'index.compiled.js'
