@@ -4,7 +4,6 @@
 
 # Generated documentations
 documentation/build
-api
 apiDocumentation/
 
 # Generated runtime bytecode files.
@@ -81,9 +80,7 @@ nosetests.xml
 # Temporary windows files
 *Thumbs.db
 
-# NPM/yarn's runtime files
-yarn-error.log
-yarn.lock
+# Node Modules
 node_modules/
 .npm/
 .v8flags.*
