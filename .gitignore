@@ -4,7 +4,6 @@
 
 # Generated documentations
 documentation/build
-api
 apiDocumentation/
 
 # Generated runtime bytecode files.
