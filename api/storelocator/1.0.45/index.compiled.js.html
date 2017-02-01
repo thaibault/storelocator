@@ -1,15 +1,34 @@
-'use strict';
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("clientnode"));
-	else if(typeof define === 'function' && define.amd)
-		define("storelocator", ["clientnode"], factory);
-	else if(typeof exports === 'object')
-		exports["storelocator"] = factory(require("clientnode"));
-	else
-		root['storelocator'] = factory(root["clientnode"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__) {
-return /******/ (function(modules) { // webpackBootstrap
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: index.compiled.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: index.compiled.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+var storelocator =
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 
@@ -60,7 +79,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
 /******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
+/******/ 		var getter = module &amp;&amp; module.__esModule ?
 /******/ 			function getDefault() { return module['default']; } :
 /******/ 			function getModuleExports() { return module; };
 /******/ 		__webpack_require__.d(getter, 'a', getter);
@@ -74,7 +93,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -98,7 +117,7 @@ return /******/ (function(modules) { // webpackBootstrap
     See http://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */// region imports
-exports.__esModule=true;exports.$=undefined;var _clientnode=__webpack_require__(2);function _asyncToGenerator(fn){return function(){var gen=fn.apply(this,arguments);return new Promise(function(resolve,reject){function step(key,arg){try{var info=gen[key](arg);var value=info.value}catch(error){reject(error);return}if(info.done){resolve(value)}else{return Promise.resolve(value).then(function(value){step('next',value)},function(err){step('throw',err)})}}return step('next')})}}/*
+Object.defineProperty(exports,'__esModule',{value:true});exports.$=undefined;var _keys=__webpack_require__(2);var _keys2=_interopRequireDefault(_keys);var _asyncToGenerator2=__webpack_require__(3);var _asyncToGenerator3=_interopRequireDefault(_asyncToGenerator2);var _clientnode=__webpack_require__(4);function _interopRequireDefault(obj){return obj&amp;&amp;obj.__esModule?obj:{default:obj}}/*
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
 */const googleMarkerClusterer= false?{Class:require('googleMarkerClusterer'),google:{}// IgnoreTypeCheck
@@ -148,12 +167,12 @@ exports.__esModule=true;exports.$=undefined;var _clientnode=__webpack_require__(
  * @property _options.applicationInterface.key {string} - Application interface
  * key to authenticate against google maps application interface.
  * @property _options.stores
- * {string|Array.<string>|Object.<string, number|Function>} - URL to retrieve
+ * {string|Array.&lt;string>|Object.&lt;string, number|Function>} - URL to retrieve
  * stores, list of stores or object describing bounds to create random stores
  * within. If a "generateProperties" function is given it will be called to
  * retrieve additional properties for each store. The specified store will be
  * given to the function.
- * @property _options.addtionalStoreProperties {Object.<string, mixed>} -
+ * @property _options.addtionalStoreProperties {Object.&lt;string, mixed>} -
  * Additional static store properties which will be available to each store.
  * @property _options.iconPath {string} - Path prefix to search for marker
  * icons.
@@ -179,16 +198,16 @@ exports.__esModule=true;exports.$=undefined;var _clientnode=__webpack_require__(
  * @property _options.ipToLocation.timeoutInMilliseconds {number} - Time to
  * wait for ip resolve. If time is up initialize on given fallback location.
  * @property _options.ipToLocation.bounds
- * {Object.<string, Object.<string, number>>} - Defines bound withing
+ * {Object.&lt;string, Object.&lt;string, number>>} - Defines bound withing
  * determined locations should be. If resolved location isn't within this
  * location it will be ignored.
- * @property _options.ipToLocation.bound.northEast {Object.<string, number>} -
+ * @property _options.ipToLocation.bound.northEast {Object.&lt;string, number>} -
  * Defines north east bound.
  * @property _options.ipToLocation.bound.northEast.latitude {number} - North
  * east latitude bond.
  * @property _options.ipToLocation.bound.northEast.longitude {number} - North
  * east longitude bond.
- * @property _options.ipToLocation.bound.southWest {Object.<string, number>} -
+ * @property _options.ipToLocation.bound.southWest {Object.&lt;string, number>} -
  * Defined south west bound.
  * @property _options.ipToLocation.bound.southWest.latitude {number} - South
  * east latitude bound.
@@ -197,7 +216,7 @@ exports.__esModule=true;exports.$=undefined;var _clientnode=__webpack_require__(
  * @property _options.map {Object} - Initial view properties.
  * @property _options.showInputAfterLoadedDelayInMilliseconds {number} - Delay
  * before we show search input field.
- * @property _options.inputFadeInOption {Object.<string, mixed>} - Transition
+ * @property _options.inputFadeInOption {Object.&lt;string, mixed>} - Transition
  * options to show search input field.
  * @property _options.distanceToMoveByDuplicatedEntries {number} - Distance to
  * move if stores are determined with same latitude and longitude.
@@ -207,7 +226,7 @@ exports.__esModule=true;exports.$=undefined;var _clientnode=__webpack_require__(
  * @property _options.successfulSearchZoom {number} - Specifies a zoom value
  * wich will be adjusted after successfully picked a search result. If set to
  * "null" no zoom change happens.
- * @property _options.infoWindow {Object.<string, mixed>} - Info window
+ * @property _options.infoWindow {Object.&lt;string, mixed>} - Info window
  * options.
  * @property _options.infoWindow.content {Function|string|null} - Function or
  * string returning or representing the info box. If a function is given and a
@@ -225,7 +244,7 @@ exports.__esModule=true;exports.$=undefined;var _clientnode=__webpack_require__(
  * generic search will be provided and given number will be interpret as search
  * result precision tolerance to identify a marker as search result.
  * @property _options.searchBox.stylePropertiesToDeriveFromInputField
- * {Array<string>} - List of cascading style properties to derive from input
+ * {Array&lt;string>} - List of cascading style properties to derive from input
  * field and use for search box.
  * @property _options.searchBox.properties {Object} - Specify which store data
  * should contain given search text.
@@ -235,7 +254,7 @@ exports.__esModule=true;exports.$=undefined;var _clientnode=__webpack_require__(
  * while the results are loading.
  * @property _options.searchBox.generic {Object} - Specifies options for the
  * additional generic search to add to specific search results.
- * @property _options.searchBox.generic.number {Array<number, number>} - A
+ * @property _options.searchBox.generic.number {Array&lt;number, number>} - A
  * tuple describing a range of minimal to maximal limits of additional generic
  * google suggestions depending on number of local search results.
  * @property _options.searchBox.generic.maximalDistanceInMeter {number} - Range
@@ -282,106 +301,106 @@ exports.__esModule=true;exports.$=undefined;var _clientnode=__webpack_require__(
      */// region static properties
 // endregion
 // region dynamic properties
-initialize(options={}){var _this=this;// region properties
-this.markerCluster=null;this.searchResultsStyleProperties={};this.currentSearchResults=[];this.currentSearchText=null;this.currentSearchWords=[];this.resultsDomNode=null;this.currentSearchResultsDomNode=null;this.currentlyOpenWindow=null;this.currentlyHighlightedMarker=null;this.searchResultsDirty=false;this.seenLocations=[];this.markers=[];this.currentSearchResultRange=null;this._options={applicationInterface:{url:'https://maps.googleapis.com/maps/api/js?{1}v=3&'+'sensor=false&libraries=places,geometry&callback={2}',callbackName:null,key:null},stores:{northEast:{latitude:85,longitude:180},southWest:{latitude:-85,longitude:-180},number:100,generateProperties:function generateProperties(store){return store}},addtionalStoreProperties:{},iconPath:'',defaultMarkerIconFileName:null,startLocation:null,fallbackLocation:{latitude:51.124213,longitude:10.147705},ip:null,ipToLocation:{applicationInterfaceURL:'{1}://freegeoip.net/json/{2}',timeoutInMilliseconds:5000,bounds:{northEast:{latitude:85,longitude:180},southWest:{latitude:-85,longitude:-180}}},limit:{zoom:{minimum:1,maximum:9999},bounds:{northEast:{latitude:85,longitude:180},southWest:{latitude:-85,longitude:-180}}},map:{zoom:3,disableDefaultUI:true,zoomControl:true,streetViewControl:true},showInputAfterLoadedDelayInMilliseconds:500,input:{hide:{opacity:0},showAnimation:[{opacity:1},{duration:'fast'}]},distanceToMoveByDuplicatedEntries:0.0001,marker:{cluster:{gridSize:100,maxZoom:11,imagePath:'https://cdn.rawgit.com/googlemaps/'+'js-marker-clusterer/gh-pages/images/m'},icon:{size:{width:44,height:49,unit:'px'},scaledSize:{width:44,height:49,unit:'px'}}},successfulSearchZoom:12,infoWindow:{content:null,additionalMoveToBottomInPixel:120,loadingContent:'<div class="idle">loading...</div>'},searchBox:50,onInfoWindowOpen:this.constructor.noop,onInfoWindowOpened:this.constructor.noop,onAddSearchResults:this.constructor.noop,onRemoveSearchResults:this.constructor.noop,onOpenSearchResults:this.constructor.noop,onCloseSearchResults:this.constructor.noop,onMarkerHighlighted:this.constructor.noop};// endregion
+initialize(options={}){// region properties
+this.markerCluster=null;this.searchResultsStyleProperties={};this.currentSearchResults=[];this.currentSearchText=null;this.currentSearchWords=[];this.resultsDomNode=null;this.currentSearchResultsDomNode=null;this.currentlyOpenWindow=null;this.currentlyHighlightedMarker=null;this.searchResultsDirty=false;this.seenLocations=[];this.markers=[];this.currentSearchResultRange=null;this._options={applicationInterface:{url:'https://maps.googleapis.com/maps/api/js?{1}v=3&amp;'+'sensor=false&amp;libraries=places,geometry&amp;callback={2}',callbackName:null,key:null},stores:{northEast:{latitude:85,longitude:180},southWest:{latitude:-85,longitude:-180},number:100,generateProperties:store=>store},addtionalStoreProperties:{},iconPath:'',defaultMarkerIconFileName:null,startLocation:null,fallbackLocation:{latitude:51.124213,longitude:10.147705},ip:null,ipToLocation:{applicationInterfaceURL:'{1}://freegeoip.net/json/{2}',timeoutInMilliseconds:5000,bounds:{northEast:{latitude:85,longitude:180},southWest:{latitude:-85,longitude:-180}}},limit:{zoom:{minimum:1,maximum:9999},bounds:{northEast:{latitude:85,longitude:180},southWest:{latitude:-85,longitude:-180}}},map:{zoom:3,disableDefaultUI:true,zoomControl:true,streetViewControl:true},showInputAfterLoadedDelayInMilliseconds:500,input:{hide:{opacity:0},showAnimation:[{opacity:1},{duration:'fast'}]},distanceToMoveByDuplicatedEntries:0.0001,marker:{cluster:{gridSize:100,maxZoom:11,imagePath:'https://cdn.rawgit.com/googlemaps/'+'js-marker-clusterer/gh-pages/images/m'},icon:{size:{width:44,height:49,unit:'px'},scaledSize:{width:44,height:49,unit:'px'}}},successfulSearchZoom:12,infoWindow:{content:null,additionalMoveToBottomInPixel:120,loadingContent:'&lt;div class="idle">loading...&lt;/div>'},searchBox:50,onInfoWindowOpen:this.constructor.noop,onInfoWindowOpened:this.constructor.noop,onAddSearchResults:this.constructor.noop,onRemoveSearchResults:this.constructor.noop,onOpenSearchResults:this.constructor.noop,onCloseSearchResults:this.constructor.noop,onMarkerHighlighted:this.constructor.noop};// endregion
 // Merges given options with default options recursively.
-super.initialize(options);this.defaultSearchBoxOptions={generic:{number:[2,5],maximalDistanceInMeter:1000000,filter:function filter(place){return place.formatted_address.indexOf(' Deutschland')!==-1||place.formatted_address.indexOf(' Germany')!==-1},prefer:true,retrieveOptions:{radius:'50000'}},properties:['eMailAddress','eMail','email','formattedAddress','formatted_address','address','name','street','streetAndStreetnumber','zip','zipCode','postalCode'],maximumNumberOfResults:50,loadingContent:this._options.infoWindow.loadingContent,noResultsContent:'<div class="no-results">No results found</div>',resultAggregation:'cut',stylePropertiesToDeriveFromInputField:['top','left','right','position','backgroundColor','paddingBottom','paddingLeft','paddingRight','paddingTop','minWidth','maxWidth','width'],normalizer:function normalizer(value){return`${value}`.toLowerCase().replace(/[-_]+/g,'').replace(/ß/g,'ss').replace(/(^| )str\./g,'$1strasse').replace(/[& ]+/g,' ')}};this.$domNode.find('input').css(this._options.input.hide);let loadInitialized=true;if(typeof this.constructor._applicationInterfaceLoad!=='object'){loadInitialized=false;this.constructor._applicationInterfaceLoad=$.Deferred()}const result=this.constructor._applicationInterfaceLoad.then(this.getMethod(this.bootstrap)).done(function(){return _this.fireEvent('loaded')});if('google'in $.global&&'maps'in $.global.google){this.constructor.google=$.global.google;if(this.constructor._applicationInterfaceLoad.state()!=='resolved')this.constructor.timeout(function(){return _this.constructor._applicationInterfaceLoad.resolve(_this.$domNode)})}else if(!loadInitialized){let callbackName;if(this._options.applicationInterface.callbackName)callbackName=this._options.applicationInterface.callbackName;else callbackName=this.constructor.determineUniqueScopeName();$.global[callbackName]=function(){_this.constructor.google=$.global.google;_this.constructor._applicationInterfaceLoad.resolve(_this.$domNode)};$.getScript(this.constructor.stringFormat(this._options.applicationInterface.url,this._options.applicationInterface.key?`key=${this._options.applicationInterface.key}&`:'',`window.${callbackName}`)).catch(function(response,error){return _this.constructor._applicationInterfaceLoad.reject(error)})}return result}/**
+super.initialize(options);this.defaultSearchBoxOptions={generic:{number:[2,5],maximalDistanceInMeter:1000000,filter:place=>place.formatted_address.indexOf(' Deutschland')!==-1||place.formatted_address.indexOf(' Germany')!==-1,prefer:true,retrieveOptions:{radius:'50000'}},properties:['eMailAddress','eMail','email','formattedAddress','formatted_address','address','name','street','streetAndStreetnumber','zip','zipCode','postalCode'],maximumNumberOfResults:50,loadingContent:this._options.infoWindow.loadingContent,noResultsContent:'&lt;div class="no-results">No results found&lt;/div>',resultAggregation:'cut',stylePropertiesToDeriveFromInputField:['top','left','right','position','backgroundColor','paddingBottom','paddingLeft','paddingRight','paddingTop','minWidth','maxWidth','width'],normalizer:value=>`${value}`.toLowerCase().replace(/[-_]+/g,'').replace(/ß/g,'ss').replace(/(^| )str\./g,'$1strasse').replace(/[&amp; ]+/g,' ')};this.$domNode.find('input').css(this._options.input.hide);let loadInitialized=true;if(typeof this.constructor._applicationInterfaceLoad!=='object'){loadInitialized=false;this.constructor._applicationInterfaceLoad=$.Deferred()}const result=this.constructor._applicationInterfaceLoad.then(this.getMethod(this.bootstrap)).done(()=>this.fireEvent('loaded'));if('google'in $.global&amp;&amp;'maps'in $.global.google){this.constructor.google=$.global.google;if(this.constructor._applicationInterfaceLoad.state()!=='resolved')this.constructor.timeout(()=>this.constructor._applicationInterfaceLoad.resolve(this.$domNode))}else if(!loadInitialized){let callbackName;if(this._options.applicationInterface.callbackName)callbackName=this._options.applicationInterface.callbackName;else callbackName=this.constructor.determineUniqueScopeName();$.global[callbackName]=()=>{this.constructor.google=$.global.google;this.constructor._applicationInterfaceLoad.resolve(this.$domNode)};$.getScript(this.constructor.stringFormat(this._options.applicationInterface.url,this._options.applicationInterface.key?`key=${this._options.applicationInterface.key}&amp;`:'',`window.${callbackName}`)).catch((response,error)=>this.constructor._applicationInterfaceLoad.reject(error))}return result}/**
      * Determines useful location cluster, info windows and marker.
      * @returns The current instance.
-     */bootstrap(){var _this2=this;if(this._options.startLocation)return this.initializeMap();this._options.startLocation=this._options.fallbackLocation;/*
+     */bootstrap(){if(this._options.startLocation)return this.initializeMap();this._options.startLocation=this._options.fallbackLocation;/*
             NOTE: If request is slower than the timeout parameter for jsonp
             request the padding function isn't set anymore so an error
             occurs. That's why we use our own timeout implementation.
-        */let loaded=false;const $deferred=$.Deferred();const fallbackTimeout=this.constructor.timeout(function(){loaded=true;_this2.initializeMap().then(function(){return $deferred.resolve(_this2.$domNode)})},this._options.ipToLocation.timeoutInMilliseconds);$.ajax({url:this.constructor.stringFormat(this._options.ipToLocation.applicationInterfaceURL,$.global.location.protocol.substring(0,$.global.location.protocol.length-1),this._options.ip||''),dataType:'jsonp',cache:true}).always(function(currentLocation,textStatus){if(!loaded){fallbackTimeout.clear();loaded=true;if(textStatus==='success')/*
+        */let loaded=false;const $deferred=$.Deferred();const fallbackTimeout=this.constructor.timeout(()=>{loaded=true;this.initializeMap().then(()=>$deferred.resolve(this.$domNode))},this._options.ipToLocation.timeoutInMilliseconds);$.ajax({url:this.constructor.stringFormat(this._options.ipToLocation.applicationInterfaceURL,$.global.location.protocol.substring(0,$.global.location.protocol.length-1),this._options.ip||''),dataType:'jsonp',cache:true}).always((currentLocation,textStatus)=>{if(!loaded){fallbackTimeout.clear();loaded=true;if(textStatus==='success')/*
                         Check if determined location is within defined
                         bounds.
-                    */if(!_this2._options.ipToLocation.bounds||new _this2.constructor.google.maps.LatLngBounds(new _this2.constructor.google.maps.LatLng(_this2._options.ipToLocation.bounds.southWest.latitude,_this2._options.ipToLocation.bounds.southWest.longitude),new _this2.constructor.google.maps.LatLng(_this2._options.ipToLocation.bounds.northEast.latitude,_this2._options.ipToLocation.bounds.northEast.longitude)).contains(new _this2.constructor.google.maps.LatLng(currentLocation.latitude,currentLocation.longitude)))_this2._options.startLocation=currentLocation;_this2.initializeMap().then(function(){return $deferred.resolve(_this2.$domNode)})}});return $deferred}/**
+                    */if(!this._options.ipToLocation.bounds||new this.constructor.google.maps.LatLngBounds(new this.constructor.google.maps.LatLng(this._options.ipToLocation.bounds.southWest.latitude,this._options.ipToLocation.bounds.southWest.longitude),new this.constructor.google.maps.LatLng(this._options.ipToLocation.bounds.northEast.latitude,this._options.ipToLocation.bounds.northEast.longitude)).contains(new this.constructor.google.maps.LatLng(currentLocation.latitude,currentLocation.longitude)))this._options.startLocation=currentLocation;this.initializeMap().then(()=>$deferred.resolve(this.$domNode))}});return $deferred}/**
      * Initializes cluster, info windows and marker.
      * @returns The current instance.
-     */initializeMap(){var _this3=this;this._options.map.center=new this.constructor.google.maps.LatLng(this._options.startLocation.latitude,this._options.startLocation.longitude);this.map=new this.constructor.google.maps.Map($('<div>').appendTo(this.$domNode.css('display','block'))[0],this._options.map);if(this._options.limit.bounds)this.constructor.google.maps.event.addListener(this.map,'dragend',function(){const limitBounds=new _this3.constructor.google.maps.LatLngBounds(new _this3.constructor.google.maps.LatLng(_this3._options.limit.bounds.southWest.latitude,_this3._options.limit.bounds.southWest.longitude),new _this3.constructor.google.maps.LatLng(_this3._options.limit.bounds.northEast.latitude,_this3._options.limit.bounds.northEast.longitude));const currentCenter=_this3.map.getCenter();if(!limitBounds.contains(currentCenter)){const newCenter={latitude:currentCenter.lat(),longitude:currentCenter.lng()};if(currentCenter.lng()<limitBounds.getSouthWest().lng())newCenter.longitude=limitBounds.getSouthWest().lng();if(currentCenter.lng()>limitBounds.getNorthEast().lng())newCenter.longitude=limitBounds.getNorthEast().lng();if(currentCenter.lat()<limitBounds.getSouthWest().lat())newCenter.latitude=limitBounds.getSouthWest().lat();if(currentCenter.lat()>limitBounds.getNorthEast().lat())newCenter.latitude=limitBounds.getNorthEast().lat();_this3.map.panTo(new _this3.constructor.google.maps.LatLng(newCenter.latitude,newCenter.longitude))}});if(this._options.limit.zoom)this.constructor.google.maps.event.addListener(this.map,'zoom_changed',function(){if(_this3.map.getZoom()<_this3._options.limit.zoom.minimum)_this3.map.setZoom(_this3._options.limit.zoom.minimum);else if(_this3.map.getZoom()>_this3._options.limit.zoom.maximum)_this3.map.setZoom(_this3._options.limit.zoom.maximum)});if(this._options.marker.cluster){this.constructor.extendObject(googleMarkerClusterer.google,this.constructor.google);this.markerCluster=new googleMarkerClusterer.Class(this.map,[],this._options.marker.cluster);this.resetMarkerCluster=function(){const markers=[];for(const marker of _this3.markers){marker.nativeMarker.setMap(null);delete marker.nativeMarker;marker.nativeMarker=new _this3.constructor.google.maps.Marker(marker);_this3.attachMarkerEventListener(marker);markers.push(marker.nativeMarker)}if(_this3.markerCluster){_this3.markerCluster.clearMarkers();_this3.markerCluster=new googleMarkerClusterer.Class(_this3.map,markers,_this3._options.marker.cluster)}}}// Add a marker for each retrieved store.
-const $addMarkerDeferred=$.Deferred();if(Array.isArray(this._options.stores))for(const store of this._options.stores){this.constructor.extendObject(true,store,this._options.addtionalStoreProperties);const marker=this.createMarker(store);if(this.markerCluster)this.markerCluster.addMarker(marker);$addMarkerDeferred.resolve(this.markers)}else if(this.constructor.determineType(this._options.stores)==='string')$.getJSON(this._options.stores,function(stores){for(const store of stores){_this3.constructor.extendObject(true,store,_this3._options.addtionalStoreProperties);const marker=_this3.createMarker(store);if(_this3.markerCluster)_this3.markerCluster.addMarker(marker)}$addMarkerDeferred.resolve(_this3.markers)});else{const southWest=new this.constructor.google.maps.LatLng(this._options.stores.southWest.latitude,this._options.stores.southWest.longitude);const northEast=new this.constructor.google.maps.LatLng(this._options.stores.northEast.latitude,this._options.stores.northEast.longitude);for(let index=0;index<this._options.stores.number;index++){const store=this.constructor.extendObject({latitude:southWest.lat()+(northEast.lat()-southWest.lat())*Math.random(),longitude:southWest.lng()+(northEast.lng()-southWest.lng())*Math.random()},this._options.addtionalStoreProperties);const marker=this.createMarker(this.constructor.extendObject(store,this._options.stores.generateProperties(store)));if(this.markerCluster)this.markerCluster.addMarker(marker)}$addMarkerDeferred.resolve(this.markers)}// Create the search box and link it to the UI element.
-this.map.controls[this.constructor.google.maps.ControlPosition.TOP_LEFT].push(this.$domNode.find('input')[0]);if(this.constructor.determineType(this._options.searchBox)==='number')this.initializeGenericSearchBox();else{this.constructor.google.maps.event.addListener(this.map,'click',function(){return _this3.closeSearchResults()});this.constructor.google.maps.event.addListener(this.map,'dragstart',function(){return _this3.closeSearchResults()});this._options.searchBox=this.constructor.extendObject(true,this.defaultSearchBoxOptions,this._options.searchBox);this.initializeDataSourceSearchBox()}// Close marker if zoom level is bigger than the aggregation.
-this.constructor.google.maps.event.addListener(this.map,'zoom_changed',function(){if(typeof _this3.currentlyOpenWindow==='object'&&_this3.currentlyOpenWindow&&_this3.currentlyOpenWindow.isOpen&&_this3.map.getZoom()<=_this3._options.marker.cluster.maxZoom){_this3.currentlyOpenWindow.isOpen=false;_this3.currentlyOpenWindow.close()}});const $mapLoadedDeferred=$.Deferred();this.constructor.google.maps.event.addListenerOnce(this.map,'idle',function(){return $addMarkerDeferred.then(function(){return $mapLoadedDeferred.resolve(_this3.$domNode)})});return $mapLoadedDeferred}/**
+     */initializeMap(){this._options.map.center=new this.constructor.google.maps.LatLng(this._options.startLocation.latitude,this._options.startLocation.longitude);this.map=new this.constructor.google.maps.Map($('&lt;div>').appendTo(this.$domNode.css('display','block'))[0],this._options.map);if(this._options.limit.bounds)this.constructor.google.maps.event.addListener(this.map,'dragend',()=>{const limitBounds=new this.constructor.google.maps.LatLngBounds(new this.constructor.google.maps.LatLng(this._options.limit.bounds.southWest.latitude,this._options.limit.bounds.southWest.longitude),new this.constructor.google.maps.LatLng(this._options.limit.bounds.northEast.latitude,this._options.limit.bounds.northEast.longitude));const currentCenter=this.map.getCenter();if(!limitBounds.contains(currentCenter)){const newCenter={latitude:currentCenter.lat(),longitude:currentCenter.lng()};if(currentCenter.lng()&lt;limitBounds.getSouthWest().lng())newCenter.longitude=limitBounds.getSouthWest().lng();if(currentCenter.lng()>limitBounds.getNorthEast().lng())newCenter.longitude=limitBounds.getNorthEast().lng();if(currentCenter.lat()&lt;limitBounds.getSouthWest().lat())newCenter.latitude=limitBounds.getSouthWest().lat();if(currentCenter.lat()>limitBounds.getNorthEast().lat())newCenter.latitude=limitBounds.getNorthEast().lat();this.map.panTo(new this.constructor.google.maps.LatLng(newCenter.latitude,newCenter.longitude))}});if(this._options.limit.zoom)this.constructor.google.maps.event.addListener(this.map,'zoom_changed',()=>{if(this.map.getZoom()&lt;this._options.limit.zoom.minimum)this.map.setZoom(this._options.limit.zoom.minimum);else if(this.map.getZoom()>this._options.limit.zoom.maximum)this.map.setZoom(this._options.limit.zoom.maximum)});if(this._options.marker.cluster){this.constructor.extendObject(googleMarkerClusterer.google,this.constructor.google);this.markerCluster=new googleMarkerClusterer.Class(this.map,[],this._options.marker.cluster);this.resetMarkerCluster=()=>{const markers=[];for(const marker of this.markers){marker.nativeMarker.setMap(null);delete marker.nativeMarker;marker.nativeMarker=new this.constructor.google.maps.Marker(marker);this.attachMarkerEventListener(marker);markers.push(marker.nativeMarker)}if(this.markerCluster){this.markerCluster.clearMarkers();this.markerCluster=new googleMarkerClusterer.Class(this.map,markers,this._options.marker.cluster)}}}// Add a marker for each retrieved store.
+const $addMarkerDeferred=$.Deferred();if(Array.isArray(this._options.stores))for(const store of this._options.stores){this.constructor.extendObject(true,store,this._options.addtionalStoreProperties);const marker=this.createMarker(store);if(this.markerCluster)this.markerCluster.addMarker(marker);$addMarkerDeferred.resolve(this.markers)}else if(this.constructor.determineType(this._options.stores)==='string')$.getJSON(this._options.stores,stores=>{for(const store of stores){this.constructor.extendObject(true,store,this._options.addtionalStoreProperties);const marker=this.createMarker(store);if(this.markerCluster)this.markerCluster.addMarker(marker)}$addMarkerDeferred.resolve(this.markers)});else{const southWest=new this.constructor.google.maps.LatLng(this._options.stores.southWest.latitude,this._options.stores.southWest.longitude);const northEast=new this.constructor.google.maps.LatLng(this._options.stores.northEast.latitude,this._options.stores.northEast.longitude);for(let index=0;index&lt;this._options.stores.number;index++){const store=this.constructor.extendObject({latitude:southWest.lat()+(northEast.lat()-southWest.lat())*Math.random(),longitude:southWest.lng()+(northEast.lng()-southWest.lng())*Math.random()},this._options.addtionalStoreProperties);const marker=this.createMarker(this.constructor.extendObject(store,this._options.stores.generateProperties(store)));if(this.markerCluster)this.markerCluster.addMarker(marker)}$addMarkerDeferred.resolve(this.markers)}// Create the search box and link it to the UI element.
+this.map.controls[this.constructor.google.maps.ControlPosition.TOP_LEFT].push(this.$domNode.find('input')[0]);if(this.constructor.determineType(this._options.searchBox)==='number')this.initializeGenericSearchBox();else{this.constructor.google.maps.event.addListener(this.map,'click',()=>this.closeSearchResults());this.constructor.google.maps.event.addListener(this.map,'dragstart',()=>this.closeSearchResults());this._options.searchBox=this.constructor.extendObject(true,this.defaultSearchBoxOptions,this._options.searchBox);this.initializeDataSourceSearchBox()}// Close marker if zoom level is bigger than the aggregation.
+this.constructor.google.maps.event.addListener(this.map,'zoom_changed',()=>{if(typeof this.currentlyOpenWindow==='object'&amp;&amp;this.currentlyOpenWindow&amp;&amp;this.currentlyOpenWindow.isOpen&amp;&amp;this.map.getZoom()&lt;=this._options.marker.cluster.maxZoom){this.currentlyOpenWindow.isOpen=false;this.currentlyOpenWindow.close()}});const $mapLoadedDeferred=$.Deferred();this.constructor.google.maps.event.addListenerOnce(this.map,'idle',()=>$addMarkerDeferred.then(()=>$mapLoadedDeferred.resolve(this.$domNode)));return $mapLoadedDeferred}/**
      * Position search results right below the search input field.
      * @returns The current instance.
      */initializeDataSourceSearchResultsBox(){this.searchResultsStyleProperties={};const allStyleProperties=this.$domNode.find('input').Tools('style');for(const propertyName in allStyleProperties)if(this._options.searchBox.stylePropertiesToDeriveFromInputField.includes(propertyName))this.searchResultsStyleProperties[propertyName]=allStyleProperties[propertyName];this.searchResultsStyleProperties.marginTop=this.$domNode.find('input').outerHeight(true);// Prepare search result positioning.
-this.resultsDomNode=$('<div>').addClass(this.constructor.stringCamelCaseToDelimited(`${this.constructor._name}SearchResults`)).css(this.searchResultsStyleProperties);// Inject the final search results into the dom tree.
+this.resultsDomNode=$('&lt;div>').addClass(this.constructor.stringCamelCaseToDelimited(`${this.constructor._name}SearchResults`)).css(this.searchResultsStyleProperties);// Inject the final search results into the dom tree.
 this.$domNode.find('input').after(this.resultsDomNode);return this}/**
      * Initializes a data source based search box to open and focus them
      * matching marker.
      * @returns The current instance.
-     */initializeDataSourceSearchBox(){var _this4=this;this.on(this.$domNode,'keydown',function(event){/*
+     */initializeDataSourceSearchBox(){this.on(this.$domNode,'keydown',event=>{/*
                 NOTE: Events that doesn't occurs in search context are handled
                 by the native map implementation and won't be propagated so we
                 doesn't have to care about that.
-            */if(_this4.currentSearchResults.length){if(_this4.currentSearchResultRange)_this4.currentSearchResultRange=[Math.max(0,_this4.currentSearchResultRange[0]),Math.min(_this4.currentSearchResults.length-1,// IgnoreTypeCheck
-_this4.currentSearchResultRange[1])];else _this4.currentSearchResultRange=[0,_this4.currentSearchResults.length-1];let currentIndex=-1;if(_this4.currentlyHighlightedMarker)currentIndex=_this4.currentSearchResults.indexOf(_this4.currentlyHighlightedMarker);if(event.keyCode===_this4.constructor.keyCode.DOWN){if(currentIndex===-1||_this4.currentSearchResultRange[1]<currentIndex+1)_this4.highlightMarker(_this4.currentSearchResults[_this4.currentSearchResultRange[0]],event);else _this4.highlightMarker(_this4.currentSearchResults[currentIndex+1],event);}else if(event.keyCode===_this4.constructor.keyCode.UP){if([_this4.currentSearchResultRange[0],-1].includes(currentIndex))_this4.highlightMarker(_this4.currentSearchResults[// IgnoreTypeCheck
-_this4.currentSearchResultRange[1]],event);else _this4.highlightMarker(_this4.currentSearchResults[currentIndex-1],event);}else if(event.keyCode===_this4.constructor.keyCode.ENTER&&_this4.currentlyHighlightedMarker){event.stopPropagation();if(_this4.currentlyHighlightedMarker)if(_this4.currentlyHighlightedMarker.infoWindow)_this4.openMarker(event,_this4.currentlyHighlightedMarker);else _this4.openPlace(_this4.currentlyHighlightedMarker.data,event)}}});this.on(this.$domNode.find('input'),'focus',function(){if(_this4.currentSearchText)_this4.openSearchResults()});this.on(this.$domNode.find('input'),'keydown',function(event){if(_this4.constructor.keyCode.DOWN===event.keyCode&&_this4.currentSearchText)_this4.openSearchResults()});this.on(this.$domNode.find('input'),'click',function(){if(_this4.currentSearchText)_this4.openSearchResults()});this.constructor.google.maps.event.addListener(this.map,'center_changed',function(){// NOTE: Search results depends on current position.
-if(_this4.currentSearchText&&_this4.resultsDomNode)_this4.searchResultsDirty=true});this.on(this.$domNode.find('input'),'keyup',this.updateSearchResultsHandler);return this}/**
+            */if(this.currentSearchResults.length){if(this.currentSearchResultRange)this.currentSearchResultRange=[Math.max(0,this.currentSearchResultRange[0]),Math.min(this.currentSearchResults.length-1,// IgnoreTypeCheck
+this.currentSearchResultRange[1])];else this.currentSearchResultRange=[0,this.currentSearchResults.length-1];let currentIndex=-1;if(this.currentlyHighlightedMarker)currentIndex=this.currentSearchResults.indexOf(this.currentlyHighlightedMarker);if(event.keyCode===this.constructor.keyCode.DOWN){if(currentIndex===-1||this.currentSearchResultRange[1]&lt;currentIndex+1)this.highlightMarker(this.currentSearchResults[this.currentSearchResultRange[0]],event);else this.highlightMarker(this.currentSearchResults[currentIndex+1],event);}else if(event.keyCode===this.constructor.keyCode.UP){if([this.currentSearchResultRange[0],-1].includes(currentIndex))this.highlightMarker(this.currentSearchResults[// IgnoreTypeCheck
+this.currentSearchResultRange[1]],event);else this.highlightMarker(this.currentSearchResults[currentIndex-1],event);}else if(event.keyCode===this.constructor.keyCode.ENTER&amp;&amp;this.currentlyHighlightedMarker){event.stopPropagation();if(this.currentlyHighlightedMarker)if(this.currentlyHighlightedMarker.infoWindow)this.openMarker(event,this.currentlyHighlightedMarker);else this.openPlace(this.currentlyHighlightedMarker.data,event)}}});this.on(this.$domNode.find('input'),'focus',()=>{if(this.currentSearchText)this.openSearchResults()});this.on(this.$domNode.find('input'),'keydown',event=>{if(this.constructor.keyCode.DOWN===event.keyCode&amp;&amp;this.currentSearchText)this.openSearchResults()});this.on(this.$domNode.find('input'),'click',()=>{if(this.currentSearchText)this.openSearchResults()});this.constructor.google.maps.event.addListener(this.map,'center_changed',()=>{// NOTE: Search results depends on current position.
+if(this.currentSearchText&amp;&amp;this.resultsDomNode)this.searchResultsDirty=true});this.on(this.$domNode.find('input'),'keyup',this.updateSearchResultsHandler);return this}/**
      * Triggers on each search request.
      * @returns The current instance.
-     */get updateSearchResultsHandler(){var _this5=this;const placesService=new this.constructor.google.maps.places.PlacesService(this.map);return this.constructor.debounce(function(){var _ref=_asyncToGenerator(function*(event){for(const name in _this5.constructor.keyCode)if(event&&event.keyCode===_this5.constructor.keyCode[name]&&!['DELETE','BACKSPACE','COMMA','PERIOD','NUMPAD_ADD','NUMPAD_DECIMAL','NUMPAD_DIVIDE','NUMPAD_MULTIPLY','NUMPAD_SUBTRACT'].includes(name))return;yield _this5.acquireLock(`${_this5.constructor._name}Search`);const searchText=_this5._options.searchBox.normalizer(_this5.$domNode.find('input').val());if(_this5.currentSearchText===searchText&&!_this5.searchResultsDirty)return _this5.releaseLock(`${_this5.constructor._name}Search`);_this5.searchResultsDirty=false;if(!_this5.resultsDomNode)_this5.initializeDataSourceSearchResultsBox();if(!searchText&&_this5.resultsDomNode){_this5.currentSearchResults=[];_this5.currentSearchText='';_this5.resultsDomNode.html('');_this5.fireEvent('removeSearchResults',false,_this5,_this5.currentSearchResultsDomNode);_this5.currentSearchResultsDomNode=null;_this5.closeSearchResults();return _this5.releaseLock(`${_this5.constructor._name}Search`)}_this5.openSearchResults();const loadingDomNode=$(_this5._options.searchBox.loadingContent);if(_this5.resultsDomNode&&_this5.fireEvent('addSearchResults',false,_this5,loadingDomNode,_this5.resultsDomNode,_this5.currentSearchResultsDomNode||[]))_this5.resultsDomNode.html(loadingDomNode);if(_this5.currentSearchResultsDomNode&&_this5.currentSearchResultsDomNode.length)_this5.fireEvent('removeSearchResults',false,_this5,_this5.currentSearchResultsDomNode);_this5.currentSearchResultsDomNode=loadingDomNode;if(_this5._options.searchBox.generic.number)/*
+     */get updateSearchResultsHandler(){var _this=this;const placesService=new this.constructor.google.maps.places.PlacesService(this.map);return this.constructor.debounce((()=>{var _ref=(0,_asyncToGenerator3.default)(function*(event){for(const name in _this.constructor.keyCode)if(event&amp;&amp;event.keyCode===_this.constructor.keyCode[name]&amp;&amp;!['DELETE','BACKSPACE','COMMA','PERIOD','NUMPAD_ADD','NUMPAD_DECIMAL','NUMPAD_DIVIDE','NUMPAD_MULTIPLY','NUMPAD_SUBTRACT'].includes(name))return;yield _this.acquireLock(`${_this.constructor._name}Search`);const searchText=_this._options.searchBox.normalizer(_this.$domNode.find('input').val());if(_this.currentSearchText===searchText&amp;&amp;!_this.searchResultsDirty)return _this.releaseLock(`${_this.constructor._name}Search`);_this.searchResultsDirty=false;if(!_this.resultsDomNode)_this.initializeDataSourceSearchResultsBox();if(!searchText&amp;&amp;_this.resultsDomNode){_this.currentSearchResults=[];_this.currentSearchText='';_this.resultsDomNode.html('');_this.fireEvent('removeSearchResults',false,_this,_this.currentSearchResultsDomNode);_this.currentSearchResultsDomNode=null;_this.closeSearchResults();return _this.releaseLock(`${_this.constructor._name}Search`)}_this.openSearchResults();const loadingDomNode=$(_this._options.searchBox.loadingContent);if(_this.resultsDomNode&amp;&amp;_this.fireEvent('addSearchResults',false,_this,loadingDomNode,_this.resultsDomNode,_this.currentSearchResultsDomNode||[]))_this.resultsDomNode.html(loadingDomNode);if(_this.currentSearchResultsDomNode&amp;&amp;_this.currentSearchResultsDomNode.length)_this.fireEvent('removeSearchResults',false,_this,_this.currentSearchResultsDomNode);_this.currentSearchResultsDomNode=loadingDomNode;if(_this._options.searchBox.generic.number)/*
                     NOTE: Google searches for more items than exists in the
                     specified radius. However the radius is a string in the
                     examples provided by google.
-                */placesService.textSearch(_this5.constructor.extendObject({query:searchText,location:_this5.map.getCenter()},_this5._options.searchBox.generic.retrieveOptions),function(places){if(places)_this5.handleGenericSearchResults(places,searchText)});else _this5.performLocalSearch(searchText)});return function(_x){return _ref.apply(this,arguments)}}(),1000)}/**
+                */placesService.textSearch(_this.constructor.extendObject({query:searchText,location:_this.map.getCenter()},_this._options.searchBox.generic.retrieveOptions),function(places){if(places)_this.handleGenericSearchResults(places,searchText)});else _this.performLocalSearch(searchText)});return function(_x){return _ref.apply(this,arguments)}})(),1000)}/**
      * Sorts and filters search results given by google's aplication
      * interface.
      * @param places - List of place objects.
      * @param searchText - Words which should occur in requested search
      * results.
      * @returns Returns current instance.
-     */handleGenericSearchResults(places,searchText){var _this6=this;const searchResults=[];/*
+     */handleGenericSearchResults(places,searchText){const searchResults=[];/*
             NOTE: Since google text search doesn't support sorting by distance
             we have to sort by our own.
-        */let index=1;for(const place of places.sort(function(firstPlace,secondPlace){return _this6.constructor.google.maps.geometry.spherical.computeDistanceBetween(_this6.map.getCenter(),firstPlace.geometry.location)-_this6.constructor.google.maps.geometry.spherical.computeDistanceBetween(_this6.map.getCenter(),secondPlace.geometry.location)})){index+=1;const distance=this.constructor.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),place.geometry.location);if(distance>this._options.searchBox.generic.maximalDistanceInMeter)break;if(this._options.searchBox.generic.filter(place)){const result={data:this.constructor.extendObject(place,{logoFilePath:place.icon.replace(/^http:(\/\/)/,`${$.global.location.protocol}$1`),address:place.formatted_address,distance:distance}),position:place.geometry.location,open:function open(event){return _this6.openPlace(place,event)},highlight:function highlight(event,type){_this6.isHighlighted=type!=='stop'}};searchResults.push(result);if(this._options.searchBox.generic.number[1]<index)break}}return this.performLocalSearch(searchText,searchResults)}/**
+        */let index=1;for(const place of places.sort((firstPlace,secondPlace)=>this.constructor.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),firstPlace.geometry.location)-this.constructor.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),secondPlace.geometry.location))){index+=1;const distance=this.constructor.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),place.geometry.location);if(distance>this._options.searchBox.generic.maximalDistanceInMeter)break;if(this._options.searchBox.generic.filter(place)){const result={data:this.constructor.extendObject(place,{logoFilePath:place.icon.replace(/^http:(\/\/)/,`${$.global.location.protocol}$1`),address:place.formatted_address,distance:distance}),position:place.geometry.location,open:event=>this.openPlace(place,event),highlight:(event,type)=>{this.isHighlighted=type!=='stop'}};searchResults.push(result);if(this._options.searchBox.generic.number[1]&lt;index)break}}return this.performLocalSearch(searchText,searchResults)}/**
      * Performs a search on locally given store data.
      * @param searchText - Text to search for.
      * @param searchResults - A list if generic search results.
      * @returns The current instance.
-     */performLocalSearch(searchText,searchResults=[]){var _this7=this;const numberOfGenericSearchResults=searchResults.length;this.currentSearchWords=searchText.split(' ');for(const marker of this.markers){marker.foundWords=[];for(const key of this._options.searchBox.hasOwnProperty('properties')&&this._options.searchBox.properties||Object.keys(marker.data))for(const searchWord of this.currentSearchWords.concat(this.currentSearchWords.join(' ')))if(!marker.foundWords.includes(searchWord)&&(marker.data[key]||marker.data[key]===0)&&this._options.searchBox.normalizer(marker.data[key]).includes(searchWord)){marker.foundWords.push(searchWord);if(marker.foundWords.length===1){marker.open=function(event){return _this7.openMarker(event,marker)};marker.highlight=function(event,type){return _this7.highlightMarker(marker,event,type)};if(this._options.searchBox.resultAggregation==='union')searchResults.push(marker)}if(marker.foundWords.length===this.currentSearchWords.length&&this._options.searchBox.resultAggregation==='cut')searchResults.push(marker)}}/*
+     */performLocalSearch(searchText,searchResults=[]){const numberOfGenericSearchResults=searchResults.length;this.currentSearchWords=searchText.split(' ');for(const marker of this.markers){marker.foundWords=[];for(const key of this._options.searchBox.hasOwnProperty('properties')&amp;&amp;this._options.searchBox.properties||(0,_keys2.default)(marker.data))for(const searchWord of this.currentSearchWords.concat(this.currentSearchWords.join(' ')))if(!marker.foundWords.includes(searchWord)&amp;&amp;(marker.data[key]||marker.data[key]===0)&amp;&amp;this._options.searchBox.normalizer(marker.data[key]).includes(searchWord)){marker.foundWords.push(searchWord);if(marker.foundWords.length===1){marker.open=event=>this.openMarker(event,marker);marker.highlight=(event,type)=>this.highlightMarker(marker,event,type);if(this._options.searchBox.resultAggregation==='union')searchResults.push(marker)}if(marker.foundWords.length===this.currentSearchWords.length&amp;&amp;this._options.searchBox.resultAggregation==='cut')searchResults.push(marker)}}/*
             Remove generic place results if there are enough local search
             results.
-        */if(this._options.searchBox.generic.number&&searchResults.length&&numberOfGenericSearchResults>this._options.searchBox.generic.number[0]&&searchResults.length>this._options.searchBox.generic.number[1])searchResults.splice(this._options.searchBox.generic.number[0],numberOfGenericSearchResults-this._options.searchBox.generic.number[0]);/*
+        */if(this._options.searchBox.generic.number&amp;&amp;searchResults.length&amp;&amp;numberOfGenericSearchResults>this._options.searchBox.generic.number[0]&amp;&amp;searchResults.length>this._options.searchBox.generic.number[1])searchResults.splice(this._options.searchBox.generic.number[0],numberOfGenericSearchResults-this._options.searchBox.generic.number[0]);/*
             Sort results by current map center form nearer to more fare away
             results.
-        */searchResults.sort(function(first,second){if(_this7._options.searchBox.generic.prefer&&!first.infoWindow&&second.infoWindow)return-1;if(_this7._options.searchBox.generic.prefer&&!second.infoWindow&&first.infoWindow)return 1;if(first.foundWords.length<second.foundWords.length)return 1;if(second.foundWords.length<first.foundWords.length)return-1;return _this7.constructor.google.maps.geometry.spherical.computeDistanceBetween(_this7.map.getCenter(),first.position)-_this7.constructor.google.maps.geometry.spherical.computeDistanceBetween(_this7.map.getCenter(),second.position)});// Slice additional unneeded local search results.
-let limitReached=false;if(this._options.searchBox.maximumNumberOfResults<searchResults.length){limitReached=true;searchResults.splice(this._options.searchBox.maximumNumberOfResults,searchResults.length)}// Compile search results markup.
-const resultsRepresentation=this.makeSearchResults(searchResults,limitReached);if(this.constructor.determineType(resultsRepresentation)==='string'){const resultsRepresentationDomNode=$(resultsRepresentation);if(this.resultsDomNode&&this.fireEvent('addSearchResults',false,this,resultsRepresentationDomNode,this.resultsDomNode,this.currentSearchResultsDomNode||[]))this.resultsDomNode.html(resultsRepresentationDomNode);if(this.currentSearchResultsDomNode&&this.currentSearchResultsDomNode.length)this.fireEvent('removeSearchResults',false,this,this.currentSearchResultsDomNode);this.currentSearchResultsDomNode=resultsRepresentationDomNode;this.constructor.timeout(function(){return _this7.releaseLock(`${_this7.constructor._name}Search`)})}else if(resultsRepresentation instanceof Object)resultsRepresentation.then(function(resultsRepresentation){const resultsRepresentationDomNode=$(resultsRepresentation);if(_this7.resultsDomNode&&_this7.fireEvent('addSearchResults',false,_this7,resultsRepresentationDomNode,_this7.resultsDomNode,_this7.currentSearchResultsDomNode||[]))_this7.resultsDomNode.html(resultsRepresentationDomNode);if(_this7.currentSearchResultsDomNode&&_this7.currentSearchResultsDomNode.length)_this7.fireEvent('removeSearchResults',false,_this7,_this7.currentSearchResultsDomNode);_this7.currentSearchResultsDomNode=resultsRepresentationDomNode;_this7.releaseLock(`${_this7.constructor._name}Search`)});this.currentSearchText=searchText;this.currentSearchResults=searchResults.slice();return this}/**
+        */searchResults.sort((first,second)=>{if(this._options.searchBox.generic.prefer&amp;&amp;!first.infoWindow&amp;&amp;second.infoWindow)return-1;if(this._options.searchBox.generic.prefer&amp;&amp;!second.infoWindow&amp;&amp;first.infoWindow)return 1;if(first.foundWords.length&lt;second.foundWords.length)return 1;if(second.foundWords.length&lt;first.foundWords.length)return-1;return this.constructor.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),first.position)-this.constructor.google.maps.geometry.spherical.computeDistanceBetween(this.map.getCenter(),second.position)});// Slice additional unneeded local search results.
+let limitReached=false;if(this._options.searchBox.maximumNumberOfResults&lt;searchResults.length){limitReached=true;searchResults.splice(this._options.searchBox.maximumNumberOfResults,searchResults.length)}// Compile search results markup.
+const resultsRepresentation=this.makeSearchResults(searchResults,limitReached);if(this.constructor.determineType(resultsRepresentation)==='string'){const resultsRepresentationDomNode=$(resultsRepresentation);if(this.resultsDomNode&amp;&amp;this.fireEvent('addSearchResults',false,this,resultsRepresentationDomNode,this.resultsDomNode,this.currentSearchResultsDomNode||[]))this.resultsDomNode.html(resultsRepresentationDomNode);if(this.currentSearchResultsDomNode&amp;&amp;this.currentSearchResultsDomNode.length)this.fireEvent('removeSearchResults',false,this,this.currentSearchResultsDomNode);this.currentSearchResultsDomNode=resultsRepresentationDomNode;this.constructor.timeout(()=>this.releaseLock(`${this.constructor._name}Search`))}else if(resultsRepresentation instanceof Object)resultsRepresentation.then(resultsRepresentation=>{const resultsRepresentationDomNode=$(resultsRepresentation);if(this.resultsDomNode&amp;&amp;this.fireEvent('addSearchResults',false,this,resultsRepresentationDomNode,this.resultsDomNode,this.currentSearchResultsDomNode||[]))this.resultsDomNode.html(resultsRepresentationDomNode);if(this.currentSearchResultsDomNode&amp;&amp;this.currentSearchResultsDomNode.length)this.fireEvent('removeSearchResults',false,this,this.currentSearchResultsDomNode);this.currentSearchResultsDomNode=resultsRepresentationDomNode;this.releaseLock(`${this.constructor._name}Search`)});this.currentSearchText=searchText;this.currentSearchResults=searchResults.slice();return this}/**
      * Opens current search results.
      * @param event - Object with meta data for current event which has
      * triggered to show search results.
      * @returns The current instance.
-     */openSearchResults(event){if(event)event.stopPropagation();if(this.resultsDomNode&&!this.resultsDomNode.hasClass('open')&&this.fireEvent('openSearchResults',false,this,event,this.resultsDomNode)){for(const propertyName in this.searchResultsStyleProperties)if(this.searchResultsStyleProperties.hasOwnProperty(propertyName))// IgnoreTypeCheck
+     */openSearchResults(event){if(event)event.stopPropagation();if(this.resultsDomNode&amp;&amp;!this.resultsDomNode.hasClass('open')&amp;&amp;this.fireEvent('openSearchResults',false,this,event,this.resultsDomNode)){for(const propertyName in this.searchResultsStyleProperties)if(this.searchResultsStyleProperties.hasOwnProperty(propertyName))// IgnoreTypeCheck
 this.resultsDomNode.css(propertyName,this.searchResultsStyleProperties[propertyName]);this.resultsDomNode.addClass('open')}return this}/**
      * Closes current search results.
      * @param event - Object with meta data for current event which has
      * triggered to close search results.
      * @returns The current instance.
-     */closeSearchResults(event=null){if(event)event.stopPropagation();if(this.resultsDomNode&&this.resultsDomNode.hasClass('open')&&this.fireEvent('closeSearchResults',false,this,event,this.resultsDomNode)){for(const propertyName in this.searchResultsStyleProperties)if(this.searchResultsStyleProperties.hasOwnProperty(propertyName))// IgnoreTypeCheck
+     */closeSearchResults(event=null){if(event)event.stopPropagation();if(this.resultsDomNode&amp;&amp;this.resultsDomNode.hasClass('open')&amp;&amp;this.fireEvent('closeSearchResults',false,this,event,this.resultsDomNode)){for(const propertyName in this.searchResultsStyleProperties)if(this.searchResultsStyleProperties.hasOwnProperty(propertyName))// IgnoreTypeCheck
 this.resultsDomNode.css(propertyName,'');this.resultsDomNode.removeClass('open')}return this}/**
      * Initializes googles generic search box and tries to match to open and
      * focus them.
      * @returns The current instance.
-     */initializeGenericSearchBox(){var _this8=this;const searchBox=new this.constructor.google.maps.places.SearchBox(this.$domNode.find('input')[0]);/*
+     */initializeGenericSearchBox(){const searchBox=new this.constructor.google.maps.places.SearchBox(this.$domNode.find('input')[0]);/*
             Bias the search box results towards places that are within the
             bounds of the current map's viewport.
-        */this.constructor.google.maps.event.addListener(this.map,'bounds_changed',function(){return searchBox.setBounds(_this8.map.getBounds())});/*
+        */this.constructor.google.maps.event.addListener(this.map,'bounds_changed',()=>searchBox.setBounds(this.map.getBounds()));/*
             Listen for the event fired when the user selects an item from the
             pick list. Retrieve the matching places for that item.
-        */this.constructor.google.maps.event.addListener(searchBox,'places_changed',function(){return _this8.ensurePlaceLocations(searchBox.getPlaces()).then(function(places){const foundPlace=_this8.determineBestSearchResult(places);if(foundPlace){let shortestDistanceInMeter=Number.MAX_VALUE;let matchingMarker=null;for(const marker of _this8.markers){const distanceInMeter=_this8.constructor.google.maps.geometry.spherical.computeDistanceBetween(foundPlace.geometry.location,marker.position);if(distanceInMeter<shortestDistanceInMeter){shortestDistanceInMeter=distanceInMeter;matchingMarker=marker}}if(matchingMarker&&shortestDistanceInMeter<=_this8._options.searchBox){if(_this8._options.successfulSearchZoom)_this8.map.setZoom(_this8._options.successfulSearchZoom);_this8.openMarker(null,matchingMarker);return places}if(_this8.currentlyOpenWindow){_this8.currentlyOpenWindow.isOpen=false;_this8.currentlyOpenWindow.close()}_this8.map.setCenter(foundPlace.geometry.location);if(_this8._options.successfulSearchZoom)_this8.map.setZoom(_this8._options.successfulSearchZoom)}return places})});return this}/**
+        */this.constructor.google.maps.event.addListener(searchBox,'places_changed',()=>this.ensurePlaceLocations(searchBox.getPlaces()).then(places=>{const foundPlace=this.determineBestSearchResult(places);if(foundPlace){let shortestDistanceInMeter=Number.MAX_VALUE;let matchingMarker=null;for(const marker of this.markers){const distanceInMeter=this.constructor.google.maps.geometry.spherical.computeDistanceBetween(foundPlace.geometry.location,marker.position);if(distanceInMeter&lt;shortestDistanceInMeter){shortestDistanceInMeter=distanceInMeter;matchingMarker=marker}}if(matchingMarker&amp;&amp;shortestDistanceInMeter&lt;=this._options.searchBox){if(this._options.successfulSearchZoom)this.map.setZoom(this._options.successfulSearchZoom);this.openMarker(null,matchingMarker);return places}if(this.currentlyOpenWindow){this.currentlyOpenWindow.isOpen=false;this.currentlyOpenWindow.close()}this.map.setCenter(foundPlace.geometry.location);if(this._options.successfulSearchZoom)this.map.setZoom(this._options.successfulSearchZoom)}return places}));return this}/**
      * Ensures that every given place have a location property.
      * @param places - Places to check for.
      * @returns A promise which will be resolved if all places are ensured.
-     */ensurePlaceLocations(places){var _this9=this;const result=$.Deferred();let runningGeocodes=0;const geocoder=new this.constructor.google.maps.Geocoder;for(const place of places)if(!('geometry'in place&&'location'in place.geometry)){this.warn('Found place "{1}" doesn\'t have a location. Full object:',place.name);this.warn(place);this.info('Geocode will be determined separately. With address '+'"{1}".',place.name);runningGeocodes+=1;/* eslint-disable no-loop-func */geocoder.geocode({address:place.name},function(results,status){runningGeocodes-=1;if(status===_this9.constructor.google.maps.GeocoderStatus.OK)place.geometry=results[0].geometry;else{delete places[places.indexOf(place)];_this9.warn('Found place "{1}" couldn\'t be geocoded by '+'google. Removing it from the places list.',place.name)}if(runningGeocodes===0)result.resolve(places)});/* eslint-enable no-loop-func */}if(runningGeocodes===0)result.resolve(places);return result}/**
+     */ensurePlaceLocations(places){const result=$.Deferred();let runningGeocodes=0;const geocoder=new this.constructor.google.maps.Geocoder;for(const place of places)if(!('geometry'in place&amp;&amp;'location'in place.geometry)){this.warn('Found place "{1}" doesn\'t have a location. Full object:',place.name);this.warn(place);this.info('Geocode will be determined separately. With address '+'"{1}".',place.name);runningGeocodes+=1;/* eslint-disable no-loop-func */geocoder.geocode({address:place.name},(results,status)=>{runningGeocodes-=1;if(status===this.constructor.google.maps.GeocoderStatus.OK)place.geometry=results[0].geometry;else{delete places[places.indexOf(place)];this.warn('Found place "{1}" couldn\'t be geocoded by '+'google. Removing it from the places list.',place.name)}if(runningGeocodes===0)result.resolve(places)});/* eslint-enable no-loop-func */}if(runningGeocodes===0)result.resolve(places);return result}/**
      * Determines the best search result from given list of candidates.
      * Currently the nearest result to current viewport will be preferred.
      * @param candidates - List of search results to determine best from.
      * @returns The determined best result.
-     */determineBestSearchResult(candidates){let result=null;if(candidates.length){let shortestDistanceInMeter=Number.MAX_VALUE;for(const candidate of candidates){const distanceInMeter=this.constructor.google.maps.geometry.spherical.computeDistanceBetween(candidate.geometry.location,this.map.getCenter());if(distanceInMeter<shortestDistanceInMeter){result=candidate;shortestDistanceInMeter=distanceInMeter}}}return result}/**
+     */determineBestSearchResult(candidates){let result=null;if(candidates.length){let shortestDistanceInMeter=Number.MAX_VALUE;for(const candidate of candidates){const distanceInMeter=this.constructor.google.maps.geometry.spherical.computeDistanceBetween(candidate.geometry.location,this.map.getCenter());if(distanceInMeter&lt;shortestDistanceInMeter){result=candidate;shortestDistanceInMeter=distanceInMeter}}}return result}/**
      * Is triggered if the complete map ist loaded.
      * @returns The current instance.
-     */onLoaded(){var _this10=this;this.constructor.timeout(function(){return _this10.$domNode.find('input').animate(..._this10._options.input.showAnimation)},this._options.showInputAfterLoadedDelayInMilliseconds);return this}/**
+     */onLoaded(){this.constructor.timeout(()=>this.$domNode.find('input').animate(...this._options.input.showAnimation),this._options.showInputAfterLoadedDelayInMilliseconds);return this}/**
      * Registers given store to the google maps canvas.
      * @param store - Store object to create a marker for.
      * @returns The created marker.
@@ -389,16 +408,16 @@ this.resultsDomNode.css(propertyName,'');this.resultsDomNode.removeClass('open')
      * Adds needed event listener to given marker.
      * @param marker - Marker to attach event listener to.
      * @returns The current instance.
-     */attachMarkerEventListener(marker){this.constructor.google.maps.event.addListener(marker.infoWindow,'closeclick',function(){marker.infoWindow.isOpen=false});this.constructor.google.maps.event.addListener(marker.nativeMarker,'click',this.getMethod('openMarker',this,marker));return this}/**
+     */attachMarkerEventListener(marker){this.constructor.google.maps.event.addListener(marker.infoWindow,'closeclick',()=>{marker.infoWindow.isOpen=false});this.constructor.google.maps.event.addListener(marker.nativeMarker,'click',this.getMethod('openMarker',this,marker));return this}/**
      * Opens given marker info window. And closes potentially opened windows.
      * @param event - Event which has triggered the marker opening call.
      * @param marker - Marker to open.
      * @returns The current instance.
-     */openMarker(event,marker){if(event&&!('stopPropagation'in event))event=null;this.highlightMarker(marker,event,'stop');/*
+     */openMarker(event,marker){if(event&amp;&amp;!('stopPropagation'in event))event=null;this.highlightMarker(marker,event,'stop');/*
             We have to ensure that the minimum zoom level has one more then
             the clustering can appear. Since a cluster hides an open window.
-        */if('cluster'in this._options.marker&&this._options.marker.cluster.maxZoom&&this.map.getZoom()<=this._options.marker.cluster.maxZoom)this.map.setZoom(this._options.marker.cluster.maxZoom+1);this.closeSearchResults(event);if(this.currentlyOpenWindow&&this.currentlyOpenWindow===marker.infoWindow&&this.currentlyOpenWindow.isOpen)return this;this.fireEvent('infoWindowOpen',event,marker);marker.refreshSize=function(){return(// Simulates a content update to enforce info box size adjusting.
-marker.infoWindow.setContent(marker.infoWindow.getContent()))};const infoWindow=this.makeInfoWindow(marker);if(typeof infoWindow==='string')marker.infoWindow.setContent(infoWindow);else{marker.infoWindow.setContent(this._options.infoWindow.loadingContent);infoWindow.then(function(infoWindow){return marker.infoWindow.setContent(infoWindow)})}if(this.currentlyOpenWindow){this.currentlyOpenWindow.isOpen=false;this.currentlyOpenWindow.close()}this.currentlyOpenWindow=marker.infoWindow;marker.infoWindow.isOpen=true;marker.infoWindow.open(this.map,marker.nativeMarker);this.map.panTo(marker.nativeMarker.position);this.map.panBy(0,-this._options.infoWindow.additionalMoveToBottomInPixel);this.fireEvent('infoWindowOpened',event,marker);return this}/**
+        */if('cluster'in this._options.marker&amp;&amp;this._options.marker.cluster.maxZoom&amp;&amp;this.map.getZoom()&lt;=this._options.marker.cluster.maxZoom)this.map.setZoom(this._options.marker.cluster.maxZoom+1);this.closeSearchResults(event);if(this.currentlyOpenWindow&amp;&amp;this.currentlyOpenWindow===marker.infoWindow&amp;&amp;this.currentlyOpenWindow.isOpen)return this;this.fireEvent('infoWindowOpen',event,marker);marker.refreshSize=()=>// Simulates a content update to enforce info box size adjusting.
+marker.infoWindow.setContent(marker.infoWindow.getContent());const infoWindow=this.makeInfoWindow(marker);if(typeof infoWindow==='string')marker.infoWindow.setContent(infoWindow);else{marker.infoWindow.setContent(this._options.infoWindow.loadingContent);infoWindow.then(infoWindow=>marker.infoWindow.setContent(infoWindow))}if(this.currentlyOpenWindow){this.currentlyOpenWindow.isOpen=false;this.currentlyOpenWindow.close()}this.currentlyOpenWindow=marker.infoWindow;marker.infoWindow.isOpen=true;marker.infoWindow.open(this.map,marker.nativeMarker);this.map.panTo(marker.nativeMarker.position);this.map.panBy(0,-this._options.infoWindow.additionalMoveToBottomInPixel);this.fireEvent('infoWindowOpened',event,marker);return this}/**
      * Focuses given place on map.
      * @param place - Place to open.
      * @param event - Event object which has triggered requested place opening.
@@ -414,21 +433,21 @@ marker.infoWindow.setContent(marker.infoWindow.getContent()))};const infoWindow=
                     We have to ensure that the minimum zoom level has one more
                     then the clustering can appear. Since a cluster hides an
                     open window.
-                */if('cluster'in this._options.marker&&this._options.marker.cluster.maxZoom&&this.map.getZoom()<=this._options.marker.cluster.maxZoom&&'position'in marker.nativeMarker&&this.map.getBounds().contains(marker.nativeMarker.position)){this.map.setCenter(marker.nativeMarker.position);this.map.setZoom(this._options.marker.cluster.maxZoom+1)}if(marker!==this.currentlyHighlightedMarker&&marker.nativeMarker){marker.nativeMarker.setAnimation(this.constructor.google.maps.Animation[type.toUpperCase()]);marker.isHighlighted=true;this.currentlyHighlightedMarker=marker}this.fireEvent('markerHighlighted',marker)}return this}/**
+                */if('cluster'in this._options.marker&amp;&amp;this._options.marker.cluster.maxZoom&amp;&amp;this.map.getZoom()&lt;=this._options.marker.cluster.maxZoom&amp;&amp;'position'in marker.nativeMarker&amp;&amp;this.map.getBounds().contains(marker.nativeMarker.position)){this.map.setCenter(marker.nativeMarker.position);this.map.setZoom(this._options.marker.cluster.maxZoom+1)}if(marker!==this.currentlyHighlightedMarker&amp;&amp;marker.nativeMarker){marker.nativeMarker.setAnimation(this.constructor.google.maps.Animation[type.toUpperCase()]);marker.isHighlighted=true;this.currentlyHighlightedMarker=marker}this.fireEvent('markerHighlighted',marker)}return this}/**
      * Takes the marker for a store and creates the HTML content of the info
      * window.
      * @param marker - Marker to generate info window for.
      * @param additionalParameter - Additional parameter to forward to options
      * given render callback.
      * @returns Info window markup.
-     */makeInfoWindow(marker,...additionalParameter){if('content'in this._options.infoWindow){if(this.constructor.isFunction(this._options.infoWindow.content))return this._options.infoWindow.content(marker,...additionalParameter);if(this._options.infoWindow.content)return this._options.infoWindow.content}let content='<div>';for(const name in marker.data)if(marker.data.hasOwnProperty(name))content+=`${name}: ${marker.data[name]}<br />`;return`${content}</div>`}/**
+     */makeInfoWindow(marker,...additionalParameter){if('content'in this._options.infoWindow){if(this.constructor.isFunction(this._options.infoWindow.content))return this._options.infoWindow.content(marker,...additionalParameter);if(this._options.infoWindow.content)return this._options.infoWindow.content}let content='&lt;div>';for(const name in marker.data)if(marker.data.hasOwnProperty(name))content+=`${name}: ${marker.data[name]}&lt;br />`;return`${content}&lt;/div>`}/**
      * Takes the search results and creates the HTML content of the search
      * results.
      * @param searchResults - Search result to generate markup for.
      * @param limitReached - Indicated weather defined limit was reached or
      * not.
      * @returns Generated markup.
-     */makeSearchResults(searchResults,limitReached){if('content'in this._options.searchBox){if(this.constructor.isFunction(this._options.searchBox.content))return this._options.searchBox.content.call(this,searchResults,limitReached);return this._options.searchBox.content}if(searchResults.length){let content='';for(const result of searchResults){content+='<div>';for(const name in result.data)if(result.data.hasOwnProperty(name)&&(this._options.searchBox.properties.length===0||this._options.searchBox.properties.includes(name)))content+=`${name}: `+this.constructor.stringMark(`${result.data[name]}`,this.currentSearchWords,'<span class="tools-mark">{1}</span>',this._options.searchBox.normalizer)+'<br />';content+='</div>'}return content}return this._options.searchBox.noResultsContent}}exports.default=StoreLocator;// endregion
+     */makeSearchResults(searchResults,limitReached){if('content'in this._options.searchBox){if(this.constructor.isFunction(this._options.searchBox.content))return this._options.searchBox.content.call(this,searchResults,limitReached);return this._options.searchBox.content}if(searchResults.length){let content='';for(const result of searchResults){content+='&lt;div>';for(const name in result.data)if(result.data.hasOwnProperty(name)&amp;&amp;(this._options.searchBox.properties.length===0||this._options.searchBox.properties.includes(name)))content+=`${name}: `+this.constructor.stringMark(`${result.data[name]}`,this.currentSearchWords,'&lt;span class="tools-mark">{1}&lt;/span>',this._options.searchBox.normalizer)+'&lt;br />';content+='&lt;/div>'}return content}return this._options.searchBox.noResultsContent}}exports.default=StoreLocator;// endregion
 StoreLocator._name='StoreLocator';$.fn.StoreLocator=function(...parameter){return $.Tools().controller(StoreLocator,parameter,this)};// region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
@@ -453,10 +472,10 @@ var google = {};
  * @fileoverview
  * The library creates and manages per-zoom-level clusters for large amounts of
  * markers.
- * <br/>
+ * &lt;br/>
  * This is a v3 implementation of the
- * <a href="http://gmaps-utility-library-dev.googlecode.com/svn/tags/markerclusterer/"
- * >v2 MarkerClusterer</a>.
+ * &lt;a href="http://gmaps-utility-library-dev.googlecode.com/svn/tags/markerclusterer/"
+ * >v2 MarkerClusterer&lt;/a>.
  */
 
 /**
@@ -478,7 +497,7 @@ var google = {};
  * A Marker Clusterer that clusters markers.
  *
  * @param {google.maps.Map} map The Google map to attach to.
- * @param {Array.<google.maps.Marker>=} opt_markers Optional markers to add to
+ * @param {Array.&lt;google.maps.Marker>=} opt_markers Optional markers to add to
  *   the cluster.
  * @param {Object=} opt_options support the following options:
  *     'gridSize': (number) The grid size of a cluster in pixels.
@@ -513,13 +532,13 @@ function MarkerClusterer(map, opt_markers, opt_options) {
   this.map_ = map;
 
   /**
-   * @type {Array.<google.maps.Marker>}
+   * @type {Array.&lt;google.maps.Marker>}
    * @private
    */
   this.markers_ = [];
 
   /**
-   *  @type {Array.<Cluster>}
+   *  @type {Array.&lt;Cluster>}
    */
   this.clusters_ = [];
 
@@ -618,7 +637,7 @@ function MarkerClusterer(map, opt_markers, opt_options) {
   });
 
   // Finally, add the markers
-  if (opt_markers && opt_markers.length) {
+  if (opt_markers &amp;&amp; opt_markers.length) {
     this.addMarkers(opt_markers, false);
   }
 }
@@ -751,7 +770,7 @@ MarkerClusterer.prototype.isAverageCenter = function() {
 /**
  *  Returns the array of markers in the clusterer.
  *
- *  @return {Array.<google.maps.Marker>} The markers.
+ *  @return {Array.&lt;google.maps.Marker>} The markers.
  */
 MarkerClusterer.prototype.getMarkers = function() {
   return this.markers_;
@@ -791,7 +810,7 @@ MarkerClusterer.prototype.getMaxZoom = function() {
 /**
  *  The function for calculating the cluster icon image.
  *
- *  @param {Array.<google.maps.Marker>} markers The markers in the clusterer.
+ *  @param {Array.&lt;google.maps.Marker>} markers The markers in the clusterer.
  *  @param {number} numStyles The number of styles available.
  *  @return {Object} A object properties: 'text' (string) and 'index' (number).
  *  @private
@@ -839,7 +858,7 @@ MarkerClusterer.prototype.getCalculator = function() {
 /**
  * Add an array of markers to the clusterer.
  *
- * @param {Array.<google.maps.Marker>} markers The markers to add.
+ * @param {Array.&lt;google.maps.Marker>} markers The markers to add.
  * @param {boolean=} opt_nodraw Whether to redraw the clusters.
  */
 MarkerClusterer.prototype.addMarkers = function(markers, opt_nodraw) {
@@ -930,7 +949,7 @@ MarkerClusterer.prototype.removeMarker_ = function(marker) {
 MarkerClusterer.prototype.removeMarker = function(marker, opt_nodraw) {
   var removed = this.removeMarker_(marker);
 
-  if (!opt_nodraw && removed) {
+  if (!opt_nodraw &amp;&amp; removed) {
     this.resetViewport();
     this.redraw();
     return true;
@@ -943,7 +962,7 @@ MarkerClusterer.prototype.removeMarker = function(marker, opt_nodraw) {
 /**
  * Removes an array of markers from the cluster.
  *
- * @param {Array.<google.maps.Marker>} markers The markers to remove.
+ * @param {Array.&lt;google.maps.Marker>} markers The markers to remove.
  * @param {boolean=} opt_nodraw Optional boolean to force no redraw.
  */
 MarkerClusterer.prototype.removeMarkers = function(markers, opt_nodraw) {
@@ -954,7 +973,7 @@ MarkerClusterer.prototype.removeMarkers = function(markers, opt_nodraw) {
     removed = removed || r;
   }
 
-  if (!opt_nodraw && removed) {
+  if (!opt_nodraw &amp;&amp; removed) {
     this.resetViewport();
     this.redraw();
     return true;
@@ -1193,14 +1212,14 @@ MarkerClusterer.prototype.addToClosestCluster_ = function(marker) {
     var center = cluster.getCenter();
     if (center) {
       var d = this.distanceBetweenPoints_(center, marker.getPosition());
-      if (d < distance) {
+      if (d &lt; distance) {
         distance = d;
         clusterToAddTo = cluster;
       }
     }
   }
 
-  if (clusterToAddTo && clusterToAddTo.isMarkerInClusterBounds(marker)) {
+  if (clusterToAddTo &amp;&amp; clusterToAddTo.isMarkerInClusterBounds(marker)) {
     clusterToAddTo.addMarker(marker);
   } else {
     var cluster = new Cluster(this);
@@ -1227,7 +1246,7 @@ MarkerClusterer.prototype.createClusters_ = function() {
   var bounds = this.getExtendedBounds(mapBounds);
 
   for (var i = 0, marker; marker = this.markers_[i]; i++) {
-    if (!marker.isAdded && this.isMarkerInBounds_(marker, bounds)) {
+    if (!marker.isAdded &amp;&amp; this.isMarkerInBounds_(marker, bounds)) {
       this.addToClosestCluster_(marker);
     }
   }
@@ -1303,14 +1322,14 @@ Cluster.prototype.addMarker = function(marker) {
   this.markers_.push(marker);
 
   var len = this.markers_.length;
-  if (len < this.minClusterSize_ && marker.getMap() != this.map_) {
+  if (len &lt; this.minClusterSize_ &amp;&amp; marker.getMap() != this.map_) {
     // Min cluster size not reached so show the marker.
     marker.setMap(this.map_);
   }
 
   if (len == this.minClusterSize_) {
     // Hide the markers that were showing.
-    for (var i = 0; i < len; i++) {
+    for (var i = 0; i &lt; len; i++) {
       this.markers_[i].setMap(null);
     }
   }
@@ -1372,7 +1391,7 @@ Cluster.prototype.getSize = function() {
 /**
  * Returns the center of the cluster.
  *
- * @return {Array.<google.maps.Marker>} The cluster center.
+ * @return {Array.&lt;google.maps.Marker>} The cluster center.
  */
 Cluster.prototype.getMarkers = function() {
   return this.markers_;
@@ -1428,7 +1447,7 @@ Cluster.prototype.updateIcon = function() {
   var zoom = this.map_.getZoom();
   var mz = this.markerClusterer_.getMaxZoom();
 
-  if (mz && zoom > mz) {
+  if (mz &amp;&amp; zoom > mz) {
     // The zoom is greater than our max zoom so show all the markers in cluster.
     for (var i = 0, marker; marker = this.markers_[i]; i++) {
       marker.setMap(this.map_);
@@ -1436,7 +1455,7 @@ Cluster.prototype.updateIcon = function() {
     return;
   }
 
-  if (this.markers_.length < this.minClusterSize_) {
+  if (this.markers_.length &lt; this.minClusterSize_) {
     // Min cluster size not yet reached.
     this.clusterIcon_.hide();
     return;
@@ -1531,7 +1550,7 @@ ClusterIcon.prototype.onAdd = function() {
 ClusterIcon.prototype.getPosFromLatLng_ = function(latlng) {
   var pos = this.getProjection().fromLatLngToDivPixel(latlng);
 
-  if (typeof this.iconAnchor_ === 'object' && this.iconAnchor_.length === 2) {
+  if (typeof this.iconAnchor_ === 'object' &amp;&amp; this.iconAnchor_.length === 2) {
     pos.x -= this.iconAnchor_[0];
     pos.y -= this.iconAnchor_[1];
   } else {
@@ -1592,7 +1611,7 @@ ClusterIcon.prototype.remove = function() {
  * @ignore
  */
 ClusterIcon.prototype.onRemove = function() {
-  if (this.div_ && this.div_.parentNode) {
+  if (this.div_ &amp;&amp; this.div_.parentNode) {
     this.hide();
     this.div_.parentNode.removeChild(this.div_);
     this.div_ = null;
@@ -1660,20 +1679,20 @@ ClusterIcon.prototype.createCss = function(pos) {
   style.push('background-position:' + backgroundPosition + ';');
 
   if (typeof this.anchor_ === 'object') {
-    if (typeof this.anchor_[0] === 'number' && this.anchor_[0] > 0 &&
-        this.anchor_[0] < this.height_) {
+    if (typeof this.anchor_[0] === 'number' &amp;&amp; this.anchor_[0] > 0 &amp;&amp;
+        this.anchor_[0] &lt; this.height_) {
       style.push('height:' + (this.height_ - this.anchor_[0]) +
           'px; padding-top:' + this.anchor_[0] + 'px;');
-    } else if (typeof this.anchor_[0] === 'number' && this.anchor_[0] < 0 &&
-        -this.anchor_[0] < this.height_) {
+    } else if (typeof this.anchor_[0] === 'number' &amp;&amp; this.anchor_[0] &lt; 0 &amp;&amp;
+        -this.anchor_[0] &lt; this.height_) {
       style.push('height:' + this.height_ + 'px; line-height:' + (this.height_ + this.anchor_[0]) +
           'px;');
     } else {
       style.push('height:' + this.height_ + 'px; line-height:' + this.height_ +
           'px;');
     }
-    if (typeof this.anchor_[1] === 'number' && this.anchor_[1] > 0 &&
-        this.anchor_[1] < this.width_) {
+    if (typeof this.anchor_[1] === 'number' &amp;&amp; this.anchor_[1] > 0 &amp;&amp;
+        this.anchor_[1] &lt; this.width_) {
       style.push('width:' + (this.width_ - this.anchor_[1]) +
           'px; padding-left:' + this.anchor_[1] + 'px;');
     } else {
@@ -1758,11 +1777,44 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(0);
 
 
 /***/ })
-/******/ ]);
-});
+/******/ ]);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-storelocator.html">storelocator</a></li></ul><h3>Classes</h3><ul><li><a href="module-storelocator-StoreLocator.html">StoreLocator</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Feb 01 2017 09:01:13 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
