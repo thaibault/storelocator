@@ -14,6 +14,7 @@ __pycache__
 # Runtime data
 database
 log.txt
+.local
 
 # Temporary compile files
 *.compiled.*
@@ -79,6 +80,9 @@ nosetests.xml
 
 # Temporary windows files
 *Thumbs.db
+
+# Temporary git files
+.git-rewrite
 
 # NPM/yarn's runtime files
 yarn-error.log
