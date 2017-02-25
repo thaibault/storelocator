@@ -1,36 +1,35 @@
 # -*- coding: utf-8 -*-
 
-## Generic
-
 # Generated documentations
 documentation/build
 apiDocumentation/
 
 # Generated runtime bytecode files.
-__pycache__
-*.py[cod]
-**/*.ngfactory.ts
+***/__pycache__
+***/*.py[cod]
+***/*.ngfactory.ts
 
 # Runtime data
 database
 log.txt
-.local
+***/.local
 
 # Temporary compile files
-*.compiled.*
-*.compiled
+***/*.compiled.*
+***/*.compiled
 !/api/**/*
 *Bundle.*
 !/data/**/*
-.dynamicConfiguration-*.json
-*.dll-manifest.json
+***/.dynamicConfiguration-*.json
+***/*.dll-manifest.json
 
 # Profiling data.
-*.profile
+***/*.profile
 
 # Packages
-*.egg
-*.egg-info
+***/.SRCINFO
+***/*.egg
+***/*.egg-info
 dist
 build
 eggs
@@ -39,61 +38,58 @@ bin
 var
 sdist
 develop-eggs
-.installed.cfg
+***/.installed.cfg
 lib
 lib64
-.sass-cache
+***/.sass-cache
 
 # Ignore docker nested bash generated files.
-/.bash_history
+***/.bash_history
 
 # Unit test / coverage reports
-.coverage
-.tox
-nosetests.xml
+***/.coverage
+***/.tox
+***/nosetests.xml
 
 # Translations
-*.mo
+***/*.mo
 
 # Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
+***/.mr.developer.cfg
+***/.project
+***/.pydevproject
 
 # Vim temporary file
-*.swp
-.ropeproject
-.viminfo
+***/*.swp
+***/.ropeproject
+***/.viminfo
 
 # PHPStorm and other IDE Files
-*.idea
-*.project
-*.pydevproject
-*.settings
-*.externalToolBuilders
+***/*.idea
+***/*.project
+***/*.pydevproject
+***/*.settings
+***/*.externalToolBuilders
 
 # Gedit autosave backups.
-*~
+***/*~
 
 # Temporary fuse files
-**/.fuse_hidden*
+***/.fuse_hidden*
 
 # Temporary windows files
-*Thumbs.db
-
-# Temporary git files
-.git-rewrite
+***/*Thumbs.db
 
 # NPM/yarn's runtime files
-yarn-error.log
-yarn.lock
-node_modules/
-.npm/
-.v8flags.*
-/.cache
-/.config
-.npm-debug.log
-npm-debug.log
+***/yarn-error.log
+***/yarn.lock
+***/node_modules/
+***/.npm/
+***/.v8flags.*
+***/.cache
+***/.config
+***/.npm-debug.log
+***/npm-debug.log
 
 # region vim modline
 # vim: set tabstop=4 shiftwidth=4 expandtab:
