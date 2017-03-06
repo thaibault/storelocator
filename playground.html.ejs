@@ -10,7 +10,7 @@
     3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */ _%>
-<html>
+<html class="no-javascript" lang="en">
     <head>
         <meta charset="utf-8">
         <!--Prevent browser caching-->
@@ -42,6 +42,11 @@
                 color: blue;
             }
         </style>
+        <script>
+            window.document.documentElement.className =
+                window.document.documentElement.className.replace(
+                    /(^|\s)no-javascript(\s|$)/, '$1javascript$2');
+        </script>
     </head>
     <script>
         window.onload = () => {
@@ -207,7 +212,14 @@
             })
         }
     </script>
-    <body><store-locator><input></store-locator>
+    <body class="no-javascript">
+        <script>
+            window.document.body.className =
+                window.document.body.className.replace(
+                    /(^|\s)no-javascript(\s|$)/, '$1javascript$2');
+        </script>
+        <store-locator><input></store-locator>
+    </body>
 <html>
 <%_ /*
     region vim modline
