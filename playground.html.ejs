@@ -53,7 +53,7 @@
             const bounds = {
                 northEast: {latitude: 55.12, longitude: 14.89},
                 southWest: {latitude: 47.32, longitude: 5.50}
-            }
+            };
             const markSearchResults = function() {
                 let changed = false
                 for (const marker of this.markers)
@@ -71,7 +71,7 @@
                 if (changed)
                     this.resetMarkerCluster()
                 return true
-            }
+            };
             storelocator.index.$('store-locator').StoreLocator({
                 applicationInterface: {
                     key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
@@ -209,8 +209,8 @@
                         websiteURL: 'http://www.zweirad-butschko.de'
                     }
                 ]
-            })
-        }
+            });
+        };
     </script>
     <body class="no-javascript">
         <script>
