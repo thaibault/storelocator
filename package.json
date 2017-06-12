@@ -31,21 +31,21 @@
   },
   "scripts": {
     "build": "webOptimizer build",
-    "buildDLL": "webOptimizer buildDLL",
+    "build:dll": "webOptimizer build:dll",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\"}}}}}}'",
-    "exportCompatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"},presets:[\"env\",\"stage-0\"]}}}}}'",
-    "lint": "webOptimizer typeCheck; webOptimizer lint",
+    "export:compatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"},presets:[\"env\",\"stage-0\"]}}}}}'",
+    "lint": "webOptimizer check:type; webOptimizer lint",
     "prepublish": "npm run build",
     "serve": "webOptimizer serve",
     "start": "npm run serve",
     "test": "webOptimizer test",
-    "testInBrowser": "webOptimizer testInBrowser",
+    "test:browser": "webOptimizer test:browser",
     "update": "npm version patch && npm publish",
-    "updateDocumentation": "documentationWebsite --log-level info",
+    "update:documentation": "documentationWebsite --log-level info",
     "watch": "webOptimizer build --watch",
-    "watchDLL": "webOptimizer buildDLL --watch"
+    "watch:dll": "webOptimizer build:dll --watch"
   },
   "dependencies": {
     "clientnode": "latest",
@@ -78,7 +78,7 @@
       },
       "internal": {
         "vendor": {
-          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['buildDLL', 'serve', 'testInBrowser', 'watchDLL'].includes(self.givenCommandLineArguments[2]) ? ['babel-polyfill', 'clientnode', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI']) : []"
+          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['build:dll', 'serve', 'test:browser', 'watch:dll'].includes(self.givenCommandLineArguments[2]) ? ['babel-polyfill', 'clientnode', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunitjs', 'weboptimizer/browserAPI']) : []"
         }
       }
     },
