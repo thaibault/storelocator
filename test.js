@@ -27,6 +27,7 @@ registerTest(function(
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
         'store-locator'
     ).StoreLocator({api: {key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'}})
+    // IgnoreTypeCheck
     return $storeLocatorDeferred.always((
         $storeLocatorDomNode:$DomNode
     ):void => {

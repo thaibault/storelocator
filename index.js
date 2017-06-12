@@ -371,15 +371,18 @@ export default class StoreLocator extends $.Tools.class {
             this.constructor._applicationInterfaceLoad = $.Deferred()
         }
         const result:$Deferred<$DomNode> =
+            // IgnoreTypeCheck
             this.constructor._applicationInterfaceLoad.then(this.getMethod(
-                this.bootstrap)
-        ).done(():StoreLocator => this.fireEvent('loaded'))
+                this.bootstrap
+            // IgnoreTypeCheck
+            )).done(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
             this.constructor.google = $.global.google
             if (this.constructor._applicationInterfaceLoad.state(
             ) !== 'resolved')
                 this.constructor.timeout(():$Deferred<$DomNode> =>
                     this.constructor._applicationInterfaceLoad.resolve(
+                        // IgnoreTypeCheck
                         this.$domNode))
         } else if (!loadInitialized) {
             let callbackName:string
@@ -390,6 +393,7 @@ export default class StoreLocator extends $.Tools.class {
             $.global[callbackName] = ():void => {
                 this.constructor.google = $.global.google
                 this.constructor._applicationInterfaceLoad.resolve(
+                    // IgnoreTypeCheck
                     this.$domNode)
             }
             $.getScript(this.constructor.stringFormat(
@@ -398,7 +402,8 @@ export default class StoreLocator extends $.Tools.class {
                 ) ? `key=${this._options.applicationInterface.key}&` : '',
                 `window.${callbackName}`
             )).catch((response:Object, error:Error):$Deferred<$DomNode> =>
-                this.constructor._applicationInterfaceLoad.reject((error)))
+                // IgnoreTypeCheck
+                this.constructor._applicationInterfaceLoad.reject(error))
         }
         return result
     }
@@ -420,7 +425,9 @@ export default class StoreLocator extends $.Tools.class {
         const fallbackTimeout:Promise<boolean> = this.constructor.timeout(
             ():void => {
                 loaded = true
+                // IgnoreTypeCheck
                 this.initializeMap().then(():$Deferred<$DomNode> =>
+                    // IgnoreTypeCheck
                     $deferred.resolve(this.$domNode))
             }, this._options.ipToLocation.timeoutInMilliseconds)
         $.ajax({
@@ -433,6 +440,7 @@ export default class StoreLocator extends $.Tools.class {
             dataType: 'jsonp', cache: true
         }).always((currentLocation:Position, textStatus:string):void => {
             if (!loaded) {
+                // IgnoreTypeCheck
                 fallbackTimeout.clear()
                 loaded = true
                 if (textStatus === 'success')
@@ -456,7 +464,9 @@ export default class StoreLocator extends $.Tools.class {
                         currentLocation.latitude, currentLocation.longitude
                     )))
                         this._options.startLocation = currentLocation
+                // IgnoreTypeCheck
                 this.initializeMap().then(():$Deferred<$DomNode> =>
+                    // IgnoreTypeCheck
                     $deferred.resolve(this.$domNode))
             }
         })
@@ -552,6 +562,7 @@ export default class StoreLocator extends $.Tools.class {
                 const marker:Object = this.createMarker(store)
                 if (this.markerCluster)
                     this.markerCluster.addMarker(marker)
+                // IgnoreTypeCheck
                 $addMarkerDeferred.resolve(this.markers)
             }
         else if (this.constructor.determineType(
@@ -565,6 +576,7 @@ export default class StoreLocator extends $.Tools.class {
                     if (this.markerCluster)
                         this.markerCluster.addMarker(marker)
                 }
+                // IgnoreTypeCheck
                 $addMarkerDeferred.resolve(this.markers)
             })
         else {
@@ -590,6 +602,7 @@ export default class StoreLocator extends $.Tools.class {
                 if (this.markerCluster)
                     this.markerCluster.addMarker(marker)
             }
+            // IgnoreTypeCheck
             $addMarkerDeferred.resolve(this.markers)
         }
         // Create the search box and link it to the UI element.
@@ -625,7 +638,9 @@ export default class StoreLocator extends $.Tools.class {
             })
         const $mapLoadedDeferred:$Deferred<$DomNode> = $.Deferred()
         this.constructor.google.maps.event.addListenerOnce(this.map, 'idle', (
+        // IgnoreTypeCheck
         ):$Deferred<Array<Object>> => $addMarkerDeferred.then((
+        // IgnoreTypeCheck
         ):$Deferred<$DomNode> => $mapLoadedDeferred.resolve(this.$domNode)))
         return $mapLoadedDeferred
     }
@@ -1114,6 +1129,7 @@ export default class StoreLocator extends $.Tools.class {
         */
         this.constructor.google.maps.event.addListener(
             searchBox, 'places_changed', ():$Deferred<Array<Object>> =>
+                // IgnoreTypeCheck
                 this.ensurePlaceLocations(searchBox.getPlaces()).then((
                     places:Array<Object>
                 ):Array<Object> => {
@@ -1192,11 +1208,13 @@ export default class StoreLocator extends $.Tools.class {
                             place.name)
                     }
                     if (runningGeocodes === 0)
+                        // IgnoreTypeCheck
                         result.resolve(places)
                 })
                 /* eslint-enable no-loop-func */
             }
         if (runningGeocodes === 0)
+            // IgnoreTypeCheck
             result.resolve(places)
         return result
     }
