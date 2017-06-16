@@ -28,7 +28,5 @@ module.file_ext=.compiled.json
 module.file_ext=.jsx
 module.file_ext=.compiled.jsx
 
-strip_root=true
-
 suppress_comment=[ \\n]*IgnoreTypeCheck
 traces=1
