@@ -10,13 +10,13 @@
 .*/documentation-website/.*
 .*/internationalisation/.*
 .+/js-marker-clusterer/examples/.+\.json
-.*/stylelint/.*
 .+/systemjs-builder/test/fixtures/sourcemaps-expectations/.+\.json
 .*/website-utilities/.*
 
 [options]
 unsafe.enable_getters_and_setters=true
 
+module.name_mapper='^\./ejsLoader.compiled$' -> 'ejs'
 module.name_mapper='^googleMarkerClusterer$' -> 'js-marker-clusterer'
 module.name_mapper='^script!qunitjs$' -> 'qunitjs'
 module.name_mapper='^weboptimizer/browserAPI.compiled$' -> 'weboptimizer/browserAPI'
