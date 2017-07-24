@@ -64,7 +64,7 @@
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.35.0",
     "eslint-plugin-jsdoc": "^3.1.1",
-    "flow-bin": "^0.50.0",
+    "flow-bin": "^0.51.0",
     "jquery": "^3.2.1",
     "js-marker-clusterer": "^1.0.0",
     "jsdoc": "^3.5.2",
