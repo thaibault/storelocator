@@ -17,7 +17,7 @@
     See http://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-// region imports
+// region impor ts
 import {$ as binding} from 'clientnode'
 import type {$Deferred, $DomNode, PlainObject} from 'clientnode'
 /*
@@ -45,32 +45,36 @@ export type Position = {
  * A storelocator plugin.
  * Expected store data format:
  * {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}
- * @property static:maps - Holds the currently used maps class.
+ * @property static:applicationInterfaceLoad - Holds the currently promise to
+ * retrieve a new maps application interface.
+ * @property static:google - Holds the currently used google scope.
+ *
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
- * @property static:_applicationInterfaceLoad - Holds the currently promise to
- * retrieve a new maps application interface.
- * @property map - Holds the currently used map instance.
- * @property markerCluster - Holds the currently used marker cluster instance.
- * @property searchResultsStyleProperties - Dynamically computed CSS properties
- * to append to search result list (derived from search input field).
- * @property currentSearchResults - Saves last found search results.
- * @property currentSearchText - Saves last searched string.
- * @property currentSearchWords - Saves last searched words.
- * @property resultsDomNode - Saves currently opened results dom node or null
- * if no results exists yet.
- * @property currentSearchResultsDomNode - Saves current search results content
- * dom node.
- * @property currentlyOpenWindow - Saves currently opened window instance.
+ *
  * @property currentlyHighlightedMarker - Saves currently highlighted marker
  * instance.
- * @property searchResultsDirty - Indicates whether current search results
- * aren't valid anymore.
- * @property seenLocations - Saves all seen locations to recognize duplicates.
- * @property markers - Saves all recognized markers.
+ * @property currentlyOpenWindow - Saves currently opened window instance.
  * @property currentSearchResultRange - Public editable property to set current
  * search result range. This is useful for pagination implementations in
  * template level.
+ * @property currentSearchResults - Saves last found search results.
+ * @property currentSearchResultsDomNode - Saves current search results content
+ * dom node.
+ * @property currentSearchText - Saves last searched string.
+ * @property currentSearchWords - Saves last searched words.
+ * @property defaultSearchBoxOptions - Sets default search box options.
+ * @property map - Holds the currently used map instance.
+ * @property markerCluster - Holds the currently used marker cluster instance.
+ * @property markers - Saves all recognized markers.
+ * @property resultsDomNode - Saves currently opened results dom node or null
+ * if no results exists yet.
+ * @property searchResultsDirty - Indicates whether current search results
+ * aren't valid anymore.
+ * @property searchResultsStyleProperties - Dynamically computed CSS properties
+ * to append to search result list (derived from search input field).
+ * @property seenLocations - Saves all seen locations to recognize duplicates.
+ *
  * @property _options - Saves all plugin interface options.
  * @property _options.applicationInterface {Object} - To store application
  * interface options in.
@@ -211,28 +215,28 @@ export type Position = {
  * starts to highlight.
  */
 export default class StoreLocator extends $.Tools.class {
-    // region static properties
+    static applicationInterfaceLoad:$Deferred<$DomNode>
     static google:Object
+
     static _name:string = 'StoreLocator'
-    static _applicationInterfaceLoad:$Deferred<$DomNode>
-    // endregion
-    // region dynamic properties
-    map:Object
-    markerCluster:?Object
-    searchResultsStyleProperties:PlainObject
+
+    currentlyHighlightedMarker:?Object
+    currentlyOpenWindow:?Object
+    currentSearchResultRange:?Array<number>
     currentSearchResults:Array<Object>
+    currentSearchResultsDomNode:?$DomNode
     currentSearchText:?string
     currentSearchWords:Array<string>
-    resultsDomNode:?$DomNode
-    currentSearchResultsDomNode:?$DomNode
-    currentlyOpenWindow:?Object
-    currentlyHighlightedMarker:?Object
-    searchResultsDirty:boolean
-    seenLocations:Array<string>
-    markers:Array<Object>
-    currentSearchResultRange:?Array<number>
     defaultSearchBoxOptions:Object;
-    // endregion
+    map:Object
+    markerCluster:?Object
+    markers:Array<Object>
+    resultsDomNode:?$DomNode
+    searchResultsDirty:boolean
+    searchResultsStyleProperties:PlainObject
+    seenLocations:Array<string>
+
+    _options:PlainObject
     /**
      * Entry point for object orientated plugin.
      * @param options - Options to overwrite default ones.
@@ -367,22 +371,22 @@ export default class StoreLocator extends $.Tools.class {
         }
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
-        if (typeof this.constructor._applicationInterfaceLoad !== 'object') {
+        if (typeof this.constructor.applicationInterfaceLoad !== 'object') {
             loadInitialized = false
-            this.constructor._applicationInterfaceLoad = $.Deferred()
+            this.constructor.applicationInterfaceLoad = $.Deferred()
         }
         const result:$Deferred<$DomNode> =
             // IgnoreTypeCheck
-            this.constructor._applicationInterfaceLoad.then(this.getMethod(
+            this.constructor.applicationInterfaceLoad.then(this.getMethod(
                 this.bootstrap
             // IgnoreTypeCheck
             )).done(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
             this.constructor.google = $.global.google
-            if (this.constructor._applicationInterfaceLoad.state(
+            if (this.constructor.applicationInterfaceLoad.state(
             ) !== 'resolved')
                 this.constructor.timeout(():$Deferred<$DomNode> =>
-                    this.constructor._applicationInterfaceLoad.resolve(
+                    this.constructor.applicationInterfaceLoad.resolve(
                         // IgnoreTypeCheck
                         this.$domNode))
         } else if (!loadInitialized) {
@@ -393,7 +397,7 @@ export default class StoreLocator extends $.Tools.class {
                 callbackName = this.constructor.determineUniqueScopeName()
             $.global[callbackName] = ():void => {
                 this.constructor.google = $.global.google
-                this.constructor._applicationInterfaceLoad.resolve(
+                this.constructor.applicationInterfaceLoad.resolve(
                     // IgnoreTypeCheck
                     this.$domNode)
             }
@@ -404,7 +408,7 @@ export default class StoreLocator extends $.Tools.class {
                 `window.${callbackName}`
             )).catch((response:Object, error:Error):$Deferred<$DomNode> =>
                 // IgnoreTypeCheck
-                this.constructor._applicationInterfaceLoad.reject(error))
+                this.constructor.applicationInterfaceLoad.reject(error))
         }
         return result
     }
@@ -657,8 +661,8 @@ export default class StoreLocator extends $.Tools.class {
         for (const propertyName:string in allStyleProperties)
             if (
                 this._options.searchBox
-                .stylePropertiesToDeriveFromInputField.includes(
-                    propertyName)
+                    .stylePropertiesToDeriveFromInputField.includes(
+                        propertyName)
             )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
