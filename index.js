@@ -235,8 +235,6 @@ export default class StoreLocator extends $.Tools.class {
     searchResultsDirty:boolean
     searchResultsStyleProperties:PlainObject
     seenLocations:Array<string>
-
-    _options:PlainObject
     /**
      * Entry point for object orientated plugin.
      * @param options - Options to overwrite default ones.
