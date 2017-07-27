@@ -17,7 +17,7 @@
     See http://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-// region impor ts
+// region imports
 import {$ as binding} from 'clientnode'
 import type {$Deferred, $DomNode, PlainObject} from 'clientnode'
 /*
@@ -227,7 +227,7 @@ export default class StoreLocator extends $.Tools.class {
     currentSearchResultsDomNode:?$DomNode
     currentSearchText:?string
     currentSearchWords:Array<string>
-    defaultSearchBoxOptions:Object;
+    defaultSearchBoxOptions:Object
     map:Object
     markerCluster:?Object
     markers:Array<Object>
