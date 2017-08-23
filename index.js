@@ -375,8 +375,8 @@ export default class StoreLocator extends $.Tools.class {
         }
         const result:$Deferred<$DomNode> =
             // IgnoreTypeCheck
-            this.constructor.applicationInterfaceLoad.then(this.getMethod(
-                this.bootstrap
+            this.constructor.applicationInterfaceLoad.then(this.bootstrap.bind(
+                this
             // IgnoreTypeCheck
             )).done(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
@@ -1325,8 +1325,7 @@ export default class StoreLocator extends $.Tools.class {
                 marker.infoWindow.isOpen = false
             })
         this.constructor.google.maps.event.addListener(
-            marker.nativeMarker, 'click', this.getMethod(
-                'openMarker', this, marker))
+            marker.nativeMarker, 'click', this.openMarker.bind(this, marker))
         return this
     }
     /**
