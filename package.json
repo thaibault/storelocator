@@ -48,7 +48,7 @@
     "watch:dll": "webOptimizer build:dll --watch"
   },
   "peerDependencies": {
-    "clientnode": "^1.0.225",
+    "clientnode": "^1.0.240",
     "jquery": "*",
     "js-marker-clusterer": "^1.0.0"
   },
@@ -57,7 +57,7 @@
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.0",
-    "clientnode": "^1.0.225",
+    "clientnode": "^1.0.240",
     "documentation-website": "^1.0.61",
     "eslint": "^4.2.0",
     "eslint-config-google": "^0.9.1",
@@ -68,7 +68,7 @@
     "js-marker-clusterer": "^1.0.0",
     "jsdoc": "^3.5.2",
     "source-map-support": "^0.4.15",
-    "weboptimizer": "^1.0.347",
+    "weboptimizer": "^1.0.368",
     "webpack": "^3.2.0",
     "webpack-dev-server": "^2.5.1"
   },
@@ -100,7 +100,7 @@
         "googleMarkerClusterer$": "js-marker-clusterer"
       },
       "optimizer": {
-        "babili": null
+        "babelMinify": null
       },
       "preprocessor": {
         "javaScript": {
