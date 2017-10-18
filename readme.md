@@ -47,12 +47,12 @@ after needed dependencies:
     #!HTML
 
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script src="http://torben.website/clientNode/data/distributionBundle/index.compiled.js"></script>
+    <script src="https://goo.gl/HEL97d"></script>
     <script src="https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js"></script>
     <!--Inject downloaded file:-->
     <script src="index.compiled.js"></script>
     <!--Or integrate via cdn:
-    <script src="http://torben.website/storeLocator/data/distributionBundle/index.compiled.js"></script>
+    <script src="https://goo.gl/s6wRPb"></script>
     -->
 
 The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
@@ -157,15 +157,10 @@ Examples
 
     const dependenciesLoadPromise = $documentationWebsite.getScript(
         'https://code.jquery.com/jquery-3.1.1.min.js'
-    ).then(() => $.getScript(
-        'http://torben.website/clientNode/data/distributionBundle/' +
-        'index.compiled.js'
-    )).then(() => $.getScript(
+    ).then(() => $.getScript('https://goo.gl/HEL97d')).then(() => $.getScript(
         'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/' +
         'markerclusterer.js'
-    )).then(() => $.getScript(
-        'http://torben.website/storeLocator/data/distributionBundle/' +
-        'index.compiled.js'))
+    )).then(() => $.getScript('https://goo.gl/s6wRPb'))
 
 <!--|deDE:Einfaches Beispiel-->
 ### Simple example
