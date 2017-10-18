@@ -27,10 +27,11 @@ import type {$Deferred, $DomNode, PlainObject} from 'clientnode'
 declare var EXTERNAL_EXPORT_FORMAT:string
 const googleMarkerClusterer:Object = (EXTERNAL_EXPORT_FORMAT === 'var') ? {
     Class: require('googleMarkerClusterer'), google: {}
+} :
     // IgnoreTypeCheck
-} : require(
-    'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
-    'googleMarkerClusterer')
+    require(
+        'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
+        'googleMarkerClusterer')
 export const $:any = binding
 // endregion
 // region types
@@ -44,32 +45,36 @@ export type Position = {
  * A storelocator plugin.
  * Expected store data format:
  * {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}
- * @property static:maps - Holds the currently used maps class.
+ * @property static:applicationInterfaceLoad - Holds the currently promise to
+ * retrieve a new maps application interface.
+ * @property static:google - Holds the currently used google scope.
+ *
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
- * @property static:_applicationInterfaceLoad - Holds the currently promise to
- * retrieve a new maps application interface.
- * @property map - Holds the currently used map instance.
- * @property markerCluster - Holds the currently used marker cluster instance.
- * @property searchResultsStyleProperties - Dynamically computed CSS properties
- * to append to search result list (derived from search input field).
- * @property currentSearchResults - Saves last found search results.
- * @property currentSearchText - Saves last searched string.
- * @property currentSearchWords - Saves last searched words.
- * @property resultsDomNode - Saves currently opened results dom node or null
- * if no results exists yet.
- * @property currentSearchResultsDomNode - Saves current search results content
- * dom node.
- * @property currentlyOpenWindow - Saves currently opened window instance.
+ *
  * @property currentlyHighlightedMarker - Saves currently highlighted marker
  * instance.
- * @property searchResultsDirty - Indicates whether current search results
- * aren't valid anymore.
- * @property seenLocations - Saves all seen locations to recognize duplicates.
- * @property markers - Saves all recognized markers.
+ * @property currentlyOpenWindow - Saves currently opened window instance.
  * @property currentSearchResultRange - Public editable property to set current
  * search result range. This is useful for pagination implementations in
  * template level.
+ * @property currentSearchResults - Saves last found search results.
+ * @property currentSearchResultsDomNode - Saves current search results content
+ * dom node.
+ * @property currentSearchText - Saves last searched string.
+ * @property currentSearchWords - Saves last searched words.
+ * @property defaultSearchBoxOptions - Sets default search box options.
+ * @property map - Holds the currently used map instance.
+ * @property markerCluster - Holds the currently used marker cluster instance.
+ * @property markers - Saves all recognized markers.
+ * @property resultsDomNode - Saves currently opened results dom node or null
+ * if no results exists yet.
+ * @property searchResultsDirty - Indicates whether current search results
+ * aren't valid anymore.
+ * @property searchResultsStyleProperties - Dynamically computed CSS properties
+ * to append to search result list (derived from search input field).
+ * @property seenLocations - Saves all seen locations to recognize duplicates.
+ *
  * @property _options - Saves all plugin interface options.
  * @property _options.applicationInterface {Object} - To store application
  * interface options in.
@@ -210,28 +215,26 @@ export type Position = {
  * starts to highlight.
  */
 export default class StoreLocator extends $.Tools.class {
-    // region static properties
+    static applicationInterfaceLoad:$Deferred<$DomNode>
     static google:Object
+
     static _name:string = 'StoreLocator'
-    static _applicationInterfaceLoad:$Deferred<$DomNode>
-    // endregion
-    // region dynamic properties
-    map:Object
-    markerCluster:?Object
-    searchResultsStyleProperties:PlainObject
+
+    currentlyHighlightedMarker:?Object
+    currentlyOpenWindow:?Object
+    currentSearchResultRange:?Array<number>
     currentSearchResults:Array<Object>
+    currentSearchResultsDomNode:?$DomNode
     currentSearchText:?string
     currentSearchWords:Array<string>
-    resultsDomNode:?$DomNode
-    currentSearchResultsDomNode:?$DomNode
-    currentlyOpenWindow:?Object
-    currentlyHighlightedMarker:?Object
-    searchResultsDirty:boolean
-    seenLocations:Array<string>
+    defaultSearchBoxOptions:Object
+    map:Object
+    markerCluster:?Object
     markers:Array<Object>
-    currentSearchResultRange:?Array<number>
-    defaultSearchBoxOptions:Object;
-    // endregion
+    resultsDomNode:?$DomNode
+    searchResultsDirty:boolean
+    searchResultsStyleProperties:PlainObject
+    seenLocations:Array<string>
     /**
      * Entry point for object orientated plugin.
      * @param options - Options to overwrite default ones.
@@ -366,20 +369,23 @@ export default class StoreLocator extends $.Tools.class {
         }
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
-        if (typeof this.constructor._applicationInterfaceLoad !== 'object') {
+        if (typeof this.constructor.applicationInterfaceLoad !== 'object') {
             loadInitialized = false
-            this.constructor._applicationInterfaceLoad = $.Deferred()
+            this.constructor.applicationInterfaceLoad = $.Deferred()
         }
         const result:$Deferred<$DomNode> =
-            this.constructor._applicationInterfaceLoad.then(this.getMethod(
-                this.bootstrap)
-        ).done(():StoreLocator => this.fireEvent('loaded'))
+            // IgnoreTypeCheck
+            this.constructor.applicationInterfaceLoad.then(this.bootstrap.bind(
+                this
+            // IgnoreTypeCheck
+            )).done(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
             this.constructor.google = $.global.google
-            if (this.constructor._applicationInterfaceLoad.state(
+            if (this.constructor.applicationInterfaceLoad.state(
             ) !== 'resolved')
                 this.constructor.timeout(():$Deferred<$DomNode> =>
-                    this.constructor._applicationInterfaceLoad.resolve(
+                    this.constructor.applicationInterfaceLoad.resolve(
+                        // IgnoreTypeCheck
                         this.$domNode))
         } else if (!loadInitialized) {
             let callbackName:string
@@ -389,7 +395,8 @@ export default class StoreLocator extends $.Tools.class {
                 callbackName = this.constructor.determineUniqueScopeName()
             $.global[callbackName] = ():void => {
                 this.constructor.google = $.global.google
-                this.constructor._applicationInterfaceLoad.resolve(
+                this.constructor.applicationInterfaceLoad.resolve(
+                    // IgnoreTypeCheck
                     this.$domNode)
             }
             $.getScript(this.constructor.stringFormat(
@@ -398,7 +405,8 @@ export default class StoreLocator extends $.Tools.class {
                 ) ? `key=${this._options.applicationInterface.key}&` : '',
                 `window.${callbackName}`
             )).catch((response:Object, error:Error):$Deferred<$DomNode> =>
-                this.constructor._applicationInterfaceLoad.reject((error)))
+                // IgnoreTypeCheck
+                this.constructor.applicationInterfaceLoad.reject(error))
         }
         return result
     }
@@ -420,7 +428,9 @@ export default class StoreLocator extends $.Tools.class {
         const fallbackTimeout:Promise<boolean> = this.constructor.timeout(
             ():void => {
                 loaded = true
+                // IgnoreTypeCheck
                 this.initializeMap().then(():$Deferred<$DomNode> =>
+                    // IgnoreTypeCheck
                     $deferred.resolve(this.$domNode))
             }, this._options.ipToLocation.timeoutInMilliseconds)
         $.ajax({
@@ -433,6 +443,7 @@ export default class StoreLocator extends $.Tools.class {
             dataType: 'jsonp', cache: true
         }).always((currentLocation:Position, textStatus:string):void => {
             if (!loaded) {
+                // IgnoreTypeCheck
                 fallbackTimeout.clear()
                 loaded = true
                 if (textStatus === 'success')
@@ -456,7 +467,9 @@ export default class StoreLocator extends $.Tools.class {
                         currentLocation.latitude, currentLocation.longitude
                     )))
                         this._options.startLocation = currentLocation
+                // IgnoreTypeCheck
                 this.initializeMap().then(():$Deferred<$DomNode> =>
+                    // IgnoreTypeCheck
                     $deferred.resolve(this.$domNode))
             }
         })
@@ -552,6 +565,7 @@ export default class StoreLocator extends $.Tools.class {
                 const marker:Object = this.createMarker(store)
                 if (this.markerCluster)
                     this.markerCluster.addMarker(marker)
+                // IgnoreTypeCheck
                 $addMarkerDeferred.resolve(this.markers)
             }
         else if (this.constructor.determineType(
@@ -565,6 +579,7 @@ export default class StoreLocator extends $.Tools.class {
                     if (this.markerCluster)
                         this.markerCluster.addMarker(marker)
                 }
+                // IgnoreTypeCheck
                 $addMarkerDeferred.resolve(this.markers)
             })
         else {
@@ -590,6 +605,7 @@ export default class StoreLocator extends $.Tools.class {
                 if (this.markerCluster)
                     this.markerCluster.addMarker(marker)
             }
+            // IgnoreTypeCheck
             $addMarkerDeferred.resolve(this.markers)
         }
         // Create the search box and link it to the UI element.
@@ -625,7 +641,9 @@ export default class StoreLocator extends $.Tools.class {
             })
         const $mapLoadedDeferred:$Deferred<$DomNode> = $.Deferred()
         this.constructor.google.maps.event.addListenerOnce(this.map, 'idle', (
+        // IgnoreTypeCheck
         ):$Deferred<Array<Object>> => $addMarkerDeferred.then((
+        // IgnoreTypeCheck
         ):$Deferred<$DomNode> => $mapLoadedDeferred.resolve(this.$domNode)))
         return $mapLoadedDeferred
     }
@@ -652,7 +670,7 @@ export default class StoreLocator extends $.Tools.class {
         // Prepare search result positioning.
         this.resultsDomNode = $('<div>').addClass(
             this.constructor.stringCamelCaseToDelimited(
-                `${this.constructor._name}SearchResults`)
+                `${this.constructor.name}SearchResults`)
         ).css(this.searchResultsStyleProperties)
         // Inject the final search results into the dom tree.
         this.$domNode.find('input').after(this.resultsDomNode)
@@ -770,14 +788,14 @@ export default class StoreLocator extends $.Tools.class {
                     ].includes(name)
                 )
                     return
-            await this.acquireLock(`${this.constructor._name}Search`)
+            await this.acquireLock(`${this.constructor.name}Search`)
             const searchText:string = this._options.searchBox.normalizer(
                 this.$domNode.find('input').val())
             if (
                 this.currentSearchText === searchText &&
                 !this.searchResultsDirty
             )
-                return this.releaseLock(`${this.constructor._name}Search`)
+                return this.releaseLock(`${this.constructor.name}Search`)
             this.searchResultsDirty = false
             if (!this.resultsDomNode)
                 this.initializeDataSourceSearchResultsBox()
@@ -790,7 +808,7 @@ export default class StoreLocator extends $.Tools.class {
                     this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = null
                 this.closeSearchResults()
-                return this.releaseLock(`${this.constructor._name}Search`)
+                return this.releaseLock(`${this.constructor.name}Search`)
             }
             this.openSearchResults()
             const loadingDomNode:$DomNode = $(
@@ -847,11 +865,11 @@ export default class StoreLocator extends $.Tools.class {
             firstPlace:Object, secondPlace:Object
         ):number =>
             this.constructor.google.maps.geometry.spherical
-            .computeDistanceBetween(
-                this.map.getCenter(), firstPlace.geometry.location
-            ) - this.constructor.google.maps.geometry.spherical
-                .computeDistanceBetween(this.map.getCenter(
-                ), secondPlace.geometry.location)
+                .computeDistanceBetween(
+                    this.map.getCenter(), firstPlace.geometry.location
+                ) - this.constructor.google.maps.geometry.spherical
+                .computeDistanceBetween(
+                    this.map.getCenter(), secondPlace.geometry.location)
         )) {
             index += 1
             const distance:number =
@@ -903,19 +921,23 @@ export default class StoreLocator extends $.Tools.class {
         this.currentSearchWords = searchText.split(' ')
         for (const marker:Object of this.markers) {
             marker.foundWords = []
-            for (const key:string of this._options.searchBox.hasOwnProperty(
-                'properties'
-            ) && this._options.searchBox.properties || Object.keys(
-                marker.data
-            ))
+            for (
+                const key:string of this._options.searchBox.hasOwnProperty(
+                    'properties'
+                ) &&
+                this._options.searchBox.properties ||
+                Object.keys(marker.data)
+            )
                 for (const searchWord:string of this.currentSearchWords.concat(
                     this.currentSearchWords.join(' ')
                 ))
-                    if (!marker.foundWords.includes(searchWord) && (
-                        marker.data[key] || marker.data[key] === 0
-                    ) && this._options.searchBox.normalizer(
-                        marker.data[key]
-                    ).includes(searchWord)) {
+                    if (
+                        !marker.foundWords.includes(searchWord) &&
+                        (marker.data[key] || marker.data[key] === 0) &&
+                        this._options.searchBox.normalizer(
+                            marker.data[key]
+                        ).includes(searchWord)
+                    ) {
                         marker.foundWords.push(searchWord)
                         if (marker.foundWords.length === 1) {
                             marker.open = (event:Object):StoreLocator =>
@@ -977,8 +999,7 @@ export default class StoreLocator extends $.Tools.class {
                 .computeDistanceBetween(
                     this.map.getCenter(), first.position
                 ) - this.constructor.google.maps.geometry.spherical
-                    .computeDistanceBetween(
-                        this.map.getCenter(), second.position)
+                .computeDistanceBetween(this.map.getCenter(), second.position)
         })
         // Slice additional unneeded local search results.
         let limitReached:boolean = false
@@ -1013,7 +1034,7 @@ export default class StoreLocator extends $.Tools.class {
                     this.currentSearchResultsDomNode)
             this.currentSearchResultsDomNode = resultsRepresentationDomNode
             this.constructor.timeout(():StoreLocator => this.releaseLock(
-                `${this.constructor._name}Search`))
+                `${this.constructor.name}Search`))
         } else if (resultsRepresentation instanceof Object)
             resultsRepresentation.then((resultsRepresentation:string):void => {
                 const resultsRepresentationDomNode:$DomNode = $(
@@ -1032,7 +1053,7 @@ export default class StoreLocator extends $.Tools.class {
                         'removeSearchResults', false, this,
                         this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = resultsRepresentationDomNode
-                this.releaseLock(`${this.constructor._name}Search`)
+                this.releaseLock(`${this.constructor.name}Search`)
             })
         this.currentSearchText = searchText
         this.currentSearchResults = searchResults.slice()
@@ -1047,11 +1068,11 @@ export default class StoreLocator extends $.Tools.class {
     openSearchResults(event:?Object):StoreLocator {
         if (event)
             event.stopPropagation()
-        if (this.resultsDomNode && !this.resultsDomNode.hasClass(
-            'open'
-        ) && this.fireEvent(
-            'openSearchResults', false, this, event, this.resultsDomNode
-        )) {
+        if (
+            this.resultsDomNode && !this.resultsDomNode.hasClass('open') &&
+            this.fireEvent(
+                'openSearchResults', false, this, event, this.resultsDomNode)
+        ) {
             for (
                 const propertyName:string in this.searchResultsStyleProperties
             )
@@ -1075,11 +1096,11 @@ export default class StoreLocator extends $.Tools.class {
     closeSearchResults(event:?Object = null):StoreLocator {
         if (event)
             event.stopPropagation()
-        if (this.resultsDomNode && this.resultsDomNode.hasClass(
-            'open'
-        ) && this.fireEvent(
-            'closeSearchResults', false, this, event, this.resultsDomNode
-        )) {
+        if (
+            this.resultsDomNode && this.resultsDomNode.hasClass('open') &&
+            this.fireEvent(
+                'closeSearchResults', false, this, event, this.resultsDomNode)
+        ) {
             for (
                 const propertyName:string in this.searchResultsStyleProperties
             )
@@ -1114,6 +1135,7 @@ export default class StoreLocator extends $.Tools.class {
         */
         this.constructor.google.maps.event.addListener(
             searchBox, 'places_changed', ():$Deferred<Array<Object>> =>
+                // IgnoreTypeCheck
                 this.ensurePlaceLocations(searchBox.getPlaces()).then((
                     places:Array<Object>
                 ):Array<Object> => {
@@ -1192,11 +1214,13 @@ export default class StoreLocator extends $.Tools.class {
                             place.name)
                     }
                     if (runningGeocodes === 0)
+                        // IgnoreTypeCheck
                         result.resolve(places)
                 })
                 /* eslint-enable no-loop-func */
             }
         if (runningGeocodes === 0)
+            // IgnoreTypeCheck
             result.resolve(places)
         return result
     }
@@ -1301,8 +1325,7 @@ export default class StoreLocator extends $.Tools.class {
                 marker.infoWindow.isOpen = false
             })
         this.constructor.google.maps.event.addListener(
-            marker.nativeMarker, 'click', this.getMethod(
-                'openMarker', this, marker))
+            marker.nativeMarker, 'click', this.openMarker.bind(this, marker))
         return this
     }
     /**
@@ -1457,7 +1480,7 @@ export default class StoreLocator extends $.Tools.class {
      * Takes the search results and creates the HTML content of the search
      * results.
      * @param searchResults - Search result to generate markup for.
-     * @param limitReached - Indicated weather defined limit was reached or
+     * @param limitReached - Indicated whether defined limit was reached or
      * not.
      * @returns Generated markup.
      */
@@ -1475,12 +1498,11 @@ export default class StoreLocator extends $.Tools.class {
             for (const result:Object of searchResults) {
                 content += '<div>'
                 for (const name:string in result.data)
-                    if (result.data.hasOwnProperty(
-                        name
-                    ) && (
-                        this._options.searchBox.properties.length === 0 ||
-                        this._options.searchBox.properties.includes(name)
-                    ))
+                    if (
+                        result.data.hasOwnProperty(name) && (
+                            this._options.searchBox.properties.length === 0 ||
+                            this._options.searchBox.properties.includes(name))
+                    )
                         content += `${name}: ` + this.constructor.stringMark(
                             `${result.data[name]}`, this.currentSearchWords,
                             '<span class="tools-mark">{1}</span>',
