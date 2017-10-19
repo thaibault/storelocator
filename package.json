@@ -48,9 +48,9 @@
     "watch:dll": "webOptimizer build:dll --watch"
   },
   "peerDependencies": {
-    "clientnode": "^1.0.240",
+    "clientnode": "*",
     "jquery": "*",
-    "js-marker-clusterer": "^1.0.0"
+    "js-marker-clusterer": "*"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.1",
