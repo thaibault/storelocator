@@ -48,6 +48,7 @@
     "watch:dll": "webOptimizer build:dll --watch"
   },
   "peerDependencies": {
+    "babel-runtime": "*",
     "clientnode": "*",
     "jquery": "*",
     "js-marker-clusterer": "*"
@@ -106,7 +107,7 @@
         "javaScript": {
           "options": {
             "presets": {
-              "__evaluate__": "[['env', {targets: self.targetTechnology === 'node' ? {node: 'current'} : {browsers: 'last 2 versions'}}]].concat('stage-0')"
+              "__evaluate__": "[['env', {targets: self.targetTechnology === 'node' ? {node: 'current'} : {browsers: 'last 2 versions', node: 'current'}}]].concat('stage-0')"
             }
           }
         }
