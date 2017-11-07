@@ -13,6 +13,7 @@ apiDocumentation/
 database
 log.txt
 ***/.local
+source/image/sprite.png
 
 # Temporary compile files
 ***/*.compiled.*
