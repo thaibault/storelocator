@@ -18,7 +18,7 @@ unsafe.enable_getters_and_setters=true
 
 module.name_mapper='^\./ejsLoader.compiled$' -> 'ejs'
 module.name_mapper='^googleMarkerClusterer$' -> 'js-marker-clusterer'
-module.name_mapper='^script!qunitjs$' -> 'qunitjs'
+module.name_mapper='^script!qunit$' -> 'qunit'
 module.name_mapper='^weboptimizer/browserAPI.compiled$' -> 'weboptimizer/browserAPI'
 
 module.file_ext=.js
