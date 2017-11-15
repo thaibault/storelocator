@@ -214,7 +214,7 @@ export type Position = {
  * @property _options.onMarkerHighlighted {Function} - Triggers after a marker
  * starts to highlight.
  */
-export default class StoreLocator extends $.Tools.class {
+export class StoreLocator extends $.Tools.class {
     static applicationInterfaceLoad:$Deferred<$DomNode>
     static google:Object
 
@@ -1515,6 +1515,7 @@ export default class StoreLocator extends $.Tools.class {
         return this._options.searchBox.noResultsContent
     }
 }
+export default StoreLocator
 // endregion
 $.fn.StoreLocator = function(...parameter:Array<any>):any {
     return $.Tools().controller(StoreLocator, parameter, this)
