@@ -214,7 +214,7 @@ export type Position = {
  * @property _options.onMarkerHighlighted {Function} - Triggers after a marker
  * starts to highlight.
  */
-export default class StoreLocator extends $.Tools.class {
+export class StoreLocator extends $.Tools.class {
     static applicationInterfaceLoad:$Deferred<$DomNode>
     static google:Object
 
@@ -670,7 +670,7 @@ export default class StoreLocator extends $.Tools.class {
         // Prepare search result positioning.
         this.resultsDomNode = $('<div>').addClass(
             this.constructor.stringCamelCaseToDelimited(
-                `${this.constructor.name}SearchResults`)
+                `${this.constructor._name}SearchResults`)
         ).css(this.searchResultsStyleProperties)
         // Inject the final search results into the dom tree.
         this.$domNode.find('input').after(this.resultsDomNode)
@@ -788,14 +788,14 @@ export default class StoreLocator extends $.Tools.class {
                     ].includes(name)
                 )
                     return
-            await this.acquireLock(`${this.constructor.name}Search`)
+            await this.acquireLock(`${this.constructor._name}Search`)
             const searchText:string = this._options.searchBox.normalizer(
                 this.$domNode.find('input').val())
             if (
                 this.currentSearchText === searchText &&
                 !this.searchResultsDirty
             )
-                return this.releaseLock(`${this.constructor.name}Search`)
+                return this.releaseLock(`${this.constructor._name}Search`)
             this.searchResultsDirty = false
             if (!this.resultsDomNode)
                 this.initializeDataSourceSearchResultsBox()
@@ -808,7 +808,7 @@ export default class StoreLocator extends $.Tools.class {
                     this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = null
                 this.closeSearchResults()
-                return this.releaseLock(`${this.constructor.name}Search`)
+                return this.releaseLock(`${this.constructor._name}Search`)
             }
             this.openSearchResults()
             const loadingDomNode:$DomNode = $(
@@ -1034,7 +1034,7 @@ export default class StoreLocator extends $.Tools.class {
                     this.currentSearchResultsDomNode)
             this.currentSearchResultsDomNode = resultsRepresentationDomNode
             this.constructor.timeout(():StoreLocator => this.releaseLock(
-                `${this.constructor.name}Search`))
+                `${this.constructor._name}Search`))
         } else if (resultsRepresentation instanceof Object)
             resultsRepresentation.then((resultsRepresentation:string):void => {
                 const resultsRepresentationDomNode:$DomNode = $(
@@ -1053,7 +1053,7 @@ export default class StoreLocator extends $.Tools.class {
                         'removeSearchResults', false, this,
                         this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = resultsRepresentationDomNode
-                this.releaseLock(`${this.constructor.name}Search`)
+                this.releaseLock(`${this.constructor._name}Search`)
             })
         this.currentSearchText = searchText
         this.currentSearchResults = searchResults.slice()
@@ -1515,6 +1515,7 @@ export default class StoreLocator extends $.Tools.class {
         return this._options.searchBox.noResultsContent
     }
 }
+export default StoreLocator
 // endregion
 $.fn.StoreLocator = function(...parameter:Array<any>):any {
     return $.Tools().controller(StoreLocator, parameter, this)
