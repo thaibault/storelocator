@@ -54,13 +54,13 @@
     "js-marker-clusterer": "*"
   },
   "devDependencies": {
-    "babel-eslint": "^8.0.2",
+    "babel-eslint": "^8.0.3",
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",
     "clientnode": "^1.0.291",
     "documentation-website": "^1.0.79",
-    "eslint": "^4.11.0",
+    "eslint": "^4.12.1",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.36.0",
     "eslint-plugin-jsdoc": "^3.2.0",
@@ -71,8 +71,8 @@
     "qunit": "^2.4.1",
     "source-map-support": "^0.5.0",
     "weboptimizer": "^1.0.425",
-    "webpack": "^3.8.1",
-    "webpack-dev-server": "^2.9.4"
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.9.5"
   },
   "webOptimizer": {
     "injection": {
