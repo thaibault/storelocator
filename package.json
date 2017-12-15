@@ -59,7 +59,7 @@
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",
     "clientnode": "^1.0.291",
-    "documentation-website": "^1.0.79",
+    "documentation-website": "^1.0.80",
     "eslint": "^4.12.1",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.40.1",
