@@ -10,13 +10,17 @@ This library written by Torben Sickert stand under a creative commons naming
 3.0 unported license. see http://creativecommons.org/licenses/by/3.0/deed.de
 endregion -->
 
+Project status
+--------------
+
 [![npm version](https://badge.fury.io/js/storelocator.svg)](https://www.npmjs.com/package/storelocator)
 [![downloads](https://img.shields.io/npm/dy/storelocator.svg)](https://www.npmjs.com/package/storelocator)
 [![build status](https://travis-ci.org/thaibault/storeLocator.svg?branch=master)](https://travis-ci.org/thaibault/storeLocator)
+[![code coverage](https://coveralls.io/repos/github/thaibault/storeLocator/badge.svg)](https://coveralls.io/github/thaibault/storeLocator)
 [![dependencies](https://img.shields.io/david/thaibault/storelocator.svg)](https://david-dm.org/thaibault/storelocator)
-[![devDependencies](https://img.shields.io/david/dev/thaibault/storelocator.svg)](https://david-dm.org/thaibault/storelocator?type=dev)
-[![peerDependencies](https://img.shields.io/david/peer/thaibault/storelocator.svg)](https://david-dm.org/thaibault/storelocator?type=peer)
-[![documentation-website](https://img.shields.io/website-up-down-green-red/http/torben.website/storeLocator.svg?label=documentation-website)](http://torben.website/storeLocator)
+[![development dependencies](https://img.shields.io/david/dev/thaibault/storelocator.svg)](https://david-dm.org/thaibault/storelocator?type=dev)
+[![peer dependencies](https://img.shields.io/david/peer/thaibault/storelocator.svg)](https://david-dm.org/thaibault/storelocator?type=peer)
+[![documentation website](https://img.shields.io/website-up-down-green-red/http/torben.website/storeLocator.svg?label=documentation-website)](http://torben.website/storeLocator)
 
 <!--|deDE:Einsatz-->
 Use case
