@@ -13,6 +13,7 @@ apiDocumentation/
 database
 log.txt
 ***/.local
+.nyc_output
 source/image/sprite.png
 
 # Temporary compile files
