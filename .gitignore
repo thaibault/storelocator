@@ -10,13 +10,30 @@ apiDocumentation/
 ***/*.ngfactory.ts
 
 # Runtime data
+backup
+/cache/*
+!/cache/.gitkeep
+.cache
+certificate/
+!certificate/localhost/*
+!certificate/letsEncrypt/configuration/.gitkeep
+!certificate/letsEncrypt/log/.gitkeep
+.config
 database
+log
 log.txt
 ***/.local
+.node-xmlhttprequest-sync*
 .nyc_output
+/renderedData/*
+!/renderedData/.gitkeep
 source/image/sprite.png
+.ssh
 
 # Temporary compile files
+build
+dist
+target
 ***/*.compiled.*
 ***/*.compiled
 !/api/**/*
@@ -32,8 +49,6 @@ source/image/sprite.png
 ***/.SRCINFO
 ***/*.egg
 ***/*.egg-info
-dist
-build
 eggs
 parts
 bin
@@ -77,10 +92,13 @@ lib64
 ***/*~
 
 # Temporary fuse files
-***/.fuse_hidden*
+**/.fuse_hidden*
 
 # Temporary windows files
 ***/*Thumbs.db
+
+# Temporary git files
+***/.git-rewrite
 
 # NPM/yarn's runtime files
 ***/yarn-error.log
@@ -92,7 +110,6 @@ lib64
 ***/.config
 ***/.npm-debug.log
 ***/npm-debug.log
-
 # region vim modline
 # vim: set tabstop=4 shiftwidth=4 expandtab:
 # vim: foldmethod=marker foldmarker=region,endregion:
