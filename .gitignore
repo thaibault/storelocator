@@ -21,7 +21,9 @@ certificate/
 .config
 database
 log
+!log/.gitkeep
 logs
+!logs/.gitkeep
 log.txt
 ***/.local
 .node-xmlhttprequest-sync*
