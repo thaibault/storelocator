@@ -21,6 +21,7 @@ certificate/
 .config
 database
 log
+logs
 log.txt
 ***/.local
 .node-xmlhttprequest-sync*
