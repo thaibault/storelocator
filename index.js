@@ -335,13 +335,9 @@ export class StoreLocator extends $.Tools.class {
             generic: {
                 number: [2, 5],
                 maximalDistanceInMeter: 1000000,
-                filter: (place:Object):boolean => (
-                    place.formatted_address.indexOf(
-                        ' Deutschland'
-                    ) !== -1 || place.formatted_address.indexOf(
-                        ' Germany'
-                    ) !== -1
-                ),
+                filter: (place:Object):boolean =>
+                    /(?:^| )(?:Deutschland|Germany)( |$)/i.test(
+                        place.formatted_address),
                 prefer: true,
                 retrieveOptions: {radius: '50000'}
             },
