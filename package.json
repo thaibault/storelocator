@@ -32,8 +32,8 @@
   "scripts": {
     "build": "webOptimizer build",
     "build:dll": "webOptimizer build:dll",
-    "build:export": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\"}}}}}}'",
-    "build:export:compatible": "webOptimizer build '{development:{tool:false},module:{preprocessor:{javaScript:{options:{plugins:{__remove__:\"transform-runtime\",__append__:\"transform-proto-to-assign\"},presets:[\"env\",\"stage-0\"]}}}}}'",
+    "build:export": "webOptimizer build '{__reference__: \"export\"}'",
+    "build:export:compatible": "webOptimizer build '{__reference__: [\"export\", \"exportCompatible\"]}'",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "lint": "webOptimizer check:type; webOptimizer lint",
@@ -60,13 +60,13 @@
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",
-    "clientnode": "^1.0.339",
+    "clientnode": "^1.0.342",
     "coveralls": "^3.0.0",
-    "documentation-website": "^1.0.99",
-    "eslint": "^4.18.0",
+    "documentation-website": "^1.0.100",
+    "eslint": "^4.18.1",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.45.0",
-    "eslint-plugin-jsdoc": "^3.4.1",
+    "eslint-plugin-jsdoc": "^3.5.0",
     "flow-bin": "^0.66.0",
     "jquery": "^3.2.1",
     "js-marker-clusterer": "^1.0.0",
@@ -74,11 +74,41 @@
     "nyc": "^11.5.0",
     "qunit": "^2.5.0",
     "source-map-support": "^0.5.3",
-    "weboptimizer": "^1.0.514",
+    "weboptimizer": "^1.0.522",
     "webpack": "^3.11.0",
     "webpack-dev-server": "^2.10.1"
   },
   "webOptimizer": {
+    "export": {
+      "development": {
+        "tool": false
+      },
+      "module": {
+        "preprocessor": {
+          "javaScript": {
+            "options": {
+              "plugins": {
+                "__remove__": "transform-runtime"
+              }
+            }
+          }
+        }
+      }
+    },
+    "exportCompatible": {
+      "module": {
+        "preprocessor": {
+          "javaScript": {
+            "options": {
+              "plugins": {
+                "__append__": "transform-proto-to-assign"
+              },
+              "presets": ["env", "stage-0"]
+            }
+          }
+        }
+      }
+    },
     "injection": {
       "external": {
         "aliases": {
