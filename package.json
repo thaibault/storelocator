@@ -103,7 +103,10 @@
               "plugins": {
                 "__append__": "transform-proto-to-assign"
               },
-              "presets": ["env", "stage-0"]
+              "presets": [
+                "env",
+                "stage-0"
+              ]
             }
           }
         }
