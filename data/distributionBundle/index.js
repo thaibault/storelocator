@@ -335,13 +335,9 @@ export class StoreLocator extends $.Tools.class {
             generic: {
                 number: [2, 5],
                 maximalDistanceInMeter: 1000000,
-                filter: (place:Object):boolean => (
-                    place.formatted_address.indexOf(
-                        ' Deutschland'
-                    ) !== -1 || place.formatted_address.indexOf(
-                        ' Germany'
-                    ) !== -1
-                ),
+                filter: (place:Object):boolean =>
+                    /(?:^| )(?:Deutschland|Germany)( |$)/i.test(
+                        place.formatted_address),
                 prefer: true,
                 retrieveOptions: {radius: '50000'}
             },
@@ -733,7 +729,7 @@ export class StoreLocator extends $.Tools.class {
                     if (this.currentlyHighlightedMarker)
                         if (this.currentlyHighlightedMarker.infoWindow)
                             this.openMarker(
-                                event, this.currentlyHighlightedMarker)
+                                this.currentlyHighlightedMarker, event)
                         else
                             this.openPlace(
                                 this.currentlyHighlightedMarker.data, event)
@@ -941,7 +937,7 @@ export class StoreLocator extends $.Tools.class {
                         marker.foundWords.push(searchWord)
                         if (marker.foundWords.length === 1) {
                             marker.open = (event:Object):StoreLocator =>
-                                this.openMarker(event, marker)
+                                this.openMarker(marker, event)
                             marker.highlight = (
                                 event:Object, type:string
                             ):StoreLocator => this.highlightMarker(
@@ -1162,7 +1158,7 @@ export class StoreLocator extends $.Tools.class {
                             if (this._options.successfulSearchZoom)
                                 this.map.setZoom(
                                     this._options.successfulSearchZoom)
-                            this.openMarker(null, matchingMarker)
+                            this.openMarker(matchingMarker)
                             return places
                         }
                         if (this.currentlyOpenWindow) {
@@ -1330,11 +1326,11 @@ export class StoreLocator extends $.Tools.class {
     }
     /**
      * Opens given marker info window. And closes potentially opened windows.
-     * @param event - Event which has triggered the marker opening call.
      * @param marker - Marker to open.
+     * @param event - Event which has triggered the marker opening call.
      * @returns The current instance.
      */
-    openMarker(event:?Object, marker:Object):StoreLocator {
+    openMarker(marker:Object, event:?Object):StoreLocator {
         if (event && !('stopPropagation' in event))
             event = null
         this.highlightMarker(marker, event, 'stop')
