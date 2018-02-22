@@ -61,6 +61,7 @@ export type Position = {
  * @property currentSearchResults - Saves last found search results.
  * @property currentSearchResultsDomNode - Saves current search results content
  * dom node.
+ * @property currentSearchSegments - Saves last searched segments.
  * @property currentSearchText - Saves last searched string.
  * @property currentSearchWords - Saves last searched words.
  * @property defaultSearchBoxOptions - Sets default search box options.
@@ -220,21 +221,22 @@ export class StoreLocator extends $.Tools.class {
 
     static _name:string = 'StoreLocator'
 
-    currentlyHighlightedMarker:?Object
-    currentlyOpenWindow:?Object
-    currentSearchResultRange:?Array<number>
-    currentSearchResults:Array<Object>
-    currentSearchResultsDomNode:?$DomNode
-    currentSearchText:?string
-    currentSearchWords:Array<string>
+    currentlyHighlightedMarker:Object|null = null
+    currentlyOpenWindow:Object|null = null
+    currentSearchResultRange:Array<number>|null = null
+    currentSearchResults:Array<Object> = []
+    currentSearchResultsDomNode:$DomNode|null = null
+    currentSearchSegments:Array<string> = []
+    currentSearchText:string|null = null
+    currentSearchWords:Array<string> = []
     defaultSearchBoxOptions:Object
     map:Object
-    markerCluster:?Object
-    markers:Array<Object>
-    resultsDomNode:?$DomNode
-    searchResultsDirty:boolean
-    searchResultsStyleProperties:PlainObject
-    seenLocations:Array<string>
+    markerCluster:Object|null = null
+    markers:Array<Object> = []
+    resultsDomNode:$DomNode|null = null
+    searchResultsDirty:boolean = false
+    searchResultsStyleProperties:PlainObject = {}
+    seenLocations:Array<string> = []
     /**
      * Entry point for object orientated plugin.
      * @param options - Options to overwrite default ones.
@@ -242,19 +244,6 @@ export class StoreLocator extends $.Tools.class {
      */
     initialize(options:Object = {}):$Deferred<$DomNode> {
         // region properties
-        this.markerCluster = null
-        this.searchResultsStyleProperties = {}
-        this.currentSearchResults = []
-        this.currentSearchText = null
-        this.currentSearchWords = []
-        this.resultsDomNode = null
-        this.currentSearchResultsDomNode = null
-        this.currentlyOpenWindow = null
-        this.currentlyHighlightedMarker = null
-        this.searchResultsDirty = false
-        this.seenLocations = []
-        this.markers = []
-        this.currentSearchResultRange = null
         this._options = {
             applicationInterface: {
                 url:
@@ -822,6 +811,10 @@ export class StoreLocator extends $.Tools.class {
                     'removeSearchResults', false, this,
                     this.currentSearchResultsDomNode)
             this.currentSearchResultsDomNode = loadingDomNode
+            this.currentSearchWords = searchText.split(' ')
+            this.currentSearchSegments = this.currentSearchWords
+            if (!this.currentSearchSegments.includes(searchText))
+                this.currentSearchSegments.push(searchText)
             if (this._options.searchBox.generic.number)
                 /*
                     NOTE: Google searches for more items than exists in the
@@ -880,9 +873,9 @@ export class StoreLocator extends $.Tools.class {
             if (this._options.searchBox.generic.filter(place)) {
                 const result:{
                     data:Object;
-                    position:Position;
-                    open:(event:Object) => any;
                     highlight:(event:Object, type:string) => any;
+                    open:(event:Object) => any;
+                    position:Position;
                 } = {
                     data: this.constructor.extendObject(place, {
                         logoFilePath: place.icon.replace(
@@ -890,12 +883,17 @@ export class StoreLocator extends $.Tools.class {
                         address: place.formatted_address,
                         distance: distance
                     }),
-                    position: place.geometry.location,
-                    open: (event:Object):StoreLocator => this.openPlace(
-                        place, event),
+                    foundWords: this.currentSearchSegments.filter((
+                        word:string
+                    ):boolean => place.formatted_address.includes(word) || (
+                        place.name || ''
+                    ).includes(word)),
                     highlight: (event:Object, type:string):void => {
                         this.isHighlighted = type !== 'stop'
-                    }
+                    },
+                    open: (event:Object):StoreLocator => this.openPlace(
+                        place, event),
+                    position: place.geometry.location
                 }
                 searchResults.push(result)
                 if (this._options.searchBox.generic.number[1] < index)
@@ -914,19 +912,14 @@ export class StoreLocator extends $.Tools.class {
         searchText:string, searchResults:Array<Object> = []
     ):StoreLocator {
         const numberOfGenericSearchResults:number = searchResults.length
-        this.currentSearchWords = searchText.split(' ')
+        const properties:Array<string> =
+            this._options.searchBox.hasOwnProperty(
+                'properties'
+            ) && this._options.searchBox.properties || Object.keys(marker.data)
         for (const marker:Object of this.markers) {
             marker.foundWords = []
-            for (
-                const key:string of this._options.searchBox.hasOwnProperty(
-                    'properties'
-                ) &&
-                this._options.searchBox.properties ||
-                Object.keys(marker.data)
-            )
-                for (const searchWord:string of this.currentSearchWords.concat(
-                    this.currentSearchWords.join(' ')
-                ))
+            for (const key:string of properties)
+                for (const searchWord:string of this.currentSearchSegments)
                     if (
                         !marker.foundWords.includes(searchWord) &&
                         (marker.data[key] || marker.data[key] === 0) &&
@@ -944,15 +937,14 @@ export class StoreLocator extends $.Tools.class {
                                 marker, event, type)
                             if (
                                 this._options.searchBox.resultAggregation ===
-                                'union'
+                                    'union'
                             )
                                 searchResults.push(marker)
                         }
                         if (
-                            marker.foundWords.length ===
-                            this.currentSearchWords.length &&
-                            this._options.searchBox.resultAggregation ===
-                            'cut'
+                            marker.foundWords.length >=
+                                this.currentSearchWords.length &&
+                            this._options.searchBox.resultAggregation === 'cut'
                         )
                             searchResults.push(marker)
                     }
@@ -963,10 +955,10 @@ export class StoreLocator extends $.Tools.class {
         */
         if (
             this._options.searchBox.generic.number &&
-            searchResults.length && numberOfGenericSearchResults >
+            searchResults.length &&
+            numberOfGenericSearchResults >
                 this._options.searchBox.generic.number[0] &&
-            searchResults.length >
-                this._options.searchBox.generic.number[1]
+            searchResults.length > this._options.searchBox.generic.number[1]
         )
             searchResults.splice(
                 this._options.searchBox.generic.number[0],
@@ -977,16 +969,11 @@ export class StoreLocator extends $.Tools.class {
             results.
         */
         searchResults.sort((first:Object, second:Object):number => {
-            if (
-                this._options.searchBox.generic.prefer &&
-                !first.infoWindow && second.infoWindow
-            )
-                return -1
-            if (
-                this._options.searchBox.generic.prefer &&
-                !second.infoWindow && first.infoWindow
-            )
-                return 1
+            if (this._options.searchBox.generic.prefer)
+                if (!first.infoWindow && second.infoWindow)
+                    return -1
+                else if (!second.infoWindow && first.infoWindow)
+                    return 1
             if (first.foundWords.length < second.foundWords.length)
                 return 1
             if (second.foundWords.length < first.foundWords.length)
