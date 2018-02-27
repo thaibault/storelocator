@@ -60,12 +60,12 @@
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",
-    "clientnode": "^1.0.347",
+    "clientnode": "^1.0.349",
     "coveralls": "^3.0.0",
-    "documentation-website": "^1.0.105",
+    "documentation-website": "^1.0.106",
     "eslint": "^4.18.1",
     "eslint-config-google": "^0.9.1",
-    "eslint-plugin-flowtype": "^2.46.0",
+    "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-jsdoc": "^3.5.0",
     "flow-bin": "^0.66.0",
     "jquery": "^3.2.1",
@@ -74,9 +74,9 @@
     "nyc": "^11.5.0",
     "qunit": "^2.5.0",
     "source-map-support": "^0.5.3",
-    "weboptimizer": "^1.0.532",
+    "weboptimizer": "^1.0.533",
     "webpack": "^3.11.0",
-    "webpack-dev-server": "^2.10.1"
+    "webpack-dev-server": "^2.11.2"
   },
   "webOptimizer": {
     "export": {
