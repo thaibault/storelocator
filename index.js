@@ -912,11 +912,13 @@ export class StoreLocator extends $.Tools.class {
         searchText:string, searchResults:Array<Object> = []
     ):StoreLocator {
         const numberOfGenericSearchResults:number = searchResults.length
-        const properties:Array<string> =
-            this._options.searchBox.hasOwnProperty(
-                'properties'
-            ) && this._options.searchBox.properties || Object.keys(marker.data)
+        const defaultProperties:?Array<string> =
+            this._options.searchBox.hasOwnProperty('properties') &&
+                this._options.searchBox.properties
         for (const marker:Object of this.markers) {
+            const properties:Array<string> =
+                defaultProperties ? defaultProperties : Object.keys(
+                    marker.data)
             marker.foundWords = []
             for (const key:string of properties)
                 for (const searchWord:string of this.currentSearchSegments)

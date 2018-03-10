@@ -60,23 +60,24 @@
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",
-    "clientnode": "^2.0.1",
+    "clientnode": "^3.0.1",
     "coveralls": "^3.0.0",
     "documentation-website": "^1.0.108",
     "eslint": "^4.18.2",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-jsdoc": "^3.5.0",
-    "flow-bin": "^0.66.0",
+    "flow-bin": "^0.67.1",
     "jquery": "^3.2.1",
     "js-marker-clusterer": "^1.0.0",
     "jsdoc": "^3.5.2",
     "nyc": "^11.5.0",
     "qunit": "^2.5.1",
     "source-map-support": "^0.5.3",
-    "weboptimizer": "^1.0.533",
-    "webpack": "^3.11.0",
-    "webpack-dev-server": "^2.11.2"
+    "weboptimizer": "^2.0.15",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.11",
+    "webpack-dev-server": "^3.1.1"
   },
   "webOptimizer": {
     "export": {
@@ -110,6 +111,11 @@
             }
           }
         }
+      }
+    },
+    "files": {
+      "compose": {
+        "cascadingStyleSheet": null
       }
     },
     "injection": {
