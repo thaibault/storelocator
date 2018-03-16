@@ -3,6 +3,9 @@
 .*/\.git
 .*/_.*\.js
 .*/.+\.compiled\(\.js\)?
+.*/broken.json
+.*/test([/.]|$)
+.*/\.nyc_output/.*\.json$
 # Ignore all webOptimizer modules except "browserAPI" and "type".
 \(.*/\)?node_modules/weboptimizer/\(\([^tb].*\)\|\(t[^y].*\)\|\(ty[^p].*\)\|\(typ[^e].*\)\|\(type.+\)\|\(..?.?\)\|\(......?.?.?.?\)\|\(brow\)\|\(b[^r].*\)\|\(br[^o].*\)\|\(bro[^w].*\)\|\(brow[^s].*\)\|\(brows[^e].*\)\|\(browse[^r].*\)\|\(browser[^A].*\)\|\(browserA[^P].*\)\|\(browserAP[^I].*\)\|\(browserAPI.+\)\)\.js
 
