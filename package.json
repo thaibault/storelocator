@@ -31,7 +31,6 @@
   },
   "scripts": {
     "build": "webOptimizer build",
-    "build:dll": "webOptimizer build:dll",
     "build:export": "webOptimizer build '{__reference__: \"export\"}'",
     "build:export:compatible": "webOptimizer build '{__reference__: [\"export\", \"exportCompatible\"]}'",
     "clear": "webOptimizer clear",
@@ -46,8 +45,7 @@
     "test:plain": "webOptimizer test",
     "update": "npm version patch && npm publish",
     "update:documentation": "documentationWebsite --log-level info",
-    "watch": "webOptimizer build --watch",
-    "watch:dll": "webOptimizer build:dll --watch"
+    "watch": "webOptimizer build --watch"
   },
   "peerDependencies": {
     "babel-runtime": "*",
@@ -60,10 +58,10 @@
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",
-    "clientnode": "^3.0.15",
+    "clientnode": "^3.0.24",
     "coveralls": "^3.0.0",
-    "documentation-website": "^1.0.116",
-    "eslint": "^4.19.0",
+    "documentation-website": "^1.0.119",
+    "eslint": "^4.19.1",
     "eslint-config-google": "^0.9.1",
     "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-jsdoc": "^3.5.0",
@@ -72,11 +70,11 @@
     "js-marker-clusterer": "^1.0.0",
     "jsdoc": "^3.5.2",
     "nyc": "^11.6.0",
-    "qunit": "^2.5.1",
+    "qunit": "^2.6.0",
     "source-map-support": "^0.5.3",
-    "weboptimizer": "^2.0.45",
-    "webpack": "^4.2.0",
-    "webpack-cli": "^2.0.12",
+    "weboptimizer": "^2.0.74",
+    "webpack": "^4.3.0",
+    "webpack-cli": "^2.0.13",
     "webpack-dev-server": "^3.1.1"
   },
   "webOptimizer": {
@@ -132,11 +130,6 @@
             }
           }
         }
-      },
-      "internal": {
-        "vendor": {
-          "__evaluate__": "self.debug && 2 < self.givenCommandLineArguments.length && ['build:dll', 'serve', 'test:browser', 'watch:dll'].includes(self.givenCommandLineArguments[2]) ? ['babel-polyfill', 'clientnode', 'exports?Class=MarkerClusterer,google=google!imports?google=>{}!googleMarkerClusterer'].concat(self.givenCommandLineArguments[2] === 'serve' ? [] : ['script!qunit', 'weboptimizer/browserAPI']) : []"
-        }
       }
     },
     "module": {
@@ -151,9 +144,6 @@
             "simplify": false
           }
         }
-      },
-      "skipParseRegularExpressions": {
-        "__evaluate__": "/(?:^|\\/)(?:(?:babel-polyfill\\/dist\\/polyfill)|(?:jquery\\/dist\\/jquery)|(?:webpack\\/buildin\\/global)|(?:webpack\\/buildin\\/module))(?:\\.min)?\\.js(?:\\?.+|$)/"
       }
     }
   }
