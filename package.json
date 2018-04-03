@@ -58,7 +58,7 @@
     "babel-plugin-transform-proto-to-assign": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",
-    "clientnode": "^3.0.27",
+    "clientnode": "^3.0.29",
     "coveralls": "^3.0.0",
     "documentation-website": "^1.0.119",
     "eslint": "^4.19.1",
@@ -71,7 +71,7 @@
     "jsdoc": "^3.5.2",
     "nyc": "^11.6.0",
     "qunit": "^2.6.0",
-    "weboptimizer": "^2.0.79",
+    "weboptimizer": "^2.0.84",
     "webpack": "^4.4.1",
     "webpack-cli": "^2.0.13",
     "webpack-dev-server": "^3.1.1"
