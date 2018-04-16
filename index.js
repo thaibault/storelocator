@@ -389,9 +389,9 @@ export class StoreLocator extends $.Tools.class {
                     this._options.applicationInterface.key
                 ) ? `key=${this._options.applicationInterface.key}&` : '',
                 `window.${callbackName}`
-            )).catch((response:Object, error:Error):$Deferred<$DomNode> =>
+            )).catch((response:Object, error:Error):$Deferred<$DomNode> => {
                 // IgnoreTypeCheck
-                this.constructor.applicationInterfaceLoad.reject(error))
+                this.constructor.applicationInterfaceLoad.reject(error)})
         }
         return result
     }

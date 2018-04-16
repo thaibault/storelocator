@@ -26,7 +26,9 @@ registerTest(function(
     $('#qunit-fixture').append('<store-locator><input></store-locator>')
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
         'store-locator'
-    ).StoreLocator({api: {key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'}})
+    ).StoreLocator({applicationInterface: {
+        key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
+    }})
     // IgnoreTypeCheck
     return $storeLocatorDeferred.always((
         $storeLocatorDomNode:$DomNode
@@ -35,7 +37,7 @@ registerTest(function(
             'StoreLocator')
         // region tests
         // / region public methods
-        // //  region special
+        // // region special
         this.test('initialize', (assert:Object):void => {
             assert.ok(storeLocator)
             assert.ok($storeLocatorDomNode.children('div').length > 0)
@@ -50,7 +52,7 @@ registerTest(function(
         // / endregion
         // endregion
     })
-}, ['full'], true)
+}, 'full')
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
