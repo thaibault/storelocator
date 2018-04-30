@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
 
+# NOTE: Every entry has be sorted in given alphabetic order to avoid
+# duplicates!
+
+# Project specific
+# ...
+
 # Generated documentations
 apiDocumentation
 
 # Generated runtime bytecode files.
+*.ngfactory.ts
 __pycache__
 *.py[cod]
-*.ngfactory.ts
 
 # Runtime data
 backup
@@ -34,40 +40,40 @@ source/image/sprite.png
 
 # Temporary compile files
 build
-dist
-target
+*Bundle.*
 *.compiled.*
 *.compiled
-*Bundle.*
 !/data/**/*
-.dynamicConfiguration-*.json
+dist
 *.dll-manifest.json
+.dynamicConfiguration-*.json
+target
 
 # Profiling data.
 *.profile
 
 # Packages
-.SRCINFO
+bin
+develop-eggs
 *.egg
 *.egg-info
 eggs
-parts
-bin
-var
-sdist
-develop-eggs
 .installed.cfg
 lib
 lib64
+parts
 .sass-cache
+sdist
+.SRCINFO
+var
 
 # Ignore docker nested bash generated files.
 .bash_history
 
 # Unit test / coverage reports
 .coverage
-.tox
 nosetests.xml
+.tox
 
 # Translations
 *.mo
@@ -78,16 +84,21 @@ nosetests.xml
 .pydevproject
 
 # Vim temporary file
-*.swp
 .ropeproject
+*.swp
 .viminfo
 
-# PHPStorm and other IDE Files
-*.idea
-*.project
-*.pydevproject
-*.settings
-*.externalToolBuilders
+# JetBrain's idea, PHPStorm and other IDE Files
+.externalToolBuilders
+**/.idea/workspace.xml
+.project
+.pydevproject
+.settings
+**/.idea/workspace.xml
+.project
+.pydevproject
+.settings
+.externalToolBuilders
 
 # Gedit autosave backups.
 *~
@@ -102,15 +113,19 @@ nosetests.xml
 .git-rewrite
 
 # NPM/yarn's runtime files
-yarn-error.log
-yarn.lock
-node_modules/
-.npm/
-.v8flags.*
 .cache
 .config
-.npm-debug.log
+node_modules/
+.npm/
 npm-debug.log
+.npm-debug.log
+.v8flags.*
+yarn-error.log
+yarn.lock
+
+# Java
+.java/
+.jrebel/
 # region vim modline
 # vim: set tabstop=4 shiftwidth=4 expandtab:
 # vim: foldmethod=marker foldmarker=region,endregion:
