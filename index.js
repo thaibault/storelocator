@@ -111,29 +111,30 @@ export type Position = {
  * @property _options.fallbackLocation.longitude {number} - Longitude value.
  * @property _options.ip {null|string} - If provided given ip will be used to
  * determine current location instead of automatically determined one.
- * @property _options.ipToLocation {Object} - Configuration for ip to location
- * conversion.
- * @property _options.ipToLocation.applicationInterfaceURL {string} - IP to
- * location determination application interface url. {1} and {2} represents
- * currently used protocol and potentially given ip.
- * @property _options.ipToLocation.timeoutInMilliseconds {number} - Time to
- * wait for ip resolve. If time is up initialize on given fallback location.
- * @property _options.ipToLocation.bounds
+ * @property _options.ipToLocationApplicationInterface {Object} - Configuration
+ * for ip to location conversion.
+ * @property _options.ipToLocationApplicationInterface.url {string} - IP to
+ * location determination application interface url. {1}, {2} and {3}
+ * represents currently used protocol, key and potentially given ip.
+ * @property _options.ipToLocationApplicationInterface.timeoutInMilliseconds
+ * {number} - Time to wait for ip resolve. If time is up initialize on given
+ * fallback location.
+ * @property _options.ipToLocationApplicationInterface.bounds
  * {Object.<string, Object.<string, number>>} - Defines bound withing
  * determined locations should be. If resolved location isn't within this
  * location it will be ignored.
- * @property _options.ipToLocation.bound.northEast {Object.<string, number>} -
- * Defines north east bound.
- * @property _options.ipToLocation.bound.northEast.latitude {number} - North
- * east latitude bond.
- * @property _options.ipToLocation.bound.northEast.longitude {number} - North
- * east longitude bond.
- * @property _options.ipToLocation.bound.southWest {Object.<string, number>} -
- * Defined south west bound.
- * @property _options.ipToLocation.bound.southWest.latitude {number} - South
- * east latitude bound.
- * @property _options.ipToLocation.bound.southWest.longitude {number} - South
- * west longitude bound.
+ * @property _options.ipToLocationApplicationInterface.bound.northEast
+ * {Object.<string, number>} - Defines north east bound.
+ * @property _options.ipToLocationApplicationInterface.bound.northEast.latitude
+ * {number} - North east latitude bond.
+ * @property _options.ipToLocationApplicationInterface.bound.northEast
+ * .longitude {number} - North east longitude bond.
+ * @property _options.ipToLocationApplicationInterface.bound.southWest
+ * {Object.<string, number>} - Defined south west bound.
+ * @property _options.ipToLocationApplicationInterface.bound.southWest.latitude
+ * {number} - South east latitude bound.
+ * @property _options.ipToLocationApplicationInterface.bound.southWest
+ * .longitude {number} - South west longitude bound.
  * @property _options.map {Object} - Initial view properties.
  * @property _options.showInputAfterLoadedDelayInMilliseconds {number} - Delay
  * before we show search input field.
@@ -264,8 +265,10 @@ export class StoreLocator extends $.Tools.class {
             startLocation: null,
             fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
             ip: null,
-            ipToLocation: {
-                applicationInterfaceURL: '{1}://freegeoip.net/json/{2}',
+            ipToLocationApplicationInterface: {
+                // NOTE: You should replace this with your own api key!
+                apiKey: '11a62990a1424e894da6eec464a747e6',
+                url: '{1}://http://api.ipstack.com/{3}?access_key={2}&fields=latitude,longitude',
                 timeoutInMilliseconds: 5000,
                 bounds: {
                     northEast: {latitude: 85, longitude: 180},
@@ -410,17 +413,18 @@ export class StoreLocator extends $.Tools.class {
         */
         let loaded:boolean = false
         const $deferred:$Deferred<$DomNode> = $.Deferred()
-        const fallbackTimeout:Promise<boolean> = this.constructor.timeout(
-            ():void => {
-                loaded = true
+        const fallbackTimeout:Promise<boolean> = this.constructor.timeout((
+        ):void => {
+            loaded = true
+            // IgnoreTypeCheck
+            this.initializeMap().then(():$Deferred<$DomNode> =>
                 // IgnoreTypeCheck
-                this.initializeMap().then(():$Deferred<$DomNode> =>
-                    // IgnoreTypeCheck
-                    $deferred.resolve(this.$domNode))
-            }, this._options.ipToLocation.timeoutInMilliseconds)
+                $deferred.resolve(this.$domNode))
+        }, this._options.ipToLocationApplicationInterface.timeoutInMilliseconds)
         $.ajax({
             url: this.constructor.stringFormat(
-                this._options.ipToLocation.applicationInterfaceURL,
+                this._options.ipToLocationApplicationInterface.url,
+                this._options.ipToLocationApplicationInterface.key,
                 $.global.location.protocol.substring(
                     0, $.global.location.protocol.length - 1
                 ), this._options.ip || ''
@@ -436,22 +440,27 @@ export class StoreLocator extends $.Tools.class {
                         Check if determined location is within defined
                         bounds.
                     */
-                    if (!this._options.ipToLocation.bounds || (
-                        new this.constructor.google.maps.LatLngBounds(
-                            new this.constructor.google.maps.LatLng(
-                                this._options.ipToLocation.bounds.southWest
-                                    .latitude,
-                                this._options.ipToLocation.bounds.southWest
-                                    .longitude),
-                            new this.constructor.google.maps.LatLng(
-                                this._options.ipToLocation.bounds.northEast
-                                    .latitude,
-                                this._options.ipToLocation.bounds.northEast
-                                    .longitude))
-                    ).contains(new this.constructor.google.maps.LatLng(
-                        currentLocation.latitude, currentLocation.longitude
-                    )))
-                        this._options.startLocation = currentLocation
+                    if (!this._options
+                        .ipToLocationApplicationInterface.bounds || (
+                            new this.constructor.google.maps.LatLngBounds(
+                                new this.constructor.google.maps.LatLng(
+                                    this._options
+                                        .ipToLocationApplicationInterface
+                                        .bounds.southWest.latitude,
+                                    this._options
+                                        .ipToLocationApplicationInterface
+                                        .bounds.southWest.longitude),
+                                new this.constructor.google.maps.LatLng(
+                                    this._options
+                                        .ipToLocationApplicationInterface
+                                        .bounds.northEast.latitude,
+                                    this._options
+                                        .ipToLocationApplicationInterface
+                                        .bounds.northEast.longitude))
+                        ).contains(new this.constructor.google.maps.LatLng(
+                            currentLocation.latitude, currentLocation.longitude
+                        )))
+                            this._options.startLocation = currentLocation
                 // IgnoreTypeCheck
                 this.initializeMap().then(():$Deferred<$DomNode> =>
                     // IgnoreTypeCheck
