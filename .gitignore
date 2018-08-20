@@ -113,19 +113,17 @@ nosetests.xml
 .git-rewrite
 
 # NPM/yarn's runtime files
-.cache
-.config
 node_modules/
 .npm/
 npm-debug.log
 .npm-debug.log
 .v8flags.*
 yarn-error.log
-yarn.lock
 
 # Java
 .java/
 .jrebel/
+.m2/
 # region vim modline
 # vim: set tabstop=4 shiftwidth=4 expandtab:
 # vim: foldmethod=marker foldmarker=region,endregion:
