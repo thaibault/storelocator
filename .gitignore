@@ -19,6 +19,7 @@ backup
 cache/*
 !cache/.gitkeep
 .cache
+*.cache
 certificate
 !certificate/localhost/*
 !certificate/letsEncrypt/configuration/.gitkeep
@@ -30,6 +31,7 @@ log
 logs
 !logs/.gitkeep
 log.txt
+*.log
 .local
 .node-xmlhttprequest-sync*
 .nyc_output
