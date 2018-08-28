@@ -1,6 +1,6 @@
 {
   "name": "storelocator",
-  "version": "1.0.116",
+  "version": "1.0.117",
   "license": "CC-BY-3.0",
   "description": "serves a google maps store locator",
   "homepage": "https://torben.website/storeLocator",
@@ -54,10 +54,10 @@
     "js-marker-clusterer": "*"
   },
   "devDependencies": {
-    "babel-eslint": "*",
     "@babel/plugin-transform-proto-to-assign": "*",
     "@babel/polyfill": "*",
     "@babel/preset-env": "*",
+    "babel-eslint": "*",
     "clientnode": "*",
     "coveralls": "*",
     "documentation-website": "*",
