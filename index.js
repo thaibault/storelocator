@@ -246,6 +246,7 @@ export class StoreLocator extends $.Tools.class {
     initialize(options:Object = {}):$Deferred<$DomNode> {
         // region properties
         this._options = {
+            addtionalStoreProperties: {},
             applicationInterface: {
                 url:
                     'https://maps.googleapis.com/maps/api/js?{1}v=3&' +
@@ -259,22 +260,23 @@ export class StoreLocator extends $.Tools.class {
                 number: 100,
                 generateProperties: (store:Object):Object => store
             },
-            addtionalStoreProperties: {},
-            iconPath: '',
             defaultMarkerIconFileName: null,
-            startLocation: null,
-            fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
-            ip: null,
+            ip: 'check',
             ipToLocationApplicationInterface: {
-                // NOTE: You should replace this with your own api key!
-                apiKey: '11a62990a1424e894da6eec464a747e6',
-                url: '{1}://http://api.ipstack.com/{3}?access_key={2}&fields=latitude,longitude',
+                key: null,
+                url: `
+                    {1}://api.ipstack.com/{3}?access_key={2}&fields=latitude,
+                    longitude
+                `.replace(/ +/g, ''),
                 timeoutInMilliseconds: 5000,
                 bounds: {
                     northEast: {latitude: 85, longitude: 180},
                     southWest: {latitude: -85, longitude: -180}
                 }
             },
+            fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
+            iconPath: '',
+            startLocation: null,
             limit: {
                 zoom: {minimum: 1, maximum: 9999},
                 bounds: {
@@ -391,7 +393,10 @@ export class StoreLocator extends $.Tools.class {
                 this._options.applicationInterface.url, (
                     this._options.applicationInterface.key
                 ) ? `key=${this._options.applicationInterface.key}&` : '',
-                `window.${callbackName}`
+                `${window === $.global ? 'window' : 'global'}.${callbackName}`
+            )).done(this.constructor.applicationInterfaceLoad.resolve.bind(
+                // IgnoreTypeCheck
+                this, this.$domNode
             )).catch((response:Object, error:Error):$Deferred<$DomNode> =>
                 // IgnoreTypeCheck
                 this.constructor.applicationInterfaceLoad.reject(error))
@@ -403,9 +408,18 @@ export class StoreLocator extends $.Tools.class {
      * @returns The current instance.
      */
     bootstrap():$Deferred<$DomNode> {
+        if (
+            !('location' in $.global) ||
+            [null, undefined].includes($.global.location)
+        )
+            return $.Deferred().resolve(this.$domNode)
         if (this._options.startLocation)
             return this.initializeMap()
         this._options.startLocation = this._options.fallbackLocation
+        if ([null, undefined].includes(
+            this._options.ipToLocationApplicationInterface.key)
+        )
+            return this.initializeMap()
         /*
             NOTE: If request is slower than the timeout parameter for jsonp
             request the padding function isn't set anymore so an error
@@ -420,14 +434,16 @@ export class StoreLocator extends $.Tools.class {
             this.initializeMap().then(():$Deferred<$DomNode> =>
                 // IgnoreTypeCheck
                 $deferred.resolve(this.$domNode))
-        }, this._options.ipToLocationApplicationInterface.timeoutInMilliseconds)
+        }, this._options.ipToLocationApplicationInterface.timeoutInMilliseconds
+        )
         $.ajax({
             url: this.constructor.stringFormat(
                 this._options.ipToLocationApplicationInterface.url,
-                this._options.ipToLocationApplicationInterface.key,
                 $.global.location.protocol.substring(
                     0, $.global.location.protocol.length - 1
-                ), this._options.ip || ''
+                ),
+                this._options.ipToLocationApplicationInterface.key,
+                this._options.ip || ''
             ),
             dataType: 'jsonp', cache: true
         }).always((currentLocation:Position, textStatus:string):void => {
@@ -436,31 +452,32 @@ export class StoreLocator extends $.Tools.class {
                 fallbackTimeout.clear()
                 loaded = true
                 if (textStatus === 'success')
-                    /*
-                        Check if determined location is within defined
-                        bounds.
-                    */
-                    if (!this._options
-                        .ipToLocationApplicationInterface.bounds || (
-                            new this.constructor.google.maps.LatLngBounds(
-                                new this.constructor.google.maps.LatLng(
-                                    this._options
-                                        .ipToLocationApplicationInterface
-                                        .bounds.southWest.latitude,
-                                    this._options
-                                        .ipToLocationApplicationInterface
-                                        .bounds.southWest.longitude),
-                                new this.constructor.google.maps.LatLng(
-                                    this._options
-                                        .ipToLocationApplicationInterface
-                                        .bounds.northEast.latitude,
-                                    this._options
-                                        .ipToLocationApplicationInterface
-                                        .bounds.northEast.longitude))
-                        ).contains(new this.constructor.google.maps.LatLng(
-                            currentLocation.latitude, currentLocation.longitude
-                        )))
-                            this._options.startLocation = currentLocation
+                    // Check if determined location is within defined bounds.
+                    if (
+                        !this._options
+                            .ipToLocationApplicationInterface.bounds ||
+                            (
+                                new this.constructor.google.maps.LatLngBounds(
+                                    new this.constructor.google.maps.LatLng(
+                                        this._options
+                                            .ipToLocationApplicationInterface
+                                            .bounds.southWest.latitude,
+                                        this._options
+                                            .ipToLocationApplicationInterface
+                                            .bounds.southWest.longitude),
+                                    new this.constructor.google.maps.LatLng(
+                                        this._options
+                                            .ipToLocationApplicationInterface
+                                            .bounds.northEast.latitude,
+                                        this._options
+                                            .ipToLocationApplicationInterface
+                                            .bounds.northEast.longitude))
+                            ).contains(new this.constructor.google.maps.LatLng(
+                                currentLocation.latitude,
+                                currentLocation.longitude
+                            ))
+                    )
+                        this._options.startLocation = currentLocation
                 // IgnoreTypeCheck
                 this.initializeMap().then(():$Deferred<$DomNode> =>
                     // IgnoreTypeCheck
@@ -647,9 +664,8 @@ export class StoreLocator extends $.Tools.class {
      */
     initializeDataSourceSearchResultsBox():StoreLocator {
         this.searchResultsStyleProperties = {}
-        const allStyleProperties:PlainObject = this.$domNode.find(
-            'input'
-        ).Tools('style')
+        const $inputDomNode = this.$domNode.find('input')
+        const allStyleProperties:PlainObject = $inputDomNode.Tools('style')
         for (const propertyName:string in allStyleProperties)
             if (
                 this._options.searchBox
@@ -667,7 +683,7 @@ export class StoreLocator extends $.Tools.class {
                 `${this.constructor._name}SearchResults`)
         ).css(this.searchResultsStyleProperties)
         // Inject the final search results into the dom tree.
-        this.$domNode.find('input').after(this.resultsDomNode)
+        $inputDomNode.after(this.resultsDomNode)
         return this
     }
     /**
@@ -734,32 +750,29 @@ export class StoreLocator extends $.Tools.class {
                 }
             }
         })
-        this.on(this.$domNode.find('input'), 'focus', ():void => {
+        const $inputDomNode:$DomNode = this.$domNode.find('input')
+        this.on($inputDomNode, 'click', ():void => {
             if (this.currentSearchText)
                 this.openSearchResults()
         })
-        this.on(this.$domNode.find('input'), 'keydown', (
-            event:Object
-        ):void => {
+        this.on($inputDomNode, 'focus', ():void => {
+            if (this.currentSearchText)
+                this.openSearchResults()
+        })
+        this.on($inputDomNode, 'keydown', (event:Object):void => {
             if (
                 this.constructor.keyCode.DOWN === event.keyCode &&
                 this.currentSearchText
             )
                 this.openSearchResults()
         })
-        this.on(this.$domNode.find('input'), 'click', ():void => {
-            if (this.currentSearchText)
-                this.openSearchResults()
-        })
+        this.on($inputDomNode, 'keyup', this.updateSearchResultsHandler)
         this.constructor.google.maps.event.addListener(
             this.map, 'center_changed', ():void => {
                 // NOTE: Search results depends on current position.
                 if (this.currentSearchText && this.resultsDomNode)
                     this.searchResultsDirty = true
             })
-        this.on(
-            this.$domNode.find('input'), 'keyup',
-            this.updateSearchResultsHandler)
         return this
     }
     /**
@@ -776,9 +789,15 @@ export class StoreLocator extends $.Tools.class {
                 if (
                     event &&
                     event.keyCode === this.constructor.keyCode[name] && ![
-                        'DELETE', 'BACKSPACE', 'COMMA', 'PERIOD', 'NUMPAD_ADD',
-                        'NUMPAD_DECIMAL', 'NUMPAD_DIVIDE', 'NUMPAD_MULTIPLY',
-                        'NUMPAD_SUBTRACT'
+                        'BACKSPACE',
+                        'COMMA',
+                        'DELETE',
+                        'NUMPAD_ADD',
+                        'NUMPAD_DECIMAL',
+                        'NUMPAD_DIVIDE',
+                        'NUMPAD_MULTIPLY',
+                        'NUMPAD_SUBTRACT',
+                        'PERIOD'
                     ].includes(name)
                 )
                     return
@@ -817,8 +836,11 @@ export class StoreLocator extends $.Tools.class {
                 this.currentSearchResultsDomNode.length
             )
                 this.fireEvent(
-                    'removeSearchResults', false, this,
-                    this.currentSearchResultsDomNode)
+                    'removeSearchResults',
+                    false,
+                    this,
+                    this.currentSearchResultsDomNode
+                )
             this.currentSearchResultsDomNode = loadingDomNode
             this.currentSearchWords = searchText.split(' ')
             this.currentSearchSegments = this.currentSearchWords

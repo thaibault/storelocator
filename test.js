@@ -26,9 +26,24 @@ registerTest(function(
     $('#qunit-fixture').append('<store-locator><input></store-locator>')
     const $storeLocatorDeferred:$Deferred<$DomNode> = $(
         'store-locator'
-    ).StoreLocator({applicationInterface: {
-        key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
-    }})
+    ).StoreLocator({
+        applicationInterface: {
+            key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
+        },
+        ipToLocationApplicationInterface: {
+            key: '11a62990a1424e894da6eec464a747e6'
+        },
+        searchBox: {},
+        // Automatically generated store with option: "stores: bounds"
+        stores: [{
+            address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
+            eMailAddress: 'info@fake-1.de',
+            latitude: 50.4356,
+            longitude: 7.81226,
+            name: '1 & 1 Telecom GmbH',
+            phoneNumber: '+49 721 9600'
+        }]
+    })
     // IgnoreTypeCheck
     return $storeLocatorDeferred.always((
         $storeLocatorDomNode:$DomNode
@@ -36,20 +51,28 @@ registerTest(function(
         const storeLocator:$Deferred<StoreLocator> = $storeLocatorDomNode.data(
             'StoreLocator')
         // region tests
-        // / region public methods
-        // // region special
-        this.test('initialize', (assert:Object):void => {
+        this.test('initialize', async (assert:Object):Promise<void> => {
+            const done:Function = assert.async()
             assert.ok(storeLocator)
-            assert.ok($storeLocatorDomNode.children('div').length > 0)
-            const $inputDomNode:$DomNode = $storeLocatorDomNode.find('input')
-            assert.ok($inputDomNode.length > 0)
-            $inputDomNode.val('a')
-            const $resultsDomNode:$DomNode = $storeLocatorDomNode.find(
-                '.store-locator-search-results')
-            // TODO assert.ok($resultsDomNode.length)
+            if (targetTechnology === 'web') {
+                assert.ok($storeLocatorDomNode.children('div').length > 0)
+                const $inputDomNode:$DomNode = $storeLocatorDomNode.find(
+                    'input')
+                assert.ok($inputDomNode.length > 0)
+                $inputDomNode.val('a')
+                $inputDomNode.trigger({
+                    keyCode: $.Tools.class.keyCode.a,
+                    type: `keyup`
+                })
+                await $.Tools.class.timeout()
+                assert.strictEqual(
+                    $storeLocatorDomNode.find(
+                        '.store-locator-search-results'
+                    ).length,
+                    1)
+            }
+            done()
         })
-        // // endregion
-        // / endregion
         // endregion
     })
 }, 'full')
