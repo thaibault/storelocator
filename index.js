@@ -113,28 +113,32 @@ export type Position = {
  * determine current location instead of automatically determined one.
  * @property _options.ipToLocationApplicationInterface {Object} - Configuration
  * for ip to location conversion.
- * @property _options.ipToLocationApplicationInterface.url {string} - IP to
- * location determination application interface url. {1}, {2} and {3}
- * represents currently used protocol, key and potentially given ip.
+ * @property _options.ipToLocationApplicationInterface.bounds
+ * {Object.<string, Object.<string, number>>} - Defines bounds withing
+ * determined locations should be. If resolved location isn't within this
+ * location it will be ignored.
+ * @property _options.ipToLocationApplicationInterface.bounds.northEast
+ * {Object.<string, number>} - Defines north east bound.
+ * @property _options.ipToLocationApplicationInterface.bounds.northEast.latitude
+ * {number} - North east latitude bond.
+ * @property _options.ipToLocationApplicationInterface.bounds.northEast
+ * .longitude {number} - North east longitude bond.
+ * @property _options.ipToLocationApplicationInterface.bounds.southWest
+ * {Object.<string, number>} - Defined south west bound.
+ * @property _options.ipToLocationApplicationInterface.bounds.southWest.latitude
+ * {number} - South east latitude bound.
+ * @property _options.ipToLocationApplicationInterface.bounds.southWest
+ * .longitude {number} - South west longitude bound.
+ * @property _options.ipToLocationApplicationInterface.key - {string} - Key to
+ * let the api identify your service plan.
+ * @property _options.ipToLocationApplicationInterface.protocol - {string} -
+ * Protocol to use for api requests.
  * @property _options.ipToLocationApplicationInterface.timeoutInMilliseconds
  * {number} - Time to wait for ip resolve. If time is up initialize on given
  * fallback location.
- * @property _options.ipToLocationApplicationInterface.bounds
- * {Object.<string, Object.<string, number>>} - Defines bound withing
- * determined locations should be. If resolved location isn't within this
- * location it will be ignored.
- * @property _options.ipToLocationApplicationInterface.bound.northEast
- * {Object.<string, number>} - Defines north east bound.
- * @property _options.ipToLocationApplicationInterface.bound.northEast.latitude
- * {number} - North east latitude bond.
- * @property _options.ipToLocationApplicationInterface.bound.northEast
- * .longitude {number} - North east longitude bond.
- * @property _options.ipToLocationApplicationInterface.bound.southWest
- * {Object.<string, number>} - Defined south west bound.
- * @property _options.ipToLocationApplicationInterface.bound.southWest.latitude
- * {number} - South east latitude bound.
- * @property _options.ipToLocationApplicationInterface.bound.southWest
- * .longitude {number} - South west longitude bound.
+ * @property _options.ipToLocationApplicationInterface.url {string} - IP to
+ * location determination application interface url. {1}, {2} and {3}
+ * represents currently used protocol, key and potentially given ip.
  * @property _options.map {Object} - Initial view properties.
  * @property _options.showInputAfterLoadedDelayInMilliseconds {number} - Delay
  * before we show search input field.
@@ -263,16 +267,17 @@ export class StoreLocator extends $.Tools.class {
             defaultMarkerIconFileName: null,
             ip: 'check',
             ipToLocationApplicationInterface: {
-                key: null,
-                url: `
-                    {1}://api.ipstack.com/{3}?access_key={2}&fields=latitude,
-                    longitude
-                `.replace(/ +/g, ''),
-                timeoutInMilliseconds: 5000,
                 bounds: {
                     northEast: {latitude: 85, longitude: 180},
                     southWest: {latitude: -85, longitude: -180}
-                }
+                },
+                key: null,
+                protocol: 'inherit',
+                timeoutInMilliseconds: 5000,
+                url: `
+                    {1}://api.ipstack.com/{3}?access_key={2}&fields=latitude,
+                    longitude
+                `.replace(/ +/g, '')
             },
             fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
             iconPath: '',
@@ -439,9 +444,13 @@ export class StoreLocator extends $.Tools.class {
         $.ajax({
             url: this.constructor.stringFormat(
                 this._options.ipToLocationApplicationInterface.url,
-                $.global.location.protocol.substring(
-                    0, $.global.location.protocol.length - 1
-                ),
+                (
+                    this._options.ipToLocationApplicationInterface.protocol ===
+                        'inherit'
+                ) ? $.global.location.protocol.substring(
+                        0, $.global.location.protocol.length - 1
+                    ) : this._options.ipToLocationApplicationInterface
+                        .protocol,
                 this._options.ipToLocationApplicationInterface.key,
                 this._options.ip || ''
             ),
