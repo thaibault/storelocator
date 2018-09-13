@@ -20,10 +20,6 @@ cache/*
 !cache/.gitkeep
 .cache
 *.cache
-certificate
-!certificate/localhost/*
-!certificate/letsEncrypt/configuration/.gitkeep
-!certificate/letsEncrypt/log/.gitkeep
 .config
 database
 log
@@ -39,6 +35,13 @@ renderedData
 !renderedData/.gitkeep
 source/image/sprite.png
 .ssh
+
+# Certification
+.pki
+certificate
+!certificate/localhost/*
+!certificate/letsEncrypt/configuration/.gitkeep
+!certificate/letsEncrypt/log/.gitkeep
 
 # Temporary compile files
 build
