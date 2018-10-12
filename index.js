@@ -353,9 +353,18 @@ export class StoreLocator extends $.Tools.class {
                 '<div class="no-results">No results found</div>',
             resultAggregation: 'cut',
             stylePropertiesToDeriveFromInputField: [
-                'top', 'left', 'right', 'position', 'backgroundColor',
-                'paddingBottom', 'paddingLeft', 'paddingRight', 'paddingTop',
-                'minWidth', 'maxWidth', 'width'
+                'left',
+                'right',
+                'top',
+                'backgroundColor',
+                'maxWidth',
+                'minWidth',
+                'position',
+                'paddingBottom',
+                'paddingLeft',
+                'paddingRight',
+                'paddingTop',
+                'width'
             ],
             normalizer: (value:any):string => `${value}`.toLowerCase(
             ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
@@ -826,7 +835,9 @@ export class StoreLocator extends $.Tools.class {
                 this.currentSearchText = ''
                 this.resultsDomNode.html('')
                 this.fireEvent(
-                    'removeSearchResults', false, this,
+                    'removeSearchResults',
+                    false,
+                    this,
                     this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = null
                 this.closeSearchResults()
@@ -836,8 +847,12 @@ export class StoreLocator extends $.Tools.class {
             const loadingDomNode:$DomNode = $(
                 this._options.searchBox.loadingContent)
             if (this.resultsDomNode && this.fireEvent(
-                'addSearchResults', false, this, loadingDomNode,
-                this.resultsDomNode, this.currentSearchResultsDomNode || []
+                'addSearchResults',
+                false,
+                this,
+                loadingDomNode,
+                this.resultsDomNode,
+                this.currentSearchResultsDomNode || []
             ))
                 this.resultsDomNode.html(loadingDomNode)
             if (
@@ -1046,8 +1061,12 @@ export class StoreLocator extends $.Tools.class {
             const resultsRepresentationDomNode:$DomNode = $(
                 resultsRepresentation)
             if (this.resultsDomNode && this.fireEvent(
-                'addSearchResults', false, this, resultsRepresentationDomNode,
-                this.resultsDomNode, this.currentSearchResultsDomNode || []
+                'addSearchResults',
+                false,
+                this,
+                resultsRepresentationDomNode,
+                this.resultsDomNode,
+                this.currentSearchResultsDomNode || []
             ))
                 this.resultsDomNode.html(resultsRepresentationDomNode)
             if (
@@ -1055,7 +1074,9 @@ export class StoreLocator extends $.Tools.class {
                 this.currentSearchResultsDomNode.length
             )
                 this.fireEvent(
-                    'removeSearchResults', false, this,
+                    'removeSearchResults',
+                    false,
+                    this,
                     this.currentSearchResultsDomNode)
             this.currentSearchResultsDomNode = resultsRepresentationDomNode
             this.constructor.timeout(():StoreLocator => this.releaseLock(
@@ -1065,8 +1086,11 @@ export class StoreLocator extends $.Tools.class {
                 const resultsRepresentationDomNode:$DomNode = $(
                     resultsRepresentation)
                 if (this.resultsDomNode && this.fireEvent(
-                    'addSearchResults', false, this,
-                    resultsRepresentationDomNode, this.resultsDomNode,
+                    'addSearchResults',
+                    false,
+                    this,
+                    resultsRepresentationDomNode,
+                    this.resultsDomNode,
                     this.currentSearchResultsDomNode || []
                 ))
                     this.resultsDomNode.html(resultsRepresentationDomNode)
@@ -1075,7 +1099,9 @@ export class StoreLocator extends $.Tools.class {
                     this.currentSearchResultsDomNode.length
                 )
                     this.fireEvent(
-                        'removeSearchResults', false, this,
+                        'removeSearchResults',
+                        false,
+                        this,
                         this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = resultsRepresentationDomNode
                 this.releaseLock(`${this.constructor._name}Search`)
@@ -1380,7 +1406,7 @@ export class StoreLocator extends $.Tools.class {
             this.currentlyOpenWindow.isOpen
         )
             return this
-        this.fireEvent('infoWindowOpen', event, marker)
+        this.fireEvent('infoWindowOpen', false, this, event, marker)
         marker.refreshSize = ():void =>
             // Simulates a content update to enforce info box size adjusting.
             marker.infoWindow.setContent(marker.infoWindow.getContent())
@@ -1403,7 +1429,8 @@ export class StoreLocator extends $.Tools.class {
         this.map.panTo(marker.nativeMarker.position)
         this.map.panBy(
             0, -this._options.infoWindow.additionalMoveToBottomInPixel)
-        this.fireEvent('infoWindowOpened', event, marker)
+        console.log('BBB', this._options.onInfoWindowOpened, event, marker)
+        this.fireEvent('infoWindowOpened', false, this, event, marker)
         return this
     }
     /**
