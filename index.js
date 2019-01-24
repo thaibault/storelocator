@@ -564,7 +564,7 @@ export class StoreLocator extends $.Tools.class {
                         this.map.setZoom(this._options.limit.zoom.maximum)
                 })
         if (this._options.marker.cluster) {
-            this.constructor.extendObject(
+            this.constructor.extend(
                 googleMarkerClusterer.google, this.constructor.google)
             this.markerCluster = new googleMarkerClusterer.Class(
                 this.map, [], this._options.marker.cluster)
@@ -589,7 +589,7 @@ export class StoreLocator extends $.Tools.class {
         const $addMarkerDeferred:$Deferred<Array<Object>> = $.Deferred()
         if (Array.isArray(this._options.stores))
             for (const store:Object of this._options.stores) {
-                this.constructor.extendObject(
+                this.constructor.extend(
                     true, store, this._options.addtionalStoreProperties)
                 const marker:Object = this.createMarker(store)
                 if (this.markerCluster)
@@ -602,7 +602,7 @@ export class StoreLocator extends $.Tools.class {
         ) === 'string')
             $.getJSON(this._options.stores, (stores:Array<Object>):void => {
                 for (const store:Object of stores) {
-                    this.constructor.extendObject(
+                    this.constructor.extend(
                         true, store, this._options.addtionalStoreProperties)
                     const marker:Object = this.createMarker(store)
                     if (this.markerCluster)
@@ -622,14 +622,21 @@ export class StoreLocator extends $.Tools.class {
                 let index:number = 0; index < this._options.stores.number;
                 index++
             ) {
-                const store:Object = this.constructor.extendObject({
-                    latitude: southWest.lat() + (northEast.lat(
-                    ) - southWest.lat()) * Math.random(),
-                    longitude: southWest.lng() + (northEast.lng(
-                    ) - southWest.lng()) * Math.random()
-                }, this._options.addtionalStoreProperties)
+                const store:Object = this.constructor.extend(
+                    {
+                        latitude:
+                            southWest.lat() +
+                            (northEast.lat() - southWest.lat()) *
+                            Math.random(),
+                        longitude:
+                            southWest.lng() +
+                            (northEast.lng() - southWest.lng()) *
+                            Math.random()
+                    },
+                    this._options.addtionalStoreProperties
+                )
                 const marker:Object = this.createMarker(
-                    this.constructor.extendObject(
+                    this.constructor.extend(
                         store, this._options.stores.generateProperties(store)))
                 if (this.markerCluster)
                     this.markerCluster.addMarker(marker)
@@ -651,7 +658,7 @@ export class StoreLocator extends $.Tools.class {
             this.constructor.google.maps.event.addListener(
                 this.map, 'dragstart', ():StoreLocator =>
                     this.closeSearchResults())
-            this._options.searchBox = this.constructor.extendObject(
+            this._options.searchBox = this.constructor.extend(
                 true, this.defaultSearchBoxOptions, this._options.searchBox)
             this.initializeDataSourceSearchBox()
         }
@@ -876,14 +883,14 @@ export class StoreLocator extends $.Tools.class {
                     specified radius. However the radius is a string in the
                     examples provided by google.
                 */
-                placesService.textSearch(this.constructor.extendObject({
-                    query: searchText, location: this.map.getCenter()
-                }, this._options.searchBox.generic.retrieveOptions), (
-                    places:Array<Object>
-                ):void => {
-                    if (places)
-                        this.handleGenericSearchResults(places, searchText)
-                })
+                placesService.textSearch(this.constructor.extend(
+                    {query: searchText, location: this.map.getCenter()},
+                    this._options.searchBox.generic.retrieveOptions),
+                    (places:Array<Object>):void => {
+                        if (places)
+                            this.handleGenericSearchResults(places, searchText)
+                    }
+                )
             else
                 this.performLocalSearch(searchText)
         }, 1000)
@@ -932,12 +939,17 @@ export class StoreLocator extends $.Tools.class {
                     open:(event:Object) => any;
                     position:Position;
                 } = {
-                    data: this.constructor.extendObject(place, {
-                        logoFilePath: place.icon.replace(
-                            /^http:(\/\/)/, `${$.global.location.protocol}$1`),
-                        address: place.formatted_address,
-                        distance: distance
-                    }),
+                    data: this.constructor.extend(
+                        place,
+                        {
+                            logoFilePath: place.icon.replace(
+                                /^http:(\/\/)/,
+                                `${$.global.location.protocol}$1`
+                            ),
+                            address: place.formatted_address,
+                            distance: distance
+                        }
+                    ),
                     foundWords: this.currentSearchSegments.filter((
                         word:string
                     ):boolean => place.formatted_address.includes(word) || (
@@ -1336,7 +1348,7 @@ export class StoreLocator extends $.Tools.class {
         if (
             store.markerIconFileName || this._options.defaultMarkerIconFileName
         ) {
-            marker.icon = this.constructor.extendObject(
+            marker.icon = this.constructor.extend(
                 {}, this._options.marker.icon)
             if (marker.icon.size)
                 marker.icon.size = new this.constructor.google.maps.Size(
