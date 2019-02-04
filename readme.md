@@ -1,7 +1,7 @@
 <!-- !/usr/bin/env markdown
 -*- coding: utf-8 -*-
 region header
-Copyright Torben Sickert 16.12.2012
+Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
 License
 -------
