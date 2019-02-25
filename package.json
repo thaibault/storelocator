@@ -31,8 +31,8 @@
   },
   "scripts": {
     "build": "webOptimizer build",
-    "build:export": "webOptimizer build '{__reference__: \"export\"}'",
-    "build:export:compatible": "webOptimizer build '{__reference__: [\"export\", \"exportCompatible\"]}'",
+    "build:export": "webOptimizer build '{__reference__: \"target:export\"}'",
+    "build:export:compatible": "webOptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}'",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
     "lint": "webOptimizer check:type; webOptimizer lint",
@@ -85,35 +85,6 @@
         }
       }
     },
-    "export": {
-      "module": {
-        "preprocessor": {
-          "javaScript": {
-            "options": {
-              "plugins": {
-                "__remove__": "@babel/plugin-transform-runtime"
-              }
-            }
-          }
-        }
-      }
-    },
-    "exportCompatible": {
-      "module": {
-        "preprocessor": {
-          "javaScript": {
-            "options": {
-              "plugins": {
-                "__append__": "@babel/plugin-transform-proto-to-assign"
-              },
-              "presets": [
-                "@babel/preset-env"
-              ]
-            }
-          }
-        }
-      }
-    },
     "files": {
       "compose": {
         "cascadingStyleSheet": null
@@ -145,6 +116,35 @@
           "module": {
             "#": "This optimisation would results in the following error: \"TypeError: /storeLocator/index.js: Cannot read property 'end' of null at _evaluate (/storeLocator/node_modules/babel-traverse/lib/path/evaluation.js\".",
             "evaluate": false
+          }
+        }
+      }
+    },
+    "target:compatible": {
+      "module": {
+        "preprocessor": {
+          "javaScript": {
+            "options": {
+              "plugins": {
+                "__append__": "@babel/plugin-transform-proto-to-assign"
+              },
+              "presets": [
+                "@babel/preset-env"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "target:export": {
+      "module": {
+        "preprocessor": {
+          "javaScript": {
+            "options": {
+              "plugins": {
+                "__remove__": "@babel/plugin-transform-runtime"
+              }
+            }
           }
         }
       }
