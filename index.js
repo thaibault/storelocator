@@ -404,14 +404,17 @@ export class StoreLocator extends $.Tools.class {
                     this.$domNode)
             }
             $.getScript(this.constructor.stringFormat(
-                this._options.applicationInterface.url, (
-                    this._options.applicationInterface.key
-                ) ? `key=${this._options.applicationInterface.key}&` : '',
+                this._options.applicationInterface.url,
+                this._options.applicationInterface.key ?
+                    `key=${this._options.applicationInterface.key}&` :
+                    '',
                 `${window === $.global ? 'window' : 'global'}.${callbackName}`
-            )).done(this.constructor.applicationInterfaceLoad.resolve.bind(
+            ))
+            .done(this.constructor.applicationInterfaceLoad.resolve.bind(
                 // IgnoreTypeCheck
                 this, this.$domNode
-            )).catch((response:Object, error:Error):$Deferred<$DomNode> =>
+            ))
+            .fail((response:Object, error:Error):$Deferred<$DomNode> =>
                 // IgnoreTypeCheck
                 this.constructor.applicationInterfaceLoad.reject(error))
         }
@@ -451,19 +454,21 @@ export class StoreLocator extends $.Tools.class {
         }, this._options.ipToLocationApplicationInterface.timeoutInMilliseconds
         )
         $.ajax({
+            cache: true,
+            dataType: 'jsonp',
             url: this.constructor.stringFormat(
                 this._options.ipToLocationApplicationInterface.url,
                 (
                     this._options.ipToLocationApplicationInterface.protocol ===
                         'inherit'
-                ) ? $.global.location.protocol.substring(
+                ) ?
+                    $.global.location.protocol.substring(
                         0, $.global.location.protocol.length - 1
-                    ) : this._options.ipToLocationApplicationInterface
-                        .protocol,
+                    ) :
+                    this._options.ipToLocationApplicationInterface.protocol,
                 this._options.ipToLocationApplicationInterface.key,
                 this._options.ip || ''
-            ),
-            dataType: 'jsonp', cache: true
+            )
         }).always((currentLocation:Position, textStatus:string):void => {
             if (!loaded) {
                 // IgnoreTypeCheck
@@ -883,9 +888,11 @@ export class StoreLocator extends $.Tools.class {
                     specified radius. However the radius is a string in the
                     examples provided by google.
                 */
-                placesService.textSearch(this.constructor.extend(
-                    {query: searchText, location: this.map.getCenter()},
-                    this._options.searchBox.generic.retrieveOptions),
+                placesService.textSearch(
+                    this.constructor.extend(
+                        {query: searchText, location: this.map.getCenter()},
+                        this._options.searchBox.generic.retrieveOptions
+                    ),
                     (places:Array<Object>):void => {
                         if (places)
                             this.handleGenericSearchResults(places, searchText)

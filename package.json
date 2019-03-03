@@ -76,47 +76,23 @@
     "webpack-dev-server": "*"
   },
   "webOptimizer": {
-    "debug": {
-      "module": {
-        "optimizer": {
-          "babelMinify": {
-            "module": null
-          }
-        }
-      }
-    },
-    "files": {
-      "compose": {
-        "cascadingStyleSheet": null
-      }
-    },
     "injection": {
       "external": {
         "aliases": {
           "googleMarkerClusterer": "MarkerClusterer"
-        },
-        "implicit": {
-          "pattern": {
-            "exclude": {
-              "__append__": {
-                "__evaluate__": "/^clientnode\\/test(?:\\.compiled)?(?:\\.js)?$/"
-              }
-            }
-          }
         }
       }
     },
     "module": {
       "aliases": {
-        "clientnode/test$": "clientnode/test.compiled",
-        "googleMarkerClusterer$": "js-marker-clusterer"
+        "googleMarkerClusterer$": "js-marker-clusterer",
+        "#": "We need to process this file dynamically when testing different environments.",
+        "clientnode/test$": "clientnode/test"
       },
       "optimizer": {
         "babelMinify": {
-          "module": {
-            "#": "This optimisation would results in the following error: \"TypeError: /storeLocator/index.js: Cannot read property 'end' of null at _evaluate (/storeLocator/node_modules/babel-traverse/lib/path/evaluation.js\".",
-            "evaluate": false
-          }
+          "#": "This optimisation would results in the following error: \"TypeError: /storeLocator/index.js: Cannot read property 'end' of null at _evaluate (/storeLocator/node_modules/babel-traverse/lib/path/evaluation.js\".",
+          "__evaluate__": "self.debug ? {} : {module: {evaluate: false}}"
         }
       }
     },
