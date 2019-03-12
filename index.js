@@ -410,13 +410,13 @@ export class StoreLocator extends $.Tools.class {
                     '',
                 `${window === $.global ? 'window' : 'global'}.${callbackName}`
             ))
-            .done(this.constructor.applicationInterfaceLoad.resolve.bind(
-                // IgnoreTypeCheck
-                this, this.$domNode
-            ))
-            .fail((response:Object, error:Error):$Deferred<$DomNode> =>
-                // IgnoreTypeCheck
-                this.constructor.applicationInterfaceLoad.reject(error))
+                .done(this.constructor.applicationInterfaceLoad.resolve.bind(
+                    // IgnoreTypeCheck
+                    this, this.$domNode
+                ))
+                .fail((response:Object, error:Error):$Deferred<$DomNode> =>
+                    // IgnoreTypeCheck
+                    this.constructor.applicationInterfaceLoad.reject(error))
         }
         return result
     }
