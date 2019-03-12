@@ -75,6 +75,7 @@
     "webpack-cli": "*",
     "webpack-dev-server": "*"
   },
+  "sideEffects": false,
   "webOptimizer": {
     "injection": {
       "external": {
