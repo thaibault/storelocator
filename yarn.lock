@@ -1981,9 +1981,9 @@ camelcase@^5.0.0:
   integrity sha512-IXFsBS2pC+X0j0N/GE7Dm7j3bsEBp+oTpb7F50dwEVX7rf3IgwO9XatnegTsDtniKCUtEJH4fSU6Asw7uoVLfQ==
 
 caniuse-lite@^1.0.30000939:
-  version "1.0.30000947"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000947.tgz#c30305e9701449c22e97f4e9837cea3d76aa3273"
-  integrity sha512-ubgBUfufe5Oi3W1+EHyh2C3lfBIEcZ6bTuvl5wNOpIuRB978GF/Z+pQ7pGGUpeYRB0P+8C7i/3lt6xkeu2hwnA==
+  version "1.0.30000948"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000948.tgz#793ed7c28fe664856beb92b43fc013fc22b81633"
+  integrity sha512-Lw4y7oz1X5MOMZm+2IFaSISqVVQvUuD+ZUSfeYK/SlYiMjkHN/eJ2PDfJehW5NA6JjrxYSSnIWfwjeObQMEjFQ==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -2091,9 +2091,9 @@ cli-width@^2.0.0:
   integrity sha1-/xnt6Kml5XkyQUewwR8PvLq+1jk=
 
 clientnode@*:
-  version "3.0.275"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.275.tgz#3516ed55c133a024c6d5659fb8a27ba743c9cd10"
-  integrity sha512-bPzNn1WT1U8QE3CdcVmy9dimso7GiS5UUfPfEAAhrp9uSFCV27M2N7yL7b873GhxPyrNYd+96/dNAZW1pu52KQ==
+  version "3.0.277"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.277.tgz#1ec3edda69578c7908367d813fd7a672091480ed"
+  integrity sha512-KMRzLNk4qEqVkn0JSew6F2NfwEiHlEl8mMfKEhs8YAXQbMIfJH9Cgru7agj0kX/+qc3uAdivKlf3p2GxYdsPkw==
   dependencies:
     colors "*"
 
@@ -2847,9 +2847,9 @@ eslint-plugin-flowtype@*:
     lodash "^4.17.11"
 
 eslint-plugin-jsdoc@*:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-4.2.0.tgz#e8c4b397c8536f94af54894fcbe57b488de4614e"
-  integrity sha512-uNbIaqPenElXOwlk/IHpxOlPiHFi9tZ0uRmbkP3YELVXp1yr4gKOvgaMIK70gz1/9+Jhztrhe4B3EWCm9Kq6ow==
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-4.4.1.tgz#bbfff55a6ee4c9b996560e8840cd75087ee905f2"
+  integrity sha512-scDqhjrt75NgspUqcLStxNCAKeAFFMngS+cKNqQoJ86INGyu52ZID1Y72BJb67QtSZYh6fRXmHRIxhxyiXf5eQ==
   dependencies:
     comment-parser "^0.5.4"
     jsdoctypeparser "^2.0.0-alpha-8"
@@ -3273,9 +3273,9 @@ flatted@^2.0.0:
   integrity sha512-R+H8IZclI8AAkSBRQJLVOsxwAoHd6WC40b4QTNWIjzAa6BXOBfQcM587MXDTVPeYaopFNWHUFLx7eNmHDSxMWg==
 
 flow-bin@*:
-  version "0.94.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.94.0.tgz#b5d58fe7559705b73a18229f97edfc3ab6ffffcb"
-  integrity sha512-DYF7r9CJ/AksfmmB4+q+TyLMoeQPRnqtF1Pk7KY3zgfkB/nVuA3nXyzqgsIPIvnMSiFEXQcFK4z+iPxSLckZhQ==
+  version "0.95.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.95.0.tgz#2f1d299a35769c0aec3b8fa1b9290ddfba75894d"
+  integrity sha512-CaYIYSE4feCuTrKPsfdzJ7kAej7QISbhTpnl0Jmp+6Qj1XgA0spaLQrVzMgjPNn5L/iWqtuvZQA+ouRTpxEwdw==
 
 flush-write-stream@^1.0.0:
   version "1.1.1"
@@ -4839,9 +4839,9 @@ mute-stream@0.0.7:
   integrity sha1-MHXOk7whuPq0PhvE2n6BFe0ee6s=
 
 nan@^2.9.2:
-  version "2.13.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.13.0.tgz#7bdfc27dd3c060c46e60b62c72b74012d1a4cd68"
-  integrity sha512-5DDQvN0luhXdut8SCwzm/ZuAX2W+fwhqNzfq7CZ+OJzQ6NwpcqmIGyLD1R8MEt7BeErzcsI0JLr4pND2pNp2Cw==
+  version "2.13.1"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.13.1.tgz#a15bee3790bde247e8f38f1d446edcdaeb05f2dd"
+  integrity sha512-I6YB/YEuDeUZMmhscXKxGgZlFnhsn5y0hgOZBadkzfTRrZBtJDZeg6eQf7PYMIEclwmorTKK8GztsyOUSVBREA==
 
 nanomatch@^1.2.9:
   version "1.2.13"
@@ -6998,9 +6998,9 @@ webidl-conversions@^4.0.2:
   integrity sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==
 
 weboptimizer@*:
-  version "2.0.450"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.450.tgz#37d4860e799acc55b707bf06837d33e0202c8363"
-  integrity sha512-gI1lplzT+ydXFdV+WPc9tmiPn0omvfGfE08ihmCvk6kXhHvgH46TxD8qZNhMhVduiUNmTYAq2J9qlGsc76T95w==
+  version "2.0.454"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.454.tgz#9a0e02b63b3b66e54c9ffbaf652800473a4c955f"
+  integrity sha512-0ZuhUGqPVWCgUHy7Qr1he5qxqds/XklE1Y2w1BNas8EmV0TIi27nehsPEtlr0VRV1nUfEi9T88j/LGIZkz743w==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
