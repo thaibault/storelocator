@@ -130,6 +130,9 @@ yarn-error.log
 .java/
 .jrebel/
 .m2/
+
+# Temporary downloading file artefact
+*.crdownload
 # region vim modline
 # vim: set tabstop=4 shiftwidth=4 expandtab:
 # vim: foldmethod=marker foldmarker=region,endregion:
