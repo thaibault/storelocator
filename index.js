@@ -1448,7 +1448,6 @@ export class StoreLocator extends $.Tools.class {
         this.map.panTo(marker.nativeMarker.position)
         this.map.panBy(
             0, -this._options.infoWindow.additionalMoveToBottomInPixel)
-        console.log('BBB', this._options.onInfoWindowOpened, event, marker)
         this.fireEvent('infoWindowOpened', false, this, event, marker)
         return this
     }
