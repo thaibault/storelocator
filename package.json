@@ -54,7 +54,6 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-proto-to-assign": "*",
-    "@babel/polyfill": "*",
     "@babel/preset-env": "*",
     "babel-eslint": "*",
     "clientnode": "*",
