@@ -93,7 +93,7 @@ export type Position = {
  * within. If a "generateProperties" function is given it will be called to
  * retrieve additional properties for each store. The specified store will be
  * given to the function.
- * @property _options.addtionalStoreProperties {Object.<string, mixed>} -
+ * @property _options.additionalStoreProperties {Object.<string, mixed>} -
  * Additional static store properties which will be available to each store.
  * @property _options.iconPath {string} - Path prefix to search for marker
  * icons.
@@ -250,7 +250,7 @@ export class StoreLocator extends $.Tools.class {
     initialize(options:Object = {}):$Deferred<$DomNode> {
         // region properties
         this._options = {
-            addtionalStoreProperties: {},
+            additionalStoreProperties: {},
             applicationInterface: {
                 url:
                     'https://maps.googleapis.com/maps/api/js?{1}v=3&' +
@@ -258,13 +258,9 @@ export class StoreLocator extends $.Tools.class {
                 callbackName: null,
                 key: null
             },
-            stores: {
-                northEast: {latitude: 85, longitude: 180},
-                southWest: {latitude: -85, longitude: -180},
-                number: 100,
-                generateProperties: (store:Object):Object => store
-            },
             defaultMarkerIconFileName: null,
+            fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
+            iconPath: '',
             ip: 'check',
             ipToLocationApplicationInterface: {
                 bounds: {
@@ -279,21 +275,25 @@ export class StoreLocator extends $.Tools.class {
                     longitude
                 `.replace(/ +/g, '')
             },
-            fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
-            iconPath: '',
-            startLocation: null,
             limit: {
-                zoom: {minimum: 1, maximum: 9999},
                 bounds: {
                     northEast: {latitude: 85, longitude: 180},
                     southWest: {latitude: -85, longitude: -180}
-                }
+                },
+                zoom: {minimum: 1, maximum: 9999}
             },
             map: {
                 zoom: 3,
                 disableDefaultUI: true,
                 zoomControl: true,
                 streetViewControl: true
+            },
+            startLocation: null,
+            stores: {
+                generateProperties: (store:Object):Object => store,
+                northEast: {latitude: 85, longitude: 180},
+                number: 100,
+                southWest: {latitude: -85, longitude: -180},
             },
             showInputAfterLoadedDelayInMilliseconds: 500,
             input: {
@@ -595,7 +595,7 @@ export class StoreLocator extends $.Tools.class {
         if (Array.isArray(this._options.stores))
             for (const store:Object of this._options.stores) {
                 this.constructor.extend(
-                    true, store, this._options.addtionalStoreProperties)
+                    true, store, this._options.additionalStoreProperties)
                 const marker:Object = this.createMarker(store)
                 if (this.markerCluster)
                     this.markerCluster.addMarker(marker)
@@ -608,7 +608,7 @@ export class StoreLocator extends $.Tools.class {
             $.getJSON(this._options.stores, (stores:Array<Object>):void => {
                 for (const store:Object of stores) {
                     this.constructor.extend(
-                        true, store, this._options.addtionalStoreProperties)
+                        true, store, this._options.additionalStoreProperties)
                     const marker:Object = this.createMarker(store)
                     if (this.markerCluster)
                         this.markerCluster.addMarker(marker)
@@ -638,7 +638,7 @@ export class StoreLocator extends $.Tools.class {
                             (northEast.lng() - southWest.lng()) *
                             Math.random()
                     },
-                    this._options.addtionalStoreProperties
+                    this._options.additionalStoreProperties
                 )
                 const marker:Object = this.createMarker(
                     this.constructor.extend(
