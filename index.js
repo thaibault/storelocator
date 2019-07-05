@@ -42,9 +42,8 @@ export type Position = {
 // endregion
 // region plugins/classes
 /**
- * A storelocator plugin.
- * Expected store data format:
- * {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}
+ * A storelocator plugin with expected store data format:
+ * {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}.
  * @property static:applicationInterfaceLoad - Holds the currently promise to
  * retrieve a new maps application interface.
  * @property static:google - Holds the currently used google scope.
@@ -293,7 +292,7 @@ export class StoreLocator extends $.Tools.class {
                 generateProperties: (store:Object):Object => store,
                 northEast: {latitude: 85, longitude: 180},
                 number: 100,
-                southWest: {latitude: -85, longitude: -180},
+                southWest: {latitude: -85, longitude: -180}
             },
             showInputAfterLoadedDelayInMilliseconds: 500,
             input: {
