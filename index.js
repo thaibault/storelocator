@@ -302,19 +302,21 @@ export class StoreLocator extends $.Tools.class {
             distanceToMoveByDuplicatedEntries: 0.0001,
             marker: {
                 cluster: {
-                    gridSize: 100, maxZoom: 11, imagePath:
+                    gridSize: 100,
+                    imagePath:
                         'https://cdn.rawgit.com/googlemaps/' +
-                        'js-marker-clusterer/gh-pages/images/m'
+                        'js-marker-clusterer/gh-pages/images/m',
+                    maxZoom: 11
                 },
                 icon: {
-                    size: {width: 44, height: 49, unit: 'px'},
-                    scaledSize: {width: 44, height: 49, unit: 'px'}
+                    scaledSize: {height: 49, unit: 'px', width: 44}
+                    size: {height: 49, unit: 'px', width: 44},
                 }
             },
             successfulSearchZoom: 12,
             infoWindow: {
-                content: null,
                 additionalMoveToBottomInPixel: 120,
+                content: null,
                 loadingContent: '<div class="idle">loading...</div>'
             },
             searchBox: 50,
