@@ -309,8 +309,8 @@ export class StoreLocator extends $.Tools.class {
                     maxZoom: 11
                 },
                 icon: {
-                    scaledSize: {height: 49, unit: 'px', width: 44}
-                    size: {height: 49, unit: 'px', width: 44},
+                    scaledSize: {height: 49, unit: 'px', width: 44},
+                    size: {height: 49, unit: 'px', width: 44}
                 }
             },
             successfulSearchZoom: 12,
