@@ -92,8 +92,8 @@ export type Position = {
  * within. If a "generateProperties" function is given it will be called to
  * retrieve additional properties for each store. The specified store will be
  * given to the function.
- * @property _options.additionalStoreProperties {Object.<string, mixed>} -
- * Additional static store properties which will be available to each store.
+ * @property _options.additionalStoreProperties {Object.<string, mixed>}
+ * - Additional static store properties which will be available to each store.
  * @property _options.iconPath {string} - Path prefix to search for marker
  * icons.
  * @property _options.defaultMarkerIconFileName {string} - Specifies a fallback
@@ -130,8 +130,8 @@ export type Position = {
  * .longitude {number} - South west longitude bound.
  * @property _options.ipToLocationApplicationInterface.key - {string} - Key to
  * let the api identify your service plan.
- * @property _options.ipToLocationApplicationInterface.protocol - {string} -
- * Protocol to use for api requests.
+ * @property _options.ipToLocationApplicationInterface.protocol - {string}
+ * - Protocol to use for api requests.
  * @property _options.ipToLocationApplicationInterface.timeoutInMilliseconds
  * {number} - Time to wait for ip resolve. If time is up initialize on given
  * fallback location.
@@ -160,9 +160,9 @@ export type Position = {
  * corresponding marker as first argument and the store locator instance as
  * second argument. If nothing is provided all available data will be listed in
  * a generic info window.
- * @property _options.infoWindow.additionalMoveToBottomInPixel {number} -
- * Additional move to bottom relative to the marker if an info window has been
- * opened.
+ * @property _options.infoWindow.additionalMoveToBottomInPixel {number}
+ * - Additional move to bottom relative to the marker if an info window has
+ * been opened.
  * @property _options.infoWindow.loadingContent {string} - Content to show in
  * the info window during info window load.
  * @property _options.searchBox {number|Object} - If a number is given a
