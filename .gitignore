@@ -3,9 +3,6 @@
 # NOTE: Every entry has be sorted in given alphabetic order to avoid
 # duplicates!
 
-# Project specific
-# ...
-
 # Generated documentations
 apiDocumentation
 
@@ -133,6 +130,9 @@ yarn-error.log
 
 # Temporary downloading file artefact
 *.crdownload
+
+# Project specific
+# ...
 # region vim modline
 # vim: set tabstop=4 shiftwidth=4 expandtab:
 # vim: foldmethod=marker foldmarker=region,endregion:
