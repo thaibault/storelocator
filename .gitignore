@@ -125,6 +125,7 @@ yarn-error.log
 
 # Java
 .java/
+.javacpp
 .jrebel/
 .m2/
 
