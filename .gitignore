@@ -43,6 +43,7 @@ certificate
 !certificate/localhost/*
 !certificate/letsEncrypt/configuration/.gitkeep
 !certificate/letsEncrypt/log/.gitkeep
+!encrypted/**/certificate
 
 # Temporary compile files
 build
