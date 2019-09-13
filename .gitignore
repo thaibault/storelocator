@@ -4,6 +4,7 @@
 # duplicates!
 
 .encryptionPassword
+plain/*
 
 # Generated documentations
 apiDocumentation
