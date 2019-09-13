@@ -3,6 +3,8 @@
 # NOTE: Every entry has be sorted in given alphabetic order to avoid
 # duplicates!
 
+.encryptionPassword
+
 # Generated documentations
 apiDocumentation
 
