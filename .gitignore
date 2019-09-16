@@ -3,6 +3,10 @@
 # NOTE: Every entry has be sorted in given alphabetic order to avoid
 # duplicates!
 
+# Security related data should be saved.
+.encryptionPassword
+plain/*
+
 # Generated documentations
 apiDocumentation
 
@@ -40,6 +44,7 @@ certificate
 !certificate/localhost/*
 !certificate/letsEncrypt/configuration/.gitkeep
 !certificate/letsEncrypt/log/.gitkeep
+!encrypted/**/certificate
 
 # Temporary compile files
 build
