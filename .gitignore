@@ -3,6 +3,7 @@
 # NOTE: Every entry has be sorted in given alphabetic order to avoid
 # duplicates!
 
+# Security related data should be saved.
 .encryptionPassword
 plain/*
 
