@@ -5,7 +5,6 @@
 
 # Security related data should be saved.
 .encryptionPassword
-plain/*
 
 # Generated documentations
 apiDocumentation
@@ -40,11 +39,6 @@ source/image/sprite.png
 
 # Certification
 .pki
-certificate
-!certificate/localhost/*
-!certificate/letsEncrypt/configuration/.gitkeep
-!certificate/letsEncrypt/log/.gitkeep
-!encrypted/**/certificate
 
 # Temporary compile files
 build
