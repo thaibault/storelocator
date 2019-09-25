@@ -11,71 +11,71 @@ apiDocumentation
 
 # Generated runtime bytecode files.
 *.ngfactory.ts
-__pycache__
 *.py[cod]
+__pycache__
 
 # Runtime data
+.cache
+.config
+.local
+.node-gyp
+.node-xmlhttprequest-sync*
+.nyc_output
+.ssh
 backup
 cache/*
 !cache/.gitkeep
-.cache
-*.cache
-.config
 database
 log
 !log/.gitkeep
 logs
 !logs/.gitkeep
 log.txt
-*.log
-.local
-.node-gyp
-.node-xmlhttprequest-sync*
-.nyc_output
 renderedData
 !renderedData/.gitkeep
 source/image/sprite.png
-.ssh
+*.cache
+*.log
 
 # Certification
 .pki
 
 # Temporary compile files
+.dynamicConfiguration-*.json
 build
-*Bundle.*
-*.compiled.*
-*.compiled
 !/data/**/*
 dist
-*.dll-manifest.json
-.dynamicConfiguration-*.json
+*Bundle.*
 target
+*.compiled.*
+*.compiled
+*.dll-manifest.json
 
 # Profiling data.
 *.profile
 
 # Packages
+.installed.cfg
+.sass-cache
+.SRCINFO
 bin
 develop-eggs
-*.egg
-*.egg-info
 eggs
-.installed.cfg
 lib
 lib64
 parts
-.sass-cache
 sdist
-.SRCINFO
 var
+*.egg
+*.egg-info
 
 # Ignore docker nested bash generated files.
 .bash_history
 
 # Unit test / coverage reports
 .coverage
-nosetests.xml
 .tox
+nosetests.xml
 
 # Translations
 *.mo
@@ -87,20 +87,15 @@ nosetests.xml
 
 # Vim temporary file
 .ropeproject
-*.swp
 .viminfo
+*.swp
 
 # JetBrain's idea, PHPStorm and other IDE Files
 .externalToolBuilders
-**/.idea/workspace.xml
 .project
 .pydevproject
 .settings
 **/.idea/workspace.xml
-.project
-.pydevproject
-.settings
-.externalToolBuilders
 
 # Gedit autosave backups.
 *~
@@ -115,11 +110,11 @@ nosetests.xml
 .git-rewrite
 
 # NPM/yarn's runtime files
-node_modules/
 .npm/
-npm-debug.log
 .npm-debug.log
 .v8flags.*
+node_modules/
+npm-debug.log
 yarn-error.log
 
 # Java
