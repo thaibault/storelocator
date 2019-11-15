@@ -95,6 +95,7 @@ nosetests.xml
 .project
 .pydevproject
 .settings
+*.iml
 **/.idea/workspace.xml
 
 # Gedit autosave backups.
