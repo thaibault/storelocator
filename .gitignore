@@ -114,6 +114,7 @@ nosetests.xml
 .npm/
 .npm-debug.log
 .v8flags.*
+.yarnrc
 node_modules/
 npm-debug.log
 yarn-error.log
