@@ -96,6 +96,8 @@ nosetests.xml
 .pydevproject
 .settings
 *.iml
+**/.idea/sonarIssues.xml
+**/.idea/sonarlint-state.xml
 **/.idea/workspace.xml
 
 # Gedit autosave backups.
