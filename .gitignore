@@ -17,6 +17,7 @@ __pycache__
 # Runtime data
 .cache
 .config
+.goutputstream-*
 .local
 .node-gyp
 .node-xmlhttprequest-sync*
