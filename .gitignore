@@ -2,6 +2,14 @@
 
 # NOTE: Every entry has be sorted in given alphabetic order to avoid
 # duplicates!
+#
+# Sorting order (first letter matters but a ! can precede.):
+#
+# 1. Alphabetical
+# 2. Not one of the others
+# 3. .
+# 4. *
+# 5. /
 
 # Security related data should be saved.
 .encryptionPassword
@@ -9,20 +17,8 @@
 # Generated documentations
 apiDocumentation
 
-# Generated runtime bytecode files.
-*.ngfactory.ts
-*.py[cod]
-__pycache__
-
 # Runtime data
-.cache
-.config
-.goutputstream-*
-.local
-.node-gyp
-.node-xmlhttprequest-sync*
-.nyc_output
-.ssh
+
 backup
 cache/*
 !cache/.gitkeep
@@ -35,6 +31,14 @@ log.txt
 renderedData
 !renderedData/.gitkeep
 source/image/sprite.png
+.cache
+.config
+.goutputstream-*
+.local
+.node-gyp
+.node-xmlhttprequest-sync*
+.nyc_output
+.ssh
 *.cache
 *.log
 
@@ -44,21 +48,18 @@ source/image/sprite.png
 # Temporary compile files
 .dynamicConfiguration-*.json
 build
-!/data/**/*
 dist
-*Bundle.*
 target
+*Bundle.*
 *.compiled.*
 *.compiled
 *.dll-manifest.json
+!/data/**/*
 
 # Profiling data.
 *.profile
 
 # Packages
-.installed.cfg
-.sass-cache
-.SRCINFO
 bin
 develop-eggs
 eggs
@@ -67,6 +68,9 @@ lib64
 parts
 sdist
 var
+.installed.cfg
+.sass-cache
+.SRCINFO
 *.egg
 *.egg-info
 
@@ -74,9 +78,9 @@ var
 .bash_history
 
 # Unit test / coverage reports
+nosetests.xml
 .coverage
 .tox
-nosetests.xml
 
 # Translations
 *.mo
@@ -114,19 +118,26 @@ nosetests.xml
 .git-rewrite
 
 # NPM/yarn's runtime files
+node_modules/
+npm-debug.log
+yarn-error.log
 .npm/
 .npm-debug.log
 .v8flags.*
 .yarnrc
-node_modules/
-npm-debug.log
-yarn-error.log
 
 # Java
 .java/
 .javacpp
 .jrebel/
 .m2/
+
+# JavaScript / TypeScript
+*.ngfactory.ts
+
+# Python
+__pycache__
+*.py[cod]
 
 # Temporary downloading file artefact
 *.crdownload
