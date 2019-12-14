@@ -9,11 +9,6 @@
 # Generated documentations
 apiDocumentation
 
-# Generated runtime bytecode files.
-*.ngfactory.ts
-*.py[cod]
-__pycache__
-
 # Runtime data
 .cache
 .config
@@ -44,10 +39,10 @@ source/image/sprite.png
 # Temporary compile files
 .dynamicConfiguration-*.json
 build
-!/data/**/*
 dist
-*Bundle.*
 target
+!/data/**/*
+*Bundle.*
 *.compiled.*
 *.compiled
 *.dll-manifest.json
@@ -127,6 +122,13 @@ yarn-error.log
 .javacpp
 .jrebel/
 .m2/
+
+# JavaScript / TypeScript
+*.ngfactory.ts
+
+# Python
+*.py[cod]
+__pycache__
 
 # Temporary downloading file artefact
 *.crdownload
