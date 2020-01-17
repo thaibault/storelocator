@@ -18,11 +18,13 @@
 apiDocumentation
 
 # Runtime data
-
 backup
 cache/*
 !cache/.gitkeep
 database
+datetime-*.rc
+dockbarx-*.rc.*
+icons.screen*.rc
 log
 !log/.gitkeep
 logs
@@ -31,6 +33,7 @@ log.txt
 renderedData
 !renderedData/.gitkeep
 source/image/sprite.png
+.Trash-*
 .cache
 .config
 .goutputstream-*
