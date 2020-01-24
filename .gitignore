@@ -11,7 +11,7 @@
 # 4. *
 # 5. /
 
-# Security related data should be saved.
+# Security related data should not be versioned.
 .encryptionPassword
 
 # Generated documentations
@@ -42,6 +42,7 @@ source/image/sprite.png
 .node-xmlhttprequest-sync*
 .nyc_output
 .ssh
+*.bak
 *.cache
 *.log
 
@@ -68,6 +69,7 @@ develop-eggs
 eggs
 lib
 lib64
+out
 parts
 sdist
 var
