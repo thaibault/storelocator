@@ -330,6 +330,7 @@ export class StoreLocator extends $.Tools.class {
         }
         // endregion
         // Merges given options with default options recursively.
+        // TODO new "isOpen" method in places result is maybe interesting.
         super.initialize(options)
         this.defaultSearchBoxOptions = {
             generic: {
