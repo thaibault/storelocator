@@ -446,14 +446,17 @@ export class StoreLocator extends $.Tools.class {
         */
         let loaded:boolean = false
         const $deferred:$Deferred<$DomNode> = $.Deferred()
-        const fallbackTimeout:Promise<boolean> = this.constructor.timeout((
-        ):void => {
-            loaded = true
-            // IgnoreTypeCheck
-            this.initializeMap().then(():$Deferred<$DomNode> =>
+        const fallbackTimeout:Promise<boolean> = this.constructor.timeout(
+            ():void => {
+                loaded = true
                 // IgnoreTypeCheck
-                $deferred.resolve(this.$domNode))
-        }, this._options.ipToLocationApplicationInterface.timeoutInMilliseconds
+                this.initializeMap().then(():$Deferred<$DomNode> =>
+                    // IgnoreTypeCheck
+                    $deferred.resolve(this.$domNode))
+            },
+            this._options
+                .ipToLocationApplicationInterface
+                .timeoutInMilliseconds
         )
         $.ajax({
             cache: true,
@@ -820,7 +823,8 @@ export class StoreLocator extends $.Tools.class {
             for (const name:string in this.constructor.keyCode)
                 if (
                     event &&
-                    event.keyCode === this.constructor.keyCode[name] && ![
+                    event.keyCode === this.constructor.keyCode[name] &&
+                    ![
                         'BACKSPACE',
                         'COMMA',
                         'DELETE',
