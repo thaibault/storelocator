@@ -28,7 +28,6 @@ declare var EXTERNAL_EXPORT_FORMAT:string
 const googleMarkerClusterer:Object = (EXTERNAL_EXPORT_FORMAT === 'var') ? {
     Class: require('googleMarkerClusterer'), google: {}
 } :
-    // IgnoreTypeCheck
     require(
         'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
         'googleMarkerClusterer')
@@ -380,10 +379,8 @@ export class StoreLocator extends $.Tools.class {
             this.constructor.applicationInterfaceLoad = $.Deferred()
         }
         const result:$Deferred<$DomNode> =
-            // IgnoreTypeCheck
             this.constructor.applicationInterfaceLoad.then(this.bootstrap.bind(
                 this
-            // IgnoreTypeCheck
             )).done(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
             this.constructor.google = $.global.google
@@ -391,7 +388,6 @@ export class StoreLocator extends $.Tools.class {
             ) !== 'resolved')
                 this.constructor.timeout(():$Deferred<$DomNode> =>
                     this.constructor.applicationInterfaceLoad.resolve(
-                        // IgnoreTypeCheck
                         this.$domNode))
         } else if (!loadInitialized) {
             let callbackName:string
@@ -402,7 +398,6 @@ export class StoreLocator extends $.Tools.class {
             $.global[callbackName] = ():void => {
                 this.constructor.google = $.global.google
                 this.constructor.applicationInterfaceLoad.resolve(
-                    // IgnoreTypeCheck
                     this.$domNode)
             }
             $.getScript(this.constructor.stringFormat(
@@ -413,11 +408,9 @@ export class StoreLocator extends $.Tools.class {
                 `${window === $.global ? 'window' : 'global'}.${callbackName}`
             ))
                 .done(this.constructor.applicationInterfaceLoad.resolve.bind(
-                    // IgnoreTypeCheck
                     this, this.$domNode
                 ))
                 .fail((response:Object, error:Error):$Deferred<$DomNode> =>
-                    // IgnoreTypeCheck
                     this.constructor.applicationInterfaceLoad.reject(error))
         }
         return result
@@ -449,9 +442,7 @@ export class StoreLocator extends $.Tools.class {
         const fallbackTimeout:Promise<boolean> = this.constructor.timeout(
             ():void => {
                 loaded = true
-                // IgnoreTypeCheck
                 this.initializeMap().then(():$Deferred<$DomNode> =>
-                    // IgnoreTypeCheck
                     $deferred.resolve(this.$domNode))
             },
             this._options
@@ -476,7 +467,6 @@ export class StoreLocator extends $.Tools.class {
             )
         }).always((currentLocation:Position, textStatus:string):void => {
             if (!loaded) {
-                // IgnoreTypeCheck
                 fallbackTimeout.clear()
                 loaded = true
                 if (textStatus === 'success')
@@ -506,9 +496,7 @@ export class StoreLocator extends $.Tools.class {
                             ))
                     )
                         this._options.startLocation = currentLocation
-                // IgnoreTypeCheck
                 this.initializeMap().then(():$Deferred<$DomNode> =>
-                    // IgnoreTypeCheck
                     $deferred.resolve(this.$domNode))
             }
         })
@@ -604,7 +592,6 @@ export class StoreLocator extends $.Tools.class {
                 const marker:Object = this.createMarker(store)
                 if (this.markerCluster)
                     this.markerCluster.addMarker(marker)
-                // IgnoreTypeCheck
                 $addMarkerDeferred.resolve(this.markers)
             }
         else if (this.constructor.determineType(
@@ -618,7 +605,6 @@ export class StoreLocator extends $.Tools.class {
                     if (this.markerCluster)
                         this.markerCluster.addMarker(marker)
                 }
-                // IgnoreTypeCheck
                 $addMarkerDeferred.resolve(this.markers)
             })
         else {
@@ -651,7 +637,6 @@ export class StoreLocator extends $.Tools.class {
                 if (this.markerCluster)
                     this.markerCluster.addMarker(marker)
             }
-            // IgnoreTypeCheck
             $addMarkerDeferred.resolve(this.markers)
         }
         // Create the search box and link it to the UI element.
@@ -687,9 +672,7 @@ export class StoreLocator extends $.Tools.class {
             })
         const $mapLoadedDeferred:$Deferred<$DomNode> = $.Deferred()
         this.constructor.google.maps.event.addListenerOnce(this.map, 'idle', (
-        // IgnoreTypeCheck
         ):$Deferred<Array<Object>> => $addMarkerDeferred.then((
-        // IgnoreTypeCheck
         ):$Deferred<$DomNode> => $mapLoadedDeferred.resolve(this.$domNode)))
         return $mapLoadedDeferred
     }
@@ -739,7 +722,6 @@ export class StoreLocator extends $.Tools.class {
                         Math.max(0, this.currentSearchResultRange[0]),
                         Math.min(
                             this.currentSearchResults.length - 1,
-                            // IgnoreTypeCheck
                             this.currentSearchResultRange[1])]
                 else
                     this.currentSearchResultRange = [
@@ -764,7 +746,6 @@ export class StoreLocator extends $.Tools.class {
                         currentIndex
                     ))
                         this.highlightMarker(this.currentSearchResults[
-                            // IgnoreTypeCheck
                             this.currentSearchResultRange[1]
                         ], event)
                     else
@@ -1155,7 +1136,6 @@ export class StoreLocator extends $.Tools.class {
                 if (this.searchResultsStyleProperties.hasOwnProperty(
                     propertyName
                 ))
-                    // IgnoreTypeCheck
                     this.resultsDomNode.css(
                         propertyName,
                         this.searchResultsStyleProperties[propertyName])
@@ -1183,7 +1163,6 @@ export class StoreLocator extends $.Tools.class {
                 if (this.searchResultsStyleProperties.hasOwnProperty(
                     propertyName
                 ))
-                    // IgnoreTypeCheck
                     this.resultsDomNode.css(propertyName, '')
             this.resultsDomNode.removeClass('open')
         }
@@ -1211,7 +1190,6 @@ export class StoreLocator extends $.Tools.class {
         */
         this.constructor.google.maps.event.addListener(
             searchBox, 'places_changed', ():$Deferred<Array<Object>> =>
-                // IgnoreTypeCheck
                 this.ensurePlaceLocations(searchBox.getPlaces()).then((
                     places:Array<Object>
                 ):Array<Object> => {
@@ -1290,13 +1268,11 @@ export class StoreLocator extends $.Tools.class {
                             place.name)
                     }
                     if (runningGeocodes === 0)
-                        // IgnoreTypeCheck
                         result.resolve(places)
                 })
                 /* eslint-enable no-loop-func */
             }
         if (runningGeocodes === 0)
-            // IgnoreTypeCheck
             result.resolve(places)
         return result
     }

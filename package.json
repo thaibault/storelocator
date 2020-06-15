@@ -22,9 +22,10 @@
     "finder"
   ],
   "files": [
-    "index.js"
+    "index.ts",
+    "type.ts"
   ],
-  "main": "index.compiled.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/thaibault/storeLocator"
@@ -33,37 +34,43 @@
     "build": "webOptimizer build",
     "build:export": "webOptimizer build '{__reference__: \"target:export\"}'",
     "build:export:compatible": "webOptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}'",
+    "check": "yarn check:types; yarn lint",
+    "check:types": "webOptimizer check:types",
     "clear": "webOptimizer clear",
     "document": "webOptimizer document",
-    "lint": "webOptimizer check:type; webOptimizer lint",
+    "lint": "webOptimizer lint",
     "prepare": "yarn build",
     "report:coverage": "nyc report --reporter=text-lcov | coveralls",
     "serve": "webOptimizer serve",
     "start": "yarn serve",
-    "test": "nyc yarn test:plain",
+    "test": "webOptimizer test",
     "test:browser": "webOptimizer test:browser",
-    "test:plain": "webOptimizer test",
     "update": "yarn version --patch && yarn publish",
     "update:documentation": "documentationWebsite --log-level info",
     "watch": "webOptimizer build --watch"
   },
   "devDependencies": {
     "@babel/plugin-transform-proto-to-assign": "*",
-    "@babel/preset-env": "*",
+    "@types/ejs": "*",
+    "@types/html-minifier": "*",
+    "@types/jest": "*",
+    "@types/jquery": "*",
+    "@types/jsdom": "*",
+    "@types/loader-utils": "*",
+    "@types/node": "*",
+    "@types/node-fetch": "*",
+    "@typescript-eslint/eslint-plugin": "*",
+    "@typescript-eslint/parser": "*",
     "babel-eslint": "*",
     "clientnode": "*",
-    "coveralls": "*",
     "documentation-website": "*",
     "eslint": "*",
     "eslint-config-google": "*",
-    "eslint-plugin-flowtype": "*",
     "eslint-plugin-jsdoc": "*",
-    "flow-bin": "*",
+    "jest": "*",
     "jquery": "*",
     "js-marker-clusterer": "*",
     "jsdoc": "*",
-    "nyc": "*",
-    "qunit": "*",
     "weboptimizer": "*",
     "webpack": "*",
     "webpack-cli": "*",
@@ -76,6 +83,14 @@
   },
   "sideEffects": false,
   "webOptimizer": {
+    "commandLine": {
+      "test": {
+        "environments": [
+          "jsdom",
+          "node"
+        ]
+      }
+    },
     "injection": {
       "external": {
         "aliases": {
@@ -85,9 +100,7 @@
     },
     "module": {
       "aliases": {
-        "googleMarkerClusterer$": "js-marker-clusterer",
-        "#": "We need to process this file dynamically when testing different environments.",
-        "clientnode/test$": "clientnode/test"
+        "googleMarkerClusterer$": "js-marker-clusterer"
       },
       "optimizer": {
         "babelMinify": {
