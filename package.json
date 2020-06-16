@@ -49,6 +49,9 @@
     "update:documentation": "documentationWebsite --log-level info",
     "watch": "webOptimizer build --watch"
   },
+  "dependencies": {
+    "@google/markerclustererplus": "*"
+  },
   "devDependencies": {
     "@babel/plugin-transform-proto-to-assign": "*",
     "@types/ejs": "*",
@@ -70,7 +73,6 @@
     "eslint-plugin-jsdoc": "*",
     "jest": "*",
     "jquery": "*",
-    "js-marker-clusterer": "*",
     "jsdoc": "*",
     "weboptimizer": "*",
     "webpack": "*",
@@ -79,8 +81,7 @@
   },
   "peerDependencies": {
     "clientnode": "*",
-    "jquery": "*",
-    "js-marker-clusterer": "*"
+    "jquery": "*"
   },
   "sideEffects": false,
   "webOptimizer": {
@@ -92,24 +93,6 @@
         ]
       }
     },
-    "injection": {
-      "external": {
-        "aliases": {
-          "googleMarkerClusterer": "MarkerClusterer"
-        }
-      }
-    },
-    "module": {
-      "aliases": {
-        "googleMarkerClusterer$": "js-marker-clusterer"
-      },
-      "optimizer": {
-        "babelMinify": {
-          "#": "This optimisation would results in the following error: \"TypeError: /storeLocator/index.js: Cannot read property 'end' of null at _evaluate (/storeLocator/node_modules/babel-traverse/lib/path/evaluation.js\".",
-          "__evaluate__": "self.debug ? {} : {module: {evaluate: false}}"
-        }
-      }
-    },
     "target:compatible": {
       "module": {
         "preprocessor": {
@@ -117,10 +100,7 @@
             "options": {
               "plugins": {
                 "__append__": "@babel/plugin-transform-proto-to-assign"
-              },
-              "presets": [
-                "@babel/preset-env"
-              ]
+              }
             }
           }
         }

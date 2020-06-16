@@ -18,12 +18,16 @@
 */
 // region imports
 import {
-    Map as GoogleMap, Marker as GoogleMarker, LatLng as GooglePosition
+    Map as GoogleMap,
+    LatLng as GooglePosition,
+    Marker as GoogleMarker,
+    PlaceResult as GooglePlaceResult
 } from 'googlemaps'
 // endregion
 // region exports
-// / region implementation
-export type Map = Map
+// /  region implementation
+export type Map = GoogleMap
+export type PlaceResult = GooglePlaceResult
 // / endregion
 export type Marker = {
     data:object;

@@ -17,22 +17,11 @@
     endregion
 */
 // region imports
-import {Tools, $ as binding} from 'clientnode'
+import {Tools, $} from 'clientnode'
 import {$DomNode, PlainObject} from 'clientnode/type'
+import MarkerClusterer from '@google/markerclustererplus'
 
-import {Item, Map, Position} from './type'
-/*
-    NOTE: Bind marker clusters google instance to an empty object first to add
-    the runtime evaluated instance later to.
-*/
-declare var EXTERNAL_EXPORT_FORMAT:string
-const googleMarkerClusterer:Object = (EXTERNAL_EXPORT_FORMAT === 'var') ?
-    {Class: require('googleMarkerClusterer'), google: {}} :
-    require(
-        'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
-        'googleMarkerClusterer'
-    )
-export const $:any = binding
+import {Item, Map, PlaceResult, Position} from './type'
 // endregion
 // region plugins/classes
 /**
@@ -59,7 +48,7 @@ export const $:any = binding
  * @property currentSearchWords - Saves last searched words.
  * @property defaultSearchBoxOptions - Sets default search box options.
  * @property map - Holds the currently used map instance.
- * @property markerCluster - Holds the currently used marker cluster instance.
+ * @property markerClusterer - Holds the currently used marker cluster instance.
  * @property markers - Saves all recognized markers.
  * @property resultsDomNode - Saves currently opened results dom node or null
  * if no results exists yet.
@@ -229,7 +218,7 @@ export class StoreLocator extends Tools {
     currentSearchWords:Array<string> = []
     defaultSearchBoxOptions:
     map:Map
-    markerCluster:Object|null = null
+    markerClusterer:MarkerClusterer|null = null
     markers:Array<Marker> = []
     resultsDomNode:$DomNode|null = null
     searchResultsDirty:boolean = false
@@ -263,10 +252,9 @@ export class StoreLocator extends Tools {
                 key: null,
                 protocol: 'inherit',
                 timeoutInMilliseconds: 5000,
-                url: `
-                    {1}://api.ipstack.com/{3}?access_key={2}&fields=latitude,
-                    longitude
-                `.replace(/ +/g, '')
+                url:
+                    '{1}://api.ipstack.com/{3}?access_key={2}&fields=' +
+                    'latitude,longitude'
             },
             limit: {
                 bounds: {
@@ -297,6 +285,7 @@ export class StoreLocator extends Tools {
             marker: {
                 cluster: {
                     gridSize: 100,
+                    // TODO take existing images.
                     imagePath:
                         'https://cdn.rawgit.com/googlemaps/' +
                         'js-marker-clusterer/gh-pages/images/m',
@@ -330,9 +319,10 @@ export class StoreLocator extends Tools {
             generic: {
                 number: [2, 5],
                 maximalDistanceInMeter: 1000000,
-                filter: (place:Object):boolean =>
+                filter: (place:PlaceResult):boolean =>
                     /(?:^| )(?:Deutschland|Germany)( |$)/i.test(
-                        place.formatted_address),
+                        place.formatted_address
+                    ),
                 prefer: true,
                 retrieveOptions: {radius: '50000'}
             },
@@ -362,37 +352,46 @@ export class StoreLocator extends Tools {
                 'paddingTop',
                 'width'
             ],
-            normalizer: (value:any):string => `${value}`.toLowerCase(
-            ).replace(/[-_]+/g, '').replace(/ß/g, 'ss').replace(
-                /(^| )str\./g, '$1strasse'
-            ).replace(/[& ]+/g, ' ')
+            normalizer: (value:string):string =>
+                `${value}`
+                    .toLowerCase()
+                    .replace(/[-_]+/g, '')
+                    .replace(/ß/g, 'ss')
+                    .replace(/(^| )str\./g, '$1strasse')
+                    .replace(/[& ]+/g, ' ')
         }
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
+        const applicationInterfaceLoadCallbacks:{
+            resolve:Function;
+            reject:Function;
+            resolved:boolean;
+        } = {
+            resolve: Tools.noop,
+            reject: Tools.noop,
+            resolved: false
+        }
         if (typeof StoreLocator.applicationInterfaceLoad !== 'object') {
             loadInitialized = false
-            // TODO do not make callbacks available like this! use only internally
-            let callbacks:{resolve:Function;reject:Function}
             StoreLocator.applicationInterfaceLoad = new Promise((
                 resolve:Function, reject:Function
             ):void => {
-                callbacks = {resolve, reject}
+                applicationInterfaceLoadCallbacks.resolve = ():void => {
+                    callbacks.resolved = true
+                    resolve(this.$domNode)
+                }
+                applicationInterfaceLoadCallbacks.reject = reject
             })
-            StoreLocator.applicationInterfaceLoad.resolve = callbacks.resolve
-            StoreLocator.applicationInterfaceLoad.reject = callbacks.reject
         }
         const result:Promise<$DomNode> =
-            StoreLocator.applicationInterfaceLoad.then(this.bootstrap.bind(
-                this
-            )).done(():StoreLocator => this.fireEvent('loaded'))
+            StoreLocator.applicationInterfaceLoad
+                .then(this.bootstrap.bind(this))
+                .then(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
             StoreLocator.google = $.global.google
-            if (StoreLocator.applicationInterfaceLoad.state(
-            ) !== 'resolved')
+            if (!applicationInterfaceLoadCallbacks.resolved)
                 Tools.timeout(():void =>
-                    StoreLocator.applicationInterfaceLoad.resolve(
-                        this.$domNode
-                    )
+                    applicationInterfaceLoadCallbacks.resolve(this.$domNode)
                 )
         } else if (!loadInitialized) {
             let callbackName:string
@@ -402,8 +401,7 @@ export class StoreLocator extends Tools {
                 callbackName = this.constructor.determineUniqueScopeName()
             $.global[callbackName] = ():void => {
                 this.constructor.google = $.global.google
-                this.constructor.applicationInterfaceLoad.resolve(
-                    this.$domNode)
+                applicationInterfaceLoadCallbacks.resolve(this.$domNode)
             }
             $.getScript(this.constructor.stringFormat(
                 this._options.applicationInterface.url,
@@ -412,11 +410,12 @@ export class StoreLocator extends Tools {
                     '',
                 `${window === $.global ? 'window' : 'global'}.${callbackName}`
             ))
-                .done(this.constructor.applicationInterfaceLoad.resolve.bind(
+                .done(applicationInterfaceLoadCallbacks.resolve.bind(
                     this, this.$domNode
                 ))
-                .fail((response:Object, error:Error):$Deferred<$DomNode> =>
-                    this.constructor.applicationInterfaceLoad.reject(error))
+                .fail((response:, error:Error):void =>
+                    applicationInterfaceLoadCallbacks.reject(error)
+                )
         }
         return result
     }
@@ -424,12 +423,12 @@ export class StoreLocator extends Tools {
      * Determines useful location cluster, info windows and marker.
      * @returns The current instance.
      */
-    bootstrap():$Deferred<$DomNode> {
+    bootstrap():Promise<$DomNode> {
         if (
             !('location' in $.global) ||
             [null, undefined].includes($.global.location)
         )
-            return $.Deferred().resolve(this.$domNode)
+            return Promise.resolve(this.$domNode)
         if (this._options.startLocation)
             return this.initializeMap()
         this._options.startLocation = this._options.fallbackLocation
@@ -443,6 +442,7 @@ export class StoreLocator extends Tools {
             occurs. That's why we use our own timeout implementation.
         */
         let loaded:boolean = false
+        // TODO state
         const $deferred:$Deferred<$DomNode> = $.Deferred()
         const fallbackTimeout:Promise<boolean> = this.constructor.timeout(
             ():void => {
@@ -567,9 +567,7 @@ export class StoreLocator extends Tools {
                         this.map.setZoom(this._options.limit.zoom.maximum)
                 })
         if (this._options.marker.cluster) {
-            this.constructor.extend(
-                googleMarkerClusterer.google, this.constructor.google)
-            this.markerCluster = new googleMarkerClusterer.Class(
+            this.markerClusterer = new MarkerClusterer(
                 this.map, [], this._options.marker.cluster)
             this.resetMarkerCluster = ():void => {
                 const markers:Array<Object> = []
@@ -581,9 +579,9 @@ export class StoreLocator extends Tools {
                     this.attachMarkerEventListener(marker)
                     markers.push(marker.nativeMarker)
                 }
-                if (this.markerCluster) {
-                    this.markerCluster.clearMarkers()
-                    this.markerCluster = new googleMarkerClusterer.Class(
+                if (this.markerClusterer) {
+                    this.markerClusterer.clearMarkers()
+                    this.markerClusterer = new MarkerClusterer(
                         this.map, markers, this._options.marker.cluster)
                 }
             }
@@ -595,8 +593,8 @@ export class StoreLocator extends Tools {
                 this.constructor.extend(
                     true, store, this._options.additionalStoreProperties)
                 const marker:Object = this.createMarker(store)
-                if (this.markerCluster)
-                    this.markerCluster.addMarker(marker)
+                if (this.markerClusterer)
+                    this.markerClusterer.addMarker(marker)
                 $addMarkerDeferred.resolve(this.markers)
             }
         else if (this.constructor.determineType(
@@ -607,8 +605,8 @@ export class StoreLocator extends Tools {
                     this.constructor.extend(
                         true, store, this._options.additionalStoreProperties)
                     const marker:Object = this.createMarker(store)
-                    if (this.markerCluster)
-                        this.markerCluster.addMarker(marker)
+                    if (this.markerClusterer)
+                        this.markerClusterer.addMarker(marker)
                 }
                 $addMarkerDeferred.resolve(this.markers)
             })
@@ -639,8 +637,8 @@ export class StoreLocator extends Tools {
                 const marker:Object = this.createMarker(
                     this.constructor.extend(
                         store, this._options.stores.generateProperties(store)))
-                if (this.markerCluster)
-                    this.markerCluster.addMarker(marker)
+                if (this.markerClusterer)
+                    this.markerClusterer.addMarker(marker)
             }
             $addMarkerDeferred.resolve(this.markers)
         }
@@ -691,9 +689,8 @@ export class StoreLocator extends Tools {
         const allStyleProperties:PlainObject = $inputDomNode.Tools('style')
         for (const propertyName:string in allStyleProperties)
             if (
-                this._options.searchBox
-                    .stylePropertiesToDeriveFromInputField.includes(
-                        propertyName)
+                this._options.searchBox.stylePropertiesToDeriveFromInputField
+                    .includes(propertyName)
             )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
@@ -825,7 +822,8 @@ export class StoreLocator extends Tools {
                     return
             await this.acquireLock(`${this.constructor._name}Search`)
             const searchText:string = this._options.searchBox.normalizer(
-                this.$domNode.find('input').val())
+                this.$domNode.find('input').val()
+            )
             if (
                 this.currentSearchText === searchText &&
                 !this.searchResultsDirty
@@ -885,7 +883,7 @@ export class StoreLocator extends Tools {
                         {query: searchText, location: this.map.getCenter()},
                         this._options.searchBox.generic.retrieveOptions
                     ),
-                    (places:Array<Object>):void => {
+                    (places:Array<PlaceResult>):void => {
                         if (places)
                             this.handleGenericSearchResults(places, searchText)
                     }
@@ -924,8 +922,10 @@ export class StoreLocator extends Tools {
             index += 1
             const distance:number =
                 this.constructor.google.maps.geometry.spherical
-                    .computeDistanceBetween(this.map.getCenter(
-                    ), place.geometry.location)
+                    .computeDistanceBetween(
+                        this.map.getCenter(),
+                        place.geometry.location
+                    )
             if (
                 distance >
                 this._options.searchBox.generic.maximalDistanceInMeter
