@@ -1,4 +1,3 @@
-// @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
 /** @module storelocator */
@@ -18,26 +17,22 @@
     endregion
 */
 // region imports
-import {$ as binding} from 'clientnode'
-import type {$Deferred, $DomNode, PlainObject} from 'clientnode'
+import {Tools, $ as binding} from 'clientnode'
+import {$DomNode, PlainObject} from 'clientnode/type'
+
+import {Item, Map, Position} from './type'
 /*
     NOTE: Bind marker clusters google instance to an empty object first to add
     the runtime evaluated instance later to.
 */
 declare var EXTERNAL_EXPORT_FORMAT:string
-const googleMarkerClusterer:Object = (EXTERNAL_EXPORT_FORMAT === 'var') ? {
-    Class: require('googleMarkerClusterer'), google: {}
-} :
+const googleMarkerClusterer:Object = (EXTERNAL_EXPORT_FORMAT === 'var') ?
+    {Class: require('googleMarkerClusterer'), google: {}} :
     require(
         'exports?Class=MarkerClusterer,google=google!imports?google=>{}!' +
-        'googleMarkerClusterer')
+        'googleMarkerClusterer'
+    )
 export const $:any = binding
-// endregion
-// region types
-export type Position = {
-    latitude:number;
-    longitude:number;
-}
 // endregion
 // region plugins/classes
 /**
@@ -218,24 +213,24 @@ export type Position = {
  * @property _options.onMarkerHighlighted {Function} - Triggers after a marker
  * starts to highlight.
  */
-export class StoreLocator extends $.Tools.class {
-    static applicationInterfaceLoad:$Deferred<$DomNode>
-    static google:Object
+export class StoreLocator extends Tools {
+    static applicationInterfaceLoad:Promise<$DomNode>
+    static google:object
 
     static _name:string = 'StoreLocator'
 
-    currentlyHighlightedMarker:Object|null = null
-    currentlyOpenWindow:Object|null = null
+    currentlyHighlightedMarker:Item|null = null
+    currentlyOpenWindow:Item|null = null
     currentSearchResultRange:Array<number>|null = null
-    currentSearchResults:Array<Object> = []
+    currentSearchResults:Array<Item> = []
     currentSearchResultsDomNode:$DomNode|null = null
     currentSearchSegments:Array<string> = []
     currentSearchText:string|null = null
     currentSearchWords:Array<string> = []
-    defaultSearchBoxOptions:Object
-    map:Object
+    defaultSearchBoxOptions:
+    map:Map
     markerCluster:Object|null = null
-    markers:Array<Object> = []
+    markers:Array<Marker> = []
     resultsDomNode:$DomNode|null = null
     searchResultsDirty:boolean = false
     searchResultsStyleProperties:PlainObject = {}
@@ -245,7 +240,7 @@ export class StoreLocator extends $.Tools.class {
      * @param options - Options to overwrite default ones.
      * @returns Currently selected dom node.
      */
-    initialize(options:Object = {}):$Deferred<$DomNode> {
+    initialize(options:object = {}):Promise<$DomNode> {
         // region properties
         this._options = {
             additionalStoreProperties: {},
@@ -319,13 +314,13 @@ export class StoreLocator extends $.Tools.class {
                 loadingContent: '<div class="idle">loading...</div>'
             },
             searchBox: 50,
-            onInfoWindowOpen: this.constructor.noop,
-            onInfoWindowOpened: this.constructor.noop,
-            onAddSearchResults: this.constructor.noop,
-            onRemoveSearchResults: this.constructor.noop,
-            onOpenSearchResults: this.constructor.noop,
-            onCloseSearchResults: this.constructor.noop,
-            onMarkerHighlighted: this.constructor.noop
+            onInfoWindowOpen: Tools.noop,
+            onInfoWindowOpened: Tools.noop,
+            onAddSearchResults: Tools.noop,
+            onRemoveSearchResults: Tools.noop,
+            onOpenSearchResults: Tools.noop,
+            onCloseSearchResults: Tools.noop,
+            onMarkerHighlighted: Tools.noop
         }
         // endregion
         // Merges given options with default options recursively.
@@ -374,21 +369,31 @@ export class StoreLocator extends $.Tools.class {
         }
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
-        if (typeof this.constructor.applicationInterfaceLoad !== 'object') {
+        if (typeof StoreLocator.applicationInterfaceLoad !== 'object') {
             loadInitialized = false
-            this.constructor.applicationInterfaceLoad = $.Deferred()
+            // TODO do not make callbacks available like this! use only internally
+            let callbacks:{resolve:Function;reject:Function}
+            StoreLocator.applicationInterfaceLoad = new Promise((
+                resolve:Function, reject:Function
+            ):void => {
+                callbacks = {resolve, reject}
+            })
+            StoreLocator.applicationInterfaceLoad.resolve = callbacks.resolve
+            StoreLocator.applicationInterfaceLoad.reject = callbacks.reject
         }
-        const result:$Deferred<$DomNode> =
-            this.constructor.applicationInterfaceLoad.then(this.bootstrap.bind(
+        const result:Promise<$DomNode> =
+            StoreLocator.applicationInterfaceLoad.then(this.bootstrap.bind(
                 this
             )).done(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
-            this.constructor.google = $.global.google
-            if (this.constructor.applicationInterfaceLoad.state(
+            StoreLocator.google = $.global.google
+            if (StoreLocator.applicationInterfaceLoad.state(
             ) !== 'resolved')
-                this.constructor.timeout(():$Deferred<$DomNode> =>
-                    this.constructor.applicationInterfaceLoad.resolve(
-                        this.$domNode))
+                Tools.timeout(():void =>
+                    StoreLocator.applicationInterfaceLoad.resolve(
+                        this.$domNode
+                    )
+                )
         } else if (!loadInitialized) {
             let callbackName:string
             if (this._options.applicationInterface.callbackName)
@@ -510,7 +515,7 @@ export class StoreLocator extends $.Tools.class {
         this._options.map.center = new this.constructor.google.maps.LatLng(
             this._options.startLocation.latitude,
             this._options.startLocation.longitude)
-        this.map = new this.constructor.google.maps.Map($('<div>').appendTo(
+        this.map = new this.constructor.google.maps.Map($('<div>').appendTo(regionendregion
             this.$domNode.css('display', 'block')
         )[0], this._options.map)
         if (this._options.limit.bounds)
@@ -927,12 +932,7 @@ export class StoreLocator extends $.Tools.class {
             )
                 break
             if (this._options.searchBox.generic.filter(place)) {
-                const result:{
-                    data:Object;
-                    highlight:(event:Object, type:string) => any;
-                    open:(event:Object) => any;
-                    position:Position;
-                } = {
+                const result:Item = {
                     data: this.constructor.extend(
                         place,
                         {
@@ -1328,11 +1328,12 @@ export class StoreLocator extends $.Tools.class {
             index += 1
         }
         this.seenLocations.push(`${store.latitude}-${store.longitude}`)
-        const marker:Object = {
-            position: new this.constructor.google.maps.LatLng(
-                store.latitude, store.longitude),
+        const marker:Marker = {
+            data: store,
             map: this.map,
-            data: store
+            position: new this.constructor.google.maps.LatLng(
+                store.latitude, store.longitude
+            )
         }
         if (
             store.markerIconFileName || this._options.defaultMarkerIconFileName

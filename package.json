@@ -52,6 +52,7 @@
   "devDependencies": {
     "@babel/plugin-transform-proto-to-assign": "*",
     "@types/ejs": "*",
+    "@types/googlemaps": "*",
     "@types/html-minifier": "*",
     "@types/jest": "*",
     "@types/jquery": "*",
