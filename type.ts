@@ -17,6 +17,7 @@
     endregion
 */
 // region imports
+import {Options as BaseOptions} from 'clientnode'
 import 'googlemaps'
 // endregion
 // region exports
@@ -24,17 +25,21 @@ import 'googlemaps'
 export type Map = google.maps.Map
 export type PlacesService = google.maps.places.PlacesService
 export type MapMarker = google.maps.Marker
+export type MapOptions = google.maps.MapOptions
 export type MapPosition = google.maps.LatLng
+export type MapPlacesServices = google.maps.places.PlacesService
+export type SearchBox = google.maps.places.SearchBox
 export type Maps = {
     LatLng:MapPosition;
     map:Map;
     Marker:MapMarker;
     places:{
-        PlacesService:google.maps.places.PlacesService;
-        SearchBox:google.maps.places.SearchBox;
+        PlacesService:MapPlacesServices;
+        SearchBox:SearchBox;
     }
 }
 export type PlaceResult = google.maps.places.PlaceResult
+export type MapTextSearchRequest = google.maps.places.TextSearchRequest
 // / endregion
 export type Marker = {
     data:object;
@@ -46,58 +51,101 @@ export type Position = {
     latitude:number;
     longitude:number;
 }
-// TODO
 export type SearchOptions = {
-    generic: {
-        number: [2, 5],
-        maximalDistanceInMeter: 1000000,
-        filter: (place:PlaceResult):boolean =>
-            /(?:^| )(?:Deutschland|Germany)( |$)/i.test(
-                place.formatted_address
-            ),
-        prefer: true,
-        retrieveOptions: {radius: '50000'}
+    generic:{
+        filter:(place:PlaceResult) => boolean;
+        number:Array<number>;
+        maximalDistanceInMeter:number;
+        prefer:boolean;
+        retrieveOptions:MapTextSearchRequest;
     },
-    properties: [
-        'eMailAddress', 'eMail', 'email',
-        'formattedAddress', 'formatted_address', 'address',
-        'name',
-        'street', 'streetAndStreetnumber',
-        'zip', 'zipCode', 'postalCode'
-    ],
-    maximumNumberOfResults: 50,
-    loadingContent: this._options.infoWindow.loadingContent,
-    noResultsContent:
-        '<div class="no-results">No results found</div>',
-    resultAggregation: 'cut',
-    stylePropertiesToDeriveFromInputField: [
-        'left',
-        'right',
-        'top',
-        'backgroundColor',
-        'maxWidth',
-        'minWidth',
-        'position',
-        'paddingBottom',
-        'paddingLeft',
-        'paddingRight',
-        'paddingTop',
-        'width'
-    ],
-    normalizer: (value:string):string =>
-        `${value}`
-            .toLowerCase()
-            .replace(/[-_]+/g, '')
-            .replace(/ß/g, 'ss')
-            .replace(/(^| )str\./g, '$1strasse')
-            .replace(/[& ]+/g, ' ')
+    loadingContent:string;
+    maximumNumberOfResults:number;
+    noResultsContent:string;
+    normalizer:(value:string) => string;
+    properties:Array<string>;
+    resultAggregation:'cut'|'union';
+    stylePropertiesToDeriveFromInputField:Array<string>;
 }
-export type Item = {
+export type Item = Mapping<any> & {
     data:object;
     foundWords:Array<string>;
     highlight:(event:object, type:string) => void;
     open:(event:object) => void;
     position:MapPosition;
+}
+export type Options = BaseOptions & {
+    additionalStoreProperties:object;
+    applicationInterface:{
+        url:string;
+        callbackName?:Function|null;
+        key?:null|string;
+    };
+    defaultMarkerIconFileName?:null|string;
+    distanceToMoveByDuplicatedEntries:number;
+    fallbackLocation:Position;
+    iconPath:string;
+    infoWindow:{
+        additionalMoveToBottomInPixel:number;
+        content?:null|string;
+        loadingContent:string;
+    };
+    input:{
+        hide:PlainObject;
+        showAnimation:Array<PlainObject>;
+    };
+    ip:string;
+    ipToLocationApplicationInterface:{
+        bounds:{
+            northEast:Position;
+            southWest:Position;
+        };
+        key?:null|string;
+        protocol:string;
+        timeoutInMilliseconds:number;
+        url:string;
+    };
+    limit:{
+        northEast:Position;
+        southWest:Position;
+    };
+    map:MapOptions;
+    marker:{
+        cluster:{
+            gridSize:number;
+            imagePath:string;
+            maxZoom:number;
+        },
+        icon:{
+            scaledSize:{
+                height:number;
+                unit:string;
+                width:number
+            };
+            size:{
+                height:number;
+                unit:string;
+                width:number;
+            };
+        };
+    };
+    onInfoWindowOpen:Function;
+    onInfoWindowOpened:Function;
+    onAddSearchResults:Function;
+    onRemoveSearchResults:Function;
+    onOpenSearchResults:Function;
+    onCloseSearchResults:Function;
+    onMarkerHighlighted:Function;
+    searchOptions:number|SearchOptions;
+    showInputAfterLoadedDelayInMilliseconds:number;
+    startLocation?:null|Position;
+    stores:Array<Item>|string|{
+        generateProperties:(store:Item) => Item;
+        northEast:Position;
+        number:number;
+        southWest:Position;
+    };
+    successfulSearchZoom:number;
 }
 // endregion
 // region vim modline

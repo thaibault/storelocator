@@ -23,7 +23,18 @@ import {$DomNode, PlainObject} from 'clientnode/type'
 import MarkerClusterer from '@google/markerclustererplus'
 
 import {
-    Item, Map, Maps, PlaceResult, PlacesService, SearchOptions, Position
+    Item,
+    Map,
+    MapMarker,
+    MapPosition,
+    Maps,
+    Marker,
+    Options,
+    PlaceResult,
+    PlacesService,
+    SearchBox,
+    SearchOptions,
+    Position
 } from './type'
 // endregion
 // region plugins/classes
@@ -151,34 +162,36 @@ import {
  * been opened.
  * @property _options.infoWindow.loadingContent {string} - Content to show in
  * the info window during info window load.
- * @property _options.searchBox {number|Object} - If a number is given a
+ * @property _options.searchOptions {number|Object} - If a number is given a
  * generic search will be provided and given number will be interpret as search
  * result precision tolerance to identify a marker as search result.
- * @property _options.searchBox.stylePropertiesToDeriveFromInputField
+ * @property _options.searchOptions.stylePropertiesToDeriveFromInputField
  * {Array<string>} - List of cascading style properties to derive from input
  * field and use for search box.
- * @property _options.searchBox.properties {Object} - Specify which store data
+ * @property _options.searchOptions.properties {Object} - Specify which store data
  * should contain given search text.
- * @property _options.searchBox.maximumNumberOfResults {number} - Limits the
+ * @property _options.searchOptions.maximumNumberOfResults {number} - Limits the
  * auto complete result list.
- * @property _options.searchBox.loadingContent {string} - Markup to display
+ * @property _options.searchOptions.loadingContent {string} - Markup to display
  * while the results are loading.
- * @property _options.searchBox.generic {Object} - Specifies options for the
+ * @property _options.searchOptions.generic {Object} - Specifies options for the
  * additional generic search to add to specific search results.
- * @property _options.searchBox.generic.number {Array<number, number>} - A
+ * @property _options.searchOptions.generic.number {Array<number, number>} - A
  * tuple describing a range of minimal to maximal limits of additional generic
  * google suggestions depending on number of local search results.
- * @property _options.searchBox.generic.maximalDistanceInMeter {number} - Range
- * to specify maximal distance from current position to search suggestions.
- * @property _options.searchBox.generic.filter {Function} - Specifies a
+ * @property _options.searchOptions.generic.maximalDistanceInMeter {number} -
+ * Range to specify maximal distance from current position to search
+ * suggestions.
+ * @property _options.searchOptions.generic.filter {Function} - Specifies a
  * callback which gets a relevant place to decide if the place should be
  * included (returns a boolean value).
- * @property _options.searchBox.generic.prefer {boolean} - Specifies a boolean
- * value indicating if generic search results should be the first results.
- * @property _options.searchBox.generic.retrieveOptions {Object}- Specifies
+ * @property _options.searchOptions.generic.prefer {boolean} - Specifies a
+ * boolean value indicating if generic search results should be the first
+ * results.
+ * @property _options.searchOptions.generic.retrieveOptions {Object}- Specifies
  * how a generic place search should be done (google maps request object
  * specification).
- * @property _options.searchBox.content {Function|string} - Defines how to
+ * @property _options.searchOptions.content {Function|string} - Defines how to
  * render the search results. This can be a callback or a string returning or
  * representing the search results. If a function is given and a promise is
  * returned the info box will be filled with the given loading content and
@@ -187,8 +200,9 @@ import {
  * number of search results was reached and the store locator instance itself
  * as third argument. If nothing is provided all available data will be listed
  * in a generic info window.
- * @property _options.searchBox.resultAggregation {string} - "Union" or "cut".
- * @property _options.searchBox.normalizer {Function} - Pure function to
+ * @property _options.searchOptions.resultAggregation {string} - "Union" or
+ * "cut".
+ * @property _options.searchOptions.normalizer {Function} - Pure function to
  * normalize strings before searching against them.
  * @property _options.onInfoWindowOpen {Function} - Triggers if a marker info
  * window will be opened.
@@ -205,7 +219,7 @@ import {
  * @property _options.onMarkerHighlighted {Function} - Triggers after a marker
  * starts to highlight.
  */
-export class StoreLocator extends Tools {
+export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends Tools<TElement> {
     static applicationInterfaceLoad:Promise<$DomNode>
     static maps:Maps
 
@@ -227,12 +241,15 @@ export class StoreLocator extends Tools {
     searchResultsDirty:boolean = false
     searchResultsStyleProperties:PlainObject = {}
     seenLocations:Array<string> = []
+
+    _options:Options
     /**
      * Entry point for object orientated plugin.
      * @param options - Options to overwrite default ones.
      * @returns Currently selected dom node.
      */
-    initialize(options:object = {}):Promise<$DomNode> {
+    // TODO check migrate $DomNode to TElement migration.
+    initialize(options:object = {}):Promise<TElement> {
         // region properties
         this._options = {
             additionalStoreProperties: {},
@@ -260,13 +277,12 @@ export class StoreLocator extends Tools {
                     'latitude,longitude'
             },
             limit: {
-                bounds: {
-                    northEast: {latitude: 85, longitude: 180},
-                    southWest: {latitude: -85, longitude: -180}
-                },
-                zoom: {minimum: 1, maximum: 9999}
+                northEast: {latitude: 85, longitude: 180},
+                southWest: {latitude: -85, longitude: -180}
             },
             map: {
+                maxZoom: 0,
+                minZoom: 9999
                 zoom: 3,
                 disableDefaultUI: true,
                 zoomControl: true,
@@ -305,7 +321,7 @@ export class StoreLocator extends Tools {
                 content: null,
                 loadingContent: '<div class="idle">loading...</div>'
             },
-            searchBox: 50,
+            searchOptions: 50,
             onInfoWindowOpen: Tools.noop,
             onInfoWindowOpened: Tools.noop,
             onAddSearchResults: Tools.noop,
@@ -316,19 +332,28 @@ export class StoreLocator extends Tools {
         }
         // endregion
         // Merges given options with default options recursively.
-        // TODO new "isOpen" method in places result is maybe interesting.
         super.initialize(options)
         this.defaultSearchOptions = {
             generic: {
-                number: [2, 5],
-                maximalDistanceInMeter: 1000000,
                 filter: (place:PlaceResult):boolean =>
                     /(?:^| )(?:Deutschland|Germany)( |$)/i.test(
                         place.formatted_address
                     ),
+                maximalDistanceInMeter: 1000000,
+                number: [2, 5],
                 prefer: true,
                 retrieveOptions: {radius: '50000'}
             },
+            loadingContent: this._options.infoWindow.loadingContent,
+            maximumNumberOfResults: 50,
+            noResultsContent: '<div class="no-results">No results found</div>',
+            normalizer: (value:string):string =>
+                `${value}`
+                    .toLowerCase()
+                    .replace(/[-_]+/g, '')
+                    .replace(/ß/g, 'ss')
+                    .replace(/(^| )str\./g, '$1strasse')
+                    .replace(/[& ]+/g, ' '),
             properties: [
                 'eMailAddress', 'eMail', 'email',
                 'formattedAddress', 'formatted_address', 'address',
@@ -336,16 +361,10 @@ export class StoreLocator extends Tools {
                 'street', 'streetAndStreetnumber',
                 'zip', 'zipCode', 'postalCode'
             ],
-            maximumNumberOfResults: 50,
-            loadingContent: this._options.infoWindow.loadingContent,
-            noResultsContent:
-                '<div class="no-results">No results found</div>',
             resultAggregation: 'cut',
             stylePropertiesToDeriveFromInputField: [
-                'left',
-                'right',
-                'top',
                 'backgroundColor',
+                'left',
                 'maxWidth',
                 'minWidth',
                 'position',
@@ -353,15 +372,10 @@ export class StoreLocator extends Tools {
                 'paddingLeft',
                 'paddingRight',
                 'paddingTop',
+                'right',
+                'top',
                 'width'
-            ],
-            normalizer: (value:string):string =>
-                `${value}`
-                    .toLowerCase()
-                    .replace(/[-_]+/g, '')
-                    .replace(/ß/g, 'ss')
-                    .replace(/(^| )str\./g, '$1strasse')
-                    .replace(/[& ]+/g, ' ')
+            ]
         }
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
@@ -386,10 +400,9 @@ export class StoreLocator extends Tools {
                 applicationInterfaceLoadCallbacks.reject = reject
             })
         }
-        const result:Promise<$DomNode> =
-            StoreLocator.applicationInterfaceLoad
-                .then(this.bootstrap.bind(this))
-                .then(():StoreLocator => this.fireEvent('loaded'))
+        const result:Promise<$DomNode> = StoreLocator.applicationInterfaceLoad
+            .then(this.bootstrap.bind(this))
+            .then(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
             StoreLocator.maps = $.global.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
@@ -435,8 +448,8 @@ export class StoreLocator extends Tools {
             return this.initializeMap()
         this._options.startLocation = this._options.fallbackLocation
         if ([null, undefined].includes(
-            this._options.ipToLocationApplicationInterface.key)
-        )
+            this._options.ipToLocationApplicationInterface.key
+        ))
             return this.initializeMap()
         /*
             NOTE: If request is slower than the timeout parameter for jsonp
@@ -525,22 +538,23 @@ export class StoreLocator extends Tools {
             $('<div>').appendTo(this.$domNode.css('display', 'block'))[0],
             this._options.map
         )
-        if (this._options.limit.bounds)
+        if (this._options.limit)
             StoreLocator.maps.event.addListener(
                 this.map,
                 'dragend',
                 ():void => {
-                    const limitBounds:Object =
+                    const limitBounds: =
                         new StoreLocator.maps.LatLngBounds(
                             new StoreLocator.maps.LatLng(
-                                this._options.limit.bounds.southWest.latitude,
-                                this._options.limit.bounds.southWest.longitude
+                                this._options.limit.southWest.latitude,
+                                this._options.limit.southWest.longitude
                             ),
                             new StoreLocator.maps.LatLng(
-                                this._options.limit.bounds.northEast.latitude,
-                                this._options.limit.bounds.northEast.longitude
-                            ))
-                    const currentCenter:Object = this.map.getCenter()
+                                this._options.limit.northEast.latitude,
+                                this._options.limit.northEast.longitude
+                            )
+                        )
+                    const currentCenter:MapPosition = this.map.getCenter()
                     if (!limitBounds.contains(currentCenter)) {
                         const newCenter:Position = {
                             latitude: currentCenter.lat(),
@@ -575,23 +589,12 @@ export class StoreLocator extends Tools {
                         ))
                     }
                 })
-        if (this._options.limit.zoom)
-            StoreLocator.maps.event.addListener(
-                this.map, 'zoom_changed', ():void => {
-                    if (this.map.getZoom() < this._options.limit.zoom.minimum)
-                        this.map.setZoom(this._options.limit.zoom.minimum)
-                    else if (
-                        this.map.getZoom() > this._options.limit.zoom.maximum
-                    )
-                        this.map.setZoom(this._options.limit.zoom.maximum)
-                }
-            )
         if (this._options.marker.cluster) {
             this.markerClusterer = new MarkerClusterer(
                 this.map, [], this._options.marker.cluster
             )
             this.resetMarkerCluster = ():void => {
-                const markers:Array<Object> = []
+                const markers:Array<MapMarker> = []
                 for (const marker of this.markers) {
                     marker.nativeMarker.setMap(null)
                     delete marker.nativeMarker
@@ -608,69 +611,75 @@ export class StoreLocator extends Tools {
             }
         }
         // Add a marker for each retrieved store.
-        const $addMarkerDeferred:$Deferred<Array<Object>> = $.Deferred()
-        if (Array.isArray(this._options.stores))
-            for (const store:Object of this._options.stores) {
-                Tools.extend(
-                    true, store, this._options.additionalStoreProperties
-                )
-                const marker:Object = this.createMarker(store)
-                if (this.markerClusterer)
-                    this.markerClusterer.addMarker(marker)
-                $addMarkerDeferred.resolve(this.markers)
-            }
-        else if (typeof this._options.stores === 'string')
-            $.getJSON(this._options.stores, (stores:Array<Object>):void => {
-                for (const store:Object of stores) {
+        const addMarkerPromise:Promise<Array<Marker>> = new Promise((
+            resolve:Function, reject:Function
+        ):void => {
+            if (Array.isArray(this._options.stores))
+                for (const store of this._options.stores) {
                     Tools.extend(
                         true, store, this._options.additionalStoreProperties
                     )
-                    const marker:Object = this.createMarker(store)
+                    const marker:MapMarker = this.createMarker(store)
                     if (this.markerClusterer)
                         this.markerClusterer.addMarker(marker)
                 }
-                $addMarkerDeferred.resolve(this.markers)
-            })
-        else {
-            const southWest:Object = new StoreLocator.maps.LatLng(
-                this._options.stores.southWest.latitude,
-                this._options.stores.southWest.longitude
-            )
-            const northEast:Object = new StoreLocator.maps.LatLng(
-                this._options.stores.northEast.latitude,
-                this._options.stores.northEast.longitude
-            )
-            for (
-                let index:number = 0;
-                index < this._options.stores.number;
-                index++
-            ) {
-                const store:Object = Tools.extend(
-                    {
-                        latitude:
-                            southWest.lat() +
-                            (northEast.lat() - southWest.lat()) *
-                            Math.random(),
-                        longitude:
-                            southWest.lng() +
-                            (northEast.lng() - southWest.lng()) *
-                            Math.random()
-                    },
-                    this._options.additionalStoreProperties
+            else if (typeof this._options.stores === 'string')
+                $.getJSON(this._options.stores, (stores:Array<Item>):void => {
+                    for (const store of stores) {
+                        Tools.extend(
+                            true,
+                            store,
+                            this._options.additionalStoreProperties
+                        )
+                        const marker:MapMarker = this.createMarker(store)
+                        if (this.markerClusterer)
+                            this.markerClusterer.addMarker(marker)
+                    }
+                })
+            else {
+                const southWest:Object = new StoreLocator.maps.LatLng(
+                    this._options.stores.southWest.latitude,
+                    this._options.stores.southWest.longitude
                 )
-                const marker:Object = this.createMarker(Tools.extend(
-                    store, this._options.stores.generateProperties(store)
-                ))
-                if (this.markerClusterer)
-                    this.markerClusterer.addMarker(marker)
+                const northEast:Object = new StoreLocator.maps.LatLng(
+                    this._options.stores.northEast.latitude,
+                    this._options.stores.northEast.longitude
+                )
+                for (
+                    let index:number = 0;
+                    index < this._options.stores.number;
+                    index++
+                ) {
+                    const store:Position = Tools.extend(
+                        {
+                            latitude:
+                                southWest.lat() +
+                                (northEast.lat() - southWest.lat()) *
+                                Math.random(),
+                            longitude:
+                                southWest.lng() +
+                                (northEast.lng() - southWest.lng()) *
+                                Math.random()
+                        },
+                        this._options.additionalStoreProperties
+                    )
+                    Tools.extend(
+                        true,
+                        store,
+                        this._options.stores.generateProperties(store)
+                    )
+                    const marker:MapMarker = this.createMarker()
+                    if (this.markerClusterer)
+                        this.markerClusterer.addMarker(marker)
+                }
             }
-            $addMarkerDeferred.resolve(this.markers)
-        }
+            resolve(this.markers)
+        })
         // Create the search box and link it to the UI element.
         this.map.controls[StoreLocator.maps.ControlPosition.TOP_LEFT].push(
             this.$domNode.find('input')[0]
         )
-        if (typeof this._options.searchBox === 'number')
+        if (typeof this._options.searchOptions === 'number')
             this.initializeGenericSearch()
         else {
             StoreLocator.maps.event.addListener(
@@ -681,8 +690,8 @@ export class StoreLocator extends Tools {
                 'dragstart',
                 ():StoreLocator => this.closeSearchResults()
             )
-            this._options.searchBox = Tools.extend(
-                true, this.defaultSearchOptions, this._options.searchBox
+            this._options.searchOptions = Tools.extend(
+                true, this.defaultSearchOptions, this._options.searchOptions
             )
             this.initializeDataSourceSearch()
         }
@@ -702,16 +711,16 @@ export class StoreLocator extends Tools {
                 }
             }
         )
-        const $mapLoadedDeferred:$Deferred<$DomNode> = $.Deferred()
-        StoreLocator.maps.event.addListenerOnce(
-            this.map,
-            'idle',
-            ():$Deferred<Array<Object>> =>
-                $addMarkerDeferred.then(():$Deferred<$DomNode> =>
-                    $mapLoadedDeferred.resolve(this.$domNode)
-                )
+        return new Promise((resolve:Function, reject:Function):void =>
+            StoreLocator.maps.event.addListenerOnce(
+                this.map,
+                'idle',
+                async ():Promise<void> => {
+                    await addMarkerPromise
+                    resolve(this.$domNode)
+                }
+            )
         )
-        return $mapLoadedDeferred
     }
     /**
      * Position search results right below the search input field.
@@ -723,7 +732,8 @@ export class StoreLocator extends Tools {
         const allStyleProperties:PlainObject = $inputDomNode.Tools('style')
         for (const propertyName:string in allStyleProperties)
             if (
-                this._options.searchBox.stylePropertiesToDeriveFromInputField
+                this._options.searchOptions
+                    .stylePropertiesToDeriveFromInputField
                     .includes(propertyName)
             )
                 this.searchResultsStyleProperties[propertyName] =
@@ -867,7 +877,7 @@ export class StoreLocator extends Tools {
                 )
                     return
             await this.acquireLock(`${StoreLocator._name}Search`)
-            const searchText:string = this._options.searchBox.normalizer(
+            const searchText:string = this._options.searchOptions.normalizer(
                 this.$domNode.find('input').val()
             )
             if (
@@ -894,7 +904,7 @@ export class StoreLocator extends Tools {
             }
             this.openSearchResults()
             const loadingDomNode:$DomNode =
-                 $(this._options.searchBox.loadingContent)
+                 $(this._options.searchOptions.loadingContent)
             if (
                 this.resultsDomNode &&
                 this.fireEvent(
@@ -922,7 +932,7 @@ export class StoreLocator extends Tools {
             this.currentSearchSegments = this.currentSearchWords
             if (!this.currentSearchSegments.includes(searchText))
                 this.currentSearchSegments.push(searchText)
-            if (this._options.searchBox.generic.number)
+            if (this._options.searchOptions.generic.number)
                 /*
                     NOTE: Google searches for more items than exists in the
                     specified radius. However the radius is a string in the
@@ -931,7 +941,7 @@ export class StoreLocator extends Tools {
                 placesService.textSearch(
                     Tools.extend(
                         {query: searchText, location: this.map.getCenter()},
-                        this._options.searchBox.generic.retrieveOptions
+                        this._options.searchOptions.generic.retrieveOptions
                     ),
                     (places:Array<PlaceResult>):void => {
                         if (places)
@@ -977,10 +987,10 @@ export class StoreLocator extends Tools {
                 )
             if (
                 distance >
-                this._options.searchBox.generic.maximalDistanceInMeter
+                this._options.searchOptions.generic.maximalDistanceInMeter
             )
                 break
-            if (this._options.searchBox.generic.filter(place)) {
+            if (this._options.searchOptions.generic.filter(place)) {
                 const result:Item = {
                     data: Tools.extend(
                         place,
@@ -1006,7 +1016,7 @@ export class StoreLocator extends Tools {
                     position: place.geometry.location
                 }
                 searchResults.push(result)
-                if (this._options.searchBox.generic.number[1] < index)
+                if (this._options.searchOptions.generic.number[1] < index)
                     break
             }
         }
@@ -1023,8 +1033,8 @@ export class StoreLocator extends Tools {
     ):StoreLocator {
         const numberOfGenericSearchResults:number = searchResults.length
         const defaultProperties:?Array<string> =
-            this._options.searchBox.hasOwnProperty('properties') &&
-                this._options.searchBox.properties
+            this._options.searchOptions.hasOwnProperty('properties') &&
+                this._options.searchOptions.properties
         for (const marker:Object of this.markers) {
             const properties:Array<string> =
                 defaultProperties ? defaultProperties : Object.keys(
@@ -1035,7 +1045,7 @@ export class StoreLocator extends Tools {
                     if (
                         !marker.foundWords.includes(searchWord) &&
                         (marker.data[key] || marker.data[key] === 0) &&
-                        this._options.searchBox.normalizer(
+                        this._options.searchOptions.normalizer(
                             marker.data[key]
                         ).includes(searchWord)
                     ) {
@@ -1048,15 +1058,16 @@ export class StoreLocator extends Tools {
                             ):StoreLocator => this.highlightMarker(
                                 marker, event, type)
                             if (
-                                this._options.searchBox.resultAggregation ===
-                                    'union'
+                                this._options.searchOptions
+                                    .resultAggregation === 'union'
                             )
                                 searchResults.push(marker)
                         }
                         if (
                             marker.foundWords.length >=
                                 this.currentSearchWords.length &&
-                            this._options.searchBox.resultAggregation === 'cut'
+                            this._options.searchOptions.resultAggregation ===
+                                'cut'
                         )
                             searchResults.push(marker)
                     }
@@ -1066,22 +1077,24 @@ export class StoreLocator extends Tools {
             results.
         */
         if (
-            this._options.searchBox.generic.number &&
+            this._options.searchOptions.generic.number &&
             searchResults.length &&
             numberOfGenericSearchResults >
-                this._options.searchBox.generic.number[0] &&
-            searchResults.length > this._options.searchBox.generic.number[1]
+                this._options.searchOptions.generic.number[0] &&
+            searchResults.length >
+                this._options.searchOptions.generic.number[1]
         )
             searchResults.splice(
-                this._options.searchBox.generic.number[0],
+                this._options.searchOptions.generic.number[0],
                 numberOfGenericSearchResults -
-                    this._options.searchBox.generic.number[0])
+                    this._options.searchOptions.generic.number[0]
+            )
         /*
             Sort results by current map center form nearer to more fare away
             results.
         */
         searchResults.sort((first:Object, second:Object):number => {
-            if (this._options.searchBox.generic.prefer)
+            if (this._options.searchOptions.generic.prefer)
                 if (!first.infoWindow && second.infoWindow)
                     return -1
                 else if (!second.infoWindow && first.infoWindow)
@@ -1100,12 +1113,12 @@ export class StoreLocator extends Tools {
         // Slice additional unneeded local search results.
         let limitReached:boolean = false
         if (
-            this._options.searchBox.maximumNumberOfResults <
+            this._options.searchOptions.maximumNumberOfResults <
             searchResults.length
         ) {
             limitReached = true
             searchResults.splice(
-                this._options.searchBox.maximumNumberOfResults,
+                this._options.searchOptions.maximumNumberOfResults,
                 searchResults.length
             )
         }
@@ -1223,7 +1236,7 @@ export class StoreLocator extends Tools {
      * @returns The current instance.
      */
     initializeGenericSearch():StoreLocator {
-        const searchBox:Object = new StoreLocator.maps.places.SearchBox(
+        const searchBox:SearchBox = new StoreLocator.maps.places.SearchBox(
             this.$domNode.find('input')[0]
         )
         /*
@@ -1264,7 +1277,8 @@ export class StoreLocator extends Tools {
                         }
                         if (
                             matchingMarker &&
-                            shortestDistanceInMeter <= this._options.searchBox
+                            shortestDistanceInMeter <=
+                                this._options.searchOptions
                         ) {
                             if (this._options.successfulSearchZoom)
                                 this.map.setZoom(
@@ -1373,7 +1387,7 @@ export class StoreLocator extends Tools {
      * @param store - Store object to create a marker for.
      * @returns The created marker.
      */
-    createMarker(store:Object):Object {
+    createMarker(store:Item):MapMarker {
         let index:number = 0
         while (this.seenLocations.includes(
             `${store.latitude}-${store.longitude}`
@@ -1608,12 +1622,12 @@ export class StoreLocator extends Tools {
     makeSearchResults(
         searchResults:Array<Object>, limitReached:boolean
     ):$Deferred<any>|string {
-        if ('content' in this._options.searchBox) {
-            if (Tools.isFunction(this._options.searchBox.content))
-                return this._options.searchBox.content.call(
+        if ('content' in this._options.searchOptions) {
+            if (Tools.isFunction(this._options.searchOptions.content))
+                return this._options.searchOptions.content.call(
                     this, searchResults, limitReached
                 )
-            return this._options.searchBox.content
+            return this._options.searchOptions.content
         }
         if (searchResults.length) {
             let content:string = ''
@@ -1623,8 +1637,8 @@ export class StoreLocator extends Tools {
                     if (
                         result.data.hasOwnProperty(name) &&
                         (
-                            this._options.searchBox.properties.length === 0 ||
-                            this._options.searchBox.properties.includes(name)
+                            this._options.searchOptions.properties.length === 0 ||
+                            this._options.searchOptions.properties.includes(name)
                         )
                     )
                         content +=
@@ -1633,14 +1647,14 @@ export class StoreLocator extends Tools {
                                 `${result.data[name]}`,
                                 this.currentSearchWords,
                                 '<span class="tools-mark">{1}</span>',
-                                this._options.searchBox.normalizer
+                                this._options.searchOptions.normalizer
                             ) +
                             '<br />'
                 content += '</div>'
             }
             return content
         }
-        return this._options.searchBox.noResultsContent
+        return this._options.searchOptions.noResultsContent
     }
 }
 export default StoreLocator
