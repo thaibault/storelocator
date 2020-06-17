@@ -17,11 +17,14 @@
     endregion
 */
 // region imports
+import JQuery from 'jquery'
 import {Tools, $} from 'clientnode'
 import {$DomNode, PlainObject} from 'clientnode/type'
 import MarkerClusterer from '@google/markerclustererplus'
 
-import {Item, Map, PlaceResult, Position} from './type'
+import {
+    Item, Map, Maps, PlaceResult, PlacesService, SearchOptions, Position
+} from './type'
 // endregion
 // region plugins/classes
 /**
@@ -29,7 +32,7 @@ import {Item, Map, PlaceResult, Position} from './type'
  * {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}.
  * @property static:applicationInterfaceLoad - Holds the currently promise to
  * retrieve a new maps application interface.
- * @property static:google - Holds the currently used google scope.
+ * @property static:maps - Holds the currently used maps scope.
  *
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
@@ -46,7 +49,7 @@ import {Item, Map, PlaceResult, Position} from './type'
  * @property currentSearchSegments - Saves last searched segments.
  * @property currentSearchText - Saves last searched string.
  * @property currentSearchWords - Saves last searched words.
- * @property defaultSearchBoxOptions - Sets default search box options.
+ * @property defaultSearchOptions - Sets default search box options.
  * @property map - Holds the currently used map instance.
  * @property markerClusterer - Holds the currently used marker cluster instance.
  * @property markers - Saves all recognized markers.
@@ -204,7 +207,7 @@ import {Item, Map, PlaceResult, Position} from './type'
  */
 export class StoreLocator extends Tools {
     static applicationInterfaceLoad:Promise<$DomNode>
-    static google:object
+    static maps:Maps
 
     static _name:string = 'StoreLocator'
 
@@ -216,7 +219,7 @@ export class StoreLocator extends Tools {
     currentSearchSegments:Array<string> = []
     currentSearchText:string|null = null
     currentSearchWords:Array<string> = []
-    defaultSearchBoxOptions:
+    defaultSearchOptions:SearchOptions
     map:Map
     markerClusterer:MarkerClusterer|null = null
     markers:Array<Marker> = []
@@ -315,7 +318,7 @@ export class StoreLocator extends Tools {
         // Merges given options with default options recursively.
         // TODO new "isOpen" method in places result is maybe interesting.
         super.initialize(options)
-        this.defaultSearchBoxOptions = {
+        this.defaultSearchOptions = {
             generic: {
                 number: [2, 5],
                 maximalDistanceInMeter: 1000000,
@@ -388,22 +391,21 @@ export class StoreLocator extends Tools {
                 .then(this.bootstrap.bind(this))
                 .then(():StoreLocator => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
-            StoreLocator.google = $.global.google
+            StoreLocator.maps = $.global.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
                 Tools.timeout(():void =>
                     applicationInterfaceLoadCallbacks.resolve(this.$domNode)
                 )
         } else if (!loadInitialized) {
-            let callbackName:string
-            if (this._options.applicationInterface.callbackName)
-                callbackName = this._options.applicationInterface.callbackName
-            else
-                callbackName = this.constructor.determineUniqueScopeName()
+            const callbackName:string =
+                this._options.applicationInterface.callbackName ?
+                    this._options.applicationInterface.callbackName :
+                    StoreLocator.determineUniqueScopeName()
             $.global[callbackName] = ():void => {
-                this.constructor.google = $.global.google
+                StoreLocator.maps = $.global.google.maps
                 applicationInterfaceLoadCallbacks.resolve(this.$domNode)
             }
-            $.getScript(this.constructor.stringFormat(
+            $.getScript(Tools.stringFormat(
                 this._options.applicationInterface.url,
                 this._options.applicationInterface.key ?
                     `key=${this._options.applicationInterface.key}&` :
@@ -413,9 +415,9 @@ export class StoreLocator extends Tools {
                 .done(applicationInterfaceLoadCallbacks.resolve.bind(
                     this, this.$domNode
                 ))
-                .fail((response:, error:Error):void =>
-                    applicationInterfaceLoadCallbacks.reject(error)
-                )
+                .fail((
+                    response:JQuery.jqXHR<string|undefined>, error:Error
+                ):void => applicationInterfaceLoadCallbacks.reject(error))
         }
         return result
     }
@@ -442,92 +444,99 @@ export class StoreLocator extends Tools {
             occurs. That's why we use our own timeout implementation.
         */
         let loaded:boolean = false
-        // TODO state
-        const $deferred:$Deferred<$DomNode> = $.Deferred()
-        const fallbackTimeout:Promise<boolean> = this.constructor.timeout(
-            ():void => {
-                loaded = true
-                this.initializeMap().then(():$Deferred<$DomNode> =>
-                    $deferred.resolve(this.$domNode))
-            },
-            this._options
-                .ipToLocationApplicationInterface
-                .timeoutInMilliseconds
-        )
-        $.ajax({
-            cache: true,
-            dataType: 'jsonp',
-            url: this.constructor.stringFormat(
-                this._options.ipToLocationApplicationInterface.url,
-                (
-                    this._options.ipToLocationApplicationInterface.protocol ===
-                        'inherit'
-                ) ?
-                    $.global.location.protocol.substring(
-                        0, $.global.location.protocol.length - 1
-                    ) :
-                    this._options.ipToLocationApplicationInterface.protocol,
-                this._options.ipToLocationApplicationInterface.key,
-                this._options.ip || ''
+        return new Promise((resolve:Function, reject:Function):void => {
+            const fallbackTimeout:Promise<boolean> = Tools.timeout(
+                async ():Promise<void> => {
+                    loaded = true
+                    await this.initializeMap()
+                    resolve(this.$domNode)
+                },
+                this._options
+                    .ipToLocationApplicationInterface
+                    .timeoutInMilliseconds
             )
-        }).always((currentLocation:Position, textStatus:string):void => {
-            if (!loaded) {
-                fallbackTimeout.clear()
-                loaded = true
-                if (textStatus === 'success')
-                    // Check if determined location is within defined bounds.
-                    if (
-                        !this._options
-                            .ipToLocationApplicationInterface.bounds ||
+            $.ajax({
+                cache: true,
+                dataType: 'jsonp',
+                url: Tools.stringFormat(
+                    this._options.ipToLocationApplicationInterface.url,
+                    this._options.ipToLocationApplicationInterface.protocol ===
+                        'inherit' ?
+                            $.global.location.protocol.substring(
+                                0, $.global.location.protocol.length - 1
+                            ) :
+                            this._options.ipToLocationApplicationInterface
+                                .protocol,
+                    this._options.ipToLocationApplicationInterface.key,
+                    this._options.ip || ''
+                )
+            }).always(async (
+                currentLocation:Position, textStatus:string
+            ):Promise<void> => {
+                if (!loaded) {
+                    fallbackTimeout.clear()
+                    loaded = true
+                    if (textStatus === 'success')
+                        // Check if determined location is within defined bounds.
+                        if (
+                            !this._options
+                                .ipToLocationApplicationInterface.bounds ||
                             (
-                                new this.constructor.google.maps.LatLngBounds(
-                                    new this.constructor.google.maps.LatLng(
+                                new StoreLocator.maps.LatLngBounds(
+                                    new StoreLocator.maps.LatLng(
                                         this._options
                                             .ipToLocationApplicationInterface
                                             .bounds.southWest.latitude,
                                         this._options
                                             .ipToLocationApplicationInterface
-                                            .bounds.southWest.longitude),
-                                    new this.constructor.google.maps.LatLng(
+                                            .bounds.southWest.longitude
+                                    ),
+                                    new StoreLocator.maps.LatLng(
                                         this._options
                                             .ipToLocationApplicationInterface
                                             .bounds.northEast.latitude,
                                         this._options
                                             .ipToLocationApplicationInterface
-                                            .bounds.northEast.longitude))
-                            ).contains(new this.constructor.google.maps.LatLng(
+                                            .bounds.northEast.longitude
+                                    )
+                                )
+                            ).contains(new StoreLocator.maps.LatLng(
                                 currentLocation.latitude,
                                 currentLocation.longitude
                             ))
-                    )
-                        this._options.startLocation = currentLocation
-                this.initializeMap().then(():$Deferred<$DomNode> =>
-                    $deferred.resolve(this.$domNode))
-            }
+                        )
+                            this._options.startLocation = currentLocation
+                    await this.initializeMap()
+                    resolve(this.$domNode)
+                }
+            })
         })
-        return $deferred
     }
     /**
      * Initializes cluster, info windows and marker.
      * @returns The current instance.
      */
-    initializeMap():$Deferred<$DomNode> {
-        this._options.map.center = new this.constructor.google.maps.LatLng(
+    initializeMap():Promise<$DomNode> {
+        this._options.map.center = new StoreLocator.maps.LatLng(
             this._options.startLocation.latitude,
-            this._options.startLocation.longitude)
-        this.map = new this.constructor.google.maps.Map($('<div>').appendTo(regionendregion
-            this.$domNode.css('display', 'block')
-        )[0], this._options.map)
+            this._options.startLocation.longitude
+        )
+        this.map = new StoreLocator.maps.Map(
+            $('<div>').appendTo(this.$domNode.css('display', 'block'))[0],
+            this._options.map
+        )
         if (this._options.limit.bounds)
-            this.constructor.google.maps.event.addListener(
-                this.map, 'dragend', ():void => {
+            StoreLocator.maps.event.addListener(
+                this.map,
+                'dragend',
+                ():void => {
                     const limitBounds:Object =
-                        new this.constructor.google.maps.LatLngBounds(
-                            new this.constructor.google.maps.LatLng(
+                        new StoreLocator.maps.LatLngBounds(
+                            new StoreLocator.maps.LatLng(
                                 this._options.limit.bounds.southWest.latitude,
                                 this._options.limit.bounds.southWest.longitude
                             ),
-                            new this.constructor.google.maps.LatLng(
+                            new StoreLocator.maps.LatLng(
                                 this._options.limit.bounds.northEast.latitude,
                                 this._options.limit.bounds.northEast.longitude
                             ))
@@ -537,52 +546,64 @@ export class StoreLocator extends Tools {
                             latitude: currentCenter.lat(),
                             longitude: currentCenter.lng()
                         }
-                        if (currentCenter.lng() < limitBounds.getSouthWest(
-                        ).lng())
-                            newCenter.longitude = limitBounds.getSouthWest(
-                            ).lng()
-                        if (currentCenter.lng() > limitBounds.getNorthEast(
-                        ).lng())
-                            newCenter.longitude = limitBounds.getNorthEast(
-                            ).lng()
-                        if (currentCenter.lat() < limitBounds.getSouthWest(
-                        ).lat())
-                            newCenter.latitude = limitBounds.getSouthWest(
-                            ).lat()
-                        if (currentCenter.lat() > limitBounds.getNorthEast(
-                        ).lat())
-                            newCenter.latitude = limitBounds.getNorthEast(
-                            ).lat()
-                        this.map.panTo(new this.constructor.google.maps.LatLng(
-                            newCenter.latitude, newCenter.longitude))
+                        if (
+                            currentCenter.lng() <
+                                limitBounds.getSouthWest().lng()
+                        )
+                            newCenter.longitude =
+                                limitBounds.getSouthWest().lng()
+                        if (
+                            currentCenter.lng() >
+                                limitBounds.getNorthEast().lng()
+                        )
+                            newCenter.longitude =
+                                limitBounds.getNorthEast().lng()
+                        if (
+                            currentCenter.lat() <
+                                limitBounds.getSouthWest().lat()
+                        )
+                            newCenter.latitude =
+                                limitBounds.getSouthWest().lat()
+                        if (
+                            currentCenter.lat() >
+                                limitBounds.getNorthEast().lat()
+                        )
+                            newCenter.latitude =
+                                limitBounds.getNorthEast().lat()
+                        this.map.panTo(new StoreLocator.maps.LatLng(
+                            newCenter.latitude, newCenter.longitude
+                        ))
                     }
                 })
         if (this._options.limit.zoom)
-            this.constructor.google.maps.event.addListener(
+            StoreLocator.maps.event.addListener(
                 this.map, 'zoom_changed', ():void => {
                     if (this.map.getZoom() < this._options.limit.zoom.minimum)
                         this.map.setZoom(this._options.limit.zoom.minimum)
-                    else if (this.map.getZoom(
-                    ) > this._options.limit.zoom.maximum)
+                    else if (
+                        this.map.getZoom() > this._options.limit.zoom.maximum
+                    )
                         this.map.setZoom(this._options.limit.zoom.maximum)
-                })
+                }
+            )
         if (this._options.marker.cluster) {
             this.markerClusterer = new MarkerClusterer(
-                this.map, [], this._options.marker.cluster)
+                this.map, [], this._options.marker.cluster
+            )
             this.resetMarkerCluster = ():void => {
                 const markers:Array<Object> = []
                 for (const marker of this.markers) {
                     marker.nativeMarker.setMap(null)
                     delete marker.nativeMarker
-                    marker.nativeMarker =
-                        new this.constructor.google.maps.Marker(marker)
+                    marker.nativeMarker = new StoreLocator.maps.Marker(marker)
                     this.attachMarkerEventListener(marker)
                     markers.push(marker.nativeMarker)
                 }
                 if (this.markerClusterer) {
                     this.markerClusterer.clearMarkers()
                     this.markerClusterer = new MarkerClusterer(
-                        this.map, markers, this._options.marker.cluster)
+                        this.map, markers, this._options.marker.cluster
+                    )
                 }
             }
         }
@@ -590,20 +611,20 @@ export class StoreLocator extends Tools {
         const $addMarkerDeferred:$Deferred<Array<Object>> = $.Deferred()
         if (Array.isArray(this._options.stores))
             for (const store:Object of this._options.stores) {
-                this.constructor.extend(
-                    true, store, this._options.additionalStoreProperties)
+                Tools.extend(
+                    true, store, this._options.additionalStoreProperties
+                )
                 const marker:Object = this.createMarker(store)
                 if (this.markerClusterer)
                     this.markerClusterer.addMarker(marker)
                 $addMarkerDeferred.resolve(this.markers)
             }
-        else if (this.constructor.determineType(
-            this._options.stores
-        ) === 'string')
+        else if (typeof this._options.stores === 'string')
             $.getJSON(this._options.stores, (stores:Array<Object>):void => {
                 for (const store:Object of stores) {
-                    this.constructor.extend(
-                        true, store, this._options.additionalStoreProperties)
+                    Tools.extend(
+                        true, store, this._options.additionalStoreProperties
+                    )
                     const marker:Object = this.createMarker(store)
                     if (this.markerClusterer)
                         this.markerClusterer.addMarker(marker)
@@ -611,17 +632,20 @@ export class StoreLocator extends Tools {
                 $addMarkerDeferred.resolve(this.markers)
             })
         else {
-            const southWest:Object = new this.constructor.google.maps.LatLng(
+            const southWest:Object = new StoreLocator.maps.LatLng(
                 this._options.stores.southWest.latitude,
-                this._options.stores.southWest.longitude)
-            const northEast:Object = new this.constructor.google.maps.LatLng(
+                this._options.stores.southWest.longitude
+            )
+            const northEast:Object = new StoreLocator.maps.LatLng(
                 this._options.stores.northEast.latitude,
-                this._options.stores.northEast.longitude)
+                this._options.stores.northEast.longitude
+            )
             for (
-                let index:number = 0; index < this._options.stores.number;
+                let index:number = 0;
+                index < this._options.stores.number;
                 index++
             ) {
-                const store:Object = this.constructor.extend(
+                const store:Object = Tools.extend(
                     {
                         latitude:
                             southWest.lat() +
@@ -634,35 +658,39 @@ export class StoreLocator extends Tools {
                     },
                     this._options.additionalStoreProperties
                 )
-                const marker:Object = this.createMarker(
-                    this.constructor.extend(
-                        store, this._options.stores.generateProperties(store)))
+                const marker:Object = this.createMarker(Tools.extend(
+                    store, this._options.stores.generateProperties(store)
+                ))
                 if (this.markerClusterer)
                     this.markerClusterer.addMarker(marker)
             }
             $addMarkerDeferred.resolve(this.markers)
         }
         // Create the search box and link it to the UI element.
-        this.map.controls[
-            this.constructor.google.maps.ControlPosition.TOP_LEFT
-        ].push(this.$domNode.find('input')[0])
-        if (this.constructor.determineType(
-            this._options.searchBox
-        ) === 'number')
-            this.initializeGenericSearchBox()
+        this.map.controls[StoreLocator.maps.ControlPosition.TOP_LEFT].push(
+            this.$domNode.find('input')[0]
+        )
+        if (typeof this._options.searchBox === 'number')
+            this.initializeGenericSearch()
         else {
-            this.constructor.google.maps.event.addListener(this.map, 'click', (
-            ):StoreLocator => this.closeSearchResults())
-            this.constructor.google.maps.event.addListener(
-                this.map, 'dragstart', ():StoreLocator =>
-                    this.closeSearchResults())
-            this._options.searchBox = this.constructor.extend(
-                true, this.defaultSearchBoxOptions, this._options.searchBox)
-            this.initializeDataSourceSearchBox()
+            StoreLocator.maps.event.addListener(
+                this.map, 'click', ():StoreLocator => this.closeSearchResults()
+            )
+            StoreLocator.maps.event.addListener(
+                this.map,
+                'dragstart',
+                ():StoreLocator => this.closeSearchResults()
+            )
+            this._options.searchBox = Tools.extend(
+                true, this.defaultSearchOptions, this._options.searchBox
+            )
+            this.initializeDataSourceSearch()
         }
         // Close marker if zoom level is bigger than the aggregation.
-        this.constructor.google.maps.event.addListener(
-            this.map, 'zoom_changed', ():void => {
+        StoreLocator.maps.event.addListener(
+            this.map,
+            'zoom_changed',
+            ():void => {
                 if (
                     typeof this.currentlyOpenWindow === 'object' &&
                     this.currentlyOpenWindow &&
@@ -672,11 +700,17 @@ export class StoreLocator extends Tools {
                     this.currentlyOpenWindow.isOpen = false
                     this.currentlyOpenWindow.close()
                 }
-            })
+            }
+        )
         const $mapLoadedDeferred:$Deferred<$DomNode> = $.Deferred()
-        this.constructor.google.maps.event.addListenerOnce(this.map, 'idle', (
-        ):$Deferred<Array<Object>> => $addMarkerDeferred.then((
-        ):$Deferred<$DomNode> => $mapLoadedDeferred.resolve(this.$domNode)))
+        StoreLocator.maps.event.addListenerOnce(
+            this.map,
+            'idle',
+            ():$Deferred<Array<Object>> =>
+                $addMarkerDeferred.then(():$Deferred<$DomNode> =>
+                    $mapLoadedDeferred.resolve(this.$domNode)
+                )
+        )
         return $mapLoadedDeferred
     }
     /**
@@ -694,14 +728,14 @@ export class StoreLocator extends Tools {
             )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
-        this.searchResultsStyleProperties.marginTop = this.$domNode.find(
-            'input'
-        ).outerHeight(true)
+        this.searchResultsStyleProperties.marginTop =
+            this.$domNode.find('input').outerHeight(true)
         // Prepare search result positioning.
-        this.resultsDomNode = $('<div>').addClass(
-            this.constructor.stringCamelCaseToDelimited(
-                `${this.constructor._name}SearchResults`)
-        ).css(this.searchResultsStyleProperties)
+        this.resultsDomNode = $('<div>')
+            .addClass(Tools.stringCamelCaseToDelimited(
+                `${StoreLocator._name}SearchResults`
+            ))
+            .css(this.searchResultsStyleProperties)
         // Inject the final search results into the dom tree.
         $inputDomNode.after(this.resultsDomNode)
         return this
@@ -711,7 +745,7 @@ export class StoreLocator extends Tools {
      * matching marker.
      * @returns The current instance.
      */
-    initializeDataSourceSearchBox():StoreLocator {
+    initializeDataSourceSearch():StoreLocator {
         this.on(this.$domNode, 'keydown', (event:Object):void => {
             /*
                 NOTE: Events that doesn't occurs in search context are handled
@@ -724,47 +758,61 @@ export class StoreLocator extends Tools {
                         Math.max(0, this.currentSearchResultRange[0]),
                         Math.min(
                             this.currentSearchResults.length - 1,
-                            this.currentSearchResultRange[1])]
+                            this.currentSearchResultRange[1]
+                        )
+                    ]
                 else
                     this.currentSearchResultRange = [
-                        0, this.currentSearchResults.length - 1]
+                        0, this.currentSearchResults.length - 1
+                    ]
                 let currentIndex:number = -1
                 if (this.currentlyHighlightedMarker)
                     currentIndex = this.currentSearchResults.indexOf(
-                        this.currentlyHighlightedMarker)
-                if (event.keyCode === this.constructor.keyCode.DOWN)
+                        this.currentlyHighlightedMarker
+                    )
+                if (event.keyCode === Tools.keyCode.DOWN)
                     if (
                         currentIndex === -1 ||
                         this.currentSearchResultRange[1] < currentIndex + 1
                     )
-                        this.highlightMarker(this.currentSearchResults[
-                            this.currentSearchResultRange[0]
-                        ], event)
+                        this.highlightMarker(
+                            this.currentSearchResults[
+                                this.currentSearchResultRange[0]
+                            ],
+                            event
+                        )
                     else
                         this.highlightMarker(
-                            this.currentSearchResults[currentIndex + 1], event)
-                else if (event.keyCode === this.constructor.keyCode.UP)
+                            this.currentSearchResults[currentIndex + 1], event
+                        )
+                else if (event.keyCode === Tools.keyCode.UP)
                     if ([this.currentSearchResultRange[0], -1].includes(
                         currentIndex
                     ))
-                        this.highlightMarker(this.currentSearchResults[
-                            this.currentSearchResultRange[1]
-                        ], event)
+                        this.highlightMarker(
+                            this.currentSearchResults[
+                                this.currentSearchResultRange[1]
+                            ],
+                            event
+                        )
                     else
                         this.highlightMarker(
-                            this.currentSearchResults[currentIndex - 1], event)
+                            this.currentSearchResults[currentIndex - 1], event
+                        )
                 else if (
-                    event.keyCode === this.constructor.keyCode.ENTER &&
+                    event.keyCode === Tools.keyCode.ENTER &&
                     this.currentlyHighlightedMarker
                 ) {
                     event.stopPropagation()
                     if (this.currentlyHighlightedMarker)
                         if (this.currentlyHighlightedMarker.infoWindow)
                             this.openMarker(
-                                this.currentlyHighlightedMarker, event)
+                                this.currentlyHighlightedMarker, event
+                            )
                         else
                             this.openPlace(
-                                this.currentlyHighlightedMarker.data, event)
+                                this.currentlyHighlightedMarker.data, event
+                            )
                 }
             }
         })
@@ -778,19 +826,19 @@ export class StoreLocator extends Tools {
                 this.openSearchResults()
         })
         this.on($inputDomNode, 'keydown', (event:Object):void => {
-            if (
-                this.constructor.keyCode.DOWN === event.keyCode &&
-                this.currentSearchText
-            )
+            if (Tools.keyCode.DOWN === event.keyCode && this.currentSearchText)
                 this.openSearchResults()
         })
         this.on($inputDomNode, 'keyup', this.updateSearchResultsHandler)
-        this.constructor.google.maps.event.addListener(
-            this.map, 'center_changed', ():void => {
+        StoreLocator.maps.event.addListener(
+            this.map,
+            'center_changed',
+            ():void => {
                 // NOTE: Search results depends on current position.
                 if (this.currentSearchText && this.resultsDomNode)
                     this.searchResultsDirty = true
-            })
+            }
+        )
         return this
     }
     /**
@@ -798,15 +846,13 @@ export class StoreLocator extends Tools {
      * @returns The current instance.
      */
     get updateSearchResultsHandler():Function {
-        const placesService:Object =
-            new this.constructor.google.maps.places.PlacesService(this.map)
-        return this.constructor.debounce(async (
-            event:Object
-        ):Promise<void> => {
-            for (const name:string in this.constructor.keyCode)
+        const placesService:PlacesService =
+            new StoreLocator.maps.places.PlacesService(this.map)
+        return Tools.debounce(async (event:Object):Promise<void> => {
+            for (const name:string in Tools.keyCode)
                 if (
                     event &&
-                    event.keyCode === this.constructor.keyCode[name] &&
+                    event.keyCode === Tools.keyCode[name] &&
                     ![
                         'BACKSPACE',
                         'COMMA',
@@ -820,7 +866,7 @@ export class StoreLocator extends Tools {
                     ].includes(name)
                 )
                     return
-            await this.acquireLock(`${this.constructor._name}Search`)
+            await this.acquireLock(`${StoreLocator._name}Search`)
             const searchText:string = this._options.searchBox.normalizer(
                 this.$domNode.find('input').val()
             )
@@ -828,7 +874,7 @@ export class StoreLocator extends Tools {
                 this.currentSearchText === searchText &&
                 !this.searchResultsDirty
             )
-                return this.releaseLock(`${this.constructor._name}Search`)
+                return this.releaseLock(`${StoreLocator._name}Search`)
             this.searchResultsDirty = false
             if (!this.resultsDomNode)
                 this.initializeDataSourceSearchResultsBox()
@@ -840,22 +886,26 @@ export class StoreLocator extends Tools {
                     'removeSearchResults',
                     false,
                     this,
-                    this.currentSearchResultsDomNode)
+                    this.currentSearchResultsDomNode
+                )
                 this.currentSearchResultsDomNode = null
                 this.closeSearchResults()
-                return this.releaseLock(`${this.constructor._name}Search`)
+                return this.releaseLock(`${StoreLocator._name}Search`)
             }
             this.openSearchResults()
-            const loadingDomNode:$DomNode = $(
-                this._options.searchBox.loadingContent)
-            if (this.resultsDomNode && this.fireEvent(
-                'addSearchResults',
-                false,
-                this,
-                loadingDomNode,
-                this.resultsDomNode,
-                this.currentSearchResultsDomNode || []
-            ))
+            const loadingDomNode:$DomNode =
+                 $(this._options.searchBox.loadingContent)
+            if (
+                this.resultsDomNode &&
+                this.fireEvent(
+                    'addSearchResults',
+                    false,
+                    this,
+                    loadingDomNode,
+                    this.resultsDomNode,
+                    this.currentSearchResultsDomNode || []
+                )
+            )
                 this.resultsDomNode.html(loadingDomNode)
             if (
                 this.currentSearchResultsDomNode &&
@@ -879,7 +929,7 @@ export class StoreLocator extends Tools {
                     examples provided by google.
                 */
                 placesService.textSearch(
-                    this.constructor.extend(
+                    Tools.extend(
                         {query: searchText, location: this.map.getCenter()},
                         this._options.searchBox.generic.retrieveOptions
                     ),
@@ -912,20 +962,19 @@ export class StoreLocator extends Tools {
         for (const place:Object of places.sort((
             firstPlace:Object, secondPlace:Object
         ):number =>
-            this.constructor.google.maps.geometry.spherical
-                .computeDistanceBetween(
-                    this.map.getCenter(), firstPlace.geometry.location
-                ) - this.constructor.google.maps.geometry.spherical
-                .computeDistanceBetween(
-                    this.map.getCenter(), secondPlace.geometry.location)
+            StoreLocator.maps.geometry.spherical.computeDistanceBetween(
+                this.map.getCenter(), firstPlace.geometry.location
+            ) -
+            StoreLocator.maps.geometry.spherical.computeDistanceBetween(
+                this.map.getCenter(), secondPlace.geometry.location
+            )
         )) {
             index += 1
             const distance:number =
-                this.constructor.google.maps.geometry.spherical
-                    .computeDistanceBetween(
-                        this.map.getCenter(),
-                        place.geometry.location
-                    )
+                StoreLocator.maps.geometry.spherical.computeDistanceBetween(
+                    this.map.getCenter(),
+                    place.geometry.location
+                )
             if (
                 distance >
                 this._options.searchBox.generic.maximalDistanceInMeter
@@ -933,7 +982,7 @@ export class StoreLocator extends Tools {
                 break
             if (this._options.searchBox.generic.filter(place)) {
                 const result:Item = {
-                    data: this.constructor.extend(
+                    data: Tools.extend(
                         place,
                         {
                             logoFilePath: place.icon.replace(
@@ -1041,11 +1090,12 @@ export class StoreLocator extends Tools {
                 return 1
             if (second.foundWords.length < first.foundWords.length)
                 return -1
-            return this.constructor.google.maps.geometry.spherical
-                .computeDistanceBetween(
-                    this.map.getCenter(), first.position
-                ) - this.constructor.google.maps.geometry.spherical
-                .computeDistanceBetween(this.map.getCenter(), second.position)
+            return StoreLocator.maps.geometry.spherical.computeDistanceBetween(
+                this.map.getCenter(), first.position
+            ) -
+            StoreLocator.maps.geometry.spherical.computeDistanceBetween(
+                this.map.getCenter(), second.position
+            )
         })
         // Slice additional unneeded local search results.
         let limitReached:boolean = false
@@ -1056,14 +1106,13 @@ export class StoreLocator extends Tools {
             limitReached = true
             searchResults.splice(
                 this._options.searchBox.maximumNumberOfResults,
-                searchResults.length)
+                searchResults.length
+            )
         }
         // Compile search results markup.
         const resultsRepresentation:$Deferred<any>|string =
             this.makeSearchResults(searchResults, limitReached)
-        if (this.constructor.determineType(
-            resultsRepresentation
-        ) === 'string') {
+        if (typeof resultsRepresentation === 'string') {
             const resultsRepresentationDomNode:$DomNode = $(
                 resultsRepresentation)
             if (this.resultsDomNode && this.fireEvent(
@@ -1085,8 +1134,8 @@ export class StoreLocator extends Tools {
                     this,
                     this.currentSearchResultsDomNode)
             this.currentSearchResultsDomNode = resultsRepresentationDomNode
-            this.constructor.timeout(():StoreLocator => this.releaseLock(
-                `${this.constructor._name}Search`))
+            Tools.timeout(():StoreLocator => this.releaseLock(
+                `${StoreLocator._name}Search`))
         } else if (resultsRepresentation instanceof Object)
             resultsRepresentation.then((resultsRepresentation:string):void => {
                 const resultsRepresentationDomNode:$DomNode = $(
@@ -1110,7 +1159,7 @@ export class StoreLocator extends Tools {
                         this,
                         this.currentSearchResultsDomNode)
                 this.currentSearchResultsDomNode = resultsRepresentationDomNode
-                this.releaseLock(`${this.constructor._name}Search`)
+                this.releaseLock(`${StoreLocator._name}Search`)
             })
         this.currentSearchText = searchText
         this.currentSearchResults = searchResults.slice()
@@ -1173,23 +1222,26 @@ export class StoreLocator extends Tools {
      * focus them.
      * @returns The current instance.
      */
-    initializeGenericSearchBox():StoreLocator {
-        const searchBox:Object =
-            new this.constructor.google.maps.places.SearchBox(
-                this.$domNode.find('input')[0])
+    initializeGenericSearch():StoreLocator {
+        const searchBox:Object = new StoreLocator.maps.places.SearchBox(
+            this.$domNode.find('input')[0]
+        )
         /*
             Bias the search box results towards places that are within the
             bounds of the current map's viewport.
         */
-        this.constructor.google.maps.event.addListener(
-            this.map, 'bounds_changed', ():void => searchBox.setBounds(
-                this.map.getBounds()))
+        StoreLocator.maps.event.addListener(
+            this.map, 'bounds_changed', ():void =>
+                searchBox.setBounds(this.map.getBounds())
+        )
         /*
             Listen for the event fired when the user selects an item from the
             pick list. Retrieve the matching places for that item.
         */
-        this.constructor.google.maps.event.addListener(
-            searchBox, 'places_changed', ():$Deferred<Array<Object>> =>
+        StoreLocator.maps.event.addListener(
+            searchBox,
+            'places_changed',
+            ():$Deferred<Array<Object>> =>
                 this.ensurePlaceLocations(searchBox.getPlaces()).then((
                     places:Array<Object>
                 ):Array<Object> => {
@@ -1200,10 +1252,11 @@ export class StoreLocator extends Tools {
                         let matchingMarker:?Object = null
                         for (const marker:Object of this.markers) {
                             const distanceInMeter:number =
-                                this.constructor.google.maps.geometry.spherical
+                                StoreLocator.maps.geometry.spherical
                                     .computeDistanceBetween(
                                         foundPlace.geometry.location,
-                                        marker.position)
+                                        marker.position
+                                    )
                             if (distanceInMeter < shortestDistanceInMeter) {
                                 shortestDistanceInMeter = distanceInMeter
                                 matchingMarker = marker
@@ -1240,36 +1293,40 @@ export class StoreLocator extends Tools {
     ensurePlaceLocations(places:Array<Object>):$Deferred<Array<Object>> {
         const result:$Deferred<Array<Object>> = $.Deferred()
         let runningGeocodes:number = 0
-        const geocoder:Object = new this.constructor.google.maps.Geocoder()
+        const geocoder:Object = new StoreLocator.maps.Geocoder()
         for (const place:Object of places)
             if (!('geometry' in place && 'location' in place.geometry)) {
                 this.warn(
                     'Found place "{1}" doesn\'t have a location. Full object:',
-                    place.name)
+                    place.name
+                )
                 this.warn(place)
                 this.info(
                     'Geocode will be determined separately. With address ' +
-                    '"{1}".', place.name)
+                    '"{1}".',
+                    place.name
+                )
                 runningGeocodes += 1
                 /* eslint-disable no-loop-func */
-                geocoder.geocode({address: place.name}, (
-                    results:Array<Object>, status:number
-                ):void => {
-                    runningGeocodes -= 1
-                    if (status === this.constructor.google.maps.GeocoderStatus
-                        .OK
-                    )
-                        place.geometry = results[0].geometry
-                    else {
-                        delete places[places.indexOf(place)]
-                        this.warn(
-                            'Found place "{1}" couldn\'t be geocoded by ' +
-                            'google. Removing it from the places list.',
-                            place.name)
+                geocoder.geocode(
+                    {address: place.name},
+                    (results:Array<Object>, status:number):void => {
+                        runningGeocodes -= 1
+                        if (status === StoreLocator.maps.GeocoderStatus
+                            .OK
+                        )
+                            place.geometry = results[0].geometry
+                        else {
+                            delete places[places.indexOf(place)]
+                            this.warn(
+                                'Found place "{1}" couldn\'t be geocoded by ' +
+                                'google. Removing it from the places list.',
+                                place.name)
+                        }
+                        if (runningGeocodes === 0)
+                            result.resolve(places)
                     }
-                    if (runningGeocodes === 0)
-                        result.resolve(places)
-                })
+                )
                 /* eslint-enable no-loop-func */
             }
         if (runningGeocodes === 0)
@@ -1287,9 +1344,10 @@ export class StoreLocator extends Tools {
         if (candidates.length) {
             let shortestDistanceInMeter:number = Number.MAX_VALUE
             for (const candidate:Object of candidates) {
-                const distanceInMeter:number = this.constructor.google.maps
-                    .geometry.spherical.computeDistanceBetween(
-                        candidate.geometry.location, this.map.getCenter())
+                const distanceInMeter:number = StoreLocator.maps.geometry
+                    .spherical.computeDistanceBetween(
+                        candidate.geometry.location, this.map.getCenter()
+                    )
                 if (distanceInMeter < shortestDistanceInMeter) {
                     result = candidate
                     shortestDistanceInMeter = distanceInMeter
@@ -1303,10 +1361,11 @@ export class StoreLocator extends Tools {
      * @returns The current instance.
      */
     onLoaded():StoreLocator {
-        this.constructor.timeout(():$DomNode => this.$domNode.find(
-            'input'
-        ).animate(...this._options.input.showAnimation),
-        this._options.showInputAfterLoadedDelayInMilliseconds)
+        Tools.timeout(():$DomNode =>
+            this.$domNode.find('input')
+                .animate(...this._options.input.showAnimation),
+            this._options.showInputAfterLoadedDelayInMilliseconds
+        )
         return this
     }
     /**
@@ -1331,38 +1390,41 @@ export class StoreLocator extends Tools {
         const marker:Marker = {
             data: store,
             map: this.map,
-            position: new this.constructor.google.maps.LatLng(
+            position: new StoreLocator.maps.LatLng(
                 store.latitude, store.longitude
             )
         }
         if (
             store.markerIconFileName || this._options.defaultMarkerIconFileName
         ) {
-            marker.icon = this.constructor.extend(
-                {}, this._options.marker.icon)
+            marker.icon = Tools.extend({}, this._options.marker.icon)
             if (marker.icon.size)
-                marker.icon.size = new this.constructor.google.maps.Size(
-                    marker.icon.size.width, marker.icon.size.height,
-                    marker.icon.size.unit, marker.icon.size.unit)
+                marker.icon.size = new StoreLocator.maps.Size(
+                    marker.icon.size.width,
+                    marker.icon.size.height,
+                    marker.icon.size.unit,
+                    marker.icon.size.unit
+                )
             if (marker.icon.scaledSize)
-                marker.icon.scaledSize = new this.constructor.google.maps.Size(
+                marker.icon.scaledSize = new StoreLocator.maps.Size(
                     marker.icon.scaledSize.width,
                     marker.icon.scaledSize.height,
                     marker.icon.scaledSize.unit,
-                    marker.icon.scaledSize.unit)
+                    marker.icon.scaledSize.unit
+                )
             if (store.markerIconFileName)
-                marker.icon.url = this._options.iconPath +
-                    store.markerIconFileName
+                marker.icon.url =
+                    this._options.iconPath + store.markerIconFileName
             else
-                marker.icon.url = this._options.iconPath +
+                marker.icon.url =
+                    this._options.iconPath +
                     this._options.defaultMarkerIconFileName
         }
         if (store.title)
             marker.title = store.title
-        marker.infoWindow = new this.constructor.google.maps.InfoWindow({
-            content: ''})
+        marker.infoWindow = new StoreLocator.maps.InfoWindow({content: ''})
         marker.infoWindow.isOpen = false
-        marker.nativeMarker = new this.constructor.google.maps.Marker(marker)
+        marker.nativeMarker = new StoreLocator.maps.Marker(marker)
         this.attachMarkerEventListener(marker)
         this.markers.push(marker)
         return marker.nativeMarker
@@ -1373,12 +1435,14 @@ export class StoreLocator extends Tools {
      * @returns The current instance.
      */
     attachMarkerEventListener(marker:Object):StoreLocator {
-        this.constructor.google.maps.event.addListener(
+        StoreLocator.maps.event.addListener(
             marker.infoWindow, 'closeclick', ():void => {
                 marker.infoWindow.isOpen = false
-            })
-        this.constructor.google.maps.event.addListener(
-            marker.nativeMarker, 'click', this.openMarker.bind(this, marker))
+            }
+        )
+        StoreLocator.maps.event.addListener(
+            marker.nativeMarker, 'click', this.openMarker.bind(this, marker)
+        )
         return this
     }
     /**
@@ -1417,9 +1481,11 @@ export class StoreLocator extends Tools {
             marker.infoWindow.setContent(infoWindow)
         else {
             marker.infoWindow.setContent(
-                this._options.infoWindow.loadingContent)
+                this._options.infoWindow.loadingContent
+            )
             infoWindow.then((infoWindow:Object):void =>
-                marker.infoWindow.setContent(infoWindow))
+                marker.infoWindow.setContent(infoWindow)
+            )
         }
         if (this.currentlyOpenWindow) {
             this.currentlyOpenWindow.isOpen = false
@@ -1430,7 +1496,8 @@ export class StoreLocator extends Tools {
         marker.infoWindow.open(this.map, marker.nativeMarker)
         this.map.panTo(marker.nativeMarker.position)
         this.map.panBy(
-            0, -this._options.infoWindow.additionalMoveToBottomInPixel)
+            0, -this._options.infoWindow.additionalMoveToBottomInPixel
+        )
         this.fireEvent('infoWindowOpened', false, this, event, marker)
         return this
     }
@@ -1496,8 +1563,8 @@ export class StoreLocator extends Tools {
                     marker.nativeMarker
                 ) {
                     marker.nativeMarker.setAnimation(
-                        this.constructor.google.maps.Animation[
-                            type.toUpperCase()])
+                        StoreLocator.maps.Animation[type.toUpperCase()]
+                    )
                     marker.isHighlighted = true
                     this.currentlyHighlightedMarker = marker
                 }
@@ -1517,9 +1584,10 @@ export class StoreLocator extends Tools {
         marker:Object, ...additionalParameter:Array<any>
     ):string|Object {
         if ('content' in this._options.infoWindow) {
-            if (this.constructor.isFunction(this._options.infoWindow.content))
+            if (Tools.isFunction(this._options.infoWindow.content))
                 return this._options.infoWindow.content(
-                    marker, ...additionalParameter)
+                    marker, ...additionalParameter
+                )
             if (this._options.infoWindow.content)
                 return this._options.infoWindow.content
         }
@@ -1541,9 +1609,10 @@ export class StoreLocator extends Tools {
         searchResults:Array<Object>, limitReached:boolean
     ):$Deferred<any>|string {
         if ('content' in this._options.searchBox) {
-            if (this.constructor.isFunction(this._options.searchBox.content))
+            if (Tools.isFunction(this._options.searchBox.content))
                 return this._options.searchBox.content.call(
-                    this, searchResults, limitReached)
+                    this, searchResults, limitReached
+                )
             return this._options.searchBox.content
         }
         if (searchResults.length) {
@@ -1552,15 +1621,21 @@ export class StoreLocator extends Tools {
                 content += '<div>'
                 for (const name:string in result.data)
                     if (
-                        result.data.hasOwnProperty(name) && (
+                        result.data.hasOwnProperty(name) &&
+                        (
                             this._options.searchBox.properties.length === 0 ||
-                            this._options.searchBox.properties.includes(name))
+                            this._options.searchBox.properties.includes(name)
+                        )
                     )
-                        content += `${name}: ` + this.constructor.stringMark(
-                            `${result.data[name]}`, this.currentSearchWords,
-                            '<span class="tools-mark">{1}</span>',
-                            this._options.searchBox.normalizer
-                        ) + '<br />'
+                        content +=
+                            `${name}: ` +
+                            Tools.stringMark(
+                                `${result.data[name]}`,
+                                this.currentSearchWords,
+                                '<span class="tools-mark">{1}</span>',
+                                this._options.searchBox.normalizer
+                            ) +
+                            '<br />'
                 content += '</div>'
             }
             return content
