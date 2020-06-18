@@ -1,4 +1,3 @@
-// @flow
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
 'use strict'
@@ -15,67 +14,70 @@
     endregion
 */
 // region imports
-import type {$Deferred, $DomNode} from 'clientnode'
-import registerTest from 'clientnode/test'
-import type StoreLocator from './index'
+import Tools, {$DomNode} from 'clientnode/type'
+import {getInitializedBrowser} from 'weboptimizer/browser'
+
+import StoreLocator from './index'
 // endregion
-registerTest(function(
-    roundType:string, targetTechnology:?string, $:any
-):$Deferred<$DomNode> {
-    require('./index')
-    $('#qunit-fixture').append('<store-locator><input></store-locator>')
-    const $storeLocatorDeferred:$Deferred<$DomNode> = $(
-        'store-locator'
-    ).StoreLocator({
-        applicationInterface: {
-            key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
-        },
-        ipToLocationApplicationInterface: {
-            key: '11a62990a1424e894da6eec464a747e6'
-        },
-        searchBox: {},
-        // Automatically generated store with option: "stores: bounds"
-        stores: [{
-            address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
-            eMailAddress: 'info@fake-1.de',
-            latitude: 50.4356,
-            longitude: 7.81226,
-            name: '1 & 1 Telecom GmbH',
-            phoneNumber: '+49 721 9600'
-        }]
-    })
-    // IgnoreTypeCheck
-    return $storeLocatorDeferred.always((
-        $storeLocatorDomNode:$DomNode
-    ):void => {
-        const storeLocator:$Deferred<StoreLocator> = $storeLocatorDomNode.data(
-            'StoreLocator')
-        // region tests
-        this.test('initialize', async (assert:Object):Promise<void> => {
-            const done:Function = assert.async()
-            assert.ok(storeLocator)
-            if (targetTechnology === 'web') {
-                assert.ok($storeLocatorDomNode.children('div').length > 0)
-                const $inputDomNode:$DomNode = $storeLocatorDomNode.find(
-                    'input')
-                assert.ok($inputDomNode.length > 0)
-                $inputDomNode.val('a')
-                $inputDomNode.trigger({
-                    keyCode: $.Tools.class.keyCode.a,
-                    type: `keyup`
-                })
-                await $.Tools.class.timeout()
-                assert.strictEqual(
-                    $storeLocatorDomNode.find(
-                        '.store-locator-search-results'
-                    ).length,
-                    1)
-            }
-            done()
+// region declaration
+declare var TARGET_TECHNOLOGY:string
+// endregion
+let testEnvironment:string = 'browser'
+if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
+    testEnvironment = typeof document === 'undefined' ?
+        'node' :
+        'node-with-dom'
+}
+describe(`storeLocator (${testEnvironment})`, ():void => {
+    // region mockup
+    let $domNode:$DomNode
+    let storeLocator:StoreLocator
+    beforeAll(async ():Promise<void> => {
+        const browser:InitializedBrowser = await getInitializedBrowser()
+        $(browser.document.body)
+            .append('<store-locator><input></store-locator>')
+        $domNode = await $('store-locator').StoreLocator({
+            applicationInterface: {
+                key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
+            },
+            ipToLocationApplicationInterface: {
+                key: '11a62990a1424e894da6eec464a747e6'
+            },
+            searchBox: {},
+            // Automatically generated store with option: "stores: bounds"
+            stores: [{
+                address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
+                eMailAddress: 'info@fake-1.de',
+                latitude: 50.4356,
+                longitude: 7.81226,
+                name: '1 & 1 Telecom GmbH',
+                phoneNumber: '+49 721 9600'
+            }]
         })
-        // endregion
+        storeLocator = $domNode.data('StoreLocator')
     })
-}, 'full')
+    // endregion
+    // region tests
+    test('initialize', async ():Promise<void> => {
+        assert.ok(storeLocator)
+        if (testEnvironment !== 'node') {
+            expect($domNode.children('div').length).toBeGreaterThan(0)
+            const $inputDomNode:$DomNode = $domNode.find('input')
+            expect($inputDomNode.length).toBeGraterThan(0)
+            $inputDomNode.val('a')
+            $inputDomNode.trigger({
+                keyCode: Tools.keyCode.a,
+                type: 'keyup'
+            })
+            await Tools.timeout()
+            expect(
+                $storeLocatorDomNode.find('.store-locator-search-results')
+                    .length
+            ).toStrictEqual(1)
+        }
+    })
+    // endregion
+})
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
