@@ -25,6 +25,8 @@ import MarkerClusterer from '@google/markerclustererplus'
 import {
     Item,
     Map,
+    MapArea,
+    MapGeocoder,
     MapMarker,
     MapPosition,
     Maps,
@@ -219,7 +221,8 @@ import {
  * @property _options.onMarkerHighlighted {Function} - Triggers after a marker
  * starts to highlight.
  */
-export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends Tools<TElement> {
+export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
+    Tools<TElement> {
     static applicationInterfaceLoad:Promise<$DomNode>
     static maps:Maps
 
@@ -248,7 +251,6 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * @param options - Options to overwrite default ones.
      * @returns Currently selected dom node.
      */
-    // TODO check migrate $DomNode to TElement migration.
     initialize(options:object = {}):Promise<TElement> {
         // region properties
         this._options = {
@@ -400,9 +402,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
                 applicationInterfaceLoadCallbacks.reject = reject
             })
         }
-        const result:Promise<$DomNode> = StoreLocator.applicationInterfaceLoad
+        const result:Promise<TElement> = StoreLocator.applicationInterfaceLoad
             .then(this.bootstrap.bind(this))
-            .then(():StoreLocator => this.fireEvent('loaded'))
+            .then(():StoreLocator<TElement> => this.fireEvent('loaded'))
         if ('google' in $.global && 'maps' in $.global.google) {
             StoreLocator.maps = $.global.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
@@ -438,7 +440,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * Determines useful location cluster, info windows and marker.
      * @returns The current instance.
      */
-    bootstrap():Promise<$DomNode> {
+    bootstrap():Promise<TElement> {
         if (
             !('location' in $.global) ||
             [null, undefined].includes($.global.location)
@@ -453,8 +455,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
             return this.initializeMap()
         /*
             NOTE: If request is slower than the timeout parameter for jsonp
-            request the padding function isn't set anymore so an error
-            occurs. That's why we use our own timeout implementation.
+            request the padding function isn't set anymore so an error occurs.
+            That's why we use our own timeout implementation.
         */
         let loaded:boolean = false
         return new Promise((resolve:Function, reject:Function):void => {
@@ -529,7 +531,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * Initializes cluster, info windows and marker.
      * @returns The current instance.
      */
-    initializeMap():Promise<$DomNode> {
+    initializeMap():Promise<TElement> {
         this._options.map.center = new StoreLocator.maps.LatLng(
             this._options.startLocation.latitude,
             this._options.startLocation.longitude
@@ -543,47 +545,30 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
                 this.map,
                 'dragend',
                 ():void => {
-                    const limitBounds: =
-                        new StoreLocator.maps.LatLngBounds(
-                            new StoreLocator.maps.LatLng(
-                                this._options.limit.southWest.latitude,
-                                this._options.limit.southWest.longitude
-                            ),
-                            new StoreLocator.maps.LatLng(
-                                this._options.limit.northEast.latitude,
-                                this._options.limit.northEast.longitude
-                            )
+                    const area:MapArea = new StoreLocator.maps.LatLngBounds(
+                        new StoreLocator.maps.LatLng(
+                            this._options.limit.southWest.latitude,
+                            this._options.limit.southWest.longitude
+                        ),
+                        new StoreLocator.maps.LatLng(
+                            this._options.limit.northEast.latitude,
+                            this._options.limit.northEast.longitude
                         )
+                    )
                     const currentCenter:MapPosition = this.map.getCenter()
-                    if (!limitBounds.contains(currentCenter)) {
+                    if (!area.contains(currentCenter)) {
                         const newCenter:Position = {
                             latitude: currentCenter.lat(),
                             longitude: currentCenter.lng()
                         }
-                        if (
-                            currentCenter.lng() <
-                                limitBounds.getSouthWest().lng()
-                        )
-                            newCenter.longitude =
-                                limitBounds.getSouthWest().lng()
-                        if (
-                            currentCenter.lng() >
-                                limitBounds.getNorthEast().lng()
-                        )
-                            newCenter.longitude =
-                                limitBounds.getNorthEast().lng()
-                        if (
-                            currentCenter.lat() <
-                                limitBounds.getSouthWest().lat()
-                        )
-                            newCenter.latitude =
-                                limitBounds.getSouthWest().lat()
-                        if (
-                            currentCenter.lat() >
-                                limitBounds.getNorthEast().lat()
-                        )
-                            newCenter.latitude =
-                                limitBounds.getNorthEast().lat()
+                        if (currentCenter.lng() < area.getSouthWest().lng())
+                            newCenter.longitude = area.getSouthWest().lng()
+                        if (currentCenter.lng() > area.getNorthEast().lng())
+                            newCenter.longitude = area.getNorthEast().lng()
+                        if (currentCenter.lat() < area.getSouthWest().lat())
+                            newCenter.latitude = area.getSouthWest().lat()
+                        if (currentCenter.lat() > area.getNorthEast().lat())
+                            newCenter.latitude = area.getNorthEast().lat()
                         this.map.panTo(new StoreLocator.maps.LatLng(
                             newCenter.latitude, newCenter.longitude
                         ))
@@ -858,99 +843,108 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
     get updateSearchResultsHandler():Function {
         const placesService:PlacesService =
             new StoreLocator.maps.places.PlacesService(this.map)
-        return Tools.debounce(async (event:Object):Promise<void> => {
-            for (const name:string in Tools.keyCode)
+        return Tools.debounce(
+            async (event:Object):Promise<void> => {
+                for (const name in Tools.keyCode)
+                    if (
+                        event &&
+                        event.keyCode === Tools.keyCode[name] &&
+                        ![
+                            'BACKSPACE',
+                            'COMMA',
+                            'DELETE',
+                            'NUMPAD_ADD',
+                            'NUMPAD_DECIMAL',
+                            'NUMPAD_DIVIDE',
+                            'NUMPAD_MULTIPLY',
+                            'NUMPAD_SUBTRACT',
+                            'PERIOD'
+                        ].includes(name)
+                    )
+                        return
+                await this.acquireLock(`${StoreLocator._name}Search`)
+                const searchText:string =
+                    this._options.searchOptions.normalizer(
+                        this.$domNode.find('input').val()
+                    )
                 if (
-                    event &&
-                    event.keyCode === Tools.keyCode[name] &&
-                    ![
-                        'BACKSPACE',
-                        'COMMA',
-                        'DELETE',
-                        'NUMPAD_ADD',
-                        'NUMPAD_DECIMAL',
-                        'NUMPAD_DIVIDE',
-                        'NUMPAD_MULTIPLY',
-                        'NUMPAD_SUBTRACT',
-                        'PERIOD'
-                    ].includes(name)
+                    this.currentSearchText === searchText &&
+                    !this.searchResultsDirty
                 )
-                    return
-            await this.acquireLock(`${StoreLocator._name}Search`)
-            const searchText:string = this._options.searchOptions.normalizer(
-                this.$domNode.find('input').val()
-            )
-            if (
-                this.currentSearchText === searchText &&
-                !this.searchResultsDirty
-            )
-                return this.releaseLock(`${StoreLocator._name}Search`)
-            this.searchResultsDirty = false
-            if (!this.resultsDomNode)
-                this.initializeDataSourceSearchResultsBox()
-            if (!searchText && this.resultsDomNode) {
-                this.currentSearchResults = []
-                this.currentSearchText = ''
-                this.resultsDomNode.html('')
-                this.fireEvent(
-                    'removeSearchResults',
-                    false,
-                    this,
-                    this.currentSearchResultsDomNode
+                    return this.releaseLock(`${StoreLocator._name}Search`)
+                this.searchResultsDirty = false
+                if (!this.resultsDomNode)
+                    this.initializeDataSourceSearchResultsBox()
+                if (!searchText && this.resultsDomNode) {
+                    this.currentSearchResults = []
+                    this.currentSearchText = ''
+                    this.resultsDomNode.html('')
+                    this.fireEvent(
+                        'removeSearchResults',
+                        false,
+                        this,
+                        this.currentSearchResultsDomNode
+                    )
+                    this.currentSearchResultsDomNode = null
+                    this.closeSearchResults()
+                    return this.releaseLock(`${StoreLocator._name}Search`)
+                }
+                this.openSearchResults()
+                const loadingDomNode:$DomNode =
+                     $(this._options.searchOptions.loadingContent)
+                if (
+                    this.resultsDomNode &&
+                    this.fireEvent(
+                        'addSearchResults',
+                        false,
+                        this,
+                        loadingDomNode,
+                        this.resultsDomNode,
+                        this.currentSearchResultsDomNode || []
+                    )
                 )
-                this.currentSearchResultsDomNode = null
-                this.closeSearchResults()
-                return this.releaseLock(`${StoreLocator._name}Search`)
-            }
-            this.openSearchResults()
-            const loadingDomNode:$DomNode =
-                 $(this._options.searchOptions.loadingContent)
-            if (
-                this.resultsDomNode &&
-                this.fireEvent(
-                    'addSearchResults',
-                    false,
-                    this,
-                    loadingDomNode,
-                    this.resultsDomNode,
-                    this.currentSearchResultsDomNode || []
+                    this.resultsDomNode.html(loadingDomNode)
+                if (
+                    this.currentSearchResultsDomNode &&
+                    this.currentSearchResultsDomNode.length
                 )
-            )
-                this.resultsDomNode.html(loadingDomNode)
-            if (
-                this.currentSearchResultsDomNode &&
-                this.currentSearchResultsDomNode.length
-            )
-                this.fireEvent(
-                    'removeSearchResults',
-                    false,
-                    this,
-                    this.currentSearchResultsDomNode
-                )
-            this.currentSearchResultsDomNode = loadingDomNode
-            this.currentSearchWords = searchText.split(' ')
-            this.currentSearchSegments = this.currentSearchWords
-            if (!this.currentSearchSegments.includes(searchText))
-                this.currentSearchSegments.push(searchText)
-            if (this._options.searchOptions.generic.number)
-                /*
-                    NOTE: Google searches for more items than exists in the
-                    specified radius. However the radius is a string in the
-                    examples provided by google.
-                */
-                placesService.textSearch(
-                    Tools.extend(
-                        {query: searchText, location: this.map.getCenter()},
-                        this._options.searchOptions.generic.retrieveOptions
-                    ),
-                    (places:Array<PlaceResult>):void => {
-                        if (places)
-                            this.handleGenericSearchResults(places, searchText)
-                    }
-                )
-            else
-                this.performLocalSearch(searchText)
-        }, 1000)
+                    this.fireEvent(
+                        'removeSearchResults',
+                        false,
+                        this,
+                        this.currentSearchResultsDomNode
+                    )
+                this.currentSearchResultsDomNode = loadingDomNode
+                this.currentSearchWords = searchText.split(' ')
+                this.currentSearchSegments = this.currentSearchWords
+                if (!this.currentSearchSegments.includes(searchText))
+                    this.currentSearchSegments.push(searchText)
+                if (this._options.searchOptions.generic.number)
+                    /*
+                        NOTE: Google searches for more items than exists in the
+                        specified radius. However the radius is a string in the
+                        examples provided by google.
+                    */
+                    placesService.textSearch(
+                        Tools.extend(
+                            {
+                                location: this.map.getCenter(),
+                                query: searchText
+                            },
+                            this._options.searchOptions.generic.retrieveOptions
+                        ),
+                        (places:Array<PlaceResult>):void => {
+                            if (places)
+                                this.handleGenericSearchResults(
+                                    places, searchText
+                                )
+                        }
+                    )
+                else
+                    this.performLocalSearch(searchText)
+            },
+            1000
+        )
     }
     /**
      * Sorts and filters search results given by google's aplication
@@ -962,7 +956,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      */
     handleGenericSearchResults(
         places:Array<Object>, searchText:string
-    ):StoreLocator {
+    ):StoreLocator<TElement> {
         const searchResults:Array<Object> = []
         /*
             NOTE: Since google text search doesn't support sorting by distance
@@ -1030,15 +1024,15 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      */
     performLocalSearch(
         searchText:string, searchResults:Array<Object> = []
-    ):StoreLocator {
+    ):StoreLocator<TElement> {
         const numberOfGenericSearchResults:number = searchResults.length
         const defaultProperties:?Array<string> =
             this._options.searchOptions.hasOwnProperty('properties') &&
                 this._options.searchOptions.properties
         for (const marker:Object of this.markers) {
-            const properties:Array<string> =
-                defaultProperties ? defaultProperties : Object.keys(
-                    marker.data)
+            const properties:Array<string> = defaultProperties ?
+                defaultProperties :
+                Object.keys(marker.data)
             marker.foundWords = []
             for (const key:string of properties)
                 for (const searchWord:string of this.currentSearchSegments)
@@ -1051,12 +1045,14 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
                     ) {
                         marker.foundWords.push(searchWord)
                         if (marker.foundWords.length === 1) {
-                            marker.open = (event:Object):StoreLocator =>
+                            marker.open = (
+                                event:object
+                            ):StoreLocator<TElement> =>
                                 this.openMarker(marker, event)
                             marker.highlight = (
-                                event:Object, type:string
-                            ):StoreLocator => this.highlightMarker(
-                                marker, event, type)
+                                event:object, type:string
+                            ):StoreLocator<TElement> =>
+                                this.highlightMarker(marker, event, type)
                             if (
                                 this._options.searchOptions
                                     .resultAggregation === 'union'
@@ -1123,11 +1119,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
             )
         }
         // Compile search results markup.
-        const resultsRepresentation:$Deferred<any>|string =
-            this.makeSearchResults(searchResults, limitReached)
-        if (typeof resultsRepresentation === 'string') {
-            const resultsRepresentationDomNode:$DomNode = $(
-                resultsRepresentation)
+        this.makeSearchResults(searchResults, limitReached).then((
+            resultsRepresentation:string
+        ):void => {
+            const resultsRepresentationDomNode:$DomNode =
+                $(resultsRepresentation)
             if (this.resultsDomNode && this.fireEvent(
                 'addSearchResults',
                 false,
@@ -1145,35 +1141,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
                     'removeSearchResults',
                     false,
                     this,
-                    this.currentSearchResultsDomNode)
-            this.currentSearchResultsDomNode = resultsRepresentationDomNode
-            Tools.timeout(():StoreLocator => this.releaseLock(
-                `${StoreLocator._name}Search`))
-        } else if (resultsRepresentation instanceof Object)
-            resultsRepresentation.then((resultsRepresentation:string):void => {
-                const resultsRepresentationDomNode:$DomNode = $(
-                    resultsRepresentation)
-                if (this.resultsDomNode && this.fireEvent(
-                    'addSearchResults',
-                    false,
-                    this,
-                    resultsRepresentationDomNode,
-                    this.resultsDomNode,
-                    this.currentSearchResultsDomNode || []
-                ))
-                    this.resultsDomNode.html(resultsRepresentationDomNode)
-                if (
-                    this.currentSearchResultsDomNode &&
-                    this.currentSearchResultsDomNode.length
+                    this.currentSearchResultsDomNode
                 )
-                    this.fireEvent(
-                        'removeSearchResults',
-                        false,
-                        this,
-                        this.currentSearchResultsDomNode)
-                this.currentSearchResultsDomNode = resultsRepresentationDomNode
-                this.releaseLock(`${StoreLocator._name}Search`)
-            })
+            this.currentSearchResultsDomNode = resultsRepresentationDomNode
+            this.releaseLock(`${StoreLocator._name}Search`)
+        })
         this.currentSearchText = searchText
         this.currentSearchResults = searchResults.slice()
         return this
@@ -1184,13 +1156,14 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * triggered to show search results.
      * @returns The current instance.
      */
-    openSearchResults(event:?Object):StoreLocator {
+    openSearchResults(event:?Object):StoreLocator<TElement> {
         if (event)
             event.stopPropagation()
         if (
             this.resultsDomNode && !this.resultsDomNode.hasClass('open') &&
             this.fireEvent(
-                'openSearchResults', false, this, event, this.resultsDomNode)
+                'openSearchResults', false, this, event, this.resultsDomNode
+            )
         ) {
             for (
                 const propertyName:string in this.searchResultsStyleProperties
@@ -1200,7 +1173,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
                 ))
                     this.resultsDomNode.css(
                         propertyName,
-                        this.searchResultsStyleProperties[propertyName])
+                        this.searchResultsStyleProperties[propertyName]
+                    )
             this.resultsDomNode.addClass('open')
         }
         return this
@@ -1211,13 +1185,14 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * triggered to close search results.
      * @returns The current instance.
      */
-    closeSearchResults(event:?Object = null):StoreLocator {
+    closeSearchResults(event?:object):StoreLocator<TElement> {
         if (event)
             event.stopPropagation()
         if (
             this.resultsDomNode && this.resultsDomNode.hasClass('open') &&
             this.fireEvent(
-                'closeSearchResults', false, this, event, this.resultsDomNode)
+                'closeSearchResults', false, this, event, this.resultsDomNode
+            )
         ) {
             for (
                 const propertyName:string in this.searchResultsStyleProperties
@@ -1235,7 +1210,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * focus them.
      * @returns The current instance.
      */
-    initializeGenericSearch():StoreLocator {
+    initializeGenericSearch():StoreLocator<TElement> {
         const searchBox:SearchBox = new StoreLocator.maps.places.SearchBox(
             this.$domNode.find('input')[0]
         )
@@ -1282,7 +1257,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
                         ) {
                             if (this._options.successfulSearchZoom)
                                 this.map.setZoom(
-                                    this._options.successfulSearchZoom)
+                                    this._options.successfulSearchZoom
+                                )
                             this.openMarker(matchingMarker)
                             return places
                         }
@@ -1293,7 +1269,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
                         this.map.setCenter(foundPlace.geometry.location)
                         if (this._options.successfulSearchZoom)
                             this.map.setZoom(
-                                this._options.successfulSearchZoom)
+                                this._options.successfulSearchZoom
+                            )
                     }
                     return places
                 }))
@@ -1307,8 +1284,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
     ensurePlaceLocations(places:Array<Object>):$Deferred<Array<Object>> {
         const result:$Deferred<Array<Object>> = $.Deferred()
         let runningGeocodes:number = 0
-        const geocoder:Object = new StoreLocator.maps.Geocoder()
-        for (const place:Object of places)
+        const geocoder:MapGeocoder = new StoreLocator.maps.Geocoder()
+        for (const place of places)
             if (!('geometry' in place && 'location' in place.geometry)) {
                 this.warn(
                     'Found place "{1}" doesn\'t have a location. Full object:',
@@ -1374,10 +1351,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * Is triggered if the complete map ist loaded.
      * @returns The current instance.
      */
-    onLoaded():StoreLocator {
+    onLoaded():StoreLocator<TElement> {
         Tools.timeout(():$DomNode =>
-            this.$domNode.find('input')
-                .animate(...this._options.input.showAnimation),
+            this.$domNode.find('input').animate(
+                ...this._options.input.showAnimation
+            ),
             this._options.showInputAfterLoadedDelayInMilliseconds
         )
         return this
@@ -1448,7 +1426,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * @param marker - Marker to attach event listener to.
      * @returns The current instance.
      */
-    attachMarkerEventListener(marker:Object):StoreLocator {
+    attachMarkerEventListener(marker:Object):StoreLocator<TElement> {
         StoreLocator.maps.event.addListener(
             marker.infoWindow, 'closeclick', ():void => {
                 marker.infoWindow.isOpen = false
@@ -1465,7 +1443,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * @param event - Event which has triggered the marker opening call.
      * @returns The current instance.
      */
-    openMarker(marker:Object, event:?Object):StoreLocator {
+    openMarker(marker:Object, event:?Object):StoreLocator<TElement> {
         if (event && !('stopPropagation' in event))
             event = null
         this.highlightMarker(marker, event, 'stop')
@@ -1521,7 +1499,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * @param event - Event object which has triggered requested place opening.
      * @returns The current instance.
      */
-    openPlace(place:Object, event:?Object):StoreLocator {
+    openPlace(place:Object, event:?Object):StoreLocator<TElement> {
         if (event)
             event.stopPropagation()
         this.closeSearchResults(event)
@@ -1543,7 +1521,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      */
     highlightMarker(
         marker:Object, event:?Object, type:string = 'bounce'
-    ):StoreLocator {
+    ):StoreLocator<TElement> {
         if (event)
             event.stopPropagation()
         if (this.currentlyHighlightedMarker) {
@@ -1619,14 +1597,19 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends To
      * not.
      * @returns Generated markup.
      */
-    makeSearchResults(
+    async makeSearchResults(
         searchResults:Array<Object>, limitReached:boolean
-    ):$Deferred<any>|string {
+    ):Promise<string> {
         if ('content' in this._options.searchOptions) {
-            if (Tools.isFunction(this._options.searchOptions.content))
-                return this._options.searchOptions.content.call(
-                    this, searchResults, limitReached
-                )
+            if (Tools.isFunction(this._options.searchOptions.content)) {
+                const result:Promise<string>|string =
+                    this._options.searchOptions.content.call(
+                        this, searchResults, limitReached
+                    )
+                if (typeof result === 'string')
+                    return result
+                return await result
+            }
             return this._options.searchOptions.content
         }
         if (searchResults.length) {

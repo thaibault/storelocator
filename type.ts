@@ -24,12 +24,15 @@ import 'googlemaps'
 // /  region implementation
 export type Map = google.maps.Map
 export type PlacesService = google.maps.places.PlacesService
+export type MapArea = google.maps.LatLngBounds
+export type MapGeocoder = google.maps.Geocoder
 export type MapMarker = google.maps.Marker
 export type MapOptions = google.maps.MapOptions
 export type MapPosition = google.maps.LatLng
 export type MapPlacesServices = google.maps.places.PlacesService
 export type SearchBox = google.maps.places.SearchBox
 export type Maps = {
+    Geocoder:MapGeocoder;
     LatLng:MapPosition;
     map:Map;
     Marker:MapMarker;
