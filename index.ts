@@ -27,22 +27,24 @@ import {
     Map,
     MapArea,
     MapGeocoder,
+    MapGeocoderResult,
+    MapGeocoderStatus,
     MapMarker,
+    MapPlaceResult,
+    MapPlacesService,
     MapPosition,
     Maps,
+    MapSearchBox,
     Marker,
     Options,
-    PlaceResult,
-    PlacesService,
-    SearchBox,
     SearchOptions,
     Position
 } from './type'
 // endregion
 // region plugins/classes
 /**
- * A storelocator plugin with expected store data format:
- * {latitude: NUMBER, longitude: NUMBER, markerIconFileName: STRING}.
+ * A storelocator plugin to represent searchable/clusterable items on an
+ * interactive map.
  * @property static:applicationInterfaceLoad - Holds the currently promise to
  * retrieve a new maps application interface.
  * @property static:maps - Holds the currently used maps scope.
@@ -75,151 +77,139 @@ import {
  * @property seenLocations - Saves all seen locations to recognize duplicates.
  *
  * @property _options - Saves all plugin interface options.
- * @property _options.applicationInterface {Object} - To store application
- * interface options in.
- * @property _options.applicationInterface.url {string} - URL tor retrieve
- * google maps application interface.
- * @property _options.applicationInterface.callbackName {string} - Global
- * resource path to
- * callback function to trigger when google has finished loading the
+ * @property _options.applicationInterface - To store application interface
+ * options in.
+ * @property _options.applicationInterface.url - URL tor retrieve google maps
  * application interface.
- * @property _options.applicationInterface.key {string} - Application interface
- * key to authenticate against google maps application interface.
- * @property _options.stores
- * {string|Array.<string>|Object.<string, number|Function>} - URL to retrieve
- * stores, list of stores or object describing bounds to create random stores
- * within. If a "generateProperties" function is given it will be called to
- * retrieve additional properties for each store. The specified store will be
- * given to the function.
- * @property _options.additionalStoreProperties {Object.<string, mixed>}
- * - Additional static store properties which will be available to each store.
- * @property _options.iconPath {string} - Path prefix to search for marker
- * icons.
- * @property _options.defaultMarkerIconFileName {string} - Specifies a fallback
- * marker
+ * @property _options.applicationInterface.callbackName - Global resource path
+ * to callback function to trigger when google has finished loading the
+ * application interface.
+ * @property _options.applicationInterface.key - Application interface key to
+ * authenticate against google maps application interface.
+ * @property _options.stores - URL to retrieve stores, list of stores or object
+ * describing bounds to create random stores within. If a "generateProperties"
+ * function is given it will be called to retrieve additional properties for
+ * each store. The specified store will be given to the function.
+ * @property _options.additionalStoreProperties - Additional static store
+ * properties which will be available to each store.
+ * @property _options.iconPath - Path prefix to search for marker icons.
+ * @property _options.defaultMarkerIconFileName - Specifies a fallback marker
  * icon (if no store specific icon was set). If set to "null" google will place
  * a fallback icon.
- * @property _options.startLocation {null|Object} - If not provided we
- * initialize the map with center in current location determined by internet
- * protocol address. If an object is given a "latitude" and "longitude" with a
- * saved float are assumed.
- * @property _options.fallbackLocation {Object} - Fallback location if
- * automatic location determination has failed.
- * @property _options.fallbackLocation.latitude {number} - Latitude value.
- * @property _options.fallbackLocation.longitude {number} - Longitude value.
- * @property _options.ip {null|string} - If provided given ip will be used to
- * determine current location instead of automatically determined one.
- * @property _options.ipToLocationApplicationInterface {Object} - Configuration
- * for ip to location conversion.
- * @property _options.ipToLocationApplicationInterface.bounds
- * {Object.<string, Object.<string, number>>} - Defines bounds withing
- * determined locations should be. If resolved location isn't within this
- * location it will be ignored.
+ * @property _options.startLocation - If not provided we initialize the map
+ * with center in current location determined by internet protocol address. If
+ * an object is given a "latitude" and "longitude" with a saved float are
+ * assumed.
+ * @property _options.fallbackLocation - Fallback location if automatic
+ * location determination has failed.
+ * @property _options.fallbackLocation.latitude - Latitude value.
+ * @property _options.fallbackLocation.longitude - Longitude value.
+ * @property _options.ip - If provided given ip will be used to determine
+ * current location instead of automatically determined one.
+ * @property _options.ipToLocationApplicationInterface - Configuration for ip
+ * to location conversion.
+ * @property _options.ipToLocationApplicationInterface.bounds - Defines bounds
+ * within determined locations should be. If resolved location isn't within
+ * this location it will be ignored.
+ * @property _options.ipToLocationApplicationInterface.bounds.northEast -
+ * Defines north east bound.
  * @property _options.ipToLocationApplicationInterface.bounds.northEast
- * {Object.<string, number>} - Defines north east bound.
- * @property _options.ipToLocationApplicationInterface.bounds.northEast.latitude
- * {number} - North east latitude bond.
+ * .latitude - North east latitude bond.
  * @property _options.ipToLocationApplicationInterface.bounds.northEast
- * .longitude {number} - North east longitude bond.
+ * .longitude - North east longitude bond.
+ * @property _options.ipToLocationApplicationInterface.bounds.southWest -
+ * Defined south west bound.
  * @property _options.ipToLocationApplicationInterface.bounds.southWest
- * {Object.<string, number>} - Defined south west bound.
- * @property _options.ipToLocationApplicationInterface.bounds.southWest.latitude
- * {number} - South east latitude bound.
+ * .latitude - South east latitude bound.
  * @property _options.ipToLocationApplicationInterface.bounds.southWest
- * .longitude {number} - South west longitude bound.
- * @property _options.ipToLocationApplicationInterface.key - {string} - Key to
- * let the api identify your service plan.
- * @property _options.ipToLocationApplicationInterface.protocol - {string}
- * - Protocol to use for api requests.
- * @property _options.ipToLocationApplicationInterface.timeoutInMilliseconds
- * {number} - Time to wait for ip resolve. If time is up initialize on given
- * fallback location.
- * @property _options.ipToLocationApplicationInterface.url {string} - IP to
- * location determination application interface url. {1}, {2} and {3}
- * represents currently used protocol, key and potentially given ip.
- * @property _options.map {Object} - Initial view properties.
- * @property _options.showInputAfterLoadedDelayInMilliseconds {number} - Delay
- * before we show search input field.
- * @property _options.inputFadeInOption {Object.<string, mixed>} - Transition
- * options to show search input field.
- * @property _options.distanceToMoveByDuplicatedEntries {number} - Distance to
- * move if stores are determined with same latitude and longitude.
- * @property _options.marker {Object|null} - Options passed to the marker
- * cluster. If set to "null" no marker cluster will appear.
- * @property _options.icon {Object} - Options passed to the icon.
- * @property _options.successfulSearchZoom {number} - Specifies a zoom value
- * wich will be adjusted after successfully picked a search result. If set to
- * "null" no zoom change happens.
- * @property _options.infoWindow {Object.<string, mixed>} - Info window
- * options.
- * @property _options.infoWindow.content {Function|string|null} - Function or
- * string returning or representing the info box. If a function is given and a
- * promise is returned the info box will be filled with the given loading
- * content and updated with the resolved data. The function becomes the
- * corresponding marker as first argument and the store locator instance as
- * second argument. If nothing is provided all available data will be listed in
- * a generic info window.
- * @property _options.infoWindow.additionalMoveToBottomInPixel {number}
- * - Additional move to bottom relative to the marker if an info window has
- * been opened.
- * @property _options.infoWindow.loadingContent {string} - Content to show in
- * the info window during info window load.
- * @property _options.searchOptions {number|Object} - If a number is given a
- * generic search will be provided and given number will be interpret as search
- * result precision tolerance to identify a marker as search result.
- * @property _options.searchOptions.stylePropertiesToDeriveFromInputField
- * {Array<string>} - List of cascading style properties to derive from input
- * field and use for search box.
- * @property _options.searchOptions.properties {Object} - Specify which store data
+ * .longitude - South west longitude bound.
+ * @property _options.ipToLocationApplicationInterface.key - Key to let the api
+ * identify your service plan.
+ * @property _options.ipToLocationApplicationInterface.protocol - Protocol to
+ * use for api requests.
+ * @property _options.ipToLocationApplicationInterface.timeoutInMilliseconds -
+ * Time to wait for ip resolve. If time is up initialize on given fallback
+ * location.
+ * @property _options.ipToLocationApplicationInterface.url - IP to location
+ * determination application interface url. {1}, {2} and {3} represents
+ * currently used protocol, key and potentially given ip.
+ * @property _options.map - Initial view properties.
+ * @property _options.showInputAfterLoadedDelayInMilliseconds - Delay before we
+ * show search input field.
+ * @property _options.inputFadeInOption - Transition options to show search
+ * input field.
+ * @property _options.distanceToMoveByDuplicatedEntries - Distance to move if
+ * stores are determined with same latitude and longitude.
+ * @property _options.marker - Options passed to the marker cluster. If set to
+ * "null" no marker cluster will appear.
+ * @property _options.icon - Options passed to the icon.
+ * @property _options.successfulSearchZoomLevel - Specifies a zoom value wich
+ * will be adjusted after successfully picked a search result. If set to "null"
+ * no zoom change happens.
+ * @property _options.infoWindow - Info window options.
+ * @property _options.infoWindow.content - Function or string returning or
+ * representing the info box. If a function is given and a promise is returned
+ * the info box will be filled with the given loading content and updated with
+ * the resolved data. The function becomes the corresponding marker as first
+ * argument and the store locator instance as second argument. If nothing is
+ * provided all available data will be listed in a generic info window.
+ * @property _options.infoWindow.additionalMoveToBottomInPixel - Additional
+ * move to bottom relative to the marker if an info window has been opened.
+ * @property _options.infoWindow.loadingContent - Content to show in the info
+ * window during info window load.
+ * @property _options.searchOptions - If a number is given a generic search
+ * will be provided and given number will be interpret as search result
+ * precision tolerance to identify a marker as search result.
+ * @property _options.searchOptions.stylePropertiesToDeriveFromInputField -
+ * List of cascading style properties to derive from input field and use for
+ * search box.
+ * @property _options.searchOptions.properties - Specify which store data
  * should contain given search text.
- * @property _options.searchOptions.maximumNumberOfResults {number} - Limits the
- * auto complete result list.
- * @property _options.searchOptions.loadingContent {string} - Markup to display
- * while the results are loading.
- * @property _options.searchOptions.generic {Object} - Specifies options for the
+ * @property _options.searchOptions.maximumNumberOfResults - Limits the auto
+ * complete result list.
+ * @property _options.searchOptions.loadingContent - Markup to display while
+ * the results are loading.
+ * @property _options.searchOptions.generic - Specifies options for the
  * additional generic search to add to specific search results.
- * @property _options.searchOptions.generic.number {Array<number, number>} - A
- * tuple describing a range of minimal to maximal limits of additional generic
- * google suggestions depending on number of local search results.
- * @property _options.searchOptions.generic.maximalDistanceInMeter {number} -
- * Range to specify maximal distance from current position to search
- * suggestions.
- * @property _options.searchOptions.generic.filter {Function} - Specifies a
- * callback which gets a relevant place to decide if the place should be
- * included (returns a boolean value).
- * @property _options.searchOptions.generic.prefer {boolean} - Specifies a
- * boolean value indicating if generic search results should be the first
- * results.
- * @property _options.searchOptions.generic.retrieveOptions {Object}- Specifies
- * how a generic place search should be done (google maps request object
+ * @property _options.searchOptions.generic.number - A tuple describing a range
+ * of minimal to maximal limits of additional generic google suggestions
+ * depending on number of local search results.
+ * @property _options.searchOptions.generic.maximalDistanceInMeter - Range to
+ * specify maximal distance from current position to search suggestions.
+ * @property _options.searchOptions.generic.filter - Specifies a callback which
+ * gets a relevant place to decide if the place should be included (returns a
+ * boolean value).
+ * @property _options.searchOptions.generic.prefer - Specifies a boolean value
+ * indicating if generic search results should be the first results.
+ * @property _options.searchOptions.generic.retrieveOptions - Specifies how a
+ * generic place search should be done (google maps request object
  * specification).
- * @property _options.searchOptions.content {Function|string} - Defines how to
- * render the search results. This can be a callback or a string returning or
- * representing the search results. If a function is given and a promise is
- * returned the info box will be filled with the given loading content and
- * updated with the resolved data. The function becomes search results as first
- * argument, a boolean value as second argument indicating if the maximum
- * number of search results was reached and the store locator instance itself
- * as third argument. If nothing is provided all available data will be listed
- * in a generic info window.
- * @property _options.searchOptions.resultAggregation {string} - "Union" or
- * "cut".
- * @property _options.searchOptions.normalizer {Function} - Pure function to
- * normalize strings before searching against them.
- * @property _options.onInfoWindowOpen {Function} - Triggers if a marker info
- * window will be opened.
- * @property _options.onInfoWindowOpened {Function} - Triggers if a marker info
- * window has finished opening.
- * @property _options.onAddSearchResults {Function} - Triggers before new
- * search results appears.
- * @property _options.onRemoveSearchResults {Function} - Triggers before old
- * search results will be removed.
- * @property _options.onOpenSearchResults {Function} - Triggers before search
- * result box appears.
- * @property _options.onCloseSearchResults {Function} - Triggers before search
- * result box will be hidden.
- * @property _options.onMarkerHighlighted {Function} - Triggers after a marker
- * starts to highlight.
+ * @property _options.searchOptions.content - Defines how to render the search
+ * results. This can be a callback or a string returning or representing the
+ * search results. If a function is given and a promise is returned the info
+ * box will be filled with the given loading content and updated with the
+ * resolved data. The function becomes search results as first argument, a
+ * boolean value as second argument indicating if the maximum number of search
+ * results was reached and the store locator instance itself as third argument.
+ * If nothing is provided all available data will be listed in a generic info
+ * window.
+ * @property _options.searchOptions.resultAggregation - "Union" or "cut".
+ * @property _options.searchOptions.normalizer - Pure function to normalize
+ * strings before searching against them.
+ * @property _options.onInfoWindowOpen - Triggers if a marker info window will
+ * be opened.
+ * @property _options.onInfoWindowOpened - Triggers if a marker info window has
+ * finished opening.
+ * @property _options.onAddSearchResults - Triggers before new search results
+ * appears.
+ * @property _options.onRemoveSearchResults - Triggers before old search
+ * results will be removed.
+ * @property _options.onOpenSearchResults - Triggers before search result box
+ * appears.
+ * @property _options.onCloseSearchResults - Triggers before search result box
+ * will be hidden.
+ * @property _options.onMarkerHighlighted - Triggers after a marker starts to
+ * highlight.
  */
 export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     Tools<TElement> {
@@ -310,14 +300,14 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     imagePath:
                         'https://cdn.rawgit.com/googlemaps/' +
                         'js-marker-clusterer/gh-pages/images/m',
-                    maxZoom: 11
+                    maxZoomLevel: 11
                 },
                 icon: {
                     scaledSize: {height: 49, unit: 'px', width: 44},
                     size: {height: 49, unit: 'px', width: 44}
                 }
             },
-            successfulSearchZoom: 12,
+            successfulSearchZoomLevel: 12,
             infoWindow: {
                 additionalMoveToBottomInPixel: 120,
                 content: null,
@@ -337,7 +327,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         super.initialize(options)
         this.defaultSearchOptions = {
             generic: {
-                filter: (place:PlaceResult):boolean =>
+                filter: (place:MapPlaceResult):boolean =>
                     /(?:^| )(?:Deutschland|Germany)( |$)/i.test(
                         place.formatted_address
                     ),
@@ -466,8 +456,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     await this.initializeMap()
                     resolve(this.$domNode)
                 },
-                this._options
-                    .ipToLocationApplicationInterface
+                this._options.ipToLocationApplicationInterface
                     .timeoutInMilliseconds
             )
             $.ajax({
@@ -622,11 +611,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     }
                 })
             else {
-                const southWest:Object = new StoreLocator.maps.LatLng(
+                const southWest:MapPosition = new StoreLocator.maps.LatLng(
                     this._options.stores.southWest.latitude,
                     this._options.stores.southWest.longitude
                 )
-                const northEast:Object = new StoreLocator.maps.LatLng(
+                const northEast:MapPosition = new StoreLocator.maps.LatLng(
                     this._options.stores.northEast.latitude,
                     this._options.stores.northEast.longitude
                 )
@@ -635,7 +624,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     index < this._options.stores.number;
                     index++
                 ) {
-                    const store:Position = Tools.extend(
+                    const store:object & Position = Tools.extend(
                         {
                             latitude:
                                 southWest.lat() +
@@ -673,7 +662,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             StoreLocator.maps.event.addListener(
                 this.map,
                 'dragstart',
-                ():StoreLocator => this.closeSearchResults()
+                ():StoreLocator<TElement> => this.closeSearchResults()
             )
             this._options.searchOptions = Tools.extend(
                 true, this.defaultSearchOptions, this._options.searchOptions
@@ -689,7 +678,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     typeof this.currentlyOpenWindow === 'object' &&
                     this.currentlyOpenWindow &&
                     this.currentlyOpenWindow.isOpen &&
-                    this.map.getZoom() <= this._options.marker.cluster.maxZoom
+                    this.map.getZoom() <=
+                        this._options.marker.cluster.maxZoomLevel
                 ) {
                     this.currentlyOpenWindow.isOpen = false
                     this.currentlyOpenWindow.close()
@@ -711,11 +701,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * Position search results right below the search input field.
      * @returns The current instance.
      */
-    initializeDataSourceSearchResultsBox():StoreLocator {
+    initializeDataSourceSearchResultsBox():StoreLocator<TElement> {
         this.searchResultsStyleProperties = {}
         const $inputDomNode = this.$domNode.find('input')
         const allStyleProperties:PlainObject = $inputDomNode.Tools('style')
-        for (const propertyName:string in allStyleProperties)
+        for (const propertyName in allStyleProperties)
             if (
                 this._options.searchOptions
                     .stylePropertiesToDeriveFromInputField
@@ -740,8 +730,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * matching marker.
      * @returns The current instance.
      */
-    initializeDataSourceSearch():StoreLocator {
-        this.on(this.$domNode, 'keydown', (event:Object):void => {
+    initializeDataSourceSearch():StoreLocator<TElement> {
+        this.on(this.$domNode, 'keydown', (event:Event):void => {
             /*
                 NOTE: Events that doesn't occurs in search context are handled
                 by the native map implementation and won't be propagated so we
@@ -820,7 +810,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             if (this.currentSearchText)
                 this.openSearchResults()
         })
-        this.on($inputDomNode, 'keydown', (event:Object):void => {
+        this.on($inputDomNode, 'keydown', (event:Event):void => {
             if (Tools.keyCode.DOWN === event.keyCode && this.currentSearchText)
                 this.openSearchResults()
         })
@@ -841,10 +831,10 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns The current instance.
      */
     get updateSearchResultsHandler():Function {
-        const placesService:PlacesService =
+        const placesService:MapPlacesService =
             new StoreLocator.maps.places.PlacesService(this.map)
         return Tools.debounce(
-            async (event:Object):Promise<void> => {
+            async (event:Event):Promise<void> => {
                 for (const name in Tools.keyCode)
                     if (
                         event &&
@@ -933,7 +923,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                             },
                             this._options.searchOptions.generic.retrieveOptions
                         ),
-                        (places:Array<PlaceResult>):void => {
+                        (places:Array<MapPlaceResult>):void => {
                             if (places)
                                 this.handleGenericSearchResults(
                                     places, searchText
@@ -955,16 +945,16 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Returns current instance.
      */
     handleGenericSearchResults(
-        places:Array<Object>, searchText:string
+        places:Array<MapPlaceResult>, searchText:string
     ):StoreLocator<TElement> {
-        const searchResults:Array<Object> = []
+        const searchResults:Array<Item> = []
         /*
             NOTE: Since google text search doesn't support sorting by distance
             we have to sort by our own.
         */
         let index:number = 1
-        for (const place:Object of places.sort((
-            firstPlace:Object, secondPlace:Object
+        for (const place of places.sort((
+            firstPlace:MapPlaceResult, secondPlace:MapPlaceResult
         ):number =>
             StoreLocator.maps.geometry.spherical.computeDistanceBetween(
                 this.map.getCenter(), firstPlace.geometry.location
@@ -976,8 +966,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             index += 1
             const distance:number =
                 StoreLocator.maps.geometry.spherical.computeDistanceBetween(
-                    this.map.getCenter(),
-                    place.geometry.location
+                    this.map.getCenter(), place.geometry.location
                 )
             if (
                 distance >
@@ -1005,8 +994,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     highlight: (event:Object, type:string):void => {
                         this.isHighlighted = type !== 'stop'
                     },
-                    open: (event:Object):StoreLocator => this.openPlace(
-                        place, event),
+                    open: (event:Object):StoreLocator =>
+                        this.openPlace(place, event),
                     position: place.geometry.location
                 }
                 searchResults.push(result)
@@ -1023,19 +1012,20 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns The current instance.
      */
     performLocalSearch(
-        searchText:string, searchResults:Array<Object> = []
+        searchText:string, searchResults:Array<Item> = []
     ):StoreLocator<TElement> {
         const numberOfGenericSearchResults:number = searchResults.length
-        const defaultProperties:?Array<string> =
-            this._options.searchOptions.hasOwnProperty('properties') &&
-                this._options.searchOptions.properties
-        for (const marker:Object of this.markers) {
+        const defaultProperties:Array<string>|null =
+            this._options.searchOptions.hasOwnProperty('properties') ?
+                this._options.searchOptions.properties :
+                null
+        for (const marker of this.markers) {
             const properties:Array<string> = defaultProperties ?
                 defaultProperties :
                 Object.keys(marker.data)
             marker.foundWords = []
-            for (const key:string of properties)
-                for (const searchWord:string of this.currentSearchSegments)
+            for (const key of properties)
+                for (const searchWord of this.currentSearchSegments)
                     if (
                         !marker.foundWords.includes(searchWord) &&
                         (marker.data[key] || marker.data[key] === 0) &&
@@ -1046,11 +1036,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         marker.foundWords.push(searchWord)
                         if (marker.foundWords.length === 1) {
                             marker.open = (
-                                event:object
+                                event:Event
                             ):StoreLocator<TElement> =>
                                 this.openMarker(marker, event)
                             marker.highlight = (
-                                event:object, type:string
+                                event:Event, type:string
                             ):StoreLocator<TElement> =>
                                 this.highlightMarker(marker, event, type)
                             if (
@@ -1089,7 +1079,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             Sort results by current map center form nearer to more fare away
             results.
         */
-        searchResults.sort((first:Object, second:Object):number => {
+        searchResults.sort((first:Item, second:Item):number => {
             if (this._options.searchOptions.generic.prefer)
                 if (!first.infoWindow && second.infoWindow)
                     return -1
@@ -1156,18 +1146,17 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * triggered to show search results.
      * @returns The current instance.
      */
-    openSearchResults(event:?Object):StoreLocator<TElement> {
+    openSearchResults(event?:Event):StoreLocator<TElement> {
         if (event)
             event.stopPropagation()
         if (
-            this.resultsDomNode && !this.resultsDomNode.hasClass('open') &&
+            this.resultsDomNode &&
+            !this.resultsDomNode.hasClass('open') &&
             this.fireEvent(
                 'openSearchResults', false, this, event, this.resultsDomNode
             )
         ) {
-            for (
-                const propertyName:string in this.searchResultsStyleProperties
-            )
+            for (const propertyName in this.searchResultsStyleProperties)
                 if (this.searchResultsStyleProperties.hasOwnProperty(
                     propertyName
                 ))
@@ -1185,18 +1174,17 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * triggered to close search results.
      * @returns The current instance.
      */
-    closeSearchResults(event?:object):StoreLocator<TElement> {
+    closeSearchResults(event?:Event):StoreLocator<TElement> {
         if (event)
             event.stopPropagation()
         if (
-            this.resultsDomNode && this.resultsDomNode.hasClass('open') &&
+            this.resultsDomNode &&
+            this.resultsDomNode.hasClass('open') &&
             this.fireEvent(
                 'closeSearchResults', false, this, event, this.resultsDomNode
             )
         ) {
-            for (
-                const propertyName:string in this.searchResultsStyleProperties
-            )
+            for (const propertyName in this.searchResultsStyleProperties)
                 if (this.searchResultsStyleProperties.hasOwnProperty(
                     propertyName
                 ))
@@ -1211,7 +1199,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns The current instance.
      */
     initializeGenericSearch():StoreLocator<TElement> {
-        const searchBox:SearchBox = new StoreLocator.maps.places.SearchBox(
+        const searchBox:MapSearchBox = new StoreLocator.maps.places.SearchBox(
             this.$domNode.find('input')[0]
         )
         /*
@@ -1219,8 +1207,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             bounds of the current map's viewport.
         */
         StoreLocator.maps.event.addListener(
-            this.map, 'bounds_changed', ():void =>
-                searchBox.setBounds(this.map.getBounds())
+            this.map,
+            'bounds_changed',
+            ():void => searchBox.setBounds(this.map.getBounds())
         )
         /*
             Listen for the event fired when the user selects an item from the
@@ -1229,51 +1218,49 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         StoreLocator.maps.event.addListener(
             searchBox,
             'places_changed',
-            ():$Deferred<Array<Object>> =>
-                this.ensurePlaceLocations(searchBox.getPlaces()).then((
-                    places:Array<Object>
-                ):Array<Object> => {
-                    const foundPlace:?Object = this.determineBestSearchResult(
-                        places)
-                    if (foundPlace) {
-                        let shortestDistanceInMeter:number = Number.MAX_VALUE
-                        let matchingMarker:?Object = null
-                        for (const marker:Object of this.markers) {
-                            const distanceInMeter:number =
-                                StoreLocator.maps.geometry.spherical
-                                    .computeDistanceBetween(
-                                        foundPlace.geometry.location,
-                                        marker.position
-                                    )
-                            if (distanceInMeter < shortestDistanceInMeter) {
-                                shortestDistanceInMeter = distanceInMeter
-                                matchingMarker = marker
-                            }
-                        }
-                        if (
-                            matchingMarker &&
-                            shortestDistanceInMeter <=
-                                this._options.searchOptions
-                        ) {
-                            if (this._options.successfulSearchZoom)
-                                this.map.setZoom(
-                                    this._options.successfulSearchZoom
+            async ():Promise<void> => {
+                const places:Array<MapPlaceResult> =
+                    await this.ensurePlaceLocations(searchBox.getPlaces())
+                const foundPlace:MapPlaceResult =
+                    this.determineBestSearchResult(places)
+                if (foundPlace) {
+                    let shortestDistanceInMeter:number = Number.MAX_VALUE
+                    let matchingMarker:Marker
+                    for (const marker of this.markers) {
+                        const distanceInMeter:number =
+                            StoreLocator.maps.geometry.spherical
+                                .computeDistanceBetween(
+                                    foundPlace.geometry.location,
+                                    marker.position
                                 )
-                            this.openMarker(matchingMarker)
-                            return places
+                        if (distanceInMeter < shortestDistanceInMeter) {
+                            shortestDistanceInMeter = distanceInMeter
+                            matchingMarker = marker
                         }
-                        if (this.currentlyOpenWindow) {
-                            this.currentlyOpenWindow.isOpen = false
-                            this.currentlyOpenWindow.close()
-                        }
-                        this.map.setCenter(foundPlace.geometry.location)
-                        if (this._options.successfulSearchZoom)
-                            this.map.setZoom(
-                                this._options.successfulSearchZoom
-                            )
                     }
-                    return places
-                }))
+                    if (
+                        matchingMarker &&
+                        shortestDistanceInMeter <= this._options.searchOptions
+                    ) {
+                        if (this._options.successfulSearchZoomLevel)
+                            this.map.setZoom(
+                                this._options.successfulSearchZoomLevel
+                            )
+                        this.openMarker(matchingMarker)
+                        return places
+                    }
+                    if (this.currentlyOpenWindow) {
+                        this.currentlyOpenWindow.isOpen = false
+                        this.currentlyOpenWindow.close()
+                    }
+                    this.map.setCenter(foundPlace.geometry.location)
+                    if (this._options.successfulSearchZoomLevel)
+                        this.map.setZoom(
+                            this._options.successfulSearchZoomLevel
+                        )
+                }
+                return places
+            }))
         return this
     }
     /**
@@ -1281,48 +1268,53 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @param places - Places to check for.
      * @returns A promise which will be resolved if all places are ensured.
      */
-    ensurePlaceLocations(places:Array<Object>):$Deferred<Array<Object>> {
-        const result:$Deferred<Array<Object>> = $.Deferred()
+    ensurePlaceLocations(
+        places:Array<MapPlaceResult>
+    ):Promise<Array<MapPlaceResult>> {
         let runningGeocodes:number = 0
         const geocoder:MapGeocoder = new StoreLocator.maps.Geocoder()
-        for (const place of places)
-            if (!('geometry' in place && 'location' in place.geometry)) {
-                this.warn(
-                    'Found place "{1}" doesn\'t have a location. Full object:',
-                    place.name
-                )
-                this.warn(place)
-                this.info(
-                    'Geocode will be determined separately. With address ' +
-                    '"{1}".',
-                    place.name
-                )
-                runningGeocodes += 1
-                /* eslint-disable no-loop-func */
-                geocoder.geocode(
-                    {address: place.name},
-                    (results:Array<Object>, status:number):void => {
-                        runningGeocodes -= 1
-                        if (status === StoreLocator.maps.GeocoderStatus
-                            .OK
-                        )
-                            place.geometry = results[0].geometry
-                        else {
-                            delete places[places.indexOf(place)]
-                            this.warn(
-                                'Found place "{1}" couldn\'t be geocoded by ' +
-                                'google. Removing it from the places list.',
-                                place.name)
+        return new Promise((resolve:Function, reject:Function):void => {
+            for (const place of places)
+                if (!('geometry' in place && 'location' in place.geometry)) {
+                    this.warn(
+                        `Found place "${place.name}" doesn't have a location` +
+                        '. Full object:'
+                    )
+                    this.warn(place)
+                    this.info(
+                        'Geocode will be determined separately. With address' +
+                        ` "${place.name}".`
+                    )
+                    runningGeocodes += 1
+                    /* eslint-disable no-loop-func */
+                    geocoder.geocode(
+                        {address: place.name},
+                        (
+                            results:Array<MapGeocoderResult>,
+                            status:MapGeocoderStatus
+                        ):void => {
+                            runningGeocodes -= 1
+                            if (status === StoreLocator.maps.GeocoderStatus.OK)
+                                place.geometry = results[0].geometry
+                            else {
+                                delete places[places.indexOf(place)]
+                                this.warn(
+                                    `Found place "${place.name}" couldn\'t ` +
+                                    'be geocoded by google. Removing it from' +
+                                    ' the places list.'
+                                )
+                            }
+                            // Resolve all after last resolved geocoding.
+                            if (runningGeocodes === 0)
+                                resolve(places)
                         }
-                        if (runningGeocodes === 0)
-                            result.resolve(places)
-                    }
-                )
-                /* eslint-enable no-loop-func */
-            }
-        if (runningGeocodes === 0)
-            result.resolve(places)
-        return result
+                    )
+                    /* eslint-enable no-loop-func */
+                }
+            // Resolve directly if we don't have to wait for any geocoding.
+            if (runningGeocodes === 0)
+                resolve(places)
+        })
     }
     /**
      * Determines the best search result from given list of candidates.
@@ -1330,11 +1322,13 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @param candidates - List of search results to determine best from.
      * @returns The determined best result.
      */
-    determineBestSearchResult(candidates:Array<Object>):?Object {
-        let result:?Object = null
+    determineBestSearchResult(
+        candidates:Array<MapPlaceResult>
+    ):null|MapPlaceResult {
+        let result:null|MapPlaceResult = null
         if (candidates.length) {
             let shortestDistanceInMeter:number = Number.MAX_VALUE
-            for (const candidate:Object of candidates) {
+            for (const candidate of candidates) {
                 const distanceInMeter:number = StoreLocator.maps.geometry
                     .spherical.computeDistanceBetween(
                         candidate.geometry.location, this.map.getCenter()
@@ -1426,9 +1420,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @param marker - Marker to attach event listener to.
      * @returns The current instance.
      */
-    attachMarkerEventListener(marker:Object):StoreLocator<TElement> {
+    attachMarkerEventListener(marker:Marker):StoreLocator<TElement> {
         StoreLocator.maps.event.addListener(
-            marker.infoWindow, 'closeclick', ():void => {
+            marker.infoWindow,
+            'closeclick',
+            ():void => {
                 marker.infoWindow.isOpen = false
             }
         )
@@ -1443,7 +1439,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @param event - Event which has triggered the marker opening call.
      * @returns The current instance.
      */
-    openMarker(marker:Object, event:?Object):StoreLocator<TElement> {
+    openMarker(marker:Marker, event?:Event):StoreLocator<TElement> {
         if (event && !('stopPropagation' in event))
             event = null
         this.highlightMarker(marker, event, 'stop')
@@ -1453,10 +1449,10 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         */
         if (
             'cluster' in this._options.marker &&
-            this._options.marker.cluster.maxZoom &&
-            this.map.getZoom() <= this._options.marker.cluster.maxZoom
+            this._options.marker.cluster.maxZoomLevel &&
+            this.map.getZoom() <= this._options.marker.cluster.maxZoomLevel
         )
-            this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
+            this.map.setZoom(this._options.marker.cluster.maxZoomLevel + 1)
         this.closeSearchResults(event)
         if (
             this.currentlyOpenWindow &&
@@ -1493,6 +1489,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         this.fireEvent('infoWindowOpened', false, this, event, marker)
         return this
     }
+    // TODO
     /**
      * Focuses given place on map.
      * @param place - Place to open.
@@ -1508,7 +1505,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             this.currentlyOpenWindow.close()
         }
         this.map.setCenter(place.geometry.location)
-        this.map.setZoom(this._options.successfulSearchZoom)
+        this.map.setZoom(this._options.successfulSearchZoomLevel)
         return this
     }
     /**
@@ -1541,14 +1538,16 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 */
                 if (
                     'cluster' in this._options.marker &&
-                    this._options.marker.cluster.maxZoom &&
+                    this._options.marker.cluster.maxZoomLevel &&
                     this.map.getZoom() <=
-                        this._options.marker.cluster.maxZoom &&
+                        this._options.marker.cluster.maxZoomLevel &&
                     'position' in marker.nativeMarker &&
                     this.map.getBounds().contains(marker.nativeMarker.position)
                 ) {
                     this.map.setCenter(marker.nativeMarker.position)
-                    this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
+                    this.map.setZoom(
+                        this._options.marker.cluster.maxZoomLevel + 1
+                    )
                 }
                 if (
                     marker !== this.currentlyHighlightedMarker &&
@@ -1584,7 +1583,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 return this._options.infoWindow.content
         }
         let content:string = '<div>'
-        for (const name:string in marker.data)
+        for (const name in marker.data)
             if (marker.data.hasOwnProperty(name))
                 content += `${name}: ${marker.data[name]}<br />`
         return `${content}</div>`
@@ -1614,9 +1613,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         }
         if (searchResults.length) {
             let content:string = ''
-            for (const result:Object of searchResults) {
+            for (const result of searchResults) {
                 content += '<div>'
-                for (const name:string in result.data)
+                for (const name in result.data)
                     if (
                         result.data.hasOwnProperty(name) &&
                         (

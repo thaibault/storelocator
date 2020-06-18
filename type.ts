@@ -23,14 +23,16 @@ import 'googlemaps'
 // region exports
 // /  region implementation
 export type Map = google.maps.Map
-export type PlacesService = google.maps.places.PlacesService
 export type MapArea = google.maps.LatLngBounds
 export type MapGeocoder = google.maps.Geocoder
+export type MapGeocoderResult = google.maps.GeocoderResult
+export type MapGeocoderStatus = google.maps.GeocoderStatus
 export type MapMarker = google.maps.Marker
 export type MapOptions = google.maps.MapOptions
 export type MapPosition = google.maps.LatLng
+export type MapPlaceResult = google.maps.places.PlaceResult
 export type MapPlacesServices = google.maps.places.PlacesService
-export type SearchBox = google.maps.places.SearchBox
+export type MapSearchBox = google.maps.places.SearchBox
 export type Maps = {
     Geocoder:MapGeocoder;
     LatLng:MapPosition;
@@ -38,10 +40,9 @@ export type Maps = {
     Marker:MapMarker;
     places:{
         PlacesService:MapPlacesServices;
-        SearchBox:SearchBox;
+        SearchBox:MapSearchBox;
     }
 }
-export type PlaceResult = google.maps.places.PlaceResult
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
 // / endregion
 export type Marker = {
@@ -56,7 +57,7 @@ export type Position = {
 }
 export type SearchOptions = {
     generic:{
-        filter:(place:PlaceResult) => boolean;
+        filter:(place:MapPlaceResult) => boolean;
         number:Array<number>;
         maximalDistanceInMeter:number;
         prefer:boolean;
@@ -117,7 +118,7 @@ export type Options = BaseOptions & {
         cluster:{
             gridSize:number;
             imagePath:string;
-            maxZoom:number;
+            maxZoomLevel:number;
         },
         icon:{
             scaledSize:{
@@ -148,7 +149,7 @@ export type Options = BaseOptions & {
         number:number;
         southWest:Position;
     };
-    successfulSearchZoom:number;
+    successfulSearchZoomLevel:number;
 }
 // endregion
 // region vim modline
