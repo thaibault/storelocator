@@ -19,19 +19,19 @@
 // region imports
 import JQuery from 'jquery'
 import {Tools, $} from 'clientnode'
-import {$DomNode, PlainObject} from 'clientnode/type'
+import {$DomNode, $Global, PlainObject} from 'clientnode/type'
 import MarkerClusterer from '@google/markerclustererplus'
 
 import {
     Item,
-    Map,
     MapArea,
     MapGeocoder,
     MapGeocoderResult,
     MapGeocoderStatus,
+    MapImpl,
     MapMarker,
     MapPlaceResult,
-    MapPlacesServices,
+    MapPlacesService,
     MapPosition,
     Maps,
     MapSearchBox,
@@ -214,7 +214,7 @@ import {
 export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     Tools<TElement> {
     static applicationInterfaceLoad:Promise<$DomNode>
-    static maps:Maps<Element>
+    static maps:Maps
 
     static _name:string = 'StoreLocator'
 
@@ -227,7 +227,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     currentSearchText:string|null = null
     currentSearchWords:Array<string> = []
     defaultSearchOptions:SearchOptions = {} as SearchOptions
-    map:Map<TElement> = {} as Map<TElement>
+    map:MapImpl<TElement> = {} as MapImpl<TElement>
     markerClusterer:MarkerClusterer|null = null
     markers:Array<Marker> = []
     resultsDomNode:$DomNode|null = null
@@ -236,7 +236,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     seenLocations:Array<string> = []
     $domNode:$DomNode<TElement> = {} as $DomNode<TElement>
 
-    _options:Options
+    _options:Options = {} as Options
     /**
      * Entry point for object orientated plugin.
      * @param options - Options to overwrite default ones.
@@ -283,7 +283,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             },
             startLocation: null,
             stores: {
-                generateProperties: (store:Object):Object => store,
+                generateProperties: (store:Item):Item => store,
                 northEast: {latitude: 85, longitude: 180},
                 number: 100,
                 southWest: {latitude: -85, longitude: -180}
@@ -322,7 +322,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             onOpenSearchResults: Tools.noop,
             onCloseSearchResults: Tools.noop,
             onMarkerHighlighted: Tools.noop
-        }
+        } as unknown as Options
         // endregion
         // Merges given options with default options recursively.
         super.initialize(options)
@@ -407,8 +407,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             const callbackName:string =
                 this._options.applicationInterface.callbackName ?
                     this._options.applicationInterface.callbackName :
-                    StoreLocator.determineUniqueScopeName()
-            $.global[callbackName] = ():void => {
+                    StoreLocator.determineUniqueScopeName();
+            ($.global[callbackName as keyof $Global] as Function) = ():void => {
                 StoreLocator.maps = $.global.google.maps
                 applicationInterfaceLoadCallbacks.resolve(this.$domNode)
             }
@@ -527,7 +527,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             this._options.startLocation.latitude,
             this._options.startLocation.longitude
         )
-        this.map = new StoreLocator.maps.Map(
+        this.map = new StoreLocator.maps.Map<TElement>(
             $('<div>').appendTo(this.$domNode.css('display', 'block'))[0],
             this._options.map
         )
@@ -1325,7 +1325,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      */
     determineBestSearchResult(
         candidates:Array<MapPlaceResult>
-    ):null|MapPlaceResult {
+    ):MapPlaceResult|null {
         let result:null|MapPlaceResult = null
         if (candidates.length) {
             let shortestDistanceInMeter:number = Number.MAX_VALUE
@@ -1595,17 +1595,19 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     async makeSearchResults(
         searchResults:Array<Item>, limitReached:boolean
     ):Promise<string> {
-        if ('content' in this._options.searchOptions) {
-            if (Tools.isFunction(this._options.searchOptions.content)) {
+        const searchOptions:SearchOptions = this._options.searchOptions as
+            SearchOptions
+        if ('content' in searchOptions) {
+            if (Tools.isFunction(searchOptions.content)) {
                 const result:Promise<string>|string =
-                    this._options.searchOptions.content.call(
+                    searchOptions.content.call(
                         this, searchResults, limitReached
                     )
                 if (typeof result === 'string')
                     return result
                 return await result
             }
-            return this._options.searchOptions.content
+            return searchOptions.content as string
         }
         if (searchResults.length) {
             let content:string = ''
@@ -1615,24 +1617,24 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     if (
                         result.data.hasOwnProperty(name) &&
                         (
-                            this._options.searchOptions.properties.length === 0 ||
-                            this._options.searchOptions.properties.includes(name)
+                            searchOptions.properties.length === 0 ||
+                            searchOptions.properties.includes(name)
                         )
                     )
                         content +=
                             `${name}: ` +
                             Tools.stringMark(
-                                `${result.data[name]}`,
+                                `${result.data[name as keyof object]}`,
                                 this.currentSearchWords,
                                 '<span class="tools-mark">{1}</span>',
-                                this._options.searchOptions.normalizer
+                                searchOptions.normalizer
                             ) +
                             '<br />'
                 content += '</div>'
             }
             return content
         }
-        return this._options.searchOptions.noResultsContent
+        return searchOptions.noResultsContent
     }
 }
 export default StoreLocator

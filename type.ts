@@ -17,12 +17,18 @@
     endregion
 */
 // region imports
-import {Options as BaseOptions} from 'clientnode'
+import {Mapping, Options as BaseOptions, PlainObject} from 'clientnode/type'
 import 'googlemaps'
+import 'googlemaps/coordinates'
+import 'googlemaps/geocoder'
+import 'googlemaps/map'
+import 'googlemaps/marker'
+import 'googlemaps/places-service'
+import 'googlemaps/places-widget'
 // endregion
 // region exports
 // /  region implementation
-export type Map<TElement extends Element = Element> = google.maps.Map<TElement>
+export type MapImpl<TElement extends Element = Element> = google.maps.Map<TElement>
 export type MapArea = google.maps.LatLngBounds
 export type MapGeocoder = google.maps.Geocoder
 export type MapGeocoderResult = google.maps.GeocoderResult
@@ -31,23 +37,23 @@ export type MapMarker = google.maps.Marker
 export type MapOptions = google.maps.MapOptions
 export type MapPosition = google.maps.LatLng
 export type MapPlaceResult = google.maps.places.PlaceResult
-export type MapPlacesServices = google.maps.places.PlacesService
+export type MapPlacesService = google.maps.places.PlacesService
 export type MapSearchBox = google.maps.places.SearchBox
-export interface Maps<TElement extends Element = Element> {
-    Geocoder:MapGeocoder;
-    LatLng:MapPosition;
-    Map:Map<TElement>;
-    Marker:MapMarker;
+export type Maps = {
+    Geocoder:{new: MapGeocoder};
+    LatLng:{new: MapPosition};
+    Map:{new: MapImpl};
+    Marker:{new: MapMarker};
     places:{
-        PlacesService:MapPlacesServices;
-        SearchBox:MapSearchBox;
+        PlacesService:{new: MapPlacesService};
+        SearchBox:{new: MapSearchBox};
     }
 }
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
 // / endregion
 export type Marker = {
     data:object;
-    map:Map;
+    map:MapImpl;
     nativeMarker:MapMarker;
     position:MapPosition;
 }
@@ -56,6 +62,9 @@ export type Position = {
     longitude:number;
 }
 export type SearchOptions = {
+    content?:string|((searchResults:Array<Item>, limitReached:boolean) =>
+        Promise<string>|string
+    );
     generic:{
         filter:(place:MapPlaceResult) => boolean;
         number:Array<number>;

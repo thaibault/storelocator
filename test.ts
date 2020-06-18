@@ -13,9 +13,11 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-// region imports
-import Tools, {$DomNode} from 'clientnode/type'
+// region imports 
+import Tools from 'clientnode'
+import {$DomNode} from 'clientnode/type'
 import {getInitializedBrowser} from 'weboptimizer/browser'
+import {InitializedBrowser} from 'weboptimizer/type'
 
 import StoreLocator from './index'
 // endregion
@@ -34,7 +36,7 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
     let storeLocator:StoreLocator
     beforeAll(async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
-        $(browser.document.body)
+        $(browser.window.document.body)
             .append('<store-locator><input></store-locator>')
         $domNode = await $('store-locator').StoreLocator({
             applicationInterface: {
@@ -59,21 +61,19 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
     // endregion
     // region tests
     test('initialize', async ():Promise<void> => {
-        assert.ok(storeLocator)
+        expect(storeLocator).toBeDefined()
         if (testEnvironment !== 'node') {
             expect($domNode.children('div').length).toBeGreaterThan(0)
             const $inputDomNode:$DomNode = $domNode.find('input')
-            expect($inputDomNode.length).toBeGraterThan(0)
+            expect($inputDomNode.length).toBeGreaterThan(0)
             $inputDomNode.val('a')
             $inputDomNode.trigger({
                 keyCode: Tools.keyCode.a,
                 type: 'keyup'
-            })
+            } as unknown as Event)
             await Tools.timeout()
-            expect(
-                $storeLocatorDomNode.find('.store-locator-search-results')
-                    .length
-            ).toStrictEqual(1)
+            expect($domNode.find('.store-locator-search-results').length)
+                .toStrictEqual(1)
         }
     })
     // endregion
