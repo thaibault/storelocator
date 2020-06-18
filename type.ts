@@ -22,7 +22,7 @@ import 'googlemaps'
 // endregion
 // region exports
 // /  region implementation
-export type Map = google.maps.Map
+export type Map<TElement extends Element = Element> = google.maps.Map<TElement>
 export type MapArea = google.maps.LatLngBounds
 export type MapGeocoder = google.maps.Geocoder
 export type MapGeocoderResult = google.maps.GeocoderResult
@@ -33,10 +33,10 @@ export type MapPosition = google.maps.LatLng
 export type MapPlaceResult = google.maps.places.PlaceResult
 export type MapPlacesServices = google.maps.places.PlacesService
 export type MapSearchBox = google.maps.places.SearchBox
-export type Maps = {
+export interface Maps<TElement extends Element = Element> {
     Geocoder:MapGeocoder;
     LatLng:MapPosition;
-    map:Map;
+    Map:Map<TElement>;
     Marker:MapMarker;
     places:{
         PlacesService:MapPlacesServices;

@@ -31,7 +31,7 @@ import {
     MapGeocoderStatus,
     MapMarker,
     MapPlaceResult,
-    MapPlacesService,
+    MapPlacesServices,
     MapPosition,
     Maps,
     MapSearchBox,
@@ -214,7 +214,7 @@ import {
 export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     Tools<TElement> {
     static applicationInterfaceLoad:Promise<$DomNode>
-    static maps:Maps
+    static maps:Maps<Element>
 
     static _name:string = 'StoreLocator'
 
@@ -226,14 +226,15 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     currentSearchSegments:Array<string> = []
     currentSearchText:string|null = null
     currentSearchWords:Array<string> = []
-    defaultSearchOptions:SearchOptions
-    map:Map
+    defaultSearchOptions:SearchOptions = {} as SearchOptions
+    map:Map<TElement> = {} as Map<TElement>
     markerClusterer:MarkerClusterer|null = null
     markers:Array<Marker> = []
     resultsDomNode:$DomNode|null = null
     searchResultsDirty:boolean = false
     searchResultsStyleProperties:PlainObject = {}
     seenLocations:Array<string> = []
+    $domNode:$DomNode<TElement> = {} as $DomNode<TElement>
 
     _options:Options
     /**
@@ -241,7 +242,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @param options - Options to overwrite default ones.
      * @returns Currently selected dom node.
      */
-    initialize(options:object = {}):Promise<TElement> {
+    initialize(options:object = {}):Promise<$DomNode<TElement>> {
         // region properties
         this._options = {
             additionalStoreProperties: {},
@@ -274,7 +275,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             },
             map: {
                 maxZoom: 0,
-                minZoom: 9999
+                minZoom: 9999,
                 zoom: 3,
                 disableDefaultUI: true,
                 zoomControl: true,
@@ -329,12 +330,12 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             generic: {
                 filter: (place:MapPlaceResult):boolean =>
                     /(?:^| )(?:Deutschland|Germany)( |$)/i.test(
-                        place.formatted_address
+                        place.formatted_address as string
                     ),
                 maximalDistanceInMeter: 1000000,
                 number: [2, 5],
                 prefer: true,
-                retrieveOptions: {radius: '50000'}
+                retrieveOptions: {radius: 50000, query: ''}
             },
             loadingContent: this._options.infoWindow.loadingContent,
             maximumNumberOfResults: 50,
@@ -386,15 +387,16 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 resolve:Function, reject:Function
             ):void => {
                 applicationInterfaceLoadCallbacks.resolve = ():void => {
-                    callbacks.resolved = true
+                    applicationInterfaceLoadCallbacks.resolved = true
                     resolve(this.$domNode)
                 }
                 applicationInterfaceLoadCallbacks.reject = reject
             })
         }
-        const result:Promise<TElement> = StoreLocator.applicationInterfaceLoad
+        const result:Promise<$DomNode> = StoreLocator.applicationInterfaceLoad
             .then(this.bootstrap.bind(this))
             .then(():StoreLocator<TElement> => this.fireEvent('loaded'))
+            .then(():$DomNode<TElement> => this.$domNode)
         if ('google' in $.global && 'maps' in $.global.google) {
             StoreLocator.maps = $.global.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
@@ -430,7 +432,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * Determines useful location cluster, info windows and marker.
      * @returns The current instance.
      */
-    bootstrap():Promise<TElement> {
+    bootstrap():Promise<$DomNode<TElement>> {
         if (
             !('location' in $.global) ||
             [null, undefined].includes($.global.location)
@@ -520,7 +522,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * Initializes cluster, info windows and marker.
      * @returns The current instance.
      */
-    initializeMap():Promise<TElement> {
+    initializeMap():Promise<$DomNode<TElement>> {
         this._options.map.center = new StoreLocator.maps.LatLng(
             this._options.startLocation.latitude,
             this._options.startLocation.longitude
@@ -1258,7 +1260,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                             this._options.successfulSearchZoomLevel
                         )
                 }
-            }))
+            }
+        )
         return this
     }
     /**
