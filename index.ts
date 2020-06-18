@@ -19,7 +19,7 @@
 // region imports
 import JQuery from 'jquery'
 import {Tools, $} from 'clientnode'
-import {$DomNode, $Global, Mapping} from 'clientnode/type'
+import {$DomNode, $Global, Mapping, TimeoutPromise} from 'clientnode/type'
 import MarkerClusterer from '@google/markerclustererplus'
 
 import {
@@ -230,6 +230,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     map:MapImpl<TElement> = {} as MapImpl<TElement>
     markerClusterer:MarkerClusterer|null = null
     markers:Array<Marker> = []
+    resetMarkerCluster:Function|null = null
     resultsDomNode:$DomNode|null = null
     searchResultsDirty:boolean = false
     searchResultsStyleProperties:Mapping<number|string> = {}
@@ -393,10 +394,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 applicationInterfaceLoadCallbacks.reject = reject
             })
         }
-        const result:Promise<$DomNode> = StoreLocator.applicationInterfaceLoad
-            .then(this.bootstrap.bind(this))
-            .then(():StoreLocator<TElement> => this.fireEvent('loaded'))
-            .then(():$DomNode<TElement> => this.$domNode)
+        const result:Promise<$DomNode<TElement>> =
+            StoreLocator.applicationInterfaceLoad
+                .then(this.bootstrap.bind(this))
+                .then(():StoreLocator<TElement> => this.fireEvent('loaded'))
+                .then(():$DomNode<TElement> => this.$domNode)
         if ('google' in $.global && 'maps' in $.global.google) {
             StoreLocator.maps = $.global.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
@@ -408,7 +410,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 this._options.applicationInterface.callbackName ?
                     this._options.applicationInterface.callbackName :
                     StoreLocator.determineUniqueScopeName();
-            ($.global[callbackName as keyof $Global] as Function) = ():void => {
+            ($.global as unknown as Mapping<Function>)[callbackName] = (
+            ):void => {
                 StoreLocator.maps = $.global.google.maps
                 applicationInterfaceLoadCallbacks.resolve(this.$domNode)
             }
@@ -417,7 +420,12 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 this._options.applicationInterface.key ?
                     `key=${this._options.applicationInterface.key}&` :
                     '',
-                `${window === $.global ? 'window' : 'global'}.${callbackName}`
+                (
+                    window === ($.global as unknown as Window) ?
+                        'window' :
+                        'global'
+                ) +
+                `.${callbackName}`
             ))
                 .done(applicationInterfaceLoadCallbacks.resolve.bind(
                     this, this.$domNode
@@ -435,14 +443,14 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     bootstrap():Promise<$DomNode<TElement>> {
         if (
             !('location' in $.global) ||
-            [null, undefined].includes($.global.location)
+            [null, undefined].includes($.global.location as unknown as null)
         )
             return Promise.resolve(this.$domNode)
         if (this._options.startLocation)
             return this.initializeMap()
         this._options.startLocation = this._options.fallbackLocation
         if ([null, undefined].includes(
-            this._options.ipToLocationApplicationInterface.key
+            this._options.ipToLocationApplicationInterface.key as null
         ))
             return this.initializeMap()
         /*
@@ -452,7 +460,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         */
         let loaded:boolean = false
         return new Promise((resolve:Function, reject:Function):void => {
-            const fallbackTimeout:Promise<boolean> = Tools.timeout(
+            const fallbackTimeout:TimeoutPromise = Tools.timeout(
                 async ():Promise<void> => {
                     loaded = true
                     await this.initializeMap()
@@ -523,9 +531,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns The current instance.
      */
     initializeMap():Promise<$DomNode<TElement>> {
+        const startLocation:Position = this._options.startLocation as Position
         this._options.map.center = new StoreLocator.maps.LatLng(
-            this._options.startLocation.latitude,
-            this._options.startLocation.longitude
+            startLocation.latitude, startLocation.longitude
         )
         this.map = new StoreLocator.maps.Map<TElement>(
             $('<div>').appendTo(this.$domNode.css('display', 'block'))[0],
@@ -734,7 +742,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns The current instance.
      */
     initializeDataSourceSearch():StoreLocator<TElement> {
-        this.on(this.$domNode, 'keydown', (event:Event):void => {
+        this.on(this.$domNode, 'keydown', (event:KeyboardEvent):void => {
             /*
                 NOTE: Events that doesn't occurs in search context are handled
                 by the native map implementation and won't be propagated so we
@@ -813,7 +821,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             if (this.currentSearchText)
                 this.openSearchResults()
         })
-        this.on($inputDomNode, 'keydown', (event:Event):void => {
+        this.on($inputDomNode, 'keydown', (event:KeyboardEvent):void => {
             if (Tools.keyCode.DOWN === event.keyCode && this.currentSearchText)
                 this.openSearchResults()
         })
@@ -837,7 +845,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         const placesService:MapPlacesService =
             new StoreLocator.maps.places.PlacesService(this.map)
         return Tools.debounce(
-            async (event:Event):Promise<void> => {
+            async (event?:KeyboardEvent):Promise<void> => {
                 for (const name in Tools.keyCode)
                     if (
                         event &&
@@ -1202,7 +1210,17 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      */
     initializeGenericSearch():StoreLocator<TElement> {
         const searchBox:MapSearchBox = new StoreLocator.maps.places.SearchBox(
-            this.$domNode.find('input')[0]
+            this.$domNode.find('input')[0],
+            {bounds: new StoreLocator.maps.LatLngBounds(
+                new StoreLocator.maps.LatLng(
+                    this._options.limit.southWest.latitude,
+                    this._options.limit.southWest.longitude
+                ),
+                new StoreLocator.maps.LatLng(
+                    this._options.limit.northEast.latitude,
+                    this._options.limit.northEast.longitude
+                )
+            )}
         )
         /*
             Bias the search box results towards places that are within the

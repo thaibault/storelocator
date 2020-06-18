@@ -20,6 +20,7 @@
 import {Mapping, Options as BaseOptions, PlainObject} from 'clientnode/type'
 import 'googlemaps'
 import 'googlemaps/coordinates'
+import 'googlemaps/event'
 import 'googlemaps/geocoder'
 import 'googlemaps/map'
 import 'googlemaps/marker'
@@ -34,19 +35,36 @@ export type MapGeocoder = google.maps.Geocoder
 export type MapGeocoderResult = google.maps.GeocoderResult
 export type MapGeocoderStatus = google.maps.GeocoderStatus
 export type MapMarker = google.maps.Marker
+export type MapMarkerOptions = google.maps.ReadonlyMarkerOptions
 export type MapOptions = google.maps.MapOptions
 export type MapPosition = google.maps.LatLng
 export type MapPlaceResult = google.maps.places.PlaceResult
 export type MapPlacesService = google.maps.places.PlacesService
 export type MapSearchBox = google.maps.places.SearchBox
+export type MapSearchBoxOptions = google.maps.places.SearchBoxOptions
 export type Maps = {
+    ControlPosition:google.maps.ControlPosition;
+    event:{
+        // TODO
+        addListener:(instance: object, eventName: string, handler: (...args: any[]) => void): MapsEventListener;
+        addListenerOnce:(instance: object, eventName: string, handler: (...args: any[]) => void): MapsEventListener;
+    };
     Geocoder:new () => MapGeocoder;
-    LatLng:new () => MapPosition;
-    Map:new () => MapImpl;
-    Marker:new () => MapMarker;
+    LatLng:new (latitude:number, longitude: number, noWrap?:boolean) =>
+        MapPosition;
+    LatLngBounds:new (southWest:MapPosition, northEast:MapPosition) =>
+        MapArea;
+    Map:new <TElement extends Element = Element>(
+        domNode:TElement, options?:MapOptions
+    ) => MapImpl<TElement>;
+    Marker:new (options?:MapMarkerOptions) => MapMarker;
     places:{
-        PlacesService:new () => MapPlacesService;
-        SearchBox:new () => MapSearchBox;
+        PlacesService:new <TElement extends Element = Element>(
+            map:MapImpl<TElement>
+        ) => MapPlacesService;
+        SearchBox:new (
+            inputDomNode:HTMLInputElement, options?:MapSearchBoxOptions
+        ) => MapSearchBox;
     }
 }
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
@@ -91,7 +109,7 @@ export type Options = BaseOptions & {
     additionalStoreProperties:object;
     applicationInterface:{
         url:string;
-        callbackName?:Function|null;
+        callbackName?:null|string;
         key?:null|string;
     };
     defaultMarkerIconFileName?:null|string;
