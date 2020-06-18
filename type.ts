@@ -72,7 +72,7 @@ export type SearchOptions = {
     stylePropertiesToDeriveFromInputField:Array<string>;
 }
 export type Item = Mapping<any> & {
-    data:object;
+    data:null|object;
     foundWords:Array<string>;
     highlight:(event:object, type:string) => void;
     open:(event:object) => void;
