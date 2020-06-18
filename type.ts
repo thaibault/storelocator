@@ -40,13 +40,13 @@ export type MapPlaceResult = google.maps.places.PlaceResult
 export type MapPlacesService = google.maps.places.PlacesService
 export type MapSearchBox = google.maps.places.SearchBox
 export type Maps = {
-    Geocoder:{new: MapGeocoder};
-    LatLng:{new: MapPosition};
-    Map:{new: MapImpl};
-    Marker:{new: MapMarker};
+    Geocoder:new () => MapGeocoder;
+    LatLng:new () => MapPosition;
+    Map:new () => MapImpl;
+    Marker:new () => MapMarker;
     places:{
-        PlacesService:{new: MapPlacesService};
-        SearchBox:{new: MapSearchBox};
+        PlacesService:new () => MapPlacesService;
+        SearchBox:new () => MapSearchBox;
     }
 }
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
@@ -104,8 +104,8 @@ export type Options = BaseOptions & {
         loadingContent:string;
     };
     input:{
-        hide:PlainObject;
-        showAnimation:Array<PlainObject>;
+        hide:Mapping<number|string>;
+        showAnimation:[Mapping<number|string>, string];
     };
     ip:string;
     ipToLocationApplicationInterface:{

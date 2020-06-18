@@ -19,7 +19,7 @@
 // region imports
 import JQuery from 'jquery'
 import {Tools, $} from 'clientnode'
-import {$DomNode, $Global, PlainObject} from 'clientnode/type'
+import {$DomNode, $Global, Mapping} from 'clientnode/type'
 import MarkerClusterer from '@google/markerclustererplus'
 
 import {
@@ -232,7 +232,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     markers:Array<Marker> = []
     resultsDomNode:$DomNode|null = null
     searchResultsDirty:boolean = false
-    searchResultsStyleProperties:PlainObject = {}
+    searchResultsStyleProperties:Mapping<number|string> = {}
     seenLocations:Array<string> = []
     $domNode:$DomNode<TElement> = {} as $DomNode<TElement>
 
@@ -706,7 +706,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     initializeDataSourceSearchResultsBox():StoreLocator<TElement> {
         this.searchResultsStyleProperties = {}
         const $inputDomNode = this.$domNode.find('input')
-        const allStyleProperties:PlainObject = $inputDomNode.Tools('style')
+        const allStyleProperties:Mapping<number|string> =
+            $inputDomNode.Tools('style')
         for (const propertyName in allStyleProperties)
             if (
                 this._options.searchOptions
