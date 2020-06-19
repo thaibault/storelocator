@@ -25,6 +25,7 @@ import MarkerClusterer from '@google/markerclustererplus'
 import {
     Item,
     MapArea,
+    MapEventListener,
     MapGeocoder,
     MapGeocoderResult,
     MapGeocoderStatus,
@@ -696,16 +697,18 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 }
             }
         )
-        return new Promise((resolve:Function, reject:Function):void =>
-            StoreLocator.maps.event.addListenerOnce(
-                this.map,
-                'idle',
-                async ():Promise<void> => {
-                    await addMarkerPromise
-                    resolve(this.$domNode)
-                }
-            )
-        )
+        return new Promise((resolve:Function, reject:Function):void => {
+            const listener:MapEventListener =
+                StoreLocator.maps.event.addListenerOnce(
+                    this.map,
+                    'idle',
+                    async ():Promise<void> => {
+                        listener.remove()
+                        await addMarkerPromise
+                        resolve(this.$domNode)
+                    }
+                )
+        })
     }
     /**
      * Position search results right below the search input field.
@@ -718,14 +721,16 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             $inputDomNode.Tools('style')
         for (const propertyName in allStyleProperties)
             if (
-                this._options.searchOptions
+                (this._options.searchOptions as SearchOptions)
                     .stylePropertiesToDeriveFromInputField
                     .includes(propertyName)
             )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
-        this.searchResultsStyleProperties.marginTop =
+        const outerHeight:number|undefined =
             this.$domNode.find('input').outerHeight(true)
+        if (outerHeight)
+            this.searchResultsStyleProperties.marginTop = outerHeight
         // Prepare search result positioning.
         this.resultsDomNode = $('<div>')
             .addClass(Tools.stringCamelCaseToDelimited(

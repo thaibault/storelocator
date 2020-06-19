@@ -29,11 +29,13 @@ import 'googlemaps/places-widget'
 // endregion
 // region exports
 // /  region implementation
-export type MapImpl<TElement extends Element = Element> = google.maps.Map<TElement>
 export type MapArea = google.maps.LatLngBounds
+export type MapEventListener = google.maps.MapsEventListener
 export type MapGeocoder = google.maps.Geocoder
 export type MapGeocoderResult = google.maps.GeocoderResult
 export type MapGeocoderStatus = google.maps.GeocoderStatus
+export type MapImpl<TElement extends Element = Element> =
+    google.maps.Map<TElement>
 export type MapMarker = google.maps.Marker
 export type MapMarkerOptions = google.maps.ReadonlyMarkerOptions
 export type MapOptions = google.maps.MapOptions
@@ -43,28 +45,19 @@ export type MapPlacesService = google.maps.places.PlacesService
 export type MapSearchBox = google.maps.places.SearchBox
 export type MapSearchBoxOptions = google.maps.places.SearchBoxOptions
 export type Maps = {
-    ControlPosition:google.maps.ControlPosition;
+    ControlPosition:typeof google.maps.ControlPosition;
     event:{
-        // TODO
-        addListener:(instance: object, eventName: string, handler: (...args: any[]) => void): MapsEventListener;
-        addListenerOnce:(instance: object, eventName: string, handler: (...args: any[]) => void): MapsEventListener;
+        addListener:(instance:MapImpl, eventName:string, handler:(...args: any[]) => void) => MapEventListener;
+        addListenerOnce:(instance:MapImpl, eventName:string, handler:(...args: any[]) => void) => MapEventListener;
     };
-    Geocoder:new () => MapGeocoder;
-    LatLng:new (latitude:number, longitude: number, noWrap?:boolean) =>
-        MapPosition;
-    LatLngBounds:new (southWest:MapPosition, northEast:MapPosition) =>
-        MapArea;
-    Map:new <TElement extends Element = Element>(
-        domNode:TElement, options?:MapOptions
-    ) => MapImpl<TElement>;
-    Marker:new (options?:MapMarkerOptions) => MapMarker;
+    Geocoder:typeof google.maps.Geocoder;
+    LatLng:typeof google.maps.LatLng;
+    LatLngBounds:typeof google.maps.LatLngBounds;
+    Map:typeof google.maps.Map;
+    Marker:typeof google.maps.Marker;
     places:{
-        PlacesService:new <TElement extends Element = Element>(
-            map:MapImpl<TElement>
-        ) => MapPlacesService;
-        SearchBox:new (
-            inputDomNode:HTMLInputElement, options?:MapSearchBoxOptions
-        ) => MapSearchBox;
+        PlacesService:typeof google.maps.places.PlacesService;
+        SearchBox:typeof google.maps.places.SearchBox;
     }
 }
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
