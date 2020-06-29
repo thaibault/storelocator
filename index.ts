@@ -17,9 +17,9 @@
     endregion
 */
 // region imports
-import JQuery from 'jquery'
 import {Tools, $} from 'clientnode'
 import {$DomNode, $Global, Mapping, TimeoutPromise} from 'clientnode/type'
+import JQuery from 'jquery'
 import MarkerClusterer from '@google/markerclustererplus'
 
 import {
@@ -432,7 +432,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     this, this.$domNode
                 ))
                 .fail((
-                    response:JQuery.jqXHR<string|undefined>, error:Error
+                    response:JQuery.jqXHR<string|undefined>,
+                    error:JQuery.Ajax.ErrorTextStatus
                 ):void => applicationInterfaceLoadCallbacks.reject(error))
         }
         return result
@@ -537,7 +538,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             startLocation.latitude, startLocation.longitude
         )
         this.map = new StoreLocator.maps.Map<TElement>(
-            $('<div>').appendTo(this.$domNode.css('display', 'block'))[0],
+            $('<div>').appendTo(this.$domNode.css('display', 'block'))[0] as
+                TElement,
             this._options.map
         )
         if (this._options.limit)
