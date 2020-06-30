@@ -36,21 +36,31 @@ export type MapGeocoderResult = google.maps.GeocoderResult
 export type MapGeocoderStatus = google.maps.GeocoderStatus
 export type MapImpl<TElement extends Element = Element> =
     google.maps.Map<TElement>
+export type MapInfoWindow = google.maps.InfoWindow
 export type MapMarker = google.maps.Marker
 export type MapMarkerOptions = google.maps.ReadonlyMarkerOptions
 export type MapOptions = google.maps.MapOptions
 export type MapPosition = google.maps.LatLng
 export type MapPlaceResult = google.maps.places.PlaceResult
 export type MapPlacesService = google.maps.places.PlacesService
+export type MapReadonlyMarkerOptions = google.maps.ReadonlyMarkerOptions
 export type MapSearchBox = google.maps.places.SearchBox
 export type MapSearchBoxOptions = google.maps.places.SearchBoxOptions
+export type MapSize = google.maps.Size
 export type Maps = {
     ControlPosition:typeof google.maps.ControlPosition;
     event:{
-        addListener:(instance:MapImpl, eventName:string, handler:(...args: any[]) => void) => MapEventListener;
-        addListenerOnce:(instance:MapImpl, eventName:string, handler:(...args: any[]) => void) => MapEventListener;
+        addListener:(instance:MapImpl|MapSearchBox, eventName:string, handler:(...args: any[]) => void) => MapEventListener;
+        addListenerOnce:(instance:MapImpl|MapSearchBox, eventName:string, handler:(...args: any[]) => void) => MapEventListener;
     };
     Geocoder:typeof google.maps.Geocoder;
+    GeocoderStatus:typeof google.maps.GeocoderStatus;
+    geometry:{
+        spherical:{
+            computeDistanceBetween:(from:MapPosition, to:MapPosition, radius?:number) =>
+                number;
+        };
+    };
     LatLng:typeof google.maps.LatLng;
     LatLngBounds:typeof google.maps.LatLngBounds;
     Map:typeof google.maps.Map;
@@ -62,11 +72,28 @@ export type Maps = {
 }
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
 // / endregion
-export type Marker = {
-    data:object;
+export type Store = object & {
+    icon:{
+        size?:MapSize;
+        scaledSize?:MapSize;
+        url?:string;
+    };
+    latitude?:number;
+    longitude?:number;
+    markerIconFileName?:string;
+}
+export type Item = {
+    close?:Function;
+    data:null|Store;
+    foundWords:Array<string>;
+    highlight:(event?:Event, type?:string) => void;
+    infoWindow?:MapInfoWindow;
+    isHighlighted:boolean;
+    isOpen:boolean;
     map:MapImpl;
-    nativeMarker:MapMarker;
-    position:MapPosition;
+    nativeMarker?:MapMarker;
+    open:(event?:Event) => void;
+    position:MapPosition|null;
 }
 export type Position = {
     latitude:number;
@@ -90,13 +117,6 @@ export type SearchOptions = {
     properties:Array<string>;
     resultAggregation:'cut'|'union';
     stylePropertiesToDeriveFromInputField:Array<string>;
-}
-export type Item = Mapping<any> & {
-    data:null|object;
-    foundWords:Array<string>;
-    highlight:(event:object, type:string) => void;
-    open:(event:object) => void;
-    position:MapPosition;
 }
 export type Options = BaseOptions & {
     additionalStoreProperties:object;
@@ -163,8 +183,8 @@ export type Options = BaseOptions & {
     searchOptions:number|SearchOptions;
     showInputAfterLoadedDelayInMilliseconds:number;
     startLocation?:null|Position;
-    stores:Array<Item>|string|{
-        generateProperties:(store:Item) => Item;
+    stores:Array<Store>|string|{
+        generateProperties:(store:object) => object;
         northEast:Position;
         number:number;
         southWest:Position;

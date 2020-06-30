@@ -34,11 +34,12 @@ import {
     MapPlaceResult,
     MapPlacesService,
     MapPosition,
+    MapReadonlyMarkerOptions,
     Maps,
     MapSearchBox,
-    Marker,
     Options,
     SearchOptions,
+    Store,
     Position
 } from './type'
 // endregion
@@ -230,7 +231,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     defaultSearchOptions:SearchOptions = {} as SearchOptions
     map:MapImpl<TElement> = {} as MapImpl<TElement>
     markerClusterer:MarkerClusterer|null = null
-    markers:Array<Marker> = []
+    markers:Array<Item> = []
     resetMarkerCluster:Function|null = null
     resultsDomNode:$DomNode|null = null
     searchResultsDirty:boolean = false
@@ -285,7 +286,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             },
             startLocation: null,
             stores: {
-                generateProperties: (store:Item):Item => store,
+                generateProperties: (store:object):object => store,
                 northEast: {latitude: 85, longitude: 180},
                 number: 100,
                 southWest: {latitude: -85, longitude: -180}
@@ -583,9 +584,13 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             this.resetMarkerCluster = ():void => {
                 const markers:Array<MapMarker> = []
                 for (const marker of this.markers) {
-                    marker.nativeMarker.setMap(null)
-                    delete marker.nativeMarker
-                    marker.nativeMarker = new StoreLocator.maps.Marker(marker)
+                    if (marker.nativeMarker) {
+                        marker.nativeMarker.setMap(null)
+                        delete marker.nativeMarker
+                    }
+                    marker.nativeMarker = new StoreLocator.maps.Marker(
+                        marker as MapReadonlyMarkerOptions
+                    )
                     this.attachMarkerEventListener(marker)
                     markers.push(marker.nativeMarker)
                 }
@@ -598,7 +603,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             }
         }
         // Add a marker for each retrieved store.
-        const addMarkerPromise:Promise<Array<Marker>> = new Promise((
+        const addMarkerPromise:Promise<Array<Item>> = new Promise((
             resolve:Function, reject:Function
         ):void => {
             if (Array.isArray(this._options.stores))
@@ -637,7 +642,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     index < this._options.stores.number;
                     index++
                 ) {
-                    const store:object & Position = Tools.extend(
+                    const store:Store = Tools.extend(
                         {
                             latitude:
                                 southWest.lat() +
@@ -695,7 +700,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         this._options.marker.cluster.maxZoomLevel
                 ) {
                     this.currentlyOpenWindow.isOpen = false
-                    this.currentlyOpenWindow.close()
+                    if (this.currentlyOpenWindow.close)
+                        this.currentlyOpenWindow.close()
                 }
             }
         )
@@ -814,7 +820,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                             )
                         else
                             this.focusPlace(
-                                this.currentlyHighlightedMarker.data, event
+                                this.currentlyHighlightedMarker, event
                             )
                 }
             }
@@ -851,6 +857,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     get updateSearchResultsHandler():Function {
         const placesService:MapPlacesService =
             new StoreLocator.maps.places.PlacesService(this.map)
+        const searchOptions:SearchOptions =
+            this._options.searchOptions as SearchOptions
         return Tools.debounce(
             async (event?:KeyboardEvent):Promise<void> => {
                 for (const name in Tools.keyCode)
@@ -871,10 +879,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     )
                         return
                 await this.acquireLock(`${StoreLocator._name}Search`)
-                const searchText:string =
-                    this._options.searchOptions.normalizer(
-                        this.$domNode.find('input').val()
-                    )
+                const searchText:string = searchOptions.normalizer(
+                   this.$domNode.find('input').val() as string || ''
+                )
                 if (
                     this.currentSearchText === searchText &&
                     !this.searchResultsDirty
@@ -899,7 +906,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 }
                 this.openSearchResults()
                 const loadingDomNode:$DomNode =
-                     $(this._options.searchOptions.loadingContent)
+                    $(searchOptions.loadingContent as string)
                 if (
                     this.resultsDomNode &&
                     this.fireEvent(
@@ -911,7 +918,13 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         this.currentSearchResultsDomNode || []
                     )
                 )
-                    this.resultsDomNode.html(loadingDomNode)
+                    /*
+                        NOTE: Cast to string because specified signature misses
+                        valid wrapped dom node type.
+                    */
+                    this.resultsDomNode.html(
+                        loadingDomNode as unknown as string
+                    )
                 if (
                     this.currentSearchResultsDomNode &&
                     this.currentSearchResultsDomNode.length
@@ -927,7 +940,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 this.currentSearchSegments = this.currentSearchWords
                 if (!this.currentSearchSegments.includes(searchText))
                     this.currentSearchSegments.push(searchText)
-                if (this._options.searchOptions.generic.number)
+                if (searchOptions.generic.number)
                     /*
                         NOTE: Google searches for more items than exists in the
                         specified radius. However the radius is a string in the
@@ -939,7 +952,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                                 location: this.map.getCenter(),
                                 query: searchText
                             },
-                            this._options.searchOptions.generic.retrieveOptions
+                            searchOptions.generic.retrieveOptions
                         ),
                         (places:Array<MapPlaceResult>):void => {
                             if (places)
@@ -966,6 +979,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         places:Array<MapPlaceResult>, searchText:string
     ):StoreLocator<TElement> {
         const searchResults:Array<Item> = []
+        const searchOptions:SearchOptions =
+            this._options.searchOptions as SearchOptions
         /*
             NOTE: Since google text search doesn't support sorting by distance
             we have to sort by our own.
@@ -973,52 +988,64 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         let index:number = 1
         for (const place of places.sort((
             firstPlace:MapPlaceResult, secondPlace:MapPlaceResult
-        ):number =>
-            StoreLocator.maps.geometry.spherical.computeDistanceBetween(
-                this.map.getCenter(), firstPlace.geometry.location
-            ) -
-            StoreLocator.maps.geometry.spherical.computeDistanceBetween(
-                this.map.getCenter(), secondPlace.geometry.location
-            )
-        )) {
+        ):number => {
+            let firstDistance:number = 0
+            let secondDistance:number = 0
+            if (firstPlace.geometry)
+                firstDistance = StoreLocator.maps.geometry.spherical
+                    .computeDistanceBetween(
+                        this.map.getCenter(), firstPlace.geometry.location
+                    )
+            if (secondPlace.geometry)
+                secondDistance = StoreLocator.maps.geometry.spherical
+                    .computeDistanceBetween(
+                        this.map.getCenter(), secondPlace.geometry.location
+                    )
+            return firstDistance - secondDistance
+        })) {
             index += 1
-            const distance:number =
-                StoreLocator.maps.geometry.spherical.computeDistanceBetween(
-                    this.map.getCenter(), place.geometry.location
-                )
-            if (
-                distance >
-                this._options.searchOptions.generic.maximalDistanceInMeter
-            )
+            let distance:number = 0
+            if (place.geometry)
+                distance = StoreLocator.maps.geometry.spherical
+                    .computeDistanceBetween(
+                        this.map.getCenter(), place.geometry.location
+                    )
+            if (distance > searchOptions.generic.maximalDistanceInMeter)
                 break
-            if (this._options.searchOptions.generic.filter(place)) {
+            if (searchOptions.generic.filter(place)) {
                 const result:Item = {
                     data: Tools.extend(
                         place,
                         {
                             address: place.formatted_address,
                             distance: distance,
-                            logoFilePath: place.icon.replace(
-                                /^http:(\/\/)/,
-                                `${$.global.location.protocol}$1`
-                            )
+                            logoFilePath: place.icon ?
+                                place.icon.replace(
+                                    /^http:(\/\/)/,
+                                    `${$.global.location.protocol}$1`
+                                ) :
+                                null
                         }
                     ),
                     foundWords: this.currentSearchSegments.filter((
                         word:string
                     ):boolean =>
+                        place.formatted_address &&
                         place.formatted_address.includes(word) ||
                         (place.name || '').includes(word)
                     ),
-                    highlight: (event?:Event, type:string):void => {
-                        this.isHighlighted = type !== 'stop'
+                    highlight: (event?:Event, type?:string):void => {
+                        result.isHighlighted = type !== 'stop'
                     },
+                    isHighlighted: false,
+                    isOpen: false,
+                    map: this.map,
                     open: (event?:Event):StoreLocator<TElement> =>
                         this.focusPlace(result, event),
-                    position: place.geometry.location
+                    position: place.geometry ? place.geometry.location : null
                 }
                 searchResults.push(result)
-                if (this._options.searchOptions.generic.number[1] < index)
+                if (searchOptions.generic.number[1] < index)
                     break
             }
         }
@@ -1033,23 +1060,28 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     performLocalSearch(
         searchText:string, searchResults:Array<Item> = []
     ):StoreLocator<TElement> {
+        const searchOptions:SearchOptions =
+            this._options.searchOptions as SearchOptions
         const numberOfGenericSearchResults:number = searchResults.length
         const defaultProperties:Array<string>|null =
-            this._options.searchOptions.hasOwnProperty('properties') ?
-                this._options.searchOptions.properties :
+            searchOptions.hasOwnProperty('properties') ?
+                searchOptions.properties :
                 null
         for (const marker of this.markers) {
             const properties:Array<string> = defaultProperties ?
                 defaultProperties :
-                Object.keys(marker.data)
+                marker.data ? Object.keys(marker.data) : []
             marker.foundWords = []
             for (const key of properties)
                 for (const searchWord of this.currentSearchSegments)
                     if (
                         !marker.foundWords.includes(searchWord) &&
-                        (marker.data[key] || marker.data[key] === 0) &&
-                        this._options.searchOptions.normalizer(
-                            marker.data[key]
+                        marker.data &&
+                        marker.data[key as keyof Store] &&
+                        typeof marker.data[key as keyof Store] === 'string' &&
+                        searchOptions.normalizer(
+                            marker.data[key as keyof Store] as
+                                unknown as string
                         ).includes(searchWord)
                     ) {
                         marker.foundWords.push(searchWord)
@@ -1057,20 +1089,16 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                             marker.open = (event?:Event):Promise<void> =>
                                 this.openMarker(marker, event)
                             marker.highlight = (
-                                event:Event, type:string
+                                event?:Event, type?:string
                             ):StoreLocator<TElement> =>
                                 this.highlightMarker(marker, event, type)
-                            if (
-                                this._options.searchOptions
-                                    .resultAggregation === 'union'
-                            )
+                            if (searchOptions.resultAggregation === 'union')
                                 searchResults.push(marker)
                         }
                         if (
                             marker.foundWords.length >=
                                 this.currentSearchWords.length &&
-                            this._options.searchOptions.resultAggregation ===
-                                'cut'
+                            searchOptions.resultAggregation === 'cut'
                         )
                             searchResults.push(marker)
                     }
@@ -1080,24 +1108,21 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             results.
         */
         if (
-            this._options.searchOptions.generic.number &&
+            searchOptions.generic.number &&
             searchResults.length &&
-            numberOfGenericSearchResults >
-                this._options.searchOptions.generic.number[0] &&
-            searchResults.length >
-                this._options.searchOptions.generic.number[1]
+            numberOfGenericSearchResults > searchOptions.generic.number[0] &&
+            searchResults.length > searchOptions.generic.number[1]
         )
             searchResults.splice(
-                this._options.searchOptions.generic.number[0],
-                numberOfGenericSearchResults -
-                    this._options.searchOptions.generic.number[0]
+                searchOptions.generic.number[0],
+                numberOfGenericSearchResults - searchOptions.generic.number[0]
             )
         /*
             Sort results by current map center form nearer to more fare away
             results.
         */
         searchResults.sort((first:Item, second:Item):number => {
-            if (this._options.searchOptions.generic.prefer)
+            if (searchOptions.generic.prefer)
                 if (!first.infoWindow && second.infoWindow)
                     return -1
                 else if (!second.infoWindow && first.infoWindow)
@@ -1106,23 +1131,26 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 return 1
             if (second.foundWords.length < first.foundWords.length)
                 return -1
-            return StoreLocator.maps.geometry.spherical.computeDistanceBetween(
-                this.map.getCenter(), first.position
-            ) -
-            StoreLocator.maps.geometry.spherical.computeDistanceBetween(
-                this.map.getCenter(), second.position
-            )
+            let firstDistance:number = 0
+            if (first.position)
+                firstDistance = StoreLocator.maps.geometry.spherical
+                    .computeDistanceBetween(
+                        this.map.getCenter(), first.position
+                    )
+            let secondDistance:number = 0
+            if (second.position)
+                secondDistance = StoreLocator.maps.geometry.spherical
+                    .computeDistanceBetween(
+                        this.map.getCenter(), second.position
+                    )
+            return firstDistance - secondDistance
         })
         // Slice additional unneeded local search results.
         let limitReached:boolean = false
-        if (
-            this._options.searchOptions.maximumNumberOfResults <
-            searchResults.length
-        ) {
+        if (searchOptions.maximumNumberOfResults < searchResults.length) {
             limitReached = true
             searchResults.splice(
-                this._options.searchOptions.maximumNumberOfResults,
-                searchResults.length
+                searchOptions.maximumNumberOfResults, searchResults.length
             )
         }
         // Compile search results markup.
@@ -1139,7 +1167,13 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 this.resultsDomNode,
                 this.currentSearchResultsDomNode || []
             ))
-                this.resultsDomNode.html(resultsRepresentationDomNode)
+                /*
+                    NOTE: Cast to string because specified signature misses
+                    valid wrapped dom node type.
+                */
+                this.resultsDomNode.html(
+                    resultsRepresentationDomNode as unknown as string
+                )
             if (
                 this.currentSearchResultsDomNode &&
                 this.currentSearchResultsDomNode.length
@@ -1233,30 +1267,35 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             Bias the search box results towards places that are within the
             bounds of the current map's viewport.
         */
-        StoreLocator.maps.event.addListener(
+        StoreLocator.maps.event.addListenerOnce(
             this.map,
             'bounds_changed',
-            ():void => searchBox.setBounds(this.map.getBounds())
+            ():void => {
+                const bounds = this.map.getBounds()
+                if (bounds)
+                    searchBox.setBounds(bounds)
+            }
         )
         /*
             Listen for the event fired when the user selects an item from the
             pick list. Retrieve the matching places for that item.
         */
-        StoreLocator.maps.event.addListener(
+        StoreLocator.maps.event.addListenerOnce(
             searchBox,
             'places_changed',
             async ():Promise<void> => {
                 const places:Array<MapPlaceResult> =
                     await this.ensurePlaceLocations(searchBox.getPlaces())
-                const foundPlace:MapPlaceResult =
+                const foundPlace:MapPlaceResult|null =
                     this.determineBestSearchResult(places)
                 if (foundPlace) {
                     let shortestDistanceInMeter:number = Number.MAX_VALUE
-                    let matchingMarker:Marker
+                    let matchingMarker:Item|undefined
                     for (const marker of this.markers) {
-                        const distanceInMeter:number =
-                            StoreLocator.maps.geometry.spherical
-                                .computeDistanceBetween(
+                        let distanceInMeter:number = 0
+                        if (foundPlace.geometry && marker.position)
+                            distanceInMeter = StoreLocator.maps.geometry
+                                .spherical.computeDistanceBetween(
                                     foundPlace.geometry.location,
                                     marker.position
                                 )
@@ -1278,9 +1317,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     }
                     if (this.currentlyOpenWindow) {
                         this.currentlyOpenWindow.isOpen = false
-                        this.currentlyOpenWindow.close()
+                        if (this.currentlyOpenWindow.close)
+                            this.currentlyOpenWindow.close()
                     }
-                    this.map.setCenter(foundPlace.geometry.location)
+                    if (foundPlace.geometry)
+                        this.map.setCenter(foundPlace.geometry.location)
                     if (this._options.successfulSearchZoomLevel)
                         this.map.setZoom(
                             this._options.successfulSearchZoomLevel
@@ -1302,7 +1343,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         const geocoder:MapGeocoder = new StoreLocator.maps.Geocoder()
         return new Promise((resolve:Function, reject:Function):void => {
             for (const place of places)
-                if (!('geometry' in place && 'location' in place.geometry)) {
+                if (!(place.geometry && place.geometry.location)) {
                     this.warn(
                         `Found place "${place.name}" doesn't have a location` +
                         '. Full object:'
@@ -1356,10 +1397,12 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         if (candidates.length) {
             let shortestDistanceInMeter:number = Number.MAX_VALUE
             for (const candidate of candidates) {
-                const distanceInMeter:number = StoreLocator.maps.geometry
-                    .spherical.computeDistanceBetween(
-                        candidate.geometry.location, this.map.getCenter()
-                    )
+                let distanceInMeter:number = 0
+                if (candidate.geometry)
+                    distanceInMeter = StoreLocator.maps.geometry.spherical
+                        .computeDistanceBetween(
+                            candidate.geometry.location, this.map.getCenter()
+                        )
                 if (distanceInMeter < shortestDistanceInMeter) {
                     result = candidate
                     shortestDistanceInMeter = distanceInMeter
@@ -1386,31 +1429,41 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @param store - Store object to create a marker for.
      * @returns The created marker.
      */
-    createMarker(store?:Item):MapMarker {
+    createMarker(store?:Store):MapMarker {
         let index:number = 0
-        while (this.seenLocations.includes(
-            `${store.latitude}-${store.longitude}`
-        )) {
-            if (index % 2)
-                store.latitude +=
-                    this._options.distanceToMoveByDuplicatedEntries
-            else
-                store.longitude +=
-                    this._options.distanceToMoveByDuplicatedEntries
-            index += 1
+        if (store && store.latitude && store.longitude) {
+            while (this.seenLocations.includes(
+                `${store.latitude}-${store.longitude}`
+            )) {
+                if (index % 2)
+                    store.latitude +=
+                        this._options.distanceToMoveByDuplicatedEntries
+                else
+                    store.longitude +=
+                        this._options.distanceToMoveByDuplicatedEntries
+                index += 1
+            }
+            this.seenLocations.push(`${store.latitude}-${store.longitude}`)
         }
-        this.seenLocations.push(`${store.latitude}-${store.longitude}`)
-        const marker:Marker = {
+        const marker:Item = {
             data: store || null,
+            foundWords: [],
+            highlight: Tools.noop,
+            isHighlighted: false,
+            isOpen: false,
             map: this.map,
-            position: new StoreLocator.maps.LatLng(
-                store.latitude, store.longitude
-            )
+            open: Tools.noop,
+            position: (store && store.latitude && store.longitude) ?
+                new StoreLocator.maps.LatLng(store.latitude, store.longitude) :
+                null
         }
         if (
-            store.markerIconFileName || this._options.defaultMarkerIconFileName
+            store && store.markerIconFileName ||
+            this._options.defaultMarkerIconFileName
         ) {
-            marker.icon = Tools.extend({}, this._options.marker.icon)
+            marker.icon = this._options.marker.icon ?
+                Tools.copy(this._options.marker.icon) :
+                {}
             if (marker.icon.size)
                 marker.icon.size = new StoreLocator.maps.Size(
                     marker.icon.size.width,
@@ -1447,7 +1500,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @param marker - Marker to attach event listener to.
      * @returns The current instance.
      */
-    attachMarkerEventListener(marker:Marker):StoreLocator<TElement> {
+    attachMarkerEventListener(marker:Item):StoreLocator<TElement> {
         StoreLocator.maps.event.addListener(
             marker.infoWindow,
             'closeclick',
@@ -1466,7 +1519,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @param event - Event which has triggered the marker opening call.
      * @returns The current instance.
      */
-    async openMarker(marker:Marker, event?:Event):Promise<void> {
+    async openMarker(marker:Item, event?:Event):Promise<void> {
         if (event && !('stopPropagation' in event))
             event = null
         this.highlightMarker(marker, event, 'stop')
@@ -1534,7 +1587,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns The current instance.
      */
     highlightMarker(
-        marker:Item|Marker, event?:Event, type:string = 'bounce'
+        marker:Item, event?:Event, type:string = 'bounce'
     ):StoreLocator<TElement> {
         if (event)
             event.stopPropagation()
@@ -1589,7 +1642,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Info window markup.
      */
     async makeInfoWindow(
-        marker:Marker, ...additionalParameter:Array<any>
+        marker:Item, ...additionalParameter:Array<any>
     ):Promise<string> {
         if ('content' in this._options.infoWindow) {
             if (Tools.isFunction(this._options.infoWindow.content)) {
