@@ -61,6 +61,7 @@ export type Maps = {
                 number;
         };
     };
+    InfoWindow:typeof google.maps.InfoWindow;
     LatLng:typeof google.maps.LatLng;
     LatLngBounds:typeof google.maps.LatLngBounds;
     Map:typeof google.maps.Map;
@@ -68,25 +69,33 @@ export type Maps = {
     places:{
         PlacesService:typeof google.maps.places.PlacesService;
         SearchBox:typeof google.maps.places.SearchBox;
-    }
+    };
+    Size:typeof google.maps.Size;
 }
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
 // / endregion
 export type Store = object & {
-    icon:{
-        size?:MapSize;
-        scaledSize?:MapSize;
-        url?:string;
-    };
     latitude?:number;
     longitude?:number;
     markerIconFileName?:string;
+    title?:string;
+}
+export type Square = {
+    height:number;
+    unit:string;
+    width:number
+};
+export type Icon = {
+    scaledSize?:MapSize|Square;
+    size?:MapSize|Square;
+    url?:string;
 }
 export type Item = {
     close?:Function;
     data:null|Store;
     foundWords:Array<string>;
     highlight:(event?:Event, type?:string) => void;
+    icon?:Icon;
     infoWindow?:MapInfoWindow;
     isHighlighted:boolean;
     isOpen:boolean;
@@ -94,6 +103,7 @@ export type Item = {
     nativeMarker?:MapMarker;
     open:(event?:Event) => void;
     position:MapPosition|null;
+    title?:string;
 }
 export type Position = {
     latitude:number;
@@ -161,16 +171,8 @@ export type Options = BaseOptions & {
             maxZoomLevel:number;
         },
         icon:{
-            scaledSize:{
-                height:number;
-                unit:string;
-                width:number
-            };
-            size:{
-                height:number;
-                unit:string;
-                width:number;
-            };
+            scaledSize:Square;
+            size:Square;
         };
     };
     onInfoWindowOpen:Function;

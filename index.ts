@@ -23,6 +23,7 @@ import JQuery from 'jquery'
 import MarkerClusterer from '@google/markerclustererplus'
 
 import {
+    Icon,
     Item,
     MapArea,
     MapEventListener,
@@ -39,6 +40,7 @@ import {
     MapSearchBox,
     Options,
     SearchOptions,
+    Square,
     Store,
     Position
 } from './type'
@@ -616,7 +618,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         this.markerClusterer.addMarker(marker)
                 }
             else if (typeof this._options.stores === 'string')
-                $.getJSON(this._options.stores, (stores:Array<Item>):void => {
+                $.getJSON(this._options.stores, (stores:Array<Store>):void => {
                     for (const store of stores) {
                         Tools.extend(
                             true,
@@ -1462,23 +1464,21 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             this._options.defaultMarkerIconFileName
         ) {
             marker.icon = this._options.marker.icon ?
-                Tools.copy(this._options.marker.icon) :
-                {}
-            if (marker.icon.size)
-                marker.icon.size = new StoreLocator.maps.Size(
-                    marker.icon.size.width,
-                    marker.icon.size.height,
-                    marker.icon.size.unit,
-                    marker.icon.size.unit
-                )
-            if (marker.icon.scaledSize)
+                Tools.copy(this._options.marker.icon as unknown as Icon) :
+                {} as Icon
+            if (marker.icon.scaledSize) {
+                const square:Square = marker.icon.scaledSize as Square
                 marker.icon.scaledSize = new StoreLocator.maps.Size(
-                    marker.icon.scaledSize.width,
-                    marker.icon.scaledSize.height,
-                    marker.icon.scaledSize.unit,
-                    marker.icon.scaledSize.unit
+                    square.width, square.height, square.unit, square.unit
                 )
-            if (store.markerIconFileName)
+            }
+            if (marker.icon.size) {
+                const square:Square = marker.icon.size as Square
+                marker.icon.size = new StoreLocator.maps.Size(
+                    square.width, square.height, square.unit, square.unit
+                )
+            }
+            if (store && store.markerIconFileName)
                 marker.icon.url =
                     this._options.iconPath + store.markerIconFileName
             else
@@ -1486,7 +1486,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     this._options.iconPath +
                     this._options.defaultMarkerIconFileName
         }
-        if (store.title)
+        if (store && store.title)
             marker.title = store.title
         marker.infoWindow = new StoreLocator.maps.InfoWindow({content: ''})
         marker.infoWindow.isOpen = false
