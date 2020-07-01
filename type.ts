@@ -18,7 +18,11 @@
 */
 // region imports
 import {
-    Mapping, Options as BaseOptions, PlainObject, ProcedureFunction
+    Mapping,
+    Options as BaseOptions,
+    PlainObject,
+    ProcedureFunction,
+    Scope as BaseScope
 } from 'clientnode/type'
 import 'googlemaps'
 import 'googlemaps/coordinates'
@@ -28,9 +32,20 @@ import 'googlemaps/map'
 import 'googlemaps/marker'
 import 'googlemaps/places-service'
 import 'googlemaps/places-widget'
+
+import StoreLocator from './index'
 // endregion
 // region exports
-// /  region implementation
+export type StoreLocatorFunction<TElement extends HTMLElement = HTMLElement> =
+    ((...parameter:Array<any>) => StoreLocator<TElement>)
+export interface Scope<TElement extends HTMLElement = HTMLElement> extends BaseScope<TElement> {
+    StoreLocator:StoreLocatorFunction<TElement>;
+}
+declare global {
+    interface JQuery<TElement extends HTMLElement = HTMLElement> extends Scope<TElement> {}
+}
+// / region implementation
+export type MapAnimation = typeof google.maps.Animation
 export type MapArea = google.maps.LatLngBounds
 export type MapEventListener = google.maps.MapsEventListener
 export type MapGeocoder = google.maps.Geocoder
@@ -51,6 +66,7 @@ export type MapSearchBox = google.maps.places.SearchBox
 export type MapSearchBoxOptions = google.maps.places.SearchBoxOptions
 export type MapSize = google.maps.Size
 export type Maps = {
+    Animation:typeof google.maps.Animation;
     ControlPosition:typeof google.maps.ControlPosition;
     event:{
         addListenerOnce:(
@@ -107,7 +123,7 @@ export type Item = {
     infoWindow?:InfoWindow;
     isHighlighted:boolean;
     isOpen:boolean;
-    nativeMarker?:MapMarker;
+    marker?:MapMarker;
     open:(event?:Event) => void;
     position:MapPosition|null;
     refreshSize?:ProcedureFunction;

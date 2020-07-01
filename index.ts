@@ -26,6 +26,7 @@ import {
     Icon,
     InfoWindow,
     Item,
+    MapAnimation,
     MapArea,
     MapEventListener,
     MapGeocoder,
@@ -59,9 +60,8 @@ import {
  * @property static:_name - Defines this class name to allow retrieving them
  * after name mangling.
  *
- * @property currentlyHighlightedMarker - Saves currently highlighted marker
- * instance.
- * @property currentlyOpenWindow - Saves currently opened window instance.
+ * @property currentlyHighlightedItem - Holds currently highlighted item.
+ * @property currentlyOpenWindow - Holds currently opened window instance.
  * @property currentSearchResultRange - Public editable property to set current
  * search result range. This is useful for pagination implementations in
  * template level.
@@ -72,9 +72,9 @@ import {
  * @property currentSearchText - Saves last searched string.
  * @property currentSearchWords - Saves last searched words.
  * @property defaultSearchOptions - Sets default search box options.
+ * @property items - Holds all recognized stores to represent as marker.
  * @property map - Holds the currently used map instance.
  * @property markerClusterer - Holds the currently used marker cluster instance.
- * @property markers - Saves all recognized markers.
  * @property resultsDomNode - Saves currently opened results dom node or null
  * if no results exists yet.
  * @property searchResultsDirty - Indicates whether current search results
@@ -225,7 +225,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
 
     static _name:string = 'StoreLocator'
 
-    currentlyHighlightedMarker:Item|null = null
+    currentlyHighlightedItem:Item|null = null
     currentlyOpenWindow:InfoWindow|null = null
     currentSearchResultRange:Array<number>|null = null
     currentSearchResults:Array<Item> = []
@@ -234,9 +234,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     currentSearchText:string|null = null
     currentSearchWords:Array<string> = []
     defaultSearchOptions:SearchOptions = {} as SearchOptions
+    items:Array<Item> = []
     map:MapImpl<TElement> = {} as MapImpl<TElement>
     markerClusterer:MarkerClusterer|null = null
-    markers:Array<Item> = []
     resetMarkerCluster:Function|null = null
     resultsDomNode:$DomNode|null = null
     searchResultsDirty:boolean = false
@@ -588,16 +588,16 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             )
             this.resetMarkerCluster = ():void => {
                 const markers:Array<MapMarker> = []
-                for (const marker of this.markers) {
-                    if (marker.nativeMarker) {
-                        marker.nativeMarker.setMap(null)
-                        delete marker.nativeMarker
+                for (const item of this.items) {
+                    if (item.marker) {
+                        item.marker.setMap(null)
+                        delete item.marker
                     }
-                    marker.nativeMarker = new StoreLocator.maps.Marker(
-                        this.createMarkerConfiguration(marker)
+                    item.marker = new StoreLocator.maps.Marker(
+                        this.createMarkerConfiguration(item)
                     )
-                    this.attachMarkerEventListener(marker)
-                    markers.push(marker.nativeMarker)
+                    this.attachMarkerEventListener(item)
+                    markers.push(item.marker)
                 }
                 if (this.markerClusterer) {
                     this.markerClusterer.clearMarkers()
@@ -670,7 +670,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         this.markerClusterer.addMarker(marker)
                 }
             }
-            resolve(this.markers)
+            resolve(this.items)
         })
         // Create the search box and link it to the UI element.
         this.map.controls[StoreLocator.maps.ControlPosition.TOP_LEFT].push(
@@ -777,9 +777,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         0, this.currentSearchResults.length - 1
                     ]
                 let currentIndex:number = -1
-                if (this.currentlyHighlightedMarker)
+                if (this.currentlyHighlightedItem)
                     currentIndex = this.currentSearchResults.indexOf(
-                        this.currentlyHighlightedMarker
+                        this.currentlyHighlightedItem
                     )
                 if (event.keyCode === Tools.keyCode.DOWN)
                     if (
@@ -812,17 +812,17 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         )
                 else if (
                     event.keyCode === Tools.keyCode.ENTER &&
-                    this.currentlyHighlightedMarker
+                    this.currentlyHighlightedItem
                 ) {
                     event.stopPropagation()
-                    if (this.currentlyHighlightedMarker)
-                        if (this.currentlyHighlightedMarker.infoWindow)
+                    if (this.currentlyHighlightedItem)
+                        if (this.currentlyHighlightedItem.infoWindow)
                             this.openMarker(
-                                this.currentlyHighlightedMarker, event
+                                this.currentlyHighlightedItem, event
                             )
                         else
                             this.focusPlace(
-                                this.currentlyHighlightedMarker, event
+                                this.currentlyHighlightedItem, event
                             )
                 }
             }
@@ -1067,39 +1067,38 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             searchOptions.hasOwnProperty('properties') ?
                 searchOptions.properties :
                 null
-        for (const marker of this.markers) {
+        for (const item of this.items) {
             const properties:Array<string> = defaultProperties ?
                 defaultProperties :
-                marker.data ? Object.keys(marker.data) : []
-            marker.foundWords = []
+                item.data ? Object.keys(item.data) : []
+            item.foundWords = []
             for (const key of properties)
                 for (const searchWord of this.currentSearchSegments)
                     if (
-                        !marker.foundWords.includes(searchWord) &&
-                        marker.data &&
-                        marker.data[key as keyof Store] &&
-                        typeof marker.data[key as keyof Store] === 'string' &&
+                        !item.foundWords.includes(searchWord) &&
+                        item.data &&
+                        item.data[key as keyof Store] &&
+                        typeof item.data[key as keyof Store] === 'string' &&
                         searchOptions.normalizer(
-                            marker.data[key as keyof Store] as
-                                unknown as string
+                            item.data[key as keyof Store] as unknown as string
                         ).includes(searchWord)
                     ) {
-                        marker.foundWords.push(searchWord)
-                        if (marker.foundWords.length === 1) {
-                            marker.open = (event?:Event):Promise<void> =>
-                                this.openMarker(marker, event)
-                            marker.highlight = (
+                        item.foundWords.push(searchWord)
+                        if (item.foundWords.length === 1) {
+                            item.open = (event?:Event):Promise<void> =>
+                                this.openMarker(item, event)
+                            item.highlight = (
                                 event?:Event, type?:string
-                            ):void => this.highlightMarker(marker, event, type)
+                            ):void => this.highlightMarker(item, event, type)
                             if (searchOptions.resultAggregation === 'union')
-                                searchResults.push(marker)
+                                searchResults.push(item)
                         }
                         if (
-                            marker.foundWords.length >=
+                            item.foundWords.length >=
                                 this.currentSearchWords.length &&
                             searchOptions.resultAggregation === 'cut'
                         )
-                            searchResults.push(marker)
+                            searchResults.push(item)
                     }
         }
         /*
@@ -1286,29 +1285,28 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     this.determineBestSearchResult(places)
                 if (foundPlace) {
                     let shortestDistanceInMeter:number = Number.MAX_VALUE
-                    let matchingMarker:Item|undefined
-                    for (const marker of this.markers) {
+                    let matchingItem:Item|undefined
+                    for (const item of this.items) {
                         let distanceInMeter:number = 0
-                        if (foundPlace.geometry && marker.position)
+                        if (foundPlace.geometry && item.position)
                             distanceInMeter = StoreLocator.maps.geometry
                                 .spherical.computeDistanceBetween(
-                                    foundPlace.geometry.location,
-                                    marker.position
+                                    foundPlace.geometry.location, item.position
                                 )
                         if (distanceInMeter < shortestDistanceInMeter) {
                             shortestDistanceInMeter = distanceInMeter
-                            matchingMarker = marker
+                            matchingItem = item
                         }
                     }
                     if (
-                        matchingMarker &&
+                        matchingItem &&
                         shortestDistanceInMeter <= this._options.searchOptions
                     ) {
                         if (this._options.successfulSearchZoomLevel)
                             this.map.setZoom(
                                 this._options.successfulSearchZoomLevel
                             )
-                        await this.openMarker(matchingMarker)
+                        await this.openMarker(matchingItem)
                         return
                     }
                     if (this.currentlyOpenWindow) {
@@ -1439,7 +1437,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             }
             this.seenLocations.push(`${store.latitude}-${store.longitude}`)
         }
-        const marker:Item = {
+        const item:Item = {
             data: store || null,
             foundWords: [],
             highlight: Tools.noop,
@@ -1454,47 +1452,47 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             store && store.markerIconFileName ||
             this._options.defaultMarkerIconFileName
         ) {
-            marker.icon = this._options.marker.icon ?
+            item.icon = this._options.marker.icon ?
                 Tools.copy(this._options.marker.icon as unknown as Icon) :
                 {} as Icon
-            if (marker.icon.scaledSize) {
-                const square:Square = marker.icon.scaledSize as Square
-                marker.icon.scaledSize = new StoreLocator.maps.Size(
+            if (item.icon.scaledSize) {
+                const square:Square = item.icon.scaledSize as Square
+                item.icon.scaledSize = new StoreLocator.maps.Size(
                     square.width, square.height, square.unit, square.unit
                 )
             }
-            if (marker.icon.size) {
-                const square:Square = marker.icon.size as Square
-                marker.icon.size = new StoreLocator.maps.Size(
+            if (item.icon.size) {
+                const square:Square = item.icon.size as Square
+                item.icon.size = new StoreLocator.maps.Size(
                     square.width, square.height, square.unit, square.unit
                 )
             }
             if (store && store.markerIconFileName)
-                marker.icon.url =
+                item.icon.url =
                     this._options.iconPath + store.markerIconFileName
             else
-                marker.icon.url =
+                item.icon.url =
                     this._options.iconPath +
                     this._options.defaultMarkerIconFileName
         }
         if (store && store.title)
-            marker.title = store.title
-        marker.infoWindow = new StoreLocator.maps.InfoWindow({content: ''}) as
+            item.title = store.title
+        item.infoWindow = new StoreLocator.maps.InfoWindow({content: ''}) as
             InfoWindow
-        marker.infoWindow.isOpen = false
-        marker.nativeMarker = new StoreLocator.maps.Marker(
-            this.createMarkerConfiguration(marker)
+        item.infoWindow.isOpen = false
+        item.marker = new StoreLocator.maps.Marker(
+            this.createMarkerConfiguration(item)
         )
-        this.attachMarkerEventListener(marker)
-        this.markers.push(marker)
-        return marker.nativeMarker
+        this.attachMarkerEventListener(item)
+        this.items.push(item)
+        return item.marker
     }
     /**
      * Create marker configuration from given item.
-     * @param marker - Marker to derive a configuration from.
+     * @param item - Marker to derive a configuration from.
      * @returns Configuration object.
      */
-    createMarkerConfiguration(marker:Item):MapMarkerOptions {
+    createMarkerConfiguration(item:Item):MapMarkerOptions {
         return {
             // anchorPoint: Point
             // animation: Animation
@@ -1502,48 +1500,49 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             crossOnDrag: true,
             // cursor: string
             draggable: false,
-            icon: marker.icon as MapIcon,
-            label: marker.title,
+            icon: item.icon as MapIcon,
+            label: item.title,
             map: this.map,
             opacity: .9,
             optimized: true,
             // place: Place
-            position: marker.position as MapPosition,
+            position: item.position as MapPosition,
             // shape: MarkerShape
-            title: marker.title,
+            title: item.title,
             visible: true,
             zIndex: 1
         }
     }
     /**
-     * Adds needed event listener to given marker.
-     * @param marker - Marker to attach event listener to.
+     * Adds needed event listener to given item marker.
+     * @param item - Marker to attach event listener to.
      * @returns Nothing.
      */
-    attachMarkerEventListener(marker:Item):void {
+    attachMarkerEventListener(item:Item):void {
         StoreLocator.maps.event.addListenerOnce(
-            marker.infoWindow as InfoWindow,
+            item.infoWindow as InfoWindow,
             'closeclick',
             ():void => {
-                (marker.infoWindow as InfoWindow).isOpen = false
+                (item.infoWindow as InfoWindow).isOpen = false
             }
         )
         StoreLocator.maps.event.addListenerOnce(
-            marker.nativeMarker as MapMarker,
+            item.marker as MapMarker,
             'click',
-            this.openMarker.bind(this, marker)
+            this.openMarker.bind(this, item)
         )
     }
     /**
-     * Opens given marker info window. And closes potentially opened windows.
-     * @param marker - Marker to open.
+     * Opens given item's marker info window and closes potentially opened
+     * windows.
+     * @param item - Item's marker to open.
      * @param event - Event which has triggered the marker opening call.
      * @returns Promise resolving to nothing.
      */
-    async openMarker(marker:Item, event?:Event):Promise<void> {
+    async openMarker(item:Item, event?:Event):Promise<void> {
         if (event && !('stopPropagation' in event))
             event = undefined
-        this.highlightMarker(marker, event, 'stop')
+        this.highlightMarker(item, event, 'stop')
         /*
             We have to ensure that the minimum zoom level has one more then
             the clustering can appear. Since a cluster hides an open window.
@@ -1557,29 +1556,29 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         this.closeSearchResults(event)
         if (
             this.currentlyOpenWindow &&
-            this.currentlyOpenWindow === marker.infoWindow &&
+            this.currentlyOpenWindow === item.infoWindow &&
             this.currentlyOpenWindow.isOpen
         )
             return
-        this.fireEvent('infoWindowOpen', false, this, event, marker)
-        const infoWindow:InfoWindow = marker.infoWindow as InfoWindow
-        marker.refreshSize = ():void =>
+        this.fireEvent('infoWindowOpen', false, this, event, item)
+        const infoWindow:InfoWindow = item.infoWindow as InfoWindow
+        item.refreshSize = ():void =>
             // Simulates a content update to enforce info box size adjusting.
             infoWindow.setContent(infoWindow.getContent())
         infoWindow.setContent(this._options.infoWindow.loadingContent)
-        infoWindow.setContent(await this.makeInfoWindow(marker))
+        infoWindow.setContent(await this.makeInfoWindow(item))
         if (this.currentlyOpenWindow) {
             this.currentlyOpenWindow.isOpen = false
             this.currentlyOpenWindow.close()
         }
         infoWindow.isOpen = true
         this.currentlyOpenWindow = infoWindow
-        infoWindow.open(this.map, marker.nativeMarker)
-        this.map.panTo((marker.nativeMarker as MapMarker).position)
+        infoWindow.open(this.map, item.marker)
+        this.map.panTo(item.position as MapPosition)
         this.map.panBy(
             0, -this._options.infoWindow.additionalMoveToBottomInPixel
         )
-        this.fireEvent('infoWindowOpened', false, this, event, marker)
+        this.fireEvent('infoWindowOpened', false, this, event, item)
     }
     /**
      * Focuses given place on map.
@@ -1595,29 +1594,30 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             this.currentlyOpenWindow.isOpen = false
             this.currentlyOpenWindow.close()
         }
-        this.map.setCenter(place.position)
+        this.map.setCenter(place.position as MapPosition)
         this.map.setZoom(this._options.successfulSearchZoomLevel)
     }
     /**
-     * Opens given marker info window. And closes a potential opened windows.
-     * @param marker - Marker to Highlight.
+     * Opens given item's marker info window and closes a potential opened
+     * windows.
+     * @param item - Marker to Highlight.
      * @param event - Event object for corresponding event that has the
      * highlighting requested.
      * @param type - Type of highlighting.
      * @returns Nothing.
      */
-    highlightMarker(marker:Item, event?:Event, type:string = 'bounce'):void {
+    highlightMarker(item:Item, event?:Event, type:string = 'bounce'):void {
         if (event)
             event.stopPropagation()
-        if (this.currentlyHighlightedMarker) {
-            if (this.currentlyHighlightedMarker.nativeMarker)
-                this.currentlyHighlightedMarker.nativeMarker.setAnimation(null)
-            this.currentlyHighlightedMarker.isHighlighted = false
-            this.currentlyHighlightedMarker = null
+        if (this.currentlyHighlightedItem) {
+            if (this.currentlyHighlightedItem.marker)
+                this.currentlyHighlightedItem.marker.setAnimation(null)
+            this.currentlyHighlightedItem.isHighlighted = false
+            this.currentlyHighlightedItem = null
         }
-        if (marker.nativeMarker)
+        if (item.marker)
             if (type === 'stop')
-                marker.nativeMarker.setAnimation(null)
+                item.marker.setAnimation(null)
             else {
                 /*
                     We have to ensure that the minimum zoom level has one more
@@ -1629,43 +1629,43 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     this._options.marker.cluster.maxZoomLevel &&
                     this.map.getZoom() <=
                         this._options.marker.cluster.maxZoomLevel &&
-                    'position' in marker.nativeMarker &&
-                    this.map.getBounds().contains(marker.nativeMarker.position)
+                    'position' in item.marker &&
+                    (this.map.getBounds() as MapArea)
+                        .contains(item.position as MapPosition)
                 ) {
-                    this.map.setCenter(marker.nativeMarker.position)
+                    this.map.setCenter(item.position as MapPosition)
                     this.map.setZoom(
                         this._options.marker.cluster.maxZoomLevel + 1
                     )
                 }
-                if (
-                    marker !== this.currentlyHighlightedMarker &&
-                    marker.nativeMarker
-                ) {
-                    marker.nativeMarker.setAnimation(
-                        StoreLocator.maps.Animation[type.toUpperCase()]
+                if (item !== this.currentlyHighlightedItem && item.marker) {
+                    item.marker.setAnimation(
+                        StoreLocator.maps.Animation[
+                            type.toUpperCase() as keyof MapAnimation
+                        ]
                     )
-                    marker.isHighlighted = true
-                    this.currentlyHighlightedMarker = marker
+                    item.isHighlighted = true
+                    this.currentlyHighlightedItem = item
                 }
-                this.fireEvent('markerHighlighted', marker)
+                this.fireEvent('markerHighlighted', true, this, item)
             }
     }
     /**
-     * Takes the marker for a store and creates the HTML content of the info
-     * window.
-     * @param marker - Marker to generate info window for.
+     * Takes the item's marker for a store and creates the HTML content of the
+     * info window.
+     * @param item - Item to generate info window for.
      * @param additionalParameter - Additional parameter to forward to options
      * given render callback.
      * @returns Promise resolving to info window markup.
      */
     async makeInfoWindow(
-        marker:Item, ...additionalParameter:Array<any>
+        item:Item, ...additionalParameter:Array<any>
     ):Promise<string> {
         if ('content' in this._options.infoWindow) {
             if (Tools.isFunction(this._options.infoWindow.content)) {
                 const result:Promise<string>|string =
                     this._options.infoWindow.content(
-                        marker, ...additionalParameter
+                        item, ...additionalParameter
                     )
                 if (typeof result === 'string')
                     return result
@@ -1675,9 +1675,14 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 return this._options.infoWindow.content
         }
         let content:string = '<div>'
-        for (const name in marker.data)
-            if (marker.data.hasOwnProperty(name))
-                content += `${name}: ${marker.data[name]}<br />`
+        for (const name in item.data)
+            if (
+                item.data.hasOwnProperty(name) &&
+                ['boolean', 'number', 'string'].includes(
+                    typeof item.data[name as keyof Store]
+                )
+            )
+                content += `${name}: ${item.data[name as keyof Store]}<br />`
         return `${content}</div>`
     }
     /**
@@ -1737,7 +1742,9 @@ export default StoreLocator
 // endregion
 // region handle $ extending
 if ('fn' in $)
-    $.fn.StoreLocator = function(...parameter:Array<any>):any {
+    $.fn.StoreLocator = function<TElement extends HTMLElement = HTMLElement>(
+        ...parameter:Array<any>
+    ):StoreLocator<TElement> {
         return $.Tools().controller(
             StoreLocator, parameter, this as unknown as $DomNode
         )
