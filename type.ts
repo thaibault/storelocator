@@ -17,7 +17,9 @@
     endregion
 */
 // region imports
-import {Mapping, Options as BaseOptions, PlainObject} from 'clientnode/type'
+import {
+    Mapping, Options as BaseOptions, PlainObject, ProcedureFunction
+} from 'clientnode/type'
 import 'googlemaps'
 import 'googlemaps/coordinates'
 import 'googlemaps/event'
@@ -34,6 +36,7 @@ export type MapEventListener = google.maps.MapsEventListener
 export type MapGeocoder = google.maps.Geocoder
 export type MapGeocoderResult = google.maps.GeocoderResult
 export type MapGeocoderStatus = google.maps.GeocoderStatus
+export type MapIcon = google.maps.ReadonlyIcon
 export type MapImpl<TElement extends Element = Element> =
     google.maps.Map<TElement>
 export type MapInfoWindow = google.maps.InfoWindow
@@ -50,15 +53,19 @@ export type MapSize = google.maps.Size
 export type Maps = {
     ControlPosition:typeof google.maps.ControlPosition;
     event:{
-        addListener:(instance:MapImpl|MapSearchBox, eventName:string, handler:(...args: any[]) => void) => MapEventListener;
-        addListenerOnce:(instance:MapImpl|MapSearchBox, eventName:string, handler:(...args: any[]) => void) => MapEventListener;
+        addListenerOnce:(
+            instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
+            eventName:string,
+            handler:(...args: any[]) => void
+        ) => MapEventListener;
     };
     Geocoder:typeof google.maps.Geocoder;
     GeocoderStatus:typeof google.maps.GeocoderStatus;
     geometry:{
         spherical:{
-            computeDistanceBetween:(from:MapPosition, to:MapPosition, radius?:number) =>
-                number;
+            computeDistanceBetween:(
+                from:MapPosition, to:MapPosition, radius?:number
+            ) => number;
         };
     };
     InfoWindow:typeof google.maps.InfoWindow;
@@ -90,19 +97,20 @@ export type Icon = {
     size?:MapSize|Square;
     url?:string;
 }
+export type InfoWindow = MapInfoWindow & {isOpen:boolean}
 export type Item = {
     close?:Function;
     data:null|Store;
     foundWords:Array<string>;
     highlight:(event?:Event, type?:string) => void;
     icon?:Icon;
-    infoWindow?:MapInfoWindow;
+    infoWindow?:InfoWindow;
     isHighlighted:boolean;
     isOpen:boolean;
-    map:MapImpl;
     nativeMarker?:MapMarker;
     open:(event?:Event) => void;
     position:MapPosition|null;
+    refreshSize?:ProcedureFunction;
     title?:string;
 }
 export type Position = {
