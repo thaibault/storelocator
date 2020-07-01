@@ -1744,7 +1744,7 @@ export default StoreLocator
 if ('fn' in $)
     $.fn.StoreLocator = function<TElement extends HTMLElement = HTMLElement>(
         ...parameter:Array<any>
-    ):StoreLocator<TElement> {
+    ):$DomNode<TElement> {
         return $.Tools().controller(
             StoreLocator, parameter, this as unknown as $DomNode
         )

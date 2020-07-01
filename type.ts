@@ -18,6 +18,7 @@
 */
 // region imports
 import {
+    $DomNode,
     Mapping,
     Options as BaseOptions,
     PlainObject,
@@ -37,7 +38,7 @@ import StoreLocator from './index'
 // endregion
 // region exports
 export type StoreLocatorFunction<TElement extends HTMLElement = HTMLElement> =
-    ((...parameter:Array<any>) => StoreLocator<TElement>)
+    ((...parameter:Array<any>) => $DomNode<TElement>)
 export interface Scope<TElement extends HTMLElement = HTMLElement> extends BaseScope<TElement> {
     StoreLocator:StoreLocatorFunction<TElement>;
 }

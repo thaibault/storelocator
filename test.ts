@@ -70,7 +70,7 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
             $inputDomNode.trigger({
                 keyCode: Tools.keyCode.a,
                 type: 'keyup'
-            } as unknown as Event)
+            } as JQuery.Event)
             await Tools.timeout()
             expect($domNode.find('.store-locator-search-results').length)
                 .toStrictEqual(1)
