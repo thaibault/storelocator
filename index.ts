@@ -19,7 +19,6 @@
 // region imports
 import Tools, {BoundTools, $} from 'clientnode'
 import {$DomNode, $Global, Mapping, TimeoutPromise} from 'clientnode/type'
-import JQuery from 'jquery'
 import MarkerClusterer from '@google/markerclustererplus'
 
 import {
@@ -422,7 +421,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 applicationInterfaceLoadCallbacks.resolve(this.$domNode)
             }
             // TODO
-            console.log('A')
+            console.log('A', this.$domNode.length)
             $.getScript(Tools.stringFormat(
                 this._options.applicationInterface.url,
                 this._options.applicationInterface.key ?

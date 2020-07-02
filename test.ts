@@ -14,7 +14,7 @@
     endregion
 */
 // region imports
-import Tools, {$} from 'clientnode'
+import Tools, {$ as $Factory} from 'clientnode'
 import {$DomNode} from 'clientnode/type'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
@@ -39,8 +39,15 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
     let storeLocator:StoreLocator
     beforeAll(async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
+        // TODO
+        const $ = (...a) => {
+            if (a.length < 2)
+                return $Factory(...a, browser.window.document)
+            return $Factory(...a)
+        }
         $(browser.window.document.body)
             .append('<store-locator><input></store-locator>')
+        console.log('TODO', $('store-locator').length)
         $domNode = await $('store-locator').StoreLocator({
             applicationInterface: {
                 key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
