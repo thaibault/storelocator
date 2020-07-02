@@ -14,7 +14,7 @@
     endregion
 */
 // region imports
-import Tools, {$ as $Factory} from 'clientnode'
+import Tools from 'clientnode'
 import {$DomNode} from 'clientnode/type'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
@@ -39,15 +39,16 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
     let storeLocator:StoreLocator
     beforeAll(async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
-        // TODO
-        const $ = (...a) => {
-            if (a.length < 2)
-                return $Factory(...a, browser.window.document)
-            return $Factory(...a)
-        }
+        // TODO When jquery does not see a document while loading, it provides
+        // a factory function instead.
+        const $factory = require('jquery')
+        const $ = $factory(browser.window)
+        console.log('A')
         $(browser.window.document.body)
             .append('<store-locator><input></store-locator>')
-        console.log('TODO', $('store-locator').length)
+        console.log('B')
+        console.log('C', $('store-locator').length)
+        return
         $domNode = await $('store-locator').StoreLocator({
             applicationInterface: {
                 key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
@@ -69,7 +70,7 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
         storeLocator = $domNode.data('StoreLocator')
     })
     // endregion
-    // region tests
+    // region tests 
     test('initialize', async ():Promise<void> => {
         expect(storeLocator).toBeDefined()
         if (testEnvironment !== 'node') {
