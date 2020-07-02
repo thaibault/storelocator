@@ -88,6 +88,9 @@
     "commandLine": {
       "test": {
         "environments": [
+          "jsdom"
+        ],
+        "environmentsTODO": [
           "jsdom",
           "node"
         ]

@@ -17,7 +17,7 @@
     endregion
 */
 // region imports
-import {Tools, $} from 'clientnode'
+import Tools, {BoundTools, $} from 'clientnode'
 import {$DomNode, $Global, Mapping, TimeoutPromise} from 'clientnode/type'
 import JQuery from 'jquery'
 import MarkerClusterer from '@google/markerclustererplus'
@@ -219,7 +219,7 @@ import {
  * highlight.
  */
 export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
-    Tools<TElement> {
+    BoundTools<TElement> {
     static applicationInterfaceLoad:Promise<$DomNode>
     static maps:Maps
 
@@ -242,7 +242,6 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     searchResultsDirty:boolean = false
     searchResultsStyleProperties:Mapping<number|string> = {}
     seenLocations:Array<string> = []
-    $domNode:$DomNode<TElement> = {} as $DomNode<TElement>
 
     _options:Options = {} as Options
     /**
@@ -422,6 +421,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 StoreLocator.maps = $.global.google.maps
                 applicationInterfaceLoadCallbacks.resolve(this.$domNode)
             }
+            // TODO
+            console.log('A')
             $.getScript(Tools.stringFormat(
                 this._options.applicationInterface.url,
                 this._options.applicationInterface.key ?
@@ -434,13 +435,18 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 ) +
                 `.${callbackName}`
             ))
-                .done(applicationInterfaceLoadCallbacks.resolve.bind(
-                    this, this.$domNode
-                ))
+                .done(():void => {
+                    console.log('JAU')
+                    applicationInterfaceLoadCallbacks.resolve(this.$domNode)
+                })
                 .fail((
                     response:JQuery.jqXHR<string|undefined>,
                     error:JQuery.Ajax.ErrorTextStatus
-                ):void => applicationInterfaceLoadCallbacks.reject(error))
+                ):void => {
+                    console.log('NOO')
+                    applicationInterfaceLoadCallbacks.reject(error)
+                })
+            console.log('B')
         }
         return result
     }
@@ -1746,7 +1752,7 @@ if ('fn' in $)
         ...parameter:Array<any>
     ):$DomNode<TElement> {
         return $.Tools().controller(
-            StoreLocator, parameter, this as unknown as $DomNode
+            StoreLocator, parameter, this as unknown as $DomNode<TElement>
         )
     }
 // endregion

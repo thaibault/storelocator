@@ -13,17 +13,20 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-// region imports 
-import Tools from 'clientnode'
+// region imports
+import Tools, {$} from 'clientnode'
 import {$DomNode} from 'clientnode/type'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
 
 import StoreLocator from './index'
+// NOTE: Import plugin as side effect when other imports are only used as type.
+import './index'
 // endregion
 // region declaration
 declare var TARGET_TECHNOLOGY:string
 // endregion
+jest.setTimeout(30000)
 let testEnvironment:string = 'browser'
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     testEnvironment = typeof document === 'undefined' ?
