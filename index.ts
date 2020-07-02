@@ -1742,7 +1742,7 @@ export default StoreLocator
 // endregion
 // region handle $ extending
 if ('fn' in $)
-    $.fn.StoreLocator = function<TElement extends HTMLElement = HTMLElement>(
+    $.fn.StoreLocator = function<TElement = HTMLElement>(
         ...parameter:Array<any>
     ):$DomNode<TElement> {
         return $.Tools().controller(

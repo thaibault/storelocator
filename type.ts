@@ -37,13 +37,13 @@ import 'googlemaps/places-widget'
 import StoreLocator from './index'
 // endregion
 // region exports
-export type StoreLocatorFunction<TElement extends HTMLElement = HTMLElement> =
-    ((...parameter:Array<any>) => $DomNode<TElement>)
-export interface Scope<TElement extends HTMLElement = HTMLElement> extends BaseScope<TElement> {
+export type StoreLocatorFunction<TElement = HTMLElement> =
+    (...parameter:Array<any>) => $DomNode<TElement>
+export interface Scope<TElement = HTMLElement> extends BaseScope<TElement> {
     StoreLocator:StoreLocatorFunction<TElement>;
 }
 declare global {
-    interface JQuery<TElement extends HTMLElement = HTMLElement> extends Scope<TElement> {}
+    interface JQuery<TElement = HTMLElement> extends Scope<TElement> {}
 }
 // / region implementation
 export type MapAnimation = typeof google.maps.Animation
