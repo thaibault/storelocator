@@ -14,19 +14,16 @@
     endregion
 */
 // region imports
-import Tools from 'clientnode'
+import Tools, {augment$, determine$} from 'clientnode'
 import {$DomNode} from 'clientnode/type'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
 
 import StoreLocator from './index'
-// NOTE: Import plugin as side effect when other imports are only used as type.
-import './index'
 // endregion
 // region declaration
 declare var TARGET_TECHNOLOGY:string
 // endregion
-jest.setTimeout(30000)
 let testEnvironment:string = 'browser'
 if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
     testEnvironment = typeof document === 'undefined' ?
@@ -34,21 +31,23 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
         'node-with-dom'
 }
 describe(`storeLocator (${testEnvironment})`, ():void => {
+    jest.setTimeout(30000)
     // region mockup
     let $domNode:$DomNode
     let storeLocator:StoreLocator
     beforeAll(async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
-        // TODO When jquery does not see a document while loading, it provides
-        // a factory function instead.
-        const $factory = require('jquery')
-        const $ = $factory(browser.window)
-        console.log('A')
-        $(browser.window.document.body)
+        globalThis.window = browser.window as Window & typeof globalThis
+        jest.resetModules()
+        globalThis.$ = require('jquery')
+        augment$(determine$())
+        /*
+            NOTE: Import plugin with side effects (augmenting "$" scope /
+            registering plugin) when other imports are only used as type.
+        */
+        require('./index')
+        $(window.document.body)
             .append('<store-locator><input></store-locator>')
-        console.log('B')
-        console.log('C', $('store-locator').length)
-        return
         $domNode = await $('store-locator').StoreLocator({
             applicationInterface: {
                 key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
@@ -67,6 +66,7 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
                 phoneNumber: '+49 721 9600'
             }]
         })
+        console.log('MOCK LOADED')
         storeLocator = $domNode.data('StoreLocator')
     })
     // endregion

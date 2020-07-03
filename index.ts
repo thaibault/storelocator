@@ -269,10 +269,10 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     southWest: {latitude: -85, longitude: -180}
                 },
                 key: null,
-                protocol: 'inherit',
+                protocol: '',
                 timeoutInMilliseconds: 5000,
                 url:
-                    '{1}://api.ipstack.com/{3}?access_key={2}&fields=' +
+                    '{1}//api.ipstack.com/{3}?access_key={2}&fields=' +
                     'latitude,longitude'
             },
             limit: {
@@ -404,8 +404,12 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 .then(this.bootstrap.bind(this))
                 .then(():StoreLocator<TElement> => this.fireEvent('loaded'))
                 .then(():$DomNode<TElement> => this.$domNode)
-        if ('google' in $.global && 'maps' in $.global.google) {
-            StoreLocator.maps = $.global.google.maps
+        if (
+            $.global.window &&
+            $.global.window.google &&
+            $.global.window.google.maps
+        ) {
+            StoreLocator.maps = $.global.window.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
                 Tools.timeout(():void =>
                     applicationInterfaceLoadCallbacks.resolve(this.$domNode)
@@ -417,11 +421,21 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     StoreLocator.determineUniqueScopeName();
             ($.global as unknown as Mapping<Function>)[callbackName] = (
             ):void => {
-                StoreLocator.maps = $.global.google.maps
-                applicationInterfaceLoadCallbacks.resolve(this.$domNode)
+                if (!applicationInterfaceLoadCallbacks.resolved)
+                    if (
+                        $.global.window &&
+                        $.global.window.google &&
+                        $.global.window.google.maps
+                    ) {
+                        StoreLocator.maps = $.global.window.google.maps
+                        applicationInterfaceLoadCallbacks.resolve(
+                            this.$domNode
+                        )
+                    } else
+                        applicationInterfaceLoadCallbacks.reject(
+                            new Error('No google maps environment set.')
+                        )
             }
-            // TODO
-            console.log('A', this.$domNode.length)
             $.getScript(Tools.stringFormat(
                 this._options.applicationInterface.url,
                 this._options.applicationInterface.key ?
@@ -434,18 +448,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 ) +
                 `.${callbackName}`
             ))
-                .done(():void => {
-                    console.log('JAU')
-                    applicationInterfaceLoadCallbacks.resolve(this.$domNode)
-                })
+                .done(($.global as unknown as Mapping<Function>)[callbackName])
                 .fail((
                     response:JQuery.jqXHR<string|undefined>,
                     error:JQuery.Ajax.ErrorTextStatus
-                ):void => {
-                    console.log('NOO')
-                    applicationInterfaceLoadCallbacks.reject(error)
-                })
-            console.log('B')
+                ):void => applicationInterfaceLoadCallbacks.reject(error))
         }
         return result
     }
@@ -454,11 +461,6 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Promise resolving to the current instance.
      */
     bootstrap():Promise<$DomNode<TElement>> {
-        if (
-            !('location' in $.global) ||
-            [null, undefined].includes($.global.location as unknown as null)
-        )
-            return Promise.resolve(this.$domNode)
         if (this._options.startLocation)
             return this.initializeMap()
         this._options.startLocation = this._options.fallbackLocation
@@ -487,13 +489,17 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 dataType: 'jsonp',
                 url: Tools.stringFormat(
                     this._options.ipToLocationApplicationInterface.url,
-                    this._options.ipToLocationApplicationInterface.protocol ===
-                        'inherit' ?
-                            $.global.location.protocol.substring(
-                                0, $.global.location.protocol.length - 1
-                            ) :
-                            this._options.ipToLocationApplicationInterface
-                                .protocol,
+                    (
+                        this._options.ipToLocationApplicationInterface
+                            .protocol &&
+                        !this._options.ipToLocationApplicationInterface
+                            .protocol.endsWith(':')
+                    ) ?
+                        this._options.ipToLocationApplicationInterface
+                            .protocol +
+                        ':' :
+                        this._options.ipToLocationApplicationInterface
+                            .protocol,
                     this._options.ipToLocationApplicationInterface.key,
                     this._options.ip || ''
                 )
