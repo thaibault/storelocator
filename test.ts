@@ -15,7 +15,7 @@
 */
 // region imports
 import Tools, {augment$, determine$} from 'clientnode'
-import {$DomNode} from 'clientnode/type'
+import {$Global, $DomNode} from 'clientnode/type'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
 
@@ -31,21 +31,44 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
         'node-with-dom'
 }
 describe(`storeLocator (${testEnvironment})`, ():void => {
-    jest.setTimeout(30000)
     // region mockup
     let $domNode:$DomNode
     let storeLocator:StoreLocator
     beforeAll(async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
         globalThis.window = browser.window as Window & typeof globalThis
-        jest.resetModules()
-        globalThis.$ = require('jquery')
+        jest.resetModules();
+        (globalThis as $Global).$ = require('jquery')
         augment$(determine$())
         /*
             NOTE: Import plugin with side effects (augmenting "$" scope /
             registering plugin) when other imports are only used as type.
         */
         require('./index')
+        if (testEnvironment !== 'browser')
+            globalThis.window.google = {
+                maps: {
+                    ControlPosition: {
+                        TOP_LEFT: 0
+                    },
+                    event: {
+                        addListenerOnce: Tools.noop
+                    },
+                    InfoWindow: Tools.noop,
+                    LatLng: Tools.noop,
+                    LatLngBounds: class {
+                        contains = ():true => true
+                    },
+                    Map: class {
+                        controls = [[]]
+                    },
+                    Marker: Tools.noop,
+                    mockup: true,
+                    places: {
+                        SearchBox: Tools.noop
+                    }
+                },
+            } as unknown as typeof google
         $(window.document.body)
             .append('<store-locator><input></store-locator>')
         $domNode = await $('store-locator').StoreLocator({
@@ -54,6 +77,10 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
             },
             ipToLocationApplicationInterface: {
                 key: '11a62990a1424e894da6eec464a747e6'
+            },
+            marker: {
+                // TODO check if this is loadable.
+                // cluster: null
             },
             searchBox: {},
             // Automatically generated store with option: "stores: bounds"
@@ -66,7 +93,6 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
                 phoneNumber: '+49 721 9600'
             }]
         })
-        console.log('MOCK LOADED')
         storeLocator = $domNode.data('StoreLocator')
     })
     // endregion
@@ -75,7 +101,8 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
         expect(storeLocator).toBeDefined()
         if (testEnvironment !== 'node') {
             expect($domNode.children('div').length).toBeGreaterThan(0)
-            const $inputDomNode:$DomNode = $domNode.find('input')
+            const $inputDomNode:$DomNode<HTMLInputElement> =
+                $domNode.find('input')
             expect($inputDomNode.length).toBeGreaterThan(0)
             $inputDomNode.val('a')
             $inputDomNode.trigger({

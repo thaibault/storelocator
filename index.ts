@@ -18,7 +18,7 @@
 */
 // region imports
 import Tools, {BoundTools, $} from 'clientnode'
-import {$DomNode, $Global, Mapping, TimeoutPromise} from 'clientnode/type'
+import {$DomNode, $Global, Mapping, ProcedureFunction, TimeoutPromise} from 'clientnode/type'
 import MarkerClusterer from '@google/markerclustererplus'
 
 import {
@@ -34,6 +34,7 @@ import {
     MapIcon,
     MapImpl,
     MapMarker,
+    MapMarkerClustererOptions,
     MapMarkerOptions,
     MapPlaceResult,
     MapPlacesService,
@@ -269,8 +270,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     southWest: {latitude: -85, longitude: -180}
                 },
                 key: null,
-                protocol: '',
-                timeoutInMilliseconds: 5000,
+                protocol: 'https',
+                timeoutInMilliseconds: 1000,
                 url:
                     '{1}//api.ipstack.com/{3}?access_key={2}&fields=' +
                     'latitude,longitude'
@@ -307,7 +308,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     imagePath:
                         'https://cdn.rawgit.com/googlemaps/' +
                         'js-marker-clusterer/gh-pages/images/m',
-                    maxZoomLevel: 11
+                    maxZoom: 11
                 },
                 icon: {
                     scaledSize: {height: 49, unit: 'px', width: 44},
@@ -419,8 +420,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 this._options.applicationInterface.callbackName ?
                     this._options.applicationInterface.callbackName :
                     StoreLocator.determineUniqueScopeName();
-            ($.global as unknown as Mapping<Function>)[callbackName] = (
-            ):void => {
+            const callback:ProcedureFunction = ():void => {
                 if (!applicationInterfaceLoadCallbacks.resolved)
                     if (
                         $.global.window &&
@@ -436,6 +436,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                             new Error('No google maps environment set.')
                         )
             }
+            ($.global as unknown as Mapping<Function>)[callbackName] = callback
             $.getScript(Tools.stringFormat(
                 this._options.applicationInterface.url,
                 this._options.applicationInterface.key ?
@@ -448,7 +449,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 ) +
                 `.${callbackName}`
             ))
-                .done(($.global as unknown as Mapping<Function>)[callbackName])
+                .done(callback)
                 .fail((
                     response:JQuery.jqXHR<string|undefined>,
                     error:JQuery.Ajax.ErrorTextStatus
@@ -613,7 +614,10 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 if (this.markerClusterer) {
                     this.markerClusterer.clearMarkers()
                     this.markerClusterer = new MarkerClusterer(
-                        this.map, markers, this._options.marker.cluster
+                        this.map,
+                        markers,
+                        this._options.marker.cluster as
+                            MapMarkerClustererOptions
                     )
                 }
             }
@@ -701,33 +705,40 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             )
             this.initializeDataSourceSearch()
         }
-        // Close marker if zoom level is bigger than the aggregation.
-        StoreLocator.maps.event.addListenerOnce(
-            this.map,
-            'zoom_changed',
-            ():void => {
-                if (
-                    typeof this.currentlyOpenWindow === 'object' &&
-                    this.currentlyOpenWindow &&
-                    this.currentlyOpenWindow.isOpen &&
-                    this.map.getZoom() <=
-                        this._options.marker.cluster.maxZoomLevel
-                ) {
-                    this.currentlyOpenWindow.isOpen = false
-                    if (this.currentlyOpenWindow.close)
-                        this.currentlyOpenWindow.close()
+        const markerClusterZoomLevel:number = this.markerClusterer && (
+            this._options.marker.cluster as
+                MapMarkerClustererOptions
+        ).maxZoom || 0
+        if (markerClusterZoomLevel > 0)
+            // Close marker if zoom level is bigger than the aggregation.
+            StoreLocator.maps.event.addListenerOnce(
+                this.map,
+                'zoom_changed',
+                ():void => {
+                    if (
+                        typeof this.currentlyOpenWindow === 'object' &&
+                        this.currentlyOpenWindow &&
+                        this.currentlyOpenWindow.isOpen &&
+                        this.map.getZoom() <= markerClusterZoomLevel
+                    ) {
+                        this.currentlyOpenWindow.isOpen = false
+                        if (this.currentlyOpenWindow.close)
+                            this.currentlyOpenWindow.close()
+                    }
                 }
-            }
-        )
+            )
         return new Promise((resolve:Function, reject:Function):void => {
+            const doResolve:Function = async ():Promise<void> => {
+                await addMarkerPromise
+                resolve(this.$domNode)
+            }
+            if (StoreLocator.maps.mockup)
+                doResolve()
             const listener:MapEventListener =
                 StoreLocator.maps.event.addListenerOnce(
-                    this.map,
-                    'idle',
-                    async ():Promise<void> => {
+                    this.map, 'idle', async ():Promise<void> => {
                         listener.remove()
-                        await addMarkerPromise
-                        resolve(this.$domNode)
+                        doResolve()
                     }
                 )
         })
@@ -1559,11 +1570,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             the clustering can appear. Since a cluster hides an open window.
         */
         if (
-            'cluster' in this._options.marker &&
-            this._options.marker.cluster.maxZoomLevel &&
-            this.map.getZoom() <= this._options.marker.cluster.maxZoomLevel
+            this._options.marker.cluster &&
+            this._options.marker.cluster.maxZoom &&
+            this.map.getZoom() <= this._options.marker.cluster.maxZoom
         )
-            this.map.setZoom(this._options.marker.cluster.maxZoomLevel + 1)
+            this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
         this.closeSearchResults(event)
         if (
             this.currentlyOpenWindow &&
@@ -1636,18 +1647,16 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     open window.
                 */
                 if (
-                    'cluster' in this._options.marker &&
-                    this._options.marker.cluster.maxZoomLevel &&
+                    this._options.marker.cluster &&
+                    this._options.marker.cluster.maxZoom &&
                     this.map.getZoom() <=
-                        this._options.marker.cluster.maxZoomLevel &&
-                    'position' in item.marker &&
+                        this._options.marker.cluster.maxZoom &&
+                    item.position &&
                     (this.map.getBounds() as MapArea)
                         .contains(item.position as MapPosition)
                 ) {
                     this.map.setCenter(item.position as MapPosition)
-                    this.map.setZoom(
-                        this._options.marker.cluster.maxZoomLevel + 1
-                    )
+                    this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
                 }
                 if (item !== this.currentlyHighlightedItem && item.marker) {
                     item.marker.setAnimation(

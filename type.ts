@@ -33,6 +33,7 @@ import 'googlemaps/map'
 import 'googlemaps/marker'
 import 'googlemaps/places-service'
 import 'googlemaps/places-widget'
+import {MarkerClustererOptions} from '@google/markerclustererplus'
 
 import StoreLocator from './index'
 // endregion
@@ -57,6 +58,7 @@ export type MapImpl<TElement extends Element = Element> =
     google.maps.Map<TElement>
 export type MapInfoWindow = google.maps.InfoWindow
 export type MapMarker = google.maps.Marker
+export type MapMarkerClustererOptions = MarkerClustererOptions
 export type MapMarkerOptions = google.maps.ReadonlyMarkerOptions
 export type MapOptions = google.maps.MapOptions
 export type MapPosition = google.maps.LatLng
@@ -90,6 +92,7 @@ export type Maps = {
     LatLngBounds:typeof google.maps.LatLngBounds;
     Map:typeof google.maps.Map;
     Marker:typeof google.maps.Marker;
+    mockup?:boolean;
     places:{
         PlacesService:typeof google.maps.places.PlacesService;
         SearchBox:typeof google.maps.places.SearchBox;
@@ -190,11 +193,7 @@ export type Options = BaseOptions & {
     };
     map:MapOptions;
     marker:{
-        cluster:{
-            gridSize:number;
-            imagePath:string;
-            maxZoomLevel:number;
-        },
+        cluster?:MapMarkerClustererOptions|null;
         icon:{
             scaledSize:Square;
             size:Square;
