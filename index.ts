@@ -749,7 +749,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      */
     initializeDataSourceSearchResultsBox():void {
         this.searchResultsStyleProperties = {}
-        const $inputDomNode = this.$domNode.find('input')
+        const $inputDomNode:$DomNode<HTMLInputElement> =
+            this.$domNode.find('input')
         const allStyleProperties:Mapping<number|string> =
             $inputDomNode.Tools('style')
         for (const propertyName in allStyleProperties)
@@ -779,6 +780,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Nothing.
      */
     initializeDataSourceSearch():void {
+        console.log('TODO not working.')
         this.on(this.$domNode, 'keydown', (event:KeyboardEvent):void => {
             /*
                 NOTE: Events that doesn't occurs in search context are handled
@@ -849,7 +851,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 }
             }
         })
-        const $inputDomNode:$DomNode = this.$domNode.find('input')
+        const $inputDomNode:$DomNode<HTMLInputElement> =
+            this.$domNode.find('input')
         this.on($inputDomNode, 'click', ():void => {
             if (this.currentSearchText)
                 this.openSearchResults()

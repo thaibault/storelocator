@@ -79,10 +79,10 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
                 key: '11a62990a1424e894da6eec464a747e6'
             },
             marker: {
-                // TODO check if this is loadable.
-                // cluster: null
+                // Is not loadable without browser environment.
+                cluster: null
             },
-            searchBox: {},
+            searchOptions: {},
             // Automatically generated store with option: "stores: bounds"
             stores: [{
                 address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
