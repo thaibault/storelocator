@@ -780,8 +780,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Nothing.
      */
     initializeDataSourceSearch():void {
-        console.log('TODO not working.')
-        this.on(this.$domNode, 'keydown', (event:KeyboardEvent):void => {
+        this.on<TElement>(
+            this.$domNode, 'keydown', (event:KeyboardEvent
+        ):void => {
             /*
                 NOTE: Events that doesn't occurs in search context are handled
                 by the native map implementation and won't be propagated so we
@@ -853,19 +854,23 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         })
         const $inputDomNode:$DomNode<HTMLInputElement> =
             this.$domNode.find('input')
-        this.on($inputDomNode, 'click', ():void => {
+        this.on<HTMLInputElement>($inputDomNode, 'click', ():void => {
             if (this.currentSearchText)
                 this.openSearchResults()
         })
-        this.on($inputDomNode, 'focus', ():void => {
+        this.on<HTMLInputElement>($inputDomNode, 'focus', ():void => {
             if (this.currentSearchText)
                 this.openSearchResults()
         })
-        this.on($inputDomNode, 'keydown', (event:KeyboardEvent):void => {
+        this.on<HTMLInputElement>(
+            $inputDomNode, 'keydown', (event:KeyboardEvent
+        ):void => {
             if (Tools.keyCode.DOWN === event.keyCode && this.currentSearchText)
                 this.openSearchResults()
         })
-        this.on($inputDomNode, 'keyup', this.updateSearchResultsHandler)
+        this.on<HTMLInputElement>(
+            $inputDomNode, 'keyup', this.updateSearchResultsHandler
+        )
         StoreLocator.maps.event.addListenerOnce(
             this.map,
             'center_changed',

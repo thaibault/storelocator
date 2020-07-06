@@ -57,14 +57,20 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
                     InfoWindow: Tools.noop,
                     LatLng: Tools.noop,
                     LatLngBounds: class {
-                        contains = ():true => true
+                        contains:Function = ():true => true
                     },
                     Map: class {
-                        controls = [[]]
+                        controls:Array<Array<number>> = [[]]
+                        getCenter:Function = ():{} => ({})
                     },
                     Marker: Tools.noop,
                     mockup: true,
                     places: {
+                        PlacesService: class {
+                            textSearch:Function = (
+                                options:object, callback:Function
+                            ):void => callback([])
+                        },
                         SearchBox: Tools.noop
                     }
                 },
