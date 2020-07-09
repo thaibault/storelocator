@@ -31,23 +31,23 @@
     "url": "https://github.com/thaibault/storelocator"
   },
   "scripts": {
-    "build": "webOptimizer build",
-    "build:export": "webOptimizer build '{__reference__: \"target:export\"}'",
-    "build:export:compatible": "webOptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}'",
+    "build": "weboptimizer build",
+    "build:export": "weboptimizer build '{__reference__: \"target:export\"}'",
+    "build:export:compatible": "weboptimizer build '{__reference__: [\"target:export\", \"target:compatible\"]}'",
     "check": "yarn check:types; yarn lint",
-    "check:types": "webOptimizer check:types",
-    "clear": "webOptimizer clear",
-    "document": "webOptimizer document",
-    "lint": "webOptimizer lint",
+    "check:types": "weboptimizer check:types",
+    "clear": "weboptimizer clear",
+    "document": "weboptimizer document",
+    "lint": "weboptimizer lint",
     "prepare": "yarn build",
     "report:coverage": "nyc report --reporter=text-lcov | coveralls",
-    "serve": "webOptimizer serve",
+    "serve": "weboptimizer serve",
     "start": "yarn serve",
-    "test": "webOptimizer test",
-    "test:browser": "webOptimizer test:browser",
+    "test": "weboptimizer test",
+    "test:browser": "weboptimizer test:browser",
     "update": "yarn version --patch && yarn publish",
     "update:documentation": "documentationWebsite --log-level info",
-    "watch": "webOptimizer build --watch"
+    "watch": "weboptimizer build --watch"
   },
   "dependencies": {
     "@google/markerclustererplus": "*"
