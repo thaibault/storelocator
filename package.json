@@ -3,13 +3,13 @@
   "version": "1.0.214",
   "license": "CC-BY-3.0",
   "description": "serves a google maps store locator",
-  "homepage": "https://torben.website/storeLocator",
+  "homepage": "https://torben.website/storelocator",
   "documentationWebsite": {
     "languages": [
       "deDE",
       "enUS"
     ],
-    "name": "storeLocator",
+    "name": "storelocator",
     "tagline": "Serves a google maps store locator<!--deDE:Bietet einen Google-Maps-Storelocator-->",
     "trackingCode": "UA-40192634-10"
   },
@@ -28,7 +28,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/thaibault/storeLocator"
+    "url": "https://github.com/thaibault/storelocator"
   },
   "scripts": {
     "build": "webOptimizer build",
