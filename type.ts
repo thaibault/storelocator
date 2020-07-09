@@ -1,6 +1,6 @@
 // #!/usr/bin/env node
 // -*- coding: utf-8 -*-
-/** @module clientnode */
+/** @module storelocator */
 'use strict'
 /* !
     region header
