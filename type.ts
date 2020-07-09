@@ -4,7 +4,7 @@
 'use strict'
 /* !
     region header
-    [Project page](https://torben.website/clientnode)
+    [Project page](https://torben.website/storelocator)
 
     Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
