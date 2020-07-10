@@ -780,9 +780,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Nothing.
      */
     initializeDataSourceSearch():void {
-        this.on<TElement>(
-            this.$domNode, 'keydown', (event:KeyboardEvent
-        ):void => {
+        this.on<TElement>(this.$domNode, 'keydown', (event:KeyboardEvent):void => {
             /*
                 NOTE: Events that doesn't occurs in search context are handled
                 by the native map implementation and won't be propagated so we
