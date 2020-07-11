@@ -241,6 +241,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     resultsDomNode:$DomNode|null = null
     searchResultsDirty:boolean = false
     searchResultsStyleProperties:Mapping<number|string> = {}
+    self:typeof StoreLocator
     seenLocations:Array<string> = []
 
     _options:Options = {} as Options
@@ -250,89 +251,90 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Promise resolving to the current instance.
      */
     initialize(options:object = {}):Promise<$DomNode<TElement>> {
-        // region properties
-        this._options = {
-            additionalStoreProperties: {},
-            applicationInterface: {
-                url:
-                    'https://maps.googleapis.com/maps/api/js?{1}v=3&' +
-                    'sensor=false&libraries=places,geometry&callback={2}',
-                callbackName: null,
-                key: null
-            },
-            defaultMarkerIconFileName: null,
-            fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
-            iconPath: '',
-            ip: 'check',
-            ipToLocationApplicationInterface: {
-                bounds: {
+        // Merges given options with default options recursively.
+        super.initialize(Tools.extend(
+            true,
+            {
+                additionalStoreProperties: {},
+                applicationInterface: {
+                    url:
+                        'https://maps.googleapis.com/maps/api/js?{1}v=3&' +
+                        'sensor=false&libraries=places,geometry&callback={2}',
+                    callbackName: null,
+                    key: null
+                },
+                defaultMarkerIconFileName: null,
+                distanceToMoveByDuplicatedEntries: 0.0001,
+                fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
+                iconPath: '',
+                infoWindow: {
+                    additionalMoveToBottomInPixel: 120,
+                    content: null,
+                    loadingContent: '<div class="idle">loading...</div>'
+                },
+                input: {
+                    hide: {opacity: 0},
+                    showAnimation: [{opacity: 1}, {duration: 'fast'}]
+                },
+                ip: 'check',
+                ipToLocationApplicationInterface: {
+                    bounds: {
+                        northEast: {latitude: 85, longitude: 180},
+                        southWest: {latitude: -85, longitude: -180}
+                    },
+                    key: null,
+                    protocol: 'https',
+                    timeoutInMilliseconds: 1000,
+                    url:
+                        '{1}//api.ipstack.com/{3}?access_key={2}&fields=' +
+                        'latitude,longitude'
+                },
+                limit: {
                     northEast: {latitude: 85, longitude: 180},
                     southWest: {latitude: -85, longitude: -180}
                 },
-                key: null,
-                protocol: 'https',
-                timeoutInMilliseconds: 1000,
-                url:
-                    '{1}//api.ipstack.com/{3}?access_key={2}&fields=' +
-                    'latitude,longitude'
-            },
-            limit: {
-                northEast: {latitude: 85, longitude: 180},
-                southWest: {latitude: -85, longitude: -180}
-            },
-            map: {
-                maxZoom: 0,
-                minZoom: 9999,
-                zoom: 3,
-                disableDefaultUI: true,
-                zoomControl: true,
-                streetViewControl: true
-            },
-            startLocation: null,
-            stores: {
-                generateProperties: (store:object):object => store,
-                northEast: {latitude: 85, longitude: 180},
-                number: 100,
-                southWest: {latitude: -85, longitude: -180}
-            },
-            showInputAfterLoadedDelayInMilliseconds: 500,
-            input: {
-                hide: {opacity: 0},
-                showAnimation: [{opacity: 1}, {duration: 'fast'}]
-            },
-            distanceToMoveByDuplicatedEntries: 0.0001,
-            marker: {
-                cluster: {
-                    gridSize: 100,
-                    // TODO take existing images.
-                    imagePath:
-                        'https://cdn.rawgit.com/googlemaps/' +
-                        'js-marker-clusterer/gh-pages/images/m',
-                    maxZoom: 11
+                map: {
+                    maxZoom: 0,
+                    minZoom: 9999,
+                    zoom: 3,
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    streetViewControl: true
                 },
-                icon: {
-                    scaledSize: {height: 49, unit: 'px', width: 44},
-                    size: {height: 49, unit: 'px', width: 44}
-                }
+                marker: {
+                    cluster: {
+                        gridSize: 100,
+                        // TODO take existing images.
+                        imagePath:
+                            'https://cdn.rawgit.com/googlemaps/' +
+                            'js-marker-clusterer/gh-pages/images/m',
+                        maxZoom: 11
+                    },
+                    icon: {
+                        scaledSize: {height: 49, unit: 'px', width: 44},
+                        size: {height: 49, unit: 'px', width: 44}
+                    }
+                },
+                onInfoWindowOpen: Tools.noop,
+                onInfoWindowOpened: Tools.noop,
+                onAddSearchResults: Tools.noop,
+                onRemoveSearchResults: Tools.noop,
+                onOpenSearchResults: Tools.noop,
+                onCloseSearchResults: Tools.noop,
+                onMarkerHighlighted: Tools.noop,
+                searchOptions: 50,
+                showInputAfterLoadedDelayInMilliseconds: 500,
+                startLocation: null,
+                stores: {
+                    generateProperties: (store:object):object => store,
+                    northEast: {latitude: 85, longitude: 180},
+                    number: 100,
+                    southWest: {latitude: -85, longitude: -180}
+                },
+                successfulSearchZoomLevel: 12
             },
-            successfulSearchZoomLevel: 12,
-            infoWindow: {
-                additionalMoveToBottomInPixel: 120,
-                content: null,
-                loadingContent: '<div class="idle">loading...</div>'
-            },
-            searchOptions: 50,
-            onInfoWindowOpen: Tools.noop,
-            onInfoWindowOpened: Tools.noop,
-            onAddSearchResults: Tools.noop,
-            onRemoveSearchResults: Tools.noop,
-            onOpenSearchResults: Tools.noop,
-            onCloseSearchResults: Tools.noop,
-            onMarkerHighlighted: Tools.noop
-        } as unknown as Options
-        // endregion
-        // Merges given options with default options recursively.
-        super.initialize(options)
+            options
+        ))
         this.defaultSearchOptions = {
             generic: {
                 filter: (place:MapPlaceResult):boolean =>
@@ -377,20 +379,21 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 'width'
             ]
         }
+        this.self = this.constructor as typeof StoreLocator
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
         const applicationInterfaceLoadCallbacks:{
-            resolve:Function;
             reject:Function;
+            resolve:Function;
             resolved:boolean;
         } = {
             resolve: Tools.noop,
             reject: Tools.noop,
             resolved: false
         }
-        if (typeof StoreLocator.applicationInterfaceLoad !== 'object') {
+        if (typeof this.self.applicationInterfaceLoad !== 'object') {
             loadInitialized = false
-            StoreLocator.applicationInterfaceLoad = new Promise((
+            this.self.applicationInterfaceLoad = new Promise((
                 resolve:Function, reject:Function
             ):void => {
                 applicationInterfaceLoadCallbacks.resolve = ():void => {
@@ -401,7 +404,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             })
         }
         const result:Promise<$DomNode<TElement>> =
-            StoreLocator.applicationInterfaceLoad
+            this.self.applicationInterfaceLoad
                 .then(this.bootstrap.bind(this))
                 .then(():StoreLocator<TElement> => this.fireEvent('loaded'))
                 .then(():$DomNode<TElement> => this.$domNode)
@@ -410,7 +413,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             $.global.window.google &&
             $.global.window.google.maps
         ) {
-            StoreLocator.maps = $.global.window.google.maps
+            this.self.maps = $.global.window.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
                 Tools.timeout(():void =>
                     applicationInterfaceLoadCallbacks.resolve(this.$domNode)
@@ -419,7 +422,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             const callbackName:string =
                 this._options.applicationInterface.callbackName ?
                     this._options.applicationInterface.callbackName :
-                    StoreLocator.determineUniqueScopeName();
+                    this.self.determineUniqueScopeName();
             const callback:ProcedureFunction = ():void => {
                 if (!applicationInterfaceLoadCallbacks.resolved)
                     if (
@@ -427,7 +430,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         $.global.window.google &&
                         $.global.window.google.maps
                     ) {
-                        StoreLocator.maps = $.global.window.google.maps
+                        this.self.maps = $.global.window.google.maps
                         applicationInterfaceLoadCallbacks.resolve(
                             this.$domNode
                         )
@@ -516,8 +519,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                             !this._options
                                 .ipToLocationApplicationInterface.bounds ||
                             (
-                                new StoreLocator.maps.LatLngBounds(
-                                    new StoreLocator.maps.LatLng(
+                                new this.self.maps.LatLngBounds(
+                                    new this.self.maps.LatLng(
                                         this._options
                                             .ipToLocationApplicationInterface
                                             .bounds.southWest.latitude,
@@ -525,7 +528,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                                             .ipToLocationApplicationInterface
                                             .bounds.southWest.longitude
                                     ),
-                                    new StoreLocator.maps.LatLng(
+                                    new this.self.maps.LatLng(
                                         this._options
                                             .ipToLocationApplicationInterface
                                             .bounds.northEast.latitude,
@@ -534,7 +537,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                                             .bounds.northEast.longitude
                                     )
                                 )
-                            ).contains(new StoreLocator.maps.LatLng(
+                            ).contains(new this.self.maps.LatLng(
                                 currentLocation.latitude,
                                 currentLocation.longitude
                             ))
@@ -552,16 +555,16 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      */
     initializeMap():Promise<$DomNode<TElement>> {
         const startLocation:Position = this._options.startLocation as Position
-        this._options.map.center = new StoreLocator.maps.LatLng(
+        this._options.map.center = new this.self.maps.LatLng(
             startLocation.latitude, startLocation.longitude
         )
-        this.map = new StoreLocator.maps.Map<TElement>(
+        this.map = new this.self.maps.Map<TElement>(
             $('<div>').appendTo(this.$domNode.css('display', 'block'))[0] as
                 TElement,
             this._options.map
         )
         if (this._options.limit)
-            StoreLocator.maps.event.addListenerOnce(
+            this.self.maps.event.addListenerOnce(
                 this.map,
                 'dragend',
                 ():void => {
@@ -589,7 +592,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                             newCenter.latitude = area.getSouthWest().lat()
                         if (currentCenter.lat() > area.getNorthEast().lat())
                             newCenter.latitude = area.getNorthEast().lat()
-                        this.map.panTo(new StoreLocator.maps.LatLng(
+                        this.map.panTo(new this.self.maps.LatLng(
                             newCenter.latitude, newCenter.longitude
                         ))
                     }
@@ -605,7 +608,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         item.marker.setMap(null)
                         delete item.marker
                     }
-                    item.marker = new StoreLocator.maps.Marker(
+                    item.marker = new this.self.maps.Marker(
                         this.createMarkerConfiguration(item)
                     )
                     this.attachMarkerEventListener(item)
@@ -649,11 +652,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     }
                 })
             else {
-                const southWest:MapPosition = new StoreLocator.maps.LatLng(
+                const southWest:MapPosition = new this.self.maps.LatLng(
                     this._options.stores.southWest.latitude,
                     this._options.stores.southWest.longitude
                 )
-                const northEast:MapPosition = new StoreLocator.maps.LatLng(
+                const northEast:MapPosition = new this.self.maps.LatLng(
                     this._options.stores.northEast.latitude,
                     this._options.stores.northEast.longitude
                 )
@@ -688,16 +691,16 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             resolve(this.items)
         })
         // Create the search box and link it to the UI element.
-        this.map.controls[StoreLocator.maps.ControlPosition.TOP_LEFT].push(
+        this.map.controls[this.self.maps.ControlPosition.TOP_LEFT].push(
             this.$domNode.find('input')[0]
         )
         if (typeof this._options.searchOptions === 'number')
             this.initializeGenericSearch()
         else {
-            StoreLocator.maps.event.addListenerOnce(
+            this.self.maps.event.addListenerOnce(
                 this.map, 'click', ():void => this.closeSearchResults()
             )
-            StoreLocator.maps.event.addListenerOnce(
+            this.self.maps.event.addListenerOnce(
                 this.map, 'dragstart', ():void => this.closeSearchResults()
             )
             this._options.searchOptions = Tools.extend(
@@ -711,7 +714,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         ).maxZoom || 0
         if (markerClusterZoomLevel > 0)
             // Close marker if zoom level is bigger than the aggregation.
-            StoreLocator.maps.event.addListenerOnce(
+            this.self.maps.event.addListenerOnce(
                 this.map,
                 'zoom_changed',
                 ():void => {
@@ -732,10 +735,10 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 await addMarkerPromise
                 resolve(this.$domNode)
             }
-            if (StoreLocator.maps.mockup)
+            if (this.self.maps.mockup)
                 doResolve()
             const listener:MapEventListener =
-                StoreLocator.maps.event.addListenerOnce(
+                this.self.maps.event.addListenerOnce(
                     this.map, 'idle', async ():Promise<void> => {
                         listener.remove()
                         doResolve()
@@ -768,7 +771,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         // Prepare search result positioning.
         this.resultsDomNode = $('<div>')
             .addClass(Tools.stringCamelCaseToDelimited(
-                `${StoreLocator._name}SearchResults`
+                `${this.self._name}SearchResults`
             ))
             .css(this.searchResultsStyleProperties)
         // Inject the final search results into the dom tree.
@@ -869,7 +872,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         this.on<HTMLInputElement>(
             $inputDomNode, 'keyup', this.updateSearchResultsHandler
         )
-        StoreLocator.maps.event.addListenerOnce(
+        this.self.maps.event.addListenerOnce(
             this.map,
             'center_changed',
             ():void => {
@@ -885,7 +888,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      */
     get updateSearchResultsHandler():Function {
         const placesService:MapPlacesService =
-            new StoreLocator.maps.places.PlacesService(this.map)
+            new this.self.maps.places.PlacesService(this.map)
         const searchOptions:SearchOptions =
             this._options.searchOptions as SearchOptions
         return Tools.debounce(
@@ -907,7 +910,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         ].includes(name)
                     )
                         return
-                await this.acquireLock(`${StoreLocator._name}Search`)
+                await this.acquireLock(`${this.self._name}Search`)
                 const searchText:string = searchOptions.normalizer(
                    this.$domNode.find('input').val() as string || ''
                 )
@@ -915,7 +918,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     this.currentSearchText === searchText &&
                     !this.searchResultsDirty
                 )
-                    return this.releaseLock(`${StoreLocator._name}Search`)
+                    return this.releaseLock(`${this.self._name}Search`)
                 this.searchResultsDirty = false
                 if (!this.resultsDomNode)
                     this.initializeDataSourceSearchResultsBox()
@@ -931,7 +934,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     )
                     this.currentSearchResultsDomNode = null
                     this.closeSearchResults()
-                    return this.releaseLock(`${StoreLocator._name}Search`)
+                    return this.releaseLock(`${this.self._name}Search`)
                 }
                 this.openSearchResults()
                 const loadingDomNode:$DomNode =
@@ -1021,12 +1024,12 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             let firstDistance:number = 0
             let secondDistance:number = 0
             if (firstPlace.geometry)
-                firstDistance = StoreLocator.maps.geometry.spherical
+                firstDistance = this.self.maps.geometry.spherical
                     .computeDistanceBetween(
                         this.map.getCenter(), firstPlace.geometry.location
                     )
             if (secondPlace.geometry)
-                secondDistance = StoreLocator.maps.geometry.spherical
+                secondDistance = this.self.maps.geometry.spherical
                     .computeDistanceBetween(
                         this.map.getCenter(), secondPlace.geometry.location
                     )
@@ -1035,7 +1038,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             index += 1
             let distance:number = 0
             if (place.geometry)
-                distance = StoreLocator.maps.geometry.spherical
+                distance = this.self.maps.geometry.spherical
                     .computeDistanceBetween(
                         this.map.getCenter(), place.geometry.location
                     )
@@ -1159,13 +1162,13 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 return -1
             let firstDistance:number = 0
             if (first.position)
-                firstDistance = StoreLocator.maps.geometry.spherical
+                firstDistance = this.self.maps.geometry.spherical
                     .computeDistanceBetween(
                         this.map.getCenter(), first.position
                     )
             let secondDistance:number = 0
             if (second.position)
-                secondDistance = StoreLocator.maps.geometry.spherical
+                secondDistance = this.self.maps.geometry.spherical
                     .computeDistanceBetween(
                         this.map.getCenter(), second.position
                     )
@@ -1211,7 +1214,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     this.currentSearchResultsDomNode
                 )
             this.currentSearchResultsDomNode = resultsRepresentationDomNode
-            this.releaseLock(`${StoreLocator._name}Search`)
+            this.releaseLock(`${this.self._name}Search`)
         })
         this.currentSearchText = searchText
         this.currentSearchResults = searchResults.slice()
@@ -1273,14 +1276,14 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Nothing.
      */
     initializeGenericSearch():void {
-        const searchBox:MapSearchBox = new StoreLocator.maps.places.SearchBox(
+        const searchBox:MapSearchBox = new this.self.maps.places.SearchBox(
             this.$domNode.find('input')[0],
-            {bounds: new StoreLocator.maps.LatLngBounds(
-                new StoreLocator.maps.LatLng(
+            {bounds: new this.self.maps.LatLngBounds(
+                new this.self.maps.LatLng(
                     this._options.limit.southWest.latitude,
                     this._options.limit.southWest.longitude
                 ),
-                new StoreLocator.maps.LatLng(
+                new this.self.maps.LatLng(
                     this._options.limit.northEast.latitude,
                     this._options.limit.northEast.longitude
                 )
@@ -1290,7 +1293,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             Bias the search box results towards places that are within the
             bounds of the current map's viewport.
         */
-        StoreLocator.maps.event.addListenerOnce(
+        this.self.maps.event.addListenerOnce(
             this.map,
             'bounds_changed',
             ():void => {
@@ -1303,7 +1306,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             Listen for the event fired when the user selects an item from the
             pick list. Retrieve the matching places for that item.
         */
-        StoreLocator.maps.event.addListenerOnce(
+        this.self.maps.event.addListenerOnce(
             searchBox,
             'places_changed',
             async ():Promise<void> => {
@@ -1317,7 +1320,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     for (const item of this.items) {
                         let distanceInMeter:number = 0
                         if (foundPlace.geometry && item.position)
-                            distanceInMeter = StoreLocator.maps.geometry
+                            distanceInMeter = this.self.maps.geometry
                                 .spherical.computeDistanceBetween(
                                     foundPlace.geometry.location, item.position
                                 )
@@ -1361,7 +1364,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         places:Array<MapPlaceResult>
     ):Promise<Array<MapPlaceResult>> {
         let runningGeocodes:number = 0
-        const geocoder:MapGeocoder = new StoreLocator.maps.Geocoder()
+        const geocoder:MapGeocoder = new this.self.maps.Geocoder()
         return new Promise((resolve:Function, reject:Function):void => {
             for (const place of places)
                 if (!(place.geometry && place.geometry.location)) {
@@ -1383,7 +1386,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                             status:MapGeocoderStatus
                         ):void => {
                             runningGeocodes -= 1
-                            if (status === StoreLocator.maps.GeocoderStatus.OK)
+                            if (status === this.self.maps.GeocoderStatus.OK)
                                 place.geometry = results[0].geometry
                             else {
                                 delete places[places.indexOf(place)]
@@ -1420,7 +1423,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             for (const candidate of candidates) {
                 let distanceInMeter:number = 0
                 if (candidate.geometry)
-                    distanceInMeter = StoreLocator.maps.geometry.spherical
+                    distanceInMeter = this.self.maps.geometry.spherical
                         .computeDistanceBetween(
                             candidate.geometry.location, this.map.getCenter()
                         )
@@ -1473,7 +1476,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             isOpen: false,
             open: Tools.noop,
             position: (store && store.latitude && store.longitude) ?
-                new StoreLocator.maps.LatLng(store.latitude, store.longitude) :
+                new this.self.maps.LatLng(store.latitude, store.longitude) :
                 null
         }
         if (
@@ -1485,13 +1488,13 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 {} as Icon
             if (item.icon.scaledSize) {
                 const square:Square = item.icon.scaledSize as Square
-                item.icon.scaledSize = new StoreLocator.maps.Size(
+                item.icon.scaledSize = new this.self.maps.Size(
                     square.width, square.height, square.unit, square.unit
                 )
             }
             if (item.icon.size) {
                 const square:Square = item.icon.size as Square
-                item.icon.size = new StoreLocator.maps.Size(
+                item.icon.size = new this.self.maps.Size(
                     square.width, square.height, square.unit, square.unit
                 )
             }
@@ -1505,10 +1508,10 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         }
         if (store && store.title)
             item.title = store.title
-        item.infoWindow = new StoreLocator.maps.InfoWindow({content: ''}) as
+        item.infoWindow = new this.self.maps.InfoWindow({content: ''}) as
             InfoWindow
         item.infoWindow.isOpen = false
-        item.marker = new StoreLocator.maps.Marker(
+        item.marker = new this.self.maps.Marker(
             this.createMarkerConfiguration(item)
         )
         this.attachMarkerEventListener(item)
@@ -1547,14 +1550,14 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Nothing.
      */
     attachMarkerEventListener(item:Item):void {
-        StoreLocator.maps.event.addListenerOnce(
+        this.self.maps.event.addListenerOnce(
             item.infoWindow as InfoWindow,
             'closeclick',
             ():void => {
                 (item.infoWindow as InfoWindow).isOpen = false
             }
         )
-        StoreLocator.maps.event.addListenerOnce(
+        this.self.maps.event.addListenerOnce(
             item.marker as MapMarker,
             'click',
             this.openMarker.bind(this, item)
@@ -1666,7 +1669,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 }
                 if (item !== this.currentlyHighlightedItem && item.marker) {
                     item.marker.setAnimation(
-                        StoreLocator.maps.Animation[
+                        this.self.maps.Animation[
                             type.toUpperCase() as keyof MapAnimation
                         ]
                     )
