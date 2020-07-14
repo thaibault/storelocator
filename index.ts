@@ -223,7 +223,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     static applicationInterfaceLoad:Promise<$DomNode>
     static maps:Maps
 
-    static _name:string = 'StoreLocator'
+    static readonly _name:'StoreLocator' = 'StoreLocator'
 
     currentlyHighlightedItem:Item|null = null
     currentlyOpenWindow:InfoWindow|null = null
@@ -233,18 +233,18 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     currentSearchSegments:Array<string> = []
     currentSearchText:string|null = null
     currentSearchWords:Array<string> = []
-    defaultSearchOptions:SearchOptions = {} as SearchOptions
+    defaultSearchOptions:SearchOptions
     items:Array<Item> = []
-    map:MapImpl<TElement> = {} as MapImpl<TElement>
+    map:MapImpl<TElement>
     markerClusterer:MarkerClusterer|null = null
     resetMarkerCluster:Function|null = null
     resultsDomNode:$DomNode|null = null
     searchResultsDirty:boolean = false
     searchResultsStyleProperties:Mapping<number|string> = {}
-    self:typeof StoreLocator
+    readonly self:typeof StoreLocator = StoreLocator
     seenLocations:Array<string> = []
 
-    _options:Options = {} as Options
+    _options:Options
     /**
      * Entry point for object orientated plugin.
      * @param options - Options to overwrite default ones.
@@ -379,7 +379,6 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 'width'
             ]
         }
-        this.self = this.constructor as typeof StoreLocator
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
         const applicationInterfaceLoadCallbacks:{
