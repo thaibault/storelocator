@@ -235,7 +235,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     currentSearchWords:Array<string> = []
     defaultSearchOptions:SearchOptions
     items:Array<Item> = []
-    map:MapImpl<TElement>
+    // Map is set after initialisation promise has been resolved.
+    map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
     markerClusterer:MarkerClusterer|null = null
     resetMarkerCluster:Function|null = null
     resultsDomNode:$DomNode|null = null
@@ -244,93 +245,100 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     readonly self:typeof StoreLocator = StoreLocator
     seenLocations:Array<string> = []
 
-    _options:Options
+    _options:Options = {
+        additionalStoreProperties: {},
+        applicationInterface: {
+            callbackName: null,
+            key: null,
+            url: `
+                https://maps.googleapis.com/maps/api/js ?
+                    {1}
+                    v=3 &
+                    sensor=false &
+                    libraries=places,geometry &
+                    callback={2}
+            `.replace(/[ \n]+/g, '')
+        },
+        defaultMarkerIconFileName: null,
+        distanceToMoveByDuplicatedEntries: 0.0001,
+        fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
+        iconPath: '',
+        infoWindow: {
+            additionalMoveToBottomInPixel: 120,
+            content: null,
+            loadingContent: '<div class="idle">loading...</div>'
+        },
+        input: {
+            hide: {opacity: 0},
+            showAnimation: [{opacity: 1}, {duration: 'fast'}]
+        },
+        ip: 'check',
+        ipToLocationApplicationInterface: {
+            bounds: {
+                northEast: {latitude: 85, longitude: 180},
+                southWest: {latitude: -85, longitude: -180}
+            },
+            key: null,
+            protocol: 'https',
+            timeoutInMilliseconds: 1000,
+            url: `
+                {1}//api.ipstack.com/{3} ?
+                    access_key={2} &
+                    fields=latitude,longitude
+            `.replace(/[ \n]+/g, '')
+        },
+        limit: {
+            northEast: {latitude: 85, longitude: 180},
+            southWest: {latitude: -85, longitude: -180}
+        },
+        map: {
+            maxZoom: 0,
+            minZoom: 9999,
+            zoom: 3,
+            disableDefaultUI: true,
+            zoomControl: true,
+            streetViewControl: true
+        },
+        marker: {
+            cluster: {
+                gridSize: 100,
+                // TODO take existing images.
+                imagePath: `
+                    https://cdn.rawgit.com/
+                    googlemaps/js-marker-clusterer/gh-pages/images/m
+                `.replace(/[ \n]+/g, ''),
+                maxZoom: 11
+            },
+            icon: {
+                scaledSize: {height: 49, unit: 'px', width: 44},
+                size: {height: 49, unit: 'px', width: 44}
+            }
+        },
+        onInfoWindowOpen: Tools.noop,
+        onInfoWindowOpened: Tools.noop,
+        onAddSearchResults: Tools.noop,
+        onRemoveSearchResults: Tools.noop,
+        onOpenSearchResults: Tools.noop,
+        onCloseSearchResults: Tools.noop,
+        onMarkerHighlighted: Tools.noop,
+        searchOptions: 50,
+        showInputAfterLoadedDelayInMilliseconds: 500,
+        startLocation: null,
+        stores: {
+            generateProperties: (store:object):object => store,
+            northEast: {latitude: 85, longitude: 180},
+            number: 100,
+            southWest: {latitude: -85, longitude: -180}
+        },
+        successfulSearchZoomLevel: 12
+    }
     /**
      * Initializes default options.
      * @param paraneter - Parameter to forward to parent constructor.
      * @returns Promise resolving to the current instance.
      */
-    constructor(...parameter:Array<any>) {
-        super(...parameter)
-        this._options = {
-            additionalStoreProperties: {},
-            applicationInterface: {
-                callbackName: null,
-                key: null,
-                url:
-                    'https://maps.googleapis.com/maps/api/js?{1}v=3&' +
-                    'sensor=false&libraries=places,geometry&callback={2}'
-            },
-            defaultMarkerIconFileName: null,
-            distanceToMoveByDuplicatedEntries: 0.0001,
-            fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
-            iconPath: '',
-            infoWindow: {
-                additionalMoveToBottomInPixel: 120,
-                content: null,
-                loadingContent: '<div class="idle">loading...</div>'
-            },
-            input: {
-                hide: {opacity: 0},
-                showAnimation: [{opacity: 1}, {duration: 'fast'}]
-            },
-            ip: 'check',
-            ipToLocationApplicationInterface: {
-                bounds: {
-                    northEast: {latitude: 85, longitude: 180},
-                    southWest: {latitude: -85, longitude: -180}
-                },
-                key: null,
-                protocol: 'https',
-                timeoutInMilliseconds: 1000,
-                url:
-                    '{1}//api.ipstack.com/{3}?access_key={2}&fields=' +
-                    'latitude,longitude'
-            },
-            limit: {
-                northEast: {latitude: 85, longitude: 180},
-                southWest: {latitude: -85, longitude: -180}
-            },
-            map: {
-                maxZoom: 0,
-                minZoom: 9999,
-                zoom: 3,
-                disableDefaultUI: true,
-                zoomControl: true,
-                streetViewControl: true
-            },
-            marker: {
-                cluster: {
-                    gridSize: 100,
-                    // TODO take existing images.
-                    imagePath:
-                        'https://cdn.rawgit.com/googlemaps/' +
-                        'js-marker-clusterer/gh-pages/images/m',
-                    maxZoom: 11
-                },
-                icon: {
-                    scaledSize: {height: 49, unit: 'px', width: 44},
-                    size: {height: 49, unit: 'px', width: 44}
-                }
-            },
-            onInfoWindowOpen: Tools.noop,
-            onInfoWindowOpened: Tools.noop,
-            onAddSearchResults: Tools.noop,
-            onRemoveSearchResults: Tools.noop,
-            onOpenSearchResults: Tools.noop,
-            onCloseSearchResults: Tools.noop,
-            onMarkerHighlighted: Tools.noop,
-            searchOptions: 50,
-            showInputAfterLoadedDelayInMilliseconds: 500,
-            startLocation: null,
-            stores: {
-                generateProperties: (store:object):object => store,
-                northEast: {latitude: 85, longitude: 180},
-                number: 100,
-                southWest: {latitude: -85, longitude: -180}
-            },
-            successfulSearchZoomLevel: 12
-        }
+    constructor($domNode:$DomNode<TElement>, ...parameter:Array<any>) {
+        super($domNode, ...parameter)
         this.defaultSearchOptions = {
             generic: {
                 filter: (place:MapPlaceResult):boolean =>

@@ -20,8 +20,7 @@
 import {
     $DomNode,
     Mapping,
-    Options as BaseOptions,
-    PlainObject,
+    ExtendableOptions as BaseOptions,
     ProcedureFunction,
     Scope as BaseScope
 } from 'clientnode/type'
@@ -174,7 +173,7 @@ export type Options = BaseOptions & {
     };
     input:{
         hide:Mapping<number|string>;
-        showAnimation:[Mapping<number|string>, string];
+        showAnimation:[Mapping<number|string>, Mapping<number|string>];
     };
     ip:string;
     ipToLocationApplicationInterface:{
