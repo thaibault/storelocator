@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-proto-to-assign": "*",
+    "@babel/plugin-transform-runtime": "*",
     "@types/ejs": "*",
     "@types/googlemaps": "*",
     "@types/html-minifier": "*",
@@ -79,6 +80,7 @@
     "webpack-dev-server": "*"
   },
   "peerDependencies": {
+    "@babel/runtime": "*",
     "clientnode": "*",
     "jquery": "*"
   },
