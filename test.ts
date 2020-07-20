@@ -99,7 +99,7 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
                 phoneNumber: '+49 721 9600'
             }]
         })
-        storeLocator = $domNode.data('StoreLocator')
+        storeLocator = $domNode.data(StoreLocator._name)
     })
     // endregion
     // region tests 
