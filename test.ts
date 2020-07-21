@@ -34,7 +34,7 @@ if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
         'node' :
         'node-with-dom'
 }
-describe(`storeLocator (${testEnvironment})`, ():void => {
+describe(`StoreLocator (${testEnvironment})`, ():void => {
     // region mockup
     let $domNode:$DomNode
     let storeLocator:StoreLocator
