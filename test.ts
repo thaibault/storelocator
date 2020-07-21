@@ -19,6 +19,10 @@ import {$Global, $DomNode} from 'clientnode/type'
 import {getInitializedBrowser} from 'weboptimizer/browser'
 import {InitializedBrowser} from 'weboptimizer/type'
 
+/*
+    NOTE: Import and use only as type. Since real loading should be delayed
+    until dom environment has been created.
+*/
 import StoreLocator from './index'
 // endregion
 // region declaration
@@ -37,14 +41,14 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
     beforeAll(async ():Promise<void> => {
         const browser:InitializedBrowser = await getInitializedBrowser()
         globalThis.window = browser.window as Window & typeof globalThis
-        jest.resetModules();
         (globalThis as $Global).$ = require('jquery')
         augment$(determine$())
         /*
             NOTE: Import plugin with side effects (augmenting "$" scope /
             registering plugin) when other imports are only used as type.
         */
-        require('./index')
+        const storeLocatorClass:typeof StoreLocator =
+            require('./index').default
         if (testEnvironment !== 'browser')
             globalThis.window.google = {
                 maps: {
@@ -99,7 +103,7 @@ describe(`storeLocator (${testEnvironment})`, ():void => {
                 phoneNumber: '+49 721 9600'
             }]
         })
-        storeLocator = $domNode.data(StoreLocator._name)
+        storeLocator = $domNode.data(storeLocatorClass._name)
     })
     // endregion
     // region tests 

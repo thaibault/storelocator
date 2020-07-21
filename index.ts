@@ -1584,7 +1584,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Promise resolving to nothing.
      */
     async openMarker(item:Item, event?:Event):Promise<void> {
-        if (event && !('stopPropagation' in event))
+        if (event && !event.stopPropagation)
             event = undefined
         this.highlightMarker(item, event, 'stop')
         /*
@@ -1703,7 +1703,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     async makeInfoWindow(
         item:Item, ...additionalParameter:Array<any>
     ):Promise<string> {
-        if ('content' in this._options.infoWindow) {
+        if (this._options.infoWindow.content) {
             if (Tools.isFunction(this._options.infoWindow.content)) {
                 const result:Promise<string>|string =
                     this._options.infoWindow.content(
@@ -1740,7 +1740,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     ):Promise<string> {
         const searchOptions:SearchOptions = this._options.searchOptions as
             SearchOptions
-        if ('content' in searchOptions) {
+        if (searchOptions.content) {
             if (Tools.isFunction(searchOptions.content)) {
                 const result:Promise<string>|string =
                     searchOptions.content.call(
@@ -1783,7 +1783,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
 export default StoreLocator
 // endregion
 // region handle $ extending
-if ('fn' in $)
+if ($.fn)
     $.fn.StoreLocator = function<TElement = HTMLElement>(
         ...parameter:Array<any>
     ):$DomNode<TElement> {
