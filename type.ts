@@ -19,7 +19,7 @@
 import {
     $DomNode,
     Mapping,
-    ExtendableOptions as BaseOptions,
+    Options as BaseOptions,
     ProcedureFunction,
     Scope as BaseScope
 } from 'clientnode/type'
@@ -154,7 +154,7 @@ export type SearchOptions = {
     resultAggregation:'cut'|'union';
     stylePropertiesToDeriveFromInputField:Array<string>;
 }
-export type Options = BaseOptions & {
+export type Options = Partial<BaseOptions> & {
     additionalStoreProperties:object;
     applicationInterface:{
         url:string;

@@ -391,7 +391,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      * @returns Promise resolving to the current wrapped dom node when
      * map is initialized.
      */
-    initialize(options:object = {}):Promise<$DomNode<TElement>> {
+    initialize(options:Partial<Options> = {}):Promise<$DomNode<TElement>> {
         super.initialize(options)
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
