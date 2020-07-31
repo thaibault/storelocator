@@ -1,6 +1,6 @@
 {
   "name": "storelocator",
-  "version": "1.0.222",
+  "version": "1.0.223",
   "license": "CC-BY-3.0",
   "description": "serves a google maps store locator",
   "homepage": "https://torben.website/storelocator",
