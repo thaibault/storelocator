@@ -421,11 +421,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 .then(this.bootstrap.bind(this))
                 .then(():StoreLocator<TElement> => this.fireEvent('loaded'))
                 .then(():$DomNode<TElement> => this.$domNode)
-        if (
-            $.global.window &&
-            $.global.window.google &&
-            $.global.window.google.maps
-        ) {
+        if ($.global.window?.google?.maps) {
             this.self.maps = $.global.window.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
                 Tools.timeout(():void =>
@@ -438,11 +434,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     this.self.determineUniqueScopeName();
             const callback:ProcedureFunction = ():void => {
                 if (!applicationInterfaceLoadCallbacks.resolved)
-                    if (
-                        $.global.window &&
-                        $.global.window.google &&
-                        $.global.window.google.maps
-                    ) {
+                    if ($.global.window?.google?.maps) {
                         this.self.maps = $.global.window.google.maps
                         applicationInterfaceLoadCallbacks.resolve(
                             this.$domNode
@@ -721,10 +713,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             )
             this.initializeDataSourceSearch()
         }
-        const markerClusterZoomLevel:number = this.markerClusterer && (
-            this._options.marker.cluster as
-                MapMarkerClustererOptions
-        ).maxZoom || 0
+        const markerClusterZoomLevel:number =
+            this.markerClusterer &&
+            (this._options.marker.cluster as MapMarkerClustererOptions)
+                .maxZoom ||
+            0
         if (markerClusterZoomLevel > 0)
             // Close marker if zoom level is bigger than the aggregation.
             this.self.maps.event.addListenerOnce(
@@ -733,8 +726,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 ():void => {
                     if (
                         typeof this.currentlyOpenWindow === 'object' &&
-                        this.currentlyOpenWindow &&
-                        this.currentlyOpenWindow.isOpen &&
+                        this.currentlyOpenWindow?.isOpen &&
                         this.map.getZoom() <= markerClusterZoomLevel
                     ) {
                         this.currentlyOpenWindow.isOpen = false
@@ -970,10 +962,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     this.resultsDomNode.html(
                         loadingDomNode as unknown as string
                     )
-                if (
-                    this.currentSearchResultsDomNode &&
-                    this.currentSearchResultsDomNode.length
-                )
+                if (this.currentSearchResultsDomNode?.length)
                     this.fireEvent(
                         'removeSearchResults',
                         false,
@@ -1075,8 +1064,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     foundWords: this.currentSearchSegments.filter((
                         word:string
                     ):boolean =>
-                        place.formatted_address &&
-                        place.formatted_address.includes(word) ||
+                        place.formatted_address?.includes(word) ||
                         (place.name || '').includes(word)
                     ),
                     highlight: (event?:Event, type?:string):void => {
@@ -1201,14 +1189,17 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         ):void => {
             const resultsRepresentationDomNode:$DomNode =
                 $(resultsRepresentation)
-            if (this.resultsDomNode && this.fireEvent(
-                'addSearchResults',
-                false,
-                this,
-                resultsRepresentationDomNode,
-                this.resultsDomNode,
-                this.currentSearchResultsDomNode || []
-            ))
+            if (
+                this.resultsDomNode &&
+                this.fireEvent(
+                    'addSearchResults',
+                    false,
+                    this,
+                    resultsRepresentationDomNode,
+                    this.resultsDomNode,
+                    this.currentSearchResultsDomNode || []
+                )
+            )
                 /*
                     NOTE: Cast to string because specified signature misses
                     valid wrapped dom node type.
@@ -1216,10 +1207,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 this.resultsDomNode.html(
                     resultsRepresentationDomNode as unknown as string
                 )
-            if (
-                this.currentSearchResultsDomNode &&
-                this.currentSearchResultsDomNode.length
-            )
+            if (this.currentSearchResultsDomNode?.length)
                 this.fireEvent(
                     'removeSearchResults',
                     false,
@@ -1269,8 +1257,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         if (event)
             event.stopPropagation()
         if (
-            this.resultsDomNode &&
-            this.resultsDomNode.hasClass('open') &&
+            this.resultsDomNode?.hasClass('open') &&
             this.fireEvent(
                 'closeSearchResults', false, this, event, this.resultsDomNode
             )
@@ -1380,7 +1367,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         const geocoder:MapGeocoder = new this.self.maps.Geocoder()
         return new Promise((resolve:Function, reject:Function):void => {
             for (const place of places)
-                if (!(place.geometry && place.geometry.location)) {
+                if (!place.geometry?.location) {
                     this.warn(
                         `Found place "${place.name}" doesn't have a location` +
                         '. Full object:'
@@ -1493,7 +1480,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 null
         }
         if (
-            store && store.markerIconFileName ||
+            store?.markerIconFileName ||
             this._options.defaultMarkerIconFileName
         ) {
             item.icon = this._options.marker.icon ?
@@ -1511,7 +1498,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     square.width, square.height, square.unit, square.unit
                 )
             }
-            if (store && store.markerIconFileName)
+            if (store?.markerIconFileName)
                 item.icon.url =
                     this._options.iconPath + store.markerIconFileName
             else
@@ -1519,7 +1506,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     this._options.iconPath +
                     this._options.defaultMarkerIconFileName
         }
-        if (store && store.title)
+        if (store?.title)
             item.title = store.title
         item.infoWindow = new this.self.maps.InfoWindow({content: ''}) as
             InfoWindow
@@ -1592,16 +1579,14 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             the clustering can appear. Since a cluster hides an open window.
         */
         if (
-            this._options.marker.cluster &&
-            this._options.marker.cluster.maxZoom &&
+            this._options.marker.cluster?.maxZoom &&
             this.map.getZoom() <= this._options.marker.cluster.maxZoom
         )
             this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
         this.closeSearchResults(event)
         if (
-            this.currentlyOpenWindow &&
-            this.currentlyOpenWindow === item.infoWindow &&
-            this.currentlyOpenWindow.isOpen
+            this.currentlyOpenWindow?.isOpen &&
+            this.currentlyOpenWindow === item.infoWindow
         )
             return
         this.fireEvent('infoWindowOpen', false, this, event, item)
@@ -1669,8 +1654,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     open window.
                 */
                 if (
-                    this._options.marker.cluster &&
-                    this._options.marker.cluster.maxZoom &&
+                    this._options.marker.cluster?.maxZoom &&
                     this.map.getZoom() <=
                         this._options.marker.cluster.maxZoom &&
                     item.position &&
