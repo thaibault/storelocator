@@ -39,7 +39,7 @@ import StoreLocator from './index'
 export type StoreLocatorFunction<TElement = HTMLElement> =
     (...parameter:Array<any>) => $DomNode<TElement>
 export interface Scope<TElement = HTMLElement> extends BaseScope<TElement> {
-    StoreLocator:StoreLocatorFunction<TElement>;
+    StoreLocator:StoreLocatorFunction<TElement>
 }
 declare global {
     interface JQuery<TElement = HTMLElement> extends Scope<TElement> {}
@@ -67,153 +67,153 @@ export type MapSearchBox = google.maps.places.SearchBox
 export type MapSearchBoxOptions = google.maps.places.SearchBoxOptions
 export type MapSize = google.maps.Size
 export type Maps = {
-    Animation:typeof google.maps.Animation;
-    ControlPosition:typeof google.maps.ControlPosition;
+    Animation:typeof google.maps.Animation
+    ControlPosition:typeof google.maps.ControlPosition
     event:{
         addListenerOnce:(
             instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
             eventName:string,
             handler:(...args: any[]) => void
-        ) => MapEventListener;
-    };
-    Geocoder:typeof google.maps.Geocoder;
-    GeocoderStatus:typeof google.maps.GeocoderStatus;
+        ) => MapEventListener
+    }
+    Geocoder:typeof google.maps.Geocoder
+    GeocoderStatus:typeof google.maps.GeocoderStatus
     geometry:{
         spherical:{
             computeDistanceBetween:(
                 from:MapPosition, to:MapPosition, radius?:number
-            ) => number;
-        };
-    };
-    InfoWindow:typeof google.maps.InfoWindow;
-    LatLng:typeof google.maps.LatLng;
-    LatLngBounds:typeof google.maps.LatLngBounds;
-    Map:typeof google.maps.Map;
-    Marker:typeof google.maps.Marker;
-    mockup?:boolean;
+            ) => number
+        }
+    }
+    InfoWindow:typeof google.maps.InfoWindow
+    LatLng:typeof google.maps.LatLng
+    LatLngBounds:typeof google.maps.LatLngBounds
+    Map:typeof google.maps.Map
+    Marker:typeof google.maps.Marker
+    mockup?:boolean
     places:{
-        PlacesService:typeof google.maps.places.PlacesService;
-        SearchBox:typeof google.maps.places.SearchBox;
-    };
-    Size:typeof google.maps.Size;
+        PlacesService:typeof google.maps.places.PlacesService
+        SearchBox:typeof google.maps.places.SearchBox
+    }
+    Size:typeof google.maps.Size
 }
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
 // / endregion
 export type Store = object & {
-    latitude?:number;
-    longitude?:number;
-    markerIconFileName?:string;
-    title?:string;
+    latitude?:number
+    longitude?:number
+    markerIconFileName?:string
+    title?:string
 }
 export type Square = {
-    height:number;
-    unit:string;
+    height:number
+    unit:string
     width:number
-};
+}
 export type Icon = {
-    scaledSize?:MapSize|Square;
-    size?:MapSize|Square;
-    url?:string;
+    scaledSize?:MapSize|Square
+    size?:MapSize|Square
+    url?:string
 }
 export type InfoWindow = MapInfoWindow & {isOpen:boolean}
 export type Item = {
-    close?:Function;
-    data:null|Store;
-    foundWords:Array<string>;
-    highlight:(event?:Event, type?:string) => void;
-    icon?:Icon;
-    infoWindow?:InfoWindow;
-    isHighlighted:boolean;
-    isOpen:boolean;
-    marker?:MapMarker;
-    open:(event?:Event) => void;
-    position:MapPosition|null;
-    refreshSize?:ProcedureFunction;
-    title?:string;
+    close?:Function
+    data:null|Store
+    foundWords:Array<string>
+    highlight:(event?:Event, type?:string) => void
+    icon?:Icon
+    infoWindow?:InfoWindow
+    isHighlighted:boolean
+    isOpen:boolean
+    marker?:MapMarker
+    open:(event?:Event) => void
+    position:MapPosition|null
+    refreshSize?:ProcedureFunction
+    title?:string
 }
 export type Position = {
-    latitude:number;
-    longitude:number;
+    latitude:number
+    longitude:number
 }
 export type SearchOptions = {
     content?:string|((searchResults:Array<Item>, limitReached:boolean) =>
         Promise<string>|string
-    );
+    )
     generic:{
-        filter:(place:MapPlaceResult) => boolean;
-        number:Array<number>;
-        maximalDistanceInMeter:number;
-        prefer:boolean;
-        retrieveOptions:MapTextSearchRequest;
+        filter:(place:MapPlaceResult) => boolean
+        number:Array<number>
+        maximalDistanceInMeter:number
+        prefer:boolean
+        retrieveOptions:MapTextSearchRequest
     },
-    loadingContent:string;
-    maximumNumberOfResults:number;
-    noResultsContent:string;
-    normalizer:(value:string) => string;
-    properties:Array<string>;
-    resultAggregation:'cut'|'union';
-    stylePropertiesToDeriveFromInputField:Array<string>;
+    loadingContent:string
+    maximumNumberOfResults:number
+    noResultsContent:string
+    normalizer:(value:string) => string
+    properties:Array<string>
+    resultAggregation:'cut'|'union'
+    stylePropertiesToDeriveFromInputField:Array<string>
 }
 export type Options = Partial<BaseOptions> & {
-    additionalStoreProperties:object;
+    additionalStoreProperties:object
     applicationInterface:{
-        url:string;
-        callbackName?:null|string;
-        key?:null|string;
-    };
-    defaultMarkerIconFileName?:null|string;
-    distanceToMoveByDuplicatedEntries:number;
-    fallbackLocation:Position;
-    iconPath:string;
+        url:string
+        callbackName?:null|string
+        key?:null|string
+    }
+    defaultMarkerIconFileName?:null|string
+    distanceToMoveByDuplicatedEntries:number
+    fallbackLocation:Position
+    iconPath:string
     infoWindow:{
-        additionalMoveToBottomInPixel:number;
-        content?:null|string;
-        loadingContent:string;
-    };
+        additionalMoveToBottomInPixel:number
+        content?:null|string
+        loadingContent:string
+    }
     input:{
-        hide:Mapping<number|string>;
-        showAnimation:[Mapping<number|string>, Mapping<number|string>];
-    };
-    ip:string;
+        hide:Mapping<number|string>
+        showAnimation:[Mapping<number|string>, Mapping<number|string>]
+    }
+    ip:string
     ipToLocationApplicationInterface:{
         bounds:{
-            northEast:Position;
-            southWest:Position;
-        };
-        key?:null|string;
-        protocol:string;
-        timeoutInMilliseconds:number;
-        url:string;
-    };
+            northEast:Position
+            southWest:Position
+        }
+        key?:null|string
+        protocol:string
+        timeoutInMilliseconds:number
+        url:string
+    }
     limit:{
-        northEast:Position;
-        southWest:Position;
-    };
-    map:MapOptions;
+        northEast:Position
+        southWest:Position
+    }
+    map:MapOptions
     marker:{
-        cluster?:MapMarkerClustererOptions|null;
+        cluster?:MapMarkerClustererOptions|null
         icon:{
-            scaledSize:Square;
-            size:Square;
-        };
-    };
-    onInfoWindowOpen:Function;
-    onInfoWindowOpened:Function;
-    onAddSearchResults:Function;
-    onRemoveSearchResults:Function;
-    onOpenSearchResults:Function;
-    onCloseSearchResults:Function;
-    onMarkerHighlighted:Function;
-    searchOptions:number|SearchOptions;
-    showInputAfterLoadedDelayInMilliseconds:number;
-    startLocation?:null|Position;
+            scaledSize:Square
+            size:Square
+        }
+    }
+    onInfoWindowOpen:Function
+    onInfoWindowOpened:Function
+    onAddSearchResults:Function
+    onRemoveSearchResults:Function
+    onOpenSearchResults:Function
+    onCloseSearchResults:Function
+    onMarkerHighlighted:Function
+    searchOptions:number|SearchOptions
+    showInputAfterLoadedDelayInMilliseconds:number
+    startLocation?:null|Position
     stores:Array<Store>|string|{
-        generateProperties:(store:object) => object;
-        northEast:Position;
-        number:number;
-        southWest:Position;
-    };
-    successfulSearchZoomLevel:number;
+        generateProperties:(store:object) => object
+        northEast:Position
+        number:number
+        southWest:Position
+    }
+    successfulSearchZoomLevel:number
 }
 // endregion
 // region vim modline

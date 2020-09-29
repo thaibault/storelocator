@@ -396,9 +396,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         this.$domNode.find('input').css(this._options.input.hide)
         let loadInitialized:boolean = true
         const applicationInterfaceLoadCallbacks:{
-            reject:Function;
-            resolve:Function;
-            resolved:boolean;
+            reject:Function
+            resolve:Function
+            resolved:boolean
         } = {
             resolve: Tools.noop,
             reject: Tools.noop,
@@ -431,7 +431,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             const callbackName:string =
                 this._options.applicationInterface.callbackName ?
                     this._options.applicationInterface.callbackName :
-                    this.self.determineUniqueScopeName();
+                    this.self.determineUniqueScopeName()
             const callback:ProcedureFunction = ():void => {
                 if (!applicationInterfaceLoadCallbacks.resolved)
                     if ($.global.window?.google?.maps) {
