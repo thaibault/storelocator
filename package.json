@@ -74,8 +74,6 @@
     "jquery": "*",
     "jsdoc": "*",
     "weboptimizer": "*",
-    "webpack": "*",
-    "webpack-cli": "*",
     "webpack-dev-server": "*"
   },
   "peerDependencies": {
