@@ -58,6 +58,7 @@ target
 *.compiled.*
 *.compiled
 *.dll-manifest.json
+*.styles.css
 !/data/**/*
 
 # Profiling data.
