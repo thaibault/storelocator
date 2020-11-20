@@ -909,10 +909,10 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@google/markerclustererplus@*":
-  version "5.1.3"
-  resolved "https://registry.yarnpkg.com/@google/markerclustererplus/-/markerclustererplus-5.1.3.tgz#dd7ddbb2a17c977e0b0252c3d8e61fcf502b1bf2"
-  integrity sha512-2wQGO6GGbKPC2tNmTz8ei1zBa64zV3QBBvgLHiPvYqUA63230qNqfQpN+nzsrl1RM40NJtty4Y1CEQKxq6MBGg==
+"@googlemaps/markerclustererplus@*":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@googlemaps/markerclustererplus/-/markerclustererplus-1.0.3.tgz#a773cd69c8d73c9f6aa3864dcdc224a47e76bcb3"
+  integrity sha512-k2TIVZptaigMtgOEb7SY1DlKHgdiHC9n4Dym5/uRWWouyZNup+DvUqEt//ZZPPeFhNp6JOmAOfgMvjpESfwerw==
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"

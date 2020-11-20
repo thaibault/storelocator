@@ -19,7 +19,7 @@
 // region imports
 import Tools, {BoundTools, $} from 'clientnode'
 import {$DomNode, $Global, Mapping, ProcedureFunction, TimeoutPromise} from 'clientnode/type'
-import MarkerClusterer from '@google/markerclustererplus'
+import MarkerClusterer from '@googlemaps/markerclustererplus'
 
 import {
     Icon,

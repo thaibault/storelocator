@@ -31,7 +31,7 @@ import 'googlemaps/map'
 import 'googlemaps/marker'
 import 'googlemaps/places-service'
 import 'googlemaps/places-widget'
-import {MarkerClustererOptions} from '@google/markerclustererplus'
+import {MarkerClustererOptions} from '@googlemaps/markerclustererplus'
 
 import StoreLocator from './index'
 // endregion
