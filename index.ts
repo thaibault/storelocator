@@ -270,6 +270,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         },
         input: {
             hide: {opacity: 0},
+            selector: 'input',
             showAnimation: [{opacity: 1}, {duration: 'fast'}]
         },
         ip: 'check',
@@ -393,7 +394,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
      */
     initialize(options:Partial<Options> = {}):Promise<$DomNode<TElement>> {
         super.initialize(options)
-        this.$domNode.find('input').css(this._options.input.hide)
+        this.$domNode
+            .find(this._options.input.selector)
+            .css(this._options.input.hide)
         let loadInitialized:boolean = true
         const applicationInterfaceLoadCallbacks:{
             reject:Function
