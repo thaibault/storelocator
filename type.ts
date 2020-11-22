@@ -113,7 +113,7 @@ export type Square = {
 export type Icon = {
     scaledSize?:MapSize|Square
     size?:MapSize|Square
-    url?:string
+    url:string
 }
 export type InfoWindow = MapInfoWindow & {isOpen:boolean}
 export type Item = {
