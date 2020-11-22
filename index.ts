@@ -1756,7 +1756,6 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                             Tools.stringMark(
                                 `${result.data[name as keyof object]}`,
                                 this.currentSearchWords,
-                                '<span class="tools-mark">{1}</span>',
                                 searchOptions.normalizer
                             ) +
                             '<br />'
