@@ -92,7 +92,7 @@ describe(`StoreLocator (${testEnvironment})`, ():void => {
                 // Is not loadable without browser environment.
                 cluster: null
             },
-            searchOptions: {},
+            search: {},
             // Automatically generated store with option: "stores: bounds"
             stores: [{
                 address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',

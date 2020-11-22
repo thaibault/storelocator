@@ -164,34 +164,33 @@ import {
  * move to bottom relative to the marker if an info window has been opened.
  * @property _options.infoWindow.loadingContent - Content to show in the info
  * window during info window load.
- * @property _options.searchOptions - If a number is given a generic search
- * will be provided and given number will be interpret as search result
- * precision tolerance to identify a marker as search result.
- * @property _options.searchOptions.stylePropertiesToDeriveFromInputField -
- * List of cascading style properties to derive from input field and use for
- * search box.
- * @property _options.searchOptions.properties - Specify which store data
- * should contain given search text.
- * @property _options.searchOptions.maximumNumberOfResults - Limits the auto
- * complete result list.
- * @property _options.searchOptions.loadingContent - Markup to display while
- * the results are loading.
- * @property _options.searchOptions.generic - Specifies options for the
- * additional generic search to add to specific search results.
- * @property _options.searchOptions.generic.number - A tuple describing a range
- * of minimal to maximal limits of additional generic google suggestions
- * depending on number of local search results.
- * @property _options.searchOptions.generic.maximalDistanceInMeter - Range to
- * specify maximal distance from current position to search suggestions.
- * @property _options.searchOptions.generic.filter - Specifies a callback which
- * gets a relevant place to decide if the place should be included (returns a
- * boolean value).
- * @property _options.searchOptions.generic.prefer - Specifies a boolean value
+ * @property _options.search - If a number is given a generic search will be
+ * provided and given number will be interpret as search result precision
+ * tolerance to identify a marker as search result.
+ * @property _options.search.stylePropertiesToDeriveFromInputField - List of
+ * cascading style properties to derive from input field and use for search
+ * box.
+ * @property _options.search.properties - Specify which store data should
+ * contain given search text.
+ * @property _options.search.maximumNumberOfResults - Limits the auto complete
+ * result list.
+ * @property _options.search.loadingContent - Markup to display while the
+ * results are loading.
+ * @property _options.search.generic - Specifies options for the additional
+ * generic search to add to specific search results.
+ * @property _options.search.generic.number - A tuple describing a range of
+ * minimal to maximal limits of additional generic google suggestions depending
+ * on number of local search results.
+ * @property _options.search.generic.maximalDistanceInMeter - Range to specify
+ * maximal distance from current position to search suggestions.
+ * @property _options.search.generic.filter - Specifies a callback which gets a
+ * relevant place to decide if the place should be included (returns a boolean
+ * value).
+ * @property _options.search.generic.prefer - Specifies a boolean value
  * indicating if generic search results should be the first results.
- * @property _options.searchOptions.generic.retrieveOptions - Specifies how a
- * generic place search should be done (google maps request object
- * specification).
- * @property _options.searchOptions.content - Defines how to render the search
+ * @property _options.search.generic.retrieveOptions - Specifies how a generic
+ * place search should be done (google maps request object specification).
+ * @property _options.search.content - Defines how to render the search
  * results. This can be a callback or a string returning or representing the
  * search results. If a function is given and a promise is returned the info
  * box will be filled with the given loading content and updated with the
@@ -200,9 +199,9 @@ import {
  * results was reached and the store locator instance itself as third argument.
  * If nothing is provided all available data will be listed in a generic info
  * window.
- * @property _options.searchOptions.resultAggregation - "Union" or "cut".
- * @property _options.searchOptions.normalizer - Pure function to normalize
- * strings before searching against them.
+ * @property _options.search.resultAggregation - "Union" or "cut".
+ * @property _options.search.normalizer - Pure function to normalize strings
+ * before searching against them.
  * @property _options.onInfoWindowOpen - Triggers if a marker info window will
  * be opened.
  * @property _options.onInfoWindowOpened - Triggers if a marker info window has
@@ -322,7 +321,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         onOpenSearchResults: Tools.noop,
         onCloseSearchResults: Tools.noop,
         onMarkerHighlighted: Tools.noop,
-        searchOptions: 50,
+        search: 50,
         showInputAfterLoadedDelayInMilliseconds: 500,
         startLocation: null,
         stores: {
@@ -702,7 +701,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT].push(
             this.$domNode.find('input')[0]
         )
-        if (typeof this._options.searchOptions === 'number')
+        if (typeof this._options.search === 'number')
             this.initializeGenericSearch()
         else {
             this.self.maps.event.addListenerOnce(
@@ -711,8 +710,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             this.self.maps.event.addListenerOnce(
                 this.map, 'dragstart', ():void => this.closeSearchResults()
             )
-            this._options.searchOptions = Tools.extend(
-                true, this.defaultSearchOptions, this._options.searchOptions
+            this._options.search = Tools.extend(
+                true, this.defaultSearchOptions, this._options.search
             )
             this.initializeDataSourceSearch()
         }
@@ -766,7 +765,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
             $inputDomNode.Tools('style')
         for (const propertyName in allStyleProperties)
             if (
-                (this._options.searchOptions as SearchOptions)
+                (this._options.search as SearchOptions)
                     .stylePropertiesToDeriveFromInputField
                     .includes(propertyName)
             )
@@ -898,7 +897,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         const placesService:MapPlacesService =
             new this.self.maps.places.PlacesService(this.map)
         const searchOptions:SearchOptions =
-            this._options.searchOptions as SearchOptions
+            this._options.search as SearchOptions
         return Tools.debounce(
             async (event?:KeyboardEvent):Promise<void> => {
                 for (const name in Tools.keyCode)
@@ -984,13 +983,11 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                         examples provided by google.
                     */
                     placesService.textSearch(
-                        Tools.extend(
-                            {
-                                location: this.map.getCenter(),
-                                query: searchText
-                            },
-                            searchOptions.generic.retrieveOptions
-                        ),
+                        {
+                            location: this.map.getCenter(),
+                            query: searchText,
+                            ...searchOptions.generic.retrieveOptions
+                        },
                         (places:Array<MapPlaceResult>):void => {
                             if (places)
                                 this.handleGenericSearchResults(
@@ -1017,7 +1014,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     ):void {
         const searchResults:Array<Item> = []
         const searchOptions:SearchOptions =
-            this._options.searchOptions as SearchOptions
+            this._options.search as SearchOptions
         /*
             NOTE: Since google text search doesn't support sorting by distance
             we have to sort by our own.
@@ -1096,7 +1093,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         searchText:string, searchResults:Array<Item> = []
     ):void {
         const searchOptions:SearchOptions =
-            this._options.searchOptions as SearchOptions
+            this._options.search as SearchOptions
         const numberOfGenericSearchResults:number = searchResults.length
         const defaultProperties:Array<string>|null =
             searchOptions.hasOwnProperty('properties') ?
@@ -1334,7 +1331,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     }
                     if (
                         matchingItem &&
-                        shortestDistanceInMeter <= this._options.searchOptions
+                        shortestDistanceInMeter <= this._options.search
                     ) {
                         if (this._options.successfulSearchZoomLevel)
                             this.map.setZoom(
@@ -1725,8 +1722,8 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     async makeSearchResults(
         searchResults:Array<Item>, limitReached:boolean
     ):Promise<string> {
-        const searchOptions:SearchOptions = this._options.searchOptions as
-            SearchOptions
+        const searchOptions:SearchOptions =
+            this._options.search as SearchOptions
         if (searchOptions.content) {
             if (Tools.isFunction(searchOptions.content)) {
                 const result:Promise<string>|string =

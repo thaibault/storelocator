@@ -204,7 +204,7 @@ export type Options = Partial<BaseOptions> & {
     onOpenSearchResults:Function
     onCloseSearchResults:Function
     onMarkerHighlighted:Function
-    searchOptions:number|SearchOptions
+    search:number|SearchOptions
     showInputAfterLoadedDelayInMilliseconds:number
     startLocation?:null|Position
     stores:Array<Store>|string|{
