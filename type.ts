@@ -172,6 +172,7 @@ export type Options = Partial<BaseOptions> & {
     }
     input:{
         hide:Mapping<number|string>
+        selector:string
         showAnimation:[Mapping<number|string>, Mapping<number|string>]
     }
     ip:string

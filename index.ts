@@ -984,9 +984,9 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                     */
                     placesService.textSearch(
                         {
+                            ...searchOptions.generic.retrieveOptions,
                             location: this.map.getCenter(),
-                            query: searchText,
-                            ...searchOptions.generic.retrieveOptions
+                            query: searchText
                         },
                         (places:Array<MapPlaceResult>):void => {
                             if (places)
