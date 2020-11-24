@@ -334,7 +334,7 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
     }
     /**
      * Initializes default options.
-     * @param paraneter - Parameter to forward to parent constructor.
+     * @param parameter - Parameter to forward to parent constructor.
      * @returns Promise resolving to the current instance.
      */
     constructor($domNode:$DomNode<TElement>, ...parameter:Array<any>) {
