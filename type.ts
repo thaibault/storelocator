@@ -167,7 +167,7 @@ export type Options = Partial<BaseOptions> & {
     iconPath:string
     infoWindow:{
         additionalMoveToBottomInPixel:number
-        content?:null|string
+        content?:((item:Item, additionParameter:Array<any>) => Promise<string>|string)|null|string
         loadingContent:string
     }
     input:{
