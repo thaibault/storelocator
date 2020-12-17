@@ -3067,9 +3067,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.628"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.628.tgz#21ad8f97262aa5495680c6acae0f5de5a7951cef"
-  integrity sha512-f9P4txIs5nNr55J7PPsnaEpViZPdhQm7lzs9uDrAoNviLxvo4DpEzsBt6kOZfRnkKsXko+EIWwvCd73OXkDlNw==
+  version "3.0.629"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.629.tgz#296b537de4cc67fb8de240ba363ab69e984cc9d6"
+  integrity sha512-V2RCPy00kcRNlbYnlZ877JWtMy8p6flHJ0xTNLeabhIvqmL4j8yZ18zNkkRvuFQaaz5tMiSt9DfQWQSQdwnfmA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -8343,9 +8343,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.857"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.857.tgz#4b58bd27953140a21cdf33046cb344225df07b93"
-  integrity sha512-w/iIaLKLBvzbz/NZGJzifj34yTn7A4i4Gvu8tH008RHAjthproL0+NksOThd8bEDXdlzuftAXaHfHxMkgIuDRA==
+  version "2.0.858"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.858.tgz#8cadad82ec8ce12d55325c2eb717351ae3b6c2e7"
+  integrity sha512-fc6/ebCPdFNqB1GjWPhFNCMbS78ul58oqm0jPGM3pqiZxczs9qcFtjcQd5r0BoAHaR7iC9nrmHJBo//obHh/eA==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
@@ -8470,9 +8470,9 @@ webpack-sources@*, webpack-sources@^2.1.1:
     source-map "^0.6.1"
 
 webpack@*:
-  version "5.10.3"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.10.3.tgz#933cbd5e79d62040d988049ff0f515a6dc333006"
-  integrity sha512-KFPEbpNKfNU4t2CDsUZJ7KpuUbzDqGUCZqLmz4667KSUWMc9BuR3a8jpa72Emv7JUbdGwISD9OZjoI9S5BnHig==
+  version "5.11.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.11.0.tgz#1647abc060441d86d01d8835b8f0fc1dae2fe76f"
+  integrity sha512-ubWv7iP54RqAC/VjixgpnLLogCFbAfSOREcSWnnOlZEU8GICC5eKmJSu6YEnph2N2amKqY9rvxSwgyHxVqpaRw==
   dependencies:
     "@types/eslint-scope" "^3.7.0"
     "@types/estree" "^0.0.45"
