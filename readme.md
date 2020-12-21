@@ -296,6 +296,141 @@ Examples
     </script>
     <div class="store-locator-with-bounds"><input class="form-control"></div>
 
+# TODO
+
+ * @property _options.applicationInterface - To store application interface
+ * options in.
+ * @property _options.applicationInterface.url - URL tor retrieve google maps
+ * application interface.
+ * @property _options.applicationInterface.callbackName - Global resource path
+ * to callback function to trigger when google has finished loading the
+ * application interface.
+ * @property _options.applicationInterface.key - Application interface key to
+ * authenticate against google maps application interface.
+ * @property _options.stores - URL to retrieve stores, list of stores or object
+ * describing bounds to create random stores within. If a "generateProperties"
+ * function is given it will be called to retrieve additional properties for
+ * each store. The specified store will be given to the function.
+ * @property _options.additionalStoreProperties - Additional static store
+ * properties which will be available to each store.
+ * @property _options.iconPath - Path prefix to search for marker icons.
+ * @property _options.defaultMarkerIconFileName - Specifies a fallback marker
+ * icon (if no store specific icon was set). If set to "null" google will place
+ * a fallback icon.
+ * @property _options.startLocation - If not provided we initialize the map
+ * with center in current location determined by internet protocol address. If
+ * an object is given a "latitude" and "longitude" with a saved float are
+ * assumed.
+ * @property _options.fallbackLocation - Fallback location if automatic
+ * location determination has failed.
+ * @property _options.fallbackLocation.latitude - Latitude value.
+ * @property _options.fallbackLocation.longitude - Longitude value.
+ * @property _options.ip - If provided given ip will be used to determine
+ * current location instead of automatically determined one.
+ * @property _options.ipToLocationApplicationInterface - Configuration for ip
+ * to location conversion.
+ * @property _options.ipToLocationApplicationInterface.bounds - Defines bounds
+ * within determined locations should be. If resolved location isn't within
+ * this location it will be ignored.
+ * @property _options.ipToLocationApplicationInterface.bounds.northEast -
+ * Defines north east bound.
+ * @property _options.ipToLocationApplicationInterface.bounds.northEast
+ * .latitude - North east latitude bond.
+ * @property _options.ipToLocationApplicationInterface.bounds.northEast
+ * .longitude - North east longitude bond.
+ * @property _options.ipToLocationApplicationInterface.bounds.southWest -
+ * Defined south west bound.
+ * @property _options.ipToLocationApplicationInterface.bounds.southWest
+ * .latitude - South east latitude bound.
+ * @property _options.ipToLocationApplicationInterface.bounds.southWest
+ * .longitude - South west longitude bound.
+ * @property _options.ipToLocationApplicationInterface.key - Key to let the api
+ * identify your service plan.
+ * @property _options.ipToLocationApplicationInterface.protocol - Protocol to
+ * use for api requests.
+ * @property _options.ipToLocationApplicationInterface.timeoutInMilliseconds -
+ * Time to wait for ip resolve. If time is up initialize on given fallback
+ * location.
+ * @property _options.ipToLocationApplicationInterface.url - IP to location
+ * determination application interface url. {1}, {2} and {3} represents
+ * currently used protocol, key and potentially given ip.
+ * @property _options.map - Initial view properties.
+ * @property _options.showInputAfterLoadedDelayInMilliseconds - Delay before we
+ * show search input field.
+ * @property _options.inputFadeInOption - Transition options to show search
+ * input field.
+ * @property _options.distanceToMoveByDuplicatedEntries - Distance to move if
+ * stores are determined with same latitude and longitude.
+ * @property _options.marker - Options passed to the marker cluster. If set to
+ * "null" no marker cluster will appear.
+ * @property _options.icon - Options passed to the icon.
+ * @property _options.successfulSearchZoomLevel - Specifies a zoom value wich
+ * will be adjusted after successfully picked a search result. If set to "null"
+ * no zoom change happens.
+ * @property _options.infoWindow - Info window options.
+ * @property _options.infoWindow.content - Function or string returning or
+ * representing the info box. If a function is given and a promise is returned
+ * the info box will be filled with the given loading content and updated with
+ * the resolved data. The function becomes the corresponding marker as first
+ * argument and the store locator instance as second argument. If nothing is
+ * provided all available data will be listed in a generic info window.
+ * @property _options.infoWindow.additionalMoveToBottomInPixel - Additional
+ * move to bottom relative to the marker if an info window has been opened.
+ * @property _options.infoWindow.loadingContent - Content to show in the info
+ * window during info window load.
+ * @property _options.search - If a number is given a generic search will be
+ * provided and given number will be interpret as search result precision
+ * tolerance to identify a marker as search result.
+ * @property _options.search.stylePropertiesToDeriveFromInputField - List of
+ * cascading style properties to derive from input field and use for search
+ * box.
+ * @property _options.search.properties - Specify which store data should
+ * contain given search text.
+ * @property _options.search.maximumNumberOfResults - Limits the auto complete
+ * result list.
+ * @property _options.search.loadingContent - Markup to display while the
+ * results are loading.
+ * @property _options.search.generic - Specifies options for the additional
+ * generic search to add to specific search results.
+ * @property _options.search.generic.number - A tuple describing a range of
+ * minimal to maximal limits of additional generic google suggestions depending
+ * on number of local search results.
+ * @property _options.search.generic.maximalDistanceInMeter - Range to specify
+ * maximal distance from current position to search suggestions.
+ * @property _options.search.generic.filter - Specifies a callback which gets a
+ * relevant place to decide if the place should be included (returns a boolean
+ * value).
+ * @property _options.search.generic.prefer - Specifies a boolean value
+ * indicating if generic search results should be the first results.
+ * @property _options.search.generic.retrieveOptions - Specifies how a generic
+ * place search should be done (google maps request object specification).
+ * @property _options.search.content - Defines how to render the search
+ * results. This can be a callback or a string returning or representing the
+ * search results. If a function is given and a promise is returned the info
+ * box will be filled with the given loading content and updated with the
+ * resolved data. The function becomes search results as first argument, a
+ * boolean value as second argument indicating if the maximum number of search
+ * results was reached and the store locator instance itself as third argument.
+ * If nothing is provided all available data will be listed in a generic info
+ * window.
+ * @property _options.search.resultAggregation - "Union" or "cut".
+ * @property _options.search.normalizer - Pure function to normalize strings
+ * before searching against them.
+ * @property _options.onInfoWindowOpen - Triggers if a marker info window will
+ * be opened.
+ * @property _options.onInfoWindowOpened - Triggers if a marker info window has
+ * finished opening.
+ * @property _options.onAddSearchResults - Triggers before new search results
+ * appears.
+ * @property _options.onRemoveSearchResults - Triggers before old search
+ * results will be removed.
+ * @property _options.onOpenSearchResults - Triggers before search result box
+ * appears.
+ * @property _options.onCloseSearchResults - Triggers before search result box
+ * will be hidden.
+ * @property _options.onMarkerHighlighted - Triggers after a marker starts to
+ * highlight.
+
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:
 vim: foldmethod=marker foldmarker=region,endregion:

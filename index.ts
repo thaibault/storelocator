@@ -4,7 +4,7 @@
 'use strict'
 /* !
     region header
-    [Project page](https://torben.website/storeLocator)
+    [Project page](https://torben.website/storelocator)
 
     Copyright Torben Sickert (info["~at~"]torben.website) 16.12.2012
 
@@ -17,11 +17,19 @@
     endregion
 */
 // region imports
-import Tools, {BoundTools, $} from 'clientnode'
-import {$DomNode, $Global, Mapping, ProcedureFunction, TimeoutPromise} from 'clientnode/type'
+import Tools from 'clientnode'
+import {
+    Mapping,
+    ProcedureFunction,
+    TimeoutPromise
+} from 'clientnode/type'
+import {object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
+import Web from 'web-component-wrapper/Web'
+import {WebComponentAPI} from 'web-component-wrapper/type'
 
 import {
+    Configuration,
     Icon,
     InfoWindow,
     Item,
@@ -42,23 +50,23 @@ import {
     MapReadonlyMarkerOptions,
     Maps,
     MapSearchBox,
-    Options,
-    SearchOptions,
+    SearchConfiguration,
     Square,
     Store,
     Position
 } from './type'
 // endregion
-// region plugins/classes
+// region components
 /**
- * A storelocator plugin to represent searchable/clusterable items on an
+ * A storelocator component to represent searchable/clusterable items on an
  * interactive map.
  * @property static:applicationInterfaceLoad - Holds the currently promise to
  * retrieve a new maps application interface.
+ * @property static:defaultConfiguration - Holds default extendable
+ * configuration object.
+ * @property static:defaultSearchConfiguration - Sets default search box
+ * options.
  * @property static:maps - Holds the currently used maps scope.
- *
- * @property static:_name - Defines this class name to allow retrieving them
- * after name mangling.
  *
  * @property currentlyHighlightedItem - Holds currently highlighted item.
  * @property currentlyOpenWindow - Holds currently opened window instance.
@@ -71,7 +79,6 @@ import {
  * @property currentSearchSegments - Saves last searched segments.
  * @property currentSearchText - Saves last searched string.
  * @property currentSearchWords - Saves last searched words.
- * @property defaultSearchOptions - Sets default search box options.
  * @property items - Holds all recognized stores to represent as marker.
  * @property map - Holds the currently used map instance.
  * @property markerClusterer - Holds the currently used marker cluster instance.
@@ -83,168 +90,12 @@ import {
  * to append to search result list (derived from search input field).
  * @property seenLocations - Saves all seen locations to recognize duplicates.
  *
- * @property _options - Saves all plugin interface options.
- * @property _options.applicationInterface - To store application interface
- * options in.
- * @property _options.applicationInterface.url - URL tor retrieve google maps
- * application interface.
- * @property _options.applicationInterface.callbackName - Global resource path
- * to callback function to trigger when google has finished loading the
- * application interface.
- * @property _options.applicationInterface.key - Application interface key to
- * authenticate against google maps application interface.
- * @property _options.stores - URL to retrieve stores, list of stores or object
- * describing bounds to create random stores within. If a "generateProperties"
- * function is given it will be called to retrieve additional properties for
- * each store. The specified store will be given to the function.
- * @property _options.additionalStoreProperties - Additional static store
- * properties which will be available to each store.
- * @property _options.iconPath - Path prefix to search for marker icons.
- * @property _options.defaultMarkerIconFileName - Specifies a fallback marker
- * icon (if no store specific icon was set). If set to "null" google will place
- * a fallback icon.
- * @property _options.startLocation - If not provided we initialize the map
- * with center in current location determined by internet protocol address. If
- * an object is given a "latitude" and "longitude" with a saved float are
- * assumed.
- * @property _options.fallbackLocation - Fallback location if automatic
- * location determination has failed.
- * @property _options.fallbackLocation.latitude - Latitude value.
- * @property _options.fallbackLocation.longitude - Longitude value.
- * @property _options.ip - If provided given ip will be used to determine
- * current location instead of automatically determined one.
- * @property _options.ipToLocationApplicationInterface - Configuration for ip
- * to location conversion.
- * @property _options.ipToLocationApplicationInterface.bounds - Defines bounds
- * within determined locations should be. If resolved location isn't within
- * this location it will be ignored.
- * @property _options.ipToLocationApplicationInterface.bounds.northEast -
- * Defines north east bound.
- * @property _options.ipToLocationApplicationInterface.bounds.northEast
- * .latitude - North east latitude bond.
- * @property _options.ipToLocationApplicationInterface.bounds.northEast
- * .longitude - North east longitude bond.
- * @property _options.ipToLocationApplicationInterface.bounds.southWest -
- * Defined south west bound.
- * @property _options.ipToLocationApplicationInterface.bounds.southWest
- * .latitude - South east latitude bound.
- * @property _options.ipToLocationApplicationInterface.bounds.southWest
- * .longitude - South west longitude bound.
- * @property _options.ipToLocationApplicationInterface.key - Key to let the api
- * identify your service plan.
- * @property _options.ipToLocationApplicationInterface.protocol - Protocol to
- * use for api requests.
- * @property _options.ipToLocationApplicationInterface.timeoutInMilliseconds -
- * Time to wait for ip resolve. If time is up initialize on given fallback
- * location.
- * @property _options.ipToLocationApplicationInterface.url - IP to location
- * determination application interface url. {1}, {2} and {3} represents
- * currently used protocol, key and potentially given ip.
- * @property _options.map - Initial view properties.
- * @property _options.showInputAfterLoadedDelayInMilliseconds - Delay before we
- * show search input field.
- * @property _options.inputFadeInOption - Transition options to show search
- * input field.
- * @property _options.distanceToMoveByDuplicatedEntries - Distance to move if
- * stores are determined with same latitude and longitude.
- * @property _options.marker - Options passed to the marker cluster. If set to
- * "null" no marker cluster will appear.
- * @property _options.icon - Options passed to the icon.
- * @property _options.successfulSearchZoomLevel - Specifies a zoom value wich
- * will be adjusted after successfully picked a search result. If set to "null"
- * no zoom change happens.
- * @property _options.infoWindow - Info window options.
- * @property _options.infoWindow.content - Function or string returning or
- * representing the info box. If a function is given and a promise is returned
- * the info box will be filled with the given loading content and updated with
- * the resolved data. The function becomes the corresponding marker as first
- * argument and the store locator instance as second argument. If nothing is
- * provided all available data will be listed in a generic info window.
- * @property _options.infoWindow.additionalMoveToBottomInPixel - Additional
- * move to bottom relative to the marker if an info window has been opened.
- * @property _options.infoWindow.loadingContent - Content to show in the info
- * window during info window load.
- * @property _options.search - If a number is given a generic search will be
- * provided and given number will be interpret as search result precision
- * tolerance to identify a marker as search result.
- * @property _options.search.stylePropertiesToDeriveFromInputField - List of
- * cascading style properties to derive from input field and use for search
- * box.
- * @property _options.search.properties - Specify which store data should
- * contain given search text.
- * @property _options.search.maximumNumberOfResults - Limits the auto complete
- * result list.
- * @property _options.search.loadingContent - Markup to display while the
- * results are loading.
- * @property _options.search.generic - Specifies options for the additional
- * generic search to add to specific search results.
- * @property _options.search.generic.number - A tuple describing a range of
- * minimal to maximal limits of additional generic google suggestions depending
- * on number of local search results.
- * @property _options.search.generic.maximalDistanceInMeter - Range to specify
- * maximal distance from current position to search suggestions.
- * @property _options.search.generic.filter - Specifies a callback which gets a
- * relevant place to decide if the place should be included (returns a boolean
- * value).
- * @property _options.search.generic.prefer - Specifies a boolean value
- * indicating if generic search results should be the first results.
- * @property _options.search.generic.retrieveOptions - Specifies how a generic
- * place search should be done (google maps request object specification).
- * @property _options.search.content - Defines how to render the search
- * results. This can be a callback or a string returning or representing the
- * search results. If a function is given and a promise is returned the info
- * box will be filled with the given loading content and updated with the
- * resolved data. The function becomes search results as first argument, a
- * boolean value as second argument indicating if the maximum number of search
- * results was reached and the store locator instance itself as third argument.
- * If nothing is provided all available data will be listed in a generic info
- * window.
- * @property _options.search.resultAggregation - "Union" or "cut".
- * @property _options.search.normalizer - Pure function to normalize strings
- * before searching against them.
- * @property _options.onInfoWindowOpen - Triggers if a marker info window will
- * be opened.
- * @property _options.onInfoWindowOpened - Triggers if a marker info window has
- * finished opening.
- * @property _options.onAddSearchResults - Triggers before new search results
- * appears.
- * @property _options.onRemoveSearchResults - Triggers before old search
- * results will be removed.
- * @property _options.onOpenSearchResults - Triggers before search result box
- * appears.
- * @property _options.onCloseSearchResults - Triggers before search result box
- * will be hidden.
- * @property _options.onMarkerHighlighted - Triggers after a marker starts to
- * highlight.
+ * @property resolvedConfiguration - Holds given configuration object.
+ * @property urlConfiguration - URL given configurations object.
  */
-export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
-    BoundTools<TElement> {
+export class StoreLocator extends Web {
     static applicationInterfaceLoad:Promise<$DomNode>
-    static maps:Maps
-
-    static readonly _name:'StoreLocator' = 'StoreLocator'
-
-    currentlyHighlightedItem:Item|null = null
-    currentlyOpenWindow:InfoWindow|null = null
-    currentSearchResultRange:Array<number>|null = null
-    currentSearchResults:Array<Item> = []
-    currentSearchResultsDomNode:$DomNode|null = null
-    currentSearchSegments:Array<string> = []
-    currentSearchText:string|null = null
-    currentSearchWords:Array<string> = []
-    defaultSearchOptions:SearchOptions
-    items:Array<Item> = []
-    // Map is set after initialisation promise has been resolved.
-    map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
-    markerClusterer:MarkerClusterer|null = null
-    resetMarkerCluster:Function|null = null
-    resultsDomNode:$DomNode|null = null
-    searchResultsDirty:boolean = false
-    searchResultsStyleProperties:Mapping<number|string> = {}
-    readonly self:typeof StoreLocator = StoreLocator
-    seenLocations:Array<string> = []
-
-    _options:Options = {
+    static defaultConfiguration:Configuration = {
         additionalStoreProperties: {},
         applicationInterface: {
             callbackName: null,
@@ -332,57 +183,92 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         },
         successfulSearchZoomLevel: 12
     }
+    static defaultSearchConfiguration:SearchConfiguration = {
+        generic: {
+            filter: (place:MapPlaceResult):boolean =>
+                /(?:^| )(?:Deutschland|Germany)( |$)/i.test(
+                    place.formatted_address as string
+                ),
+            maximalDistanceInMeter: 1000000,
+            number: [2, 5],
+            prefer: true,
+            retrieveOptions: {radius: 50000, query: ''}
+        },
+        loadingContent: this._options.infoWindow.loadingContent,
+        maximumNumberOfResults: 50,
+        noResultsContent: '<div class="no-results">No results found</div>',
+        normalizer: (value:string):string =>
+            `${value}`
+                .toLowerCase()
+                .replace(/[-_]+/g, '')
+                .replace(/ß/g, 'ss')
+                .replace(/(^| )str\./g, '$1strasse')
+                .replace(/[& ]+/g, ' '),
+        properties: [
+            'eMailAddress', 'eMail', 'email',
+            'formattedAddress', 'formatted_address', 'address',
+            'name',
+            'street', 'streetAndStreetnumber',
+            'zip', 'zipCode', 'postalCode'
+        ],
+        resultAggregation: 'cut',
+        stylePropertiesToDeriveFromInputField: [
+            'backgroundColor',
+            'left',
+            'maxWidth',
+            'minWidth',
+            'position',
+            'paddingBottom',
+            'paddingLeft',
+            'paddingRight',
+            'paddingTop',
+            'right',
+            'top',
+            'width'
+        ]
+    }
+    static maps:Maps
+    static observedAttributes:Array<string> = ['configuration']
+    static propertyTypes:Mapping<ValueOf<PropertyTypes>> = {
+        configuration: object
+    }
+
+    currentlyHighlightedItem:Item|null = null
+    currentlyOpenWindow:InfoWindow|null = null
+    currentSearchResultRange:Array<number>|null = null
+    currentSearchResults:Array<Item> = []
+    currentSearchResultsDomNode:$DomNode|null = null
+    currentSearchSegments:Array<string> = []
+    currentSearchText:string|null = null
+    currentSearchWords:Array<string> = []
+
+    items:Array<Item> = []
+    // Map is set after initialisation promise has been resolved.
+    map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
+    markerClusterer:MarkerClusterer|null = null
+    resetMarkerCluster:Function|null = null
+    resultsDomNode:$DomNode|null = null
+    searchResultsDirty:boolean = false
+    searchResultsStyleProperties:Mapping<number|string> = {}
+    readonly self:typeof StoreLocator = StoreLocator
+    seenLocations:Array<string> = []
+
+    readonly self:typeof StoreLocator = StoreLocator
+    // region live cycle hooks
     /**
-     * Initializes default options.
-     * @param parameter - Parameter to forward to parent constructor.
-     * @returns Promise resolving to the current instance.
+     * Defines dynamic getter and setter interface and resolves configuration
+     * object. Initializes the map implementation.
      */
-    constructor($domNode:$DomNode<TElement>, ...parameter:Array<any>) {
-        super($domNode, ...parameter)
-        this.defaultSearchOptions = {
-            generic: {
-                filter: (place:MapPlaceResult):boolean =>
-                    /(?:^| )(?:Deutschland|Germany)( |$)/i.test(
-                        place.formatted_address as string
-                    ),
-                maximalDistanceInMeter: 1000000,
-                number: [2, 5],
-                prefer: true,
-                retrieveOptions: {radius: 50000, query: ''}
-            },
-            loadingContent: this._options.infoWindow.loadingContent,
-            maximumNumberOfResults: 50,
-            noResultsContent: '<div class="no-results">No results found</div>',
-            normalizer: (value:string):string =>
-                `${value}`
-                    .toLowerCase()
-                    .replace(/[-_]+/g, '')
-                    .replace(/ß/g, 'ss')
-                    .replace(/(^| )str\./g, '$1strasse')
-                    .replace(/[& ]+/g, ' '),
-            properties: [
-                'eMailAddress', 'eMail', 'email',
-                'formattedAddress', 'formatted_address', 'address',
-                'name',
-                'street', 'streetAndStreetnumber',
-                'zip', 'zipCode', 'postalCode'
-            ],
-            resultAggregation: 'cut',
-            stylePropertiesToDeriveFromInputField: [
-                'backgroundColor',
-                'left',
-                'maxWidth',
-                'minWidth',
-                'position',
-                'paddingBottom',
-                'paddingLeft',
-                'paddingRight',
-                'paddingTop',
-                'right',
-                'top',
-                'width'
-            ]
-        }
+    constructor() {
+        super()
+        /*
+            Babels property declaration transformation overwrites defined
+            properties at the end of an implicit constructor. So we have to
+            redefined them as long as we want to declare expected component
+            interface properties to enable static type checks.
+        */
+        this.defineGetterAndSetterInterface()
+        this.resolveConfiguration()
     }
     /**
      * Entry point after (default) properties have been set. Merges given
@@ -438,15 +324,13 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
                 if (!applicationInterfaceLoadCallbacks.resolved)
                     if ($.global.window?.google?.maps) {
                         this.self.maps = $.global.window.google.maps
-                        applicationInterfaceLoadCallbacks.resolve(
-                            this.$domNode
-                        )
+                        applicationInterfaceLoadCallbacks.resolve(this.$domNode)
                     } else
                         applicationInterfaceLoadCallbacks.reject(
                             new Error('No google maps environment set.')
                         )
             }
-            ($.global as unknown as Mapping<Function>)[callbackName] = callback
+            ;($.global as unknown as Mapping<Function>)[callbackName] = callback
             $.getScript(Tools.stringFormat(
                 this._options.applicationInterface.url,
                 this._options.applicationInterface.key ?
@@ -1763,18 +1647,13 @@ export class StoreLocator<TElement extends HTMLElement = HTMLElement> extends
         return searchOptions.noResultsContent
     }
 }
-export default StoreLocator
 // endregion
-// region handle $ extending
-if ($.fn)
-    $.fn.StoreLocator = function<TElement = HTMLElement>(
-        ...parameter:Array<any>
-    ):$DomNode<TElement> {
-        return $.Tools().controller(
-            StoreLocator, parameter, this as unknown as $DomNode<TElement>
-        )
-    }
-// endregion
+export const api:WebComponentAPI<typeof StoreLocator> = {
+    component: StoreLocator,
+    register: (tagName:string = 'store-locator'):void =>
+        customElements.define(tagName, StoreLocator)
+}
+export default api
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:

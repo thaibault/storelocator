@@ -16,13 +16,7 @@
     endregion
 */
 // region imports
-import {
-    $DomNode,
-    Mapping,
-    Options as BaseOptions,
-    ProcedureFunction,
-    Scope as BaseScope
-} from 'clientnode/type'
+import {Mapping, ProcedureFunction, $DomNode} from 'clientnode/type'
 import 'googlemaps'
 import 'googlemaps/coordinates'
 import 'googlemaps/event'
@@ -36,15 +30,7 @@ import {MarkerClustererOptions} from '@googlemaps/markerclustererplus'
 import StoreLocator from './index'
 // endregion
 // region exports
-export type StoreLocatorFunction<TElement = HTMLElement> =
-    (...parameter:Array<any>) => $DomNode<TElement>
-export interface Scope<TElement = HTMLElement> extends BaseScope<TElement> {
-    StoreLocator:StoreLocatorFunction<TElement>
-}
-declare global {
-    interface JQuery<TElement = HTMLElement> extends Scope<TElement> {}
-}
-// / region implementation
+// / region map implementation
 export type MapAnimation = typeof google.maps.Animation
 export type MapArea = google.maps.LatLngBounds
 export type MapEventListener = google.maps.MapsEventListener
@@ -135,14 +121,14 @@ export type Position = {
     latitude:number
     longitude:number
 }
-export type SearchOptions = {
+export type SearchConfiguration = {
     content?:string|((searchResults:Array<Item>, limitReached:boolean) =>
         Promise<string>|string
     )
     generic:{
         filter:(place:MapPlaceResult) => boolean
-        number:Array<number>
         maximalDistanceInMeter:number
+        number:Array<number>
         prefer:boolean
         retrieveOptions:MapTextSearchRequest
     },
@@ -154,12 +140,12 @@ export type SearchOptions = {
     resultAggregation:'cut'|'union'
     stylePropertiesToDeriveFromInputField:Array<string>
 }
-export type Options = Partial<BaseOptions> & {
+export type Configuration = {
     additionalStoreProperties:object
     applicationInterface:{
-        url:string
         callbackName?:null|string
         key?:null|string
+        url:string
     }
     defaultMarkerIconFileName?:null|string
     distanceToMoveByDuplicatedEntries:number
