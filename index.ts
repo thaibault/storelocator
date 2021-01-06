@@ -556,19 +556,17 @@ export class StoreLocator extends Web {
                     index < this._options.stores.number;
                     index++
                 ) {
-                    const store:Store = Tools.extend(
-                        {
-                            latitude:
-                                southWest.lat() +
-                                (northEast.lat() - southWest.lat()) *
-                                Math.random(),
-                            longitude:
-                                southWest.lng() +
-                                (northEast.lng() - southWest.lng()) *
-                                Math.random()
-                        },
-                        this._options.additionalStoreProperties
-                    )
+                    const store:Store = {
+                        latitude:
+                            southWest.lat() +
+                            (northEast.lat() - southWest.lat()) *
+                            Math.random(),
+                        longitude:
+                            southWest.lng() +
+                            (northEast.lng() - southWest.lng()) *
+                            Math.random(),
+                        ...this._options.additionalStoreProperties
+                    }
                     Tools.extend(
                         true,
                         store,
@@ -595,7 +593,9 @@ export class StoreLocator extends Web {
                 this.map, 'dragstart', ():void => this.closeSearchResults()
             )
             this._options.search = Tools.extend(
-                true, this.defaultSearchOptions, this._options.search
+                true, 
+                Tools.copy(this.defaultSearchOptions),
+                this._options.search
             )
             this.initializeDataSourceSearch()
         }
@@ -932,19 +932,17 @@ export class StoreLocator extends Web {
                 break
             if (searchOptions.generic.filter(place)) {
                 const result:Item = {
-                    data: Tools.extend(
-                        place,
-                        {
-                            address: place.formatted_address,
-                            distance: distance,
-                            logoFilePath: place.icon ?
-                                place.icon.replace(
-                                    /^http:(\/\/)/,
-                                    `${$.global.location.protocol}$1`
-                                ) :
-                                null
-                        }
-                    ),
+                    data: {
+                        ...place,
+                        address: place.formatted_address,
+                        distance: distance,
+                        logoFilePath: place.icon ?
+                            place.icon.replace(
+                                /^http:(\/\/)/,
+                                `${$.global.location.protocol}$1`
+                            ) :
+                            null
+                    }
                     foundWords: this.currentSearchSegments.filter((
                         word:string
                     ):boolean =>
