@@ -55,6 +55,7 @@ build
 dist
 target
 *Bundle.*
+*.bundle.*
 *.compiled.*
 *.compiled
 *.dll-manifest.json
