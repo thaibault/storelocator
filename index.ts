@@ -266,8 +266,10 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
     markerClusterer:MarkerClusterer|null = null
     resetMarkerCluster:Function|null = null
-    resultsDomNode:$DomNode|null = null
     root:TElement
+
+    $input:$DomNode<HTMLInputElement>
+    $resultsDomNode:$DomNode<HTMLDivElement>|null = null
     $root:$DomNode<TElement>
 
     readonly self:typeof StoreLocator = StoreLocator
@@ -392,6 +394,23 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     }
     // endregion
     // region event handler
+    onMapCenterChanged = ():void => {
+        // NOTE: Search results depends on current position.
+        if (this.currentSearchText && this.resultsDomNode)
+            this.searchResultsDirty = true
+    }
+    onInputClick = ():void => {
+        if (this.currentSearchText)
+            this.openSearchResults()
+    }
+    onInputFocus = ():void => {
+        if (this.currentSearchText)
+            this.openSearchResults()
+    }
+    onInputKeyDown = (event:KeyboardEvent):void => {
+        if (Tools.keyCode.DOWN === event.keyCode && this.currentSearchText)
+            this.openSearchResults()
+    }
     onKeyDown = (event:KeyboardEvent):void => {
         /*
             NOTE: Events that doesn't occurs in search context are handled by
@@ -609,7 +628,8 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      * @returns Promise resolving to the current instance.
      */
     initializeMap():Promise<void> {
-        const startLocation:Position = this.resolvedConfiguration.startLocation as Position
+        const startLocation:Position =
+            this.resolvedConfiguration.startLocation as Position
         this.resolvedConfiguration.map.center = new this.self.maps.LatLng(
             startLocation.latitude, startLocation.longitude
         )
@@ -748,9 +768,10 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
             }
             resolve(this.items)
         })
+        this.$input = this.$root.find('input')
         // Create the search box and link it to the UI element.
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
-            .push(this.$root.find('input')[0])
+            .push(this.$input[0])
         if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
         else {
@@ -811,10 +832,8 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      */
     initializeDataSourceSearchResultsBox():void {
         this.searchResultsStyleProperties = {}
-        const $inputDomNode:$DomNode<HTMLInputElement> =
-            this.$root.find('input')
         const allStyleProperties:Mapping<number|string> =
-            $inputDomNode.Tools('style')
+            this.$input.Tools('style')
         for (const propertyName in allStyleProperties)
             if (
                 (this.resolvedConfiguration.search as SearchOptions)
@@ -823,18 +842,17 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
             )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
-        const outerHeight:number|undefined =
-            this.$root.find('input').outerHeight(true)
+        const outerHeight:number|undefined = this.$input.outerHeight(true)
         if (outerHeight)
             this.searchResultsStyleProperties.marginTop = outerHeight
         // Prepare search result positioning.
-        this.resultsDomNode = $('<div>')
+        this.$resultsDomNode = $('<div>')
             .addClass(Tools.stringCamelCaseToDelimited(
                 `${this.self._name}SearchResults`
             ))
             .css(this.searchResultsStyleProperties)
         // Inject the final search results into the dom tree.
-        $inputDomNode.after(this.resultsDomNode)
+        this.$input.after(this.$resultsDomNode)
     }
     /**
      * Initializes a data source based search box to open and focus them
@@ -843,33 +861,14 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      */
     initializeDataSourceSearch():void {
         this.root.addEventListener('keydown', this.onKeyDown)
-        // TODO
-        const $inputDomNode:$DomNode<HTMLInputElement> =
-            this.$root.find('input')
-        this.on<HTMLInputElement>($inputDomNode, 'click', ():void => {
-            if (this.currentSearchText)
-                this.openSearchResults()
-        })
-        this.on<HTMLInputElement>($inputDomNode, 'focus', ():void => {
-            if (this.currentSearchText)
-                this.openSearchResults()
-        })
-        this.on<HTMLInputElement>(
-            $inputDomNode, 'keydown', (event:KeyboardEvent):void => {
-            if (Tools.keyCode.DOWN === event.keyCode && this.currentSearchText)
-                this.openSearchResults()
-        })
-        this.on<HTMLInputElement>(
-            $inputDomNode, 'keyup', this.updateSearchResultsHandler
+        this.$input[0].addEventListener('click', this.onInputClick)
+        this.$input[0].addEventListener('focus', this.onInputFocus)
+        this.$input[0].addEventListener('keydown', this.onInputKeyDown)
+        this.$input[0].addEventListener(
+            'keyup', this.updateSearchResultsHandler
         )
         this.self.maps.event.addListenerOnce(
-            this.map,
-            'center_changed',
-            ():void => {
-                // NOTE: Search results depends on current position.
-                if (this.currentSearchText && this.resultsDomNode)
-                    this.searchResultsDirty = true
-            }
+            this.map, 'center_changed', this.onMapCenterChanged
         )
     }
     /**
@@ -901,9 +900,8 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                     )
                         return
                 await this.acquireLock(`${this.self._name}Search`)
-                const searchText:string = searchOptions.normalizer(
-                   this.$root.find('input').val() as string || ''
-                )
+                const searchText:string =
+                    searchOptions.normalizer(this.$input.val() as string || '')
                 if (
                     this.currentSearchText === searchText &&
                     !this.searchResultsDirty
@@ -1258,7 +1256,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      */
     initializeGenericSearch():void {
         const searchBox:MapSearchBox = new this.self.maps.places.SearchBox(
-            this.$root.find('input')[0],
+            this.$input[0],
             {bounds: new this.self.maps.LatLngBounds(
                 new this.self.maps.LatLng(
                     this.resolvedConfiguration.limit.southWest.latitude,
@@ -1422,7 +1420,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      */
     onLoaded():void {
         Tools.timeout(():$DomNode =>
-            this.$root.find('input').animate(
+            this.$input.animate(
                 ...this.resolvedConfiguration.input.showAnimation
             ),
             this.resolvedConfiguration.showInputAfterLoadedDelayInMilliseconds
