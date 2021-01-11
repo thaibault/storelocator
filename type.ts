@@ -16,8 +16,9 @@
     endregion
 */
 // region imports
+import PropertyTypes from 'clientnode/property-types'
 import {
-    Mapping, ObjectMaskConfiguration, ProcedureFunction, $DomNode
+    Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf, $DomNode
 } from 'clientnode/type'
 import 'googlemaps'
 import 'googlemaps/coordinates'
@@ -87,6 +88,11 @@ export type Maps = {
 }
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
 // / endregion
+export type PropertyTypes = {
+    baseConfiguration:ValueOf<typeof PropertyTypes>
+    configuration:ValueOf<typeof PropertyTypes>
+    dynamicConfiguration:ValueOf<typeof PropertyTypes>
+}
 export type Store = object & {
     latitude?:number
     longitude?:number
@@ -149,6 +155,7 @@ export type Configuration = {
         key?:null|string
         url:string
     }
+    debug:boolean
     defaultMarkerIconFileName?:null|string
     distanceToMoveByDuplicatedEntries:number
     fallbackLocation:Position
@@ -195,7 +202,7 @@ export type Configuration = {
     onOpenSearchResults:Function
     onCloseSearchResults:Function
     onMarkerHighlighted:Function
-    search:number|SearchOptions
+    search:number|SearchConfiguration
     showInputAfterLoadedDelayInMilliseconds:number
     startLocation?:null|Position
     stores:Array<Store>|string|{

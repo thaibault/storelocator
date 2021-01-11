@@ -19,7 +19,13 @@
 // region imports
 import Tools, {$} from 'clientnode'
 import {
-    Mapping, ProcedureFunction, TimeoutPromise, $DomNode
+    EvaluationResult,
+    Mapping,
+    PlainObject,
+    ProcedureFunction,
+    TimeoutPromise,
+    ValueOf,
+    $DomNode
 } from 'clientnode/type'
 import {object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
@@ -51,7 +57,8 @@ import {
     SearchConfiguration,
     Square,
     Store,
-    Position
+    Position,
+    PropertyTypes
 } from './type'
 // endregion
 // region components
@@ -72,15 +79,16 @@ import {
  * search result range. This is useful for pagination implementations in
  * template level.
  * @property currentSearchResults - Saves last found search results.
- * @property currentSearchResultsDomNode - Saves current search results content
- * dom node.
+ * @property $currentSearchResultsDomNode - Saves current search results
+ * content dom node.
  * @property currentSearchSegments - Saves last searched segments.
  * @property currentSearchText - Saves last searched string.
  * @property currentSearchWords - Saves last searched words.
  * @property items - Holds all recognized stores to represent as marker.
  * @property map - Holds the currently used map instance.
- * @property markerClusterer - Holds the currently used marker cluster instance.
- * @property resultsDomNode - Saves currently opened results dom node or null
+ * @property markerClusterer - Holds the currently used marker cluster
+ * instance.
+ * @property $resultsDomNode - Saves currently opened results dom node or null
  * if no results exists yet.
  * @property searchResultsDirty - Indicates whether current search results
  * aren't valid anymore.
@@ -107,6 +115,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                     callback={2}
             `.replace(/[ \n]+/g, '')
         },
+        debug: false,
         defaultMarkerIconFileName: null,
         distanceToMoveByDuplicatedEntries: 0.0001,
         fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
@@ -248,12 +257,13 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
 
     configuration:Partial<Configuration>|undefined
     resolvedConfiguration:Configuration = {} as Configuration
+    urlConfiguration:null|PlainObject = null
 
     currentlyHighlightedItem:Item|null = null
     currentlyOpenWindow:InfoWindow|null = null
     currentSearchResultRange:Array<number>|null = null
     currentSearchResults:Array<Item> = []
-    currentSearchResultsDomNode:$DomNode|null = null
+    $currentSearchResultsDomNode:null|$DomNode = null
     currentSearchSegments:Array<string> = []
     currentSearchText:string|null = null
     currentSearchWords:Array<string> = []
@@ -262,13 +272,12 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     searchResultsStyleProperties:Mapping<number|string> = {}
     seenLocations:Array<string> = []
 
-    // Map is set after initialisation promise has been resolved.
-    map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
+    map:MapImpl<TElement>|null = null
     markerClusterer:MarkerClusterer|null = null
     resetMarkerCluster:Function|null = null
-    root:TElement
+    root:ShadowRoot|StoreLocator<TElement>
 
-    $input:$DomNode<HTMLInputElement>
+    $input:$DomNode<ShadowRoot|StoreLocator<TElement>>
     $resultsDomNode:$DomNode<HTMLDivElement>|null = null
     $root:$DomNode<TElement>
 
@@ -346,7 +355,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
         }
         this.self.applicationInterfaceLoad
             .then(this.bootstrap)
-            .then(():void =>
+            .then(():boolean =>
                 this.dispatchEvent(
                     new CustomEvent('loaded', {detail: {target: this}})
                 )
@@ -354,7 +363,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
         if ($.global.window?.google?.maps) {
             this.self.maps = $.global.window.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
-                Tools.timeout(():void =>
+                Tools.timeout(():Promise<void>|void =>
                     applicationInterfaceLoadCallbacks.resolve()
                 )
         } else if (!loadInitialized) {
@@ -389,14 +398,16 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                 .fail((
                     response:JQuery.jqXHR<string|undefined>,
                     error:JQuery.Ajax.ErrorTextStatus
-                ):void => applicationInterfaceLoadCallbacks.reject(error))
+                ):Promise<void>|void =>
+                    applicationInterfaceLoadCallbacks.reject(error)
+                )
         }
     }
     // endregion
     // region event handler
     onMapCenterChanged = ():void => {
         // NOTE: Search results depends on current position.
-        if (this.currentSearchText && this.resultsDomNode)
+        if (this.currentSearchText && this.$resultsDomNode.length)
             this.searchResultsDirty = true
     }
     onInputClick = ():void => {
@@ -908,19 +919,19 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                 )
                     return this.releaseLock(`${this.self._name}Search`)
                 this.searchResultsDirty = false
-                if (!this.resultsDomNode)
+                if (this.$resultsDomNode.length === 0)
                     this.initializeDataSourceSearchResultsBox()
-                if (!searchText && this.resultsDomNode) {
+                if (!searchText && this.$resultsDomNode.length) {
                     this.currentSearchResults = []
                     this.currentSearchText = ''
-                    this.resultsDomNode.html('')
+                    this.$resultsDomNode.html('')
                     this.fireEvent(
                         'removeSearchResults',
                         false,
                         this,
-                        this.currentSearchResultsDomNode
+                        this.$currentSearchResultsDomNode
                     )
-                    this.currentSearchResultsDomNode = null
+                    this.$currentSearchResultsDomNode = null
                     this.closeSearchResults()
                     return this.releaseLock(`${this.self._name}Search`)
                 }
@@ -928,31 +939,31 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                 const loadingDomNode:$DomNode =
                     $(searchOptions.loadingContent as string)
                 if (
-                    this.resultsDomNode &&
+                    this.$resultsDomNode.length &&
                     this.fireEvent(
                         'addSearchResults',
                         false,
                         this,
                         loadingDomNode,
-                        this.resultsDomNode,
-                        this.currentSearchResultsDomNode || []
+                        this.$resultsDomNode.length,
+                        this.$currentSearchResultsDomNode || []
                     )
                 )
                     /*
                         NOTE: Cast to string because specified signature misses
                         valid wrapped dom node type.
                     */
-                    this.resultsDomNode.html(
+                    this.$resultsDomNode.html(
                         loadingDomNode as unknown as string
                     )
-                if (this.currentSearchResultsDomNode?.length)
+                if (this.$currentSearchResultsDomNode?.length)
                     this.fireEvent(
                         'removeSearchResults',
                         false,
                         this,
-                        this.currentSearchResultsDomNode
+                        this.$currentSearchResultsDomNode
                     )
-                this.currentSearchResultsDomNode = loadingDomNode
+                this.$currentSearchResultsDomNode = loadingDomNode
                 this.currentSearchWords = searchText.split(' ')
                 this.currentSearchSegments = this.currentSearchWords
                 if (!this.currentSearchSegments.includes(searchText))
@@ -1169,31 +1180,31 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
             const resultsRepresentationDomNode:$DomNode =
                 $(resultsRepresentation)
             if (
-                this.resultsDomNode &&
+                this.$resultsDomNode.length &&
                 this.fireEvent(
                     'addSearchResults',
                     false,
                     this,
                     resultsRepresentationDomNode,
-                    this.resultsDomNode,
-                    this.currentSearchResultsDomNode || []
+                    this.$resultsDomNode,
+                    this.$currentSearchResultsDomNode || []
                 )
             )
                 /*
                     NOTE: Cast to string because specified signature misses
                     valid wrapped dom node type.
                 */
-                this.resultsDomNode.html(
+                this.$resultsDomNode.html(
                     resultsRepresentationDomNode as unknown as string
                 )
-            if (this.currentSearchResultsDomNode?.length)
+            if (this.$currentSearchResultsDomNode?.length)
                 this.fireEvent(
                     'removeSearchResults',
                     false,
                     this,
-                    this.currentSearchResultsDomNode
+                    this.$currentSearchResultsDomNode
                 )
-            this.currentSearchResultsDomNode = resultsRepresentationDomNode
+            this.$currentSearchResultsDomNode = resultsRepresentationDomNode
             this.releaseLock(`${this.self._name}Search`)
         })
         this.currentSearchText = searchText
@@ -1209,21 +1220,21 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
         if (event)
             event.stopPropagation()
         if (
-            this.resultsDomNode &&
-            !this.resultsDomNode.hasClass('open') &&
+            this.$resultsDomNode.length &&
+            !this.$resultsDomNode.hasClass('open') &&
             this.fireEvent(
-                'openSearchResults', false, this, event, this.resultsDomNode
+                'openSearchResults', false, this, event, this.$resultsDomNode
             )
         ) {
             for (const propertyName in this.searchResultsStyleProperties)
                 if (this.searchResultsStyleProperties.hasOwnProperty(
                     propertyName
                 ))
-                    this.resultsDomNode.css(
+                    this.$resultsDomNode.css(
                         propertyName,
                         this.searchResultsStyleProperties[propertyName]
                     )
-            this.resultsDomNode.addClass('open')
+            this.$resultsDomNode.addClass('open')
         }
     }
     /**
@@ -1236,17 +1247,17 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
         if (event)
             event.stopPropagation()
         if (
-            this.resultsDomNode?.hasClass('open') &&
+            this.$resultsDomNode?.hasClass('open') &&
             this.fireEvent(
-                'closeSearchResults', false, this, event, this.resultsDomNode
+                'closeSearchResults', false, this, event, this.$resultsDomNode
             )
         ) {
             for (const propertyName in this.searchResultsStyleProperties)
                 if (this.searchResultsStyleProperties.hasOwnProperty(
                     propertyName
                 ))
-                    this.resultsDomNode.css(propertyName, '')
-            this.resultsDomNode.removeClass('open')
+                    this.$resultsDomNode.css(propertyName, '')
+            this.$resultsDomNode.removeClass('open')
         }
     }
     /**
