@@ -317,6 +317,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      */
     async render():Promise<void> {
         this.$root = $(this.root)
+        this.$root
             .find(this.resolvedConfiguration.input.selector)
             .css(this.resolvedConfiguration.input.hide)
         let loadInitialized:boolean = true
@@ -390,6 +391,73 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
         }
     }
     // endregion
+    // region event handler
+    onKeyDown = (event:KeyboardEvent):void => {
+        /*
+            NOTE: Events that doesn't occurs in search context are handled by
+            the native map implementation and won't be propagated so we doesn't
+            have to care about that.
+        */
+        if (this.currentSearchResults.length) {
+            if (this.currentSearchResultRange)
+                this.currentSearchResultRange = [
+                    Math.max(0, this.currentSearchResultRange[0]),
+                    Math.min(
+                        this.currentSearchResults.length - 1,
+                        this.currentSearchResultRange[1]
+                    )
+                ]
+            else
+                this.currentSearchResultRange =
+                    [0, this.currentSearchResults.length - 1]
+            let currentIndex:number = -1
+            if (this.currentlyHighlightedItem)
+                currentIndex = this.currentSearchResults.indexOf(
+                    this.currentlyHighlightedItem
+                )
+            if (event.keyCode === Tools.keyCode.DOWN)
+                if (
+                    currentIndex === -1 ||
+                    this.currentSearchResultRange[1] < currentIndex + 1
+                )
+                    this.highlightMarker(
+                        this.currentSearchResults[
+                            this.currentSearchResultRange[0]
+                        ],
+                        event
+                    )
+                else
+                    this.highlightMarker(
+                        this.currentSearchResults[currentIndex + 1], event
+                    )
+            else if (event.keyCode === Tools.keyCode.UP)
+                if ([this.currentSearchResultRange[0], -1].includes(
+                    currentIndex
+                ))
+                    this.highlightMarker(
+                        this.currentSearchResults[
+                            this.currentSearchResultRange[1]
+                        ],
+                        event
+                    )
+                else
+                    this.highlightMarker(
+                        this.currentSearchResults[currentIndex - 1], event
+                    )
+            else if (
+                event.keyCode === Tools.keyCode.ENTER &&
+                this.currentlyHighlightedItem
+            ) {
+                event.stopPropagation()
+                if (this.currentlyHighlightedItem)
+                    if (this.currentlyHighlightedItem.infoWindow)
+                        this.openMarker(this.currentlyHighlightedItem, event)
+                    else
+                        this.focusPlace(this.currentlyHighlightedItem, event)
+            }
+        }
+    }
+    // endregion
     // region helper
     // / region configuration
     /**
@@ -450,9 +518,11 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     bootstrap = ():Promise<void> => {
         if (this.resolvedConfiguration.startLocation)
             return this.initializeMap()
-        this.resolvedConfiguration.startLocation = this.resolvedConfiguration.fallbackLocation
+        this.resolvedConfiguration.startLocation =
+            this.resolvedConfiguration.fallbackLocation
         if ([null, undefined].includes(
-            this.resolvedConfiguration.ipToLocationApplicationInterface.key as null
+            this.resolvedConfiguration.ipToLocationApplicationInterface.key as
+                null
         ))
             return this.initializeMap()
         /*
@@ -544,7 +614,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
             startLocation.latitude, startLocation.longitude
         )
         this.map = new this.self.maps.Map<TElement>(
-            $('<div>').appendTo(this.$domNode.css('display', 'block'))[0] as
+            $('<div>').appendTo(this.$root.css('display', 'block'))[0] as
                 TElement,
             this.resolvedConfiguration.map
         )
@@ -679,9 +749,8 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
             resolve(this.items)
         })
         // Create the search box and link it to the UI element.
-        this.map.controls[this.self.maps.ControlPosition.TOP_LEFT].push(
-            this.$domNode.find('input')[0]
-        )
+        this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
+            .push(this.$root.find('input')[0])
         if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
         else {
@@ -743,7 +812,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     initializeDataSourceSearchResultsBox():void {
         this.searchResultsStyleProperties = {}
         const $inputDomNode:$DomNode<HTMLInputElement> =
-            this.$domNode.find('input')
+            this.$root.find('input')
         const allStyleProperties:Mapping<number|string> =
             $inputDomNode.Tools('style')
         for (const propertyName in allStyleProperties)
@@ -755,7 +824,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
         const outerHeight:number|undefined =
-            this.$domNode.find('input').outerHeight(true)
+            this.$root.find('input').outerHeight(true)
         if (outerHeight)
             this.searchResultsStyleProperties.marginTop = outerHeight
         // Prepare search result positioning.
@@ -773,77 +842,10 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      * @returns Nothing.
      */
     initializeDataSourceSearch():void {
-        this.on<TElement>(this.$domNode, 'keydown', (event:KeyboardEvent):void => {
-            /*
-                NOTE: Events that doesn't occurs in search context are handled
-                by the native map implementation and won't be propagated so we
-                doesn't have to care about that.
-            */
-            if (this.currentSearchResults.length) {
-                if (this.currentSearchResultRange)
-                    this.currentSearchResultRange = [
-                        Math.max(0, this.currentSearchResultRange[0]),
-                        Math.min(
-                            this.currentSearchResults.length - 1,
-                            this.currentSearchResultRange[1]
-                        )
-                    ]
-                else
-                    this.currentSearchResultRange =
-                        [0, this.currentSearchResults.length - 1]
-                let currentIndex:number = -1
-                if (this.currentlyHighlightedItem)
-                    currentIndex = this.currentSearchResults.indexOf(
-                        this.currentlyHighlightedItem
-                    )
-                if (event.keyCode === Tools.keyCode.DOWN)
-                    if (
-                        currentIndex === -1 ||
-                        this.currentSearchResultRange[1] < currentIndex + 1
-                    )
-                        this.highlightMarker(
-                            this.currentSearchResults[
-                                this.currentSearchResultRange[0]
-                            ],
-                            event
-                        )
-                    else
-                        this.highlightMarker(
-                            this.currentSearchResults[currentIndex + 1], event
-                        )
-                else if (event.keyCode === Tools.keyCode.UP)
-                    if ([this.currentSearchResultRange[0], -1].includes(
-                        currentIndex
-                    ))
-                        this.highlightMarker(
-                            this.currentSearchResults[
-                                this.currentSearchResultRange[1]
-                            ],
-                            event
-                        )
-                    else
-                        this.highlightMarker(
-                            this.currentSearchResults[currentIndex - 1], event
-                        )
-                else if (
-                    event.keyCode === Tools.keyCode.ENTER &&
-                    this.currentlyHighlightedItem
-                ) {
-                    event.stopPropagation()
-                    if (this.currentlyHighlightedItem)
-                        if (this.currentlyHighlightedItem.infoWindow)
-                            this.openMarker(
-                                this.currentlyHighlightedItem, event
-                            )
-                        else
-                            this.focusPlace(
-                                this.currentlyHighlightedItem, event
-                            )
-                }
-            }
-        })
+        this.root.addEventListener('keydown', this.onKeyDown)
+        // TODO
         const $inputDomNode:$DomNode<HTMLInputElement> =
-            this.$domNode.find('input')
+            this.$root.find('input')
         this.on<HTMLInputElement>($inputDomNode, 'click', ():void => {
             if (this.currentSearchText)
                 this.openSearchResults()
@@ -853,8 +855,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                 this.openSearchResults()
         })
         this.on<HTMLInputElement>(
-            $inputDomNode, 'keydown', (event:KeyboardEvent
-        ):void => {
+            $inputDomNode, 'keydown', (event:KeyboardEvent):void => {
             if (Tools.keyCode.DOWN === event.keyCode && this.currentSearchText)
                 this.openSearchResults()
         })
@@ -901,7 +902,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                         return
                 await this.acquireLock(`${this.self._name}Search`)
                 const searchText:string = searchOptions.normalizer(
-                   this.$domNode.find('input').val() as string || ''
+                   this.$root.find('input').val() as string || ''
                 )
                 if (
                     this.currentSearchText === searchText &&
@@ -1257,7 +1258,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      */
     initializeGenericSearch():void {
         const searchBox:MapSearchBox = new this.self.maps.places.SearchBox(
-            this.$domNode.find('input')[0],
+            this.$root.find('input')[0],
             {bounds: new this.self.maps.LatLngBounds(
                 new this.self.maps.LatLng(
                     this.resolvedConfiguration.limit.southWest.latitude,
@@ -1421,7 +1422,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      */
     onLoaded():void {
         Tools.timeout(():$DomNode =>
-            this.$domNode.find('input').animate(
+            this.$root.find('input').animate(
                 ...this.resolvedConfiguration.input.showAnimation
             ),
             this.resolvedConfiguration.showInputAfterLoadedDelayInMilliseconds
