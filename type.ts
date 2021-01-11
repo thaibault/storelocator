@@ -16,7 +16,9 @@
     endregion
 */
 // region imports
-import {Mapping, ProcedureFunction, $DomNode} from 'clientnode/type'
+import {
+    Mapping, ObjectMaskConfiguration, ProcedureFunction, $DomNode
+} from 'clientnode/type'
 import 'googlemaps'
 import 'googlemaps/coordinates'
 import 'googlemaps/event'
@@ -185,6 +187,7 @@ export type Configuration = {
             size:Square
         }
     }
+    name:string
     onInfoWindowOpen:Function
     onInfoWindowOpened:Function
     onAddSearchResults:Function
@@ -202,6 +205,7 @@ export type Configuration = {
         southWest:Position
     }
     successfulSearchZoomLevel:number
+    urlModelMask:ObjectMaskConfiguration
 }
 // endregion
 // region vim modline

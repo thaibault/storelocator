@@ -3667,9 +3667,9 @@ end-of-stream@^1.1.0:
     once "^1.4.0"
 
 enhanced-resolve@^5.3.1:
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/enhanced-resolve/-/enhanced-resolve-5.4.1.tgz#c89b0c34f17f931902ef2913a125d4b825b49b6f"
-  integrity sha512-4GbyIMzYktTFoRSmkbgZ1LU+RXwf4AQ8Z+rSuuh1dC8plp0PPeaWvx6+G4hh4KnUJ48VoxKbNyA1QQQIUpXjYA==
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/enhanced-resolve/-/enhanced-resolve-5.5.0.tgz#5f2ca7d511076541e2a30dc364a40c4f6c027bcd"
+  integrity sha512-b4a6BasBCoLzri4MdaeOlDMpls2oioI28CF17csMiav9dq46yvQaKPFNUrCHB6VqQokBDG2VIEEL81jMiQ6Wtw==
   dependencies:
     graceful-fs "^4.2.4"
     tapable "^2.2.0"
@@ -3779,9 +3779,9 @@ eslint-config-google@*:
   integrity sha512-WsbX4WbjuMvTdeVL6+J3rK1RGhCTqjsFjX7UMSMgZiyxxaNLkoJENbrGExzERFeoTpGw3F3FypTiWAP9ZXzkEw==
 
 eslint-plugin-jsdoc@*:
-  version "31.0.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-31.0.2.tgz#87663e2491c6eec7ea84842865217c4b084cdbaf"
-  integrity sha512-RNWxr23FOtZL8EqIWdw2av4yZsByrnWOZlf3PUvmpZLQzf3sSKPY5pVFNDs+pvhqlj+0dnJCDMUKQYuXzgjkfg==
+  version "31.0.3"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-31.0.3.tgz#23dd8bee22421af1dab0a00a91dfc3d47f644a76"
+  integrity sha512-O2HXyXyw2FYXWngFGeuCxhmClb4M1Y/w+bPcahO31P/Tw+vHZUU9wkPkSML2izznJ1dp3dnTG4on9bXDZDWfyQ==
   dependencies:
     comment-parser "1.0.1"
     debug "^4.3.1"
@@ -8310,9 +8310,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.129"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.129.tgz#048c57aed049e3679dd2fdacdd78087bc4f94767"
-  integrity sha512-1Og9fsvQQXPtJpZcPtFPOH8mkbMZH6tD1JZIlO7zxn2850e9WiXsJbXDGz1PTSKbVORQnuIXsmozduq4HpUsXg==
+  version "0.0.130"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.130.tgz#c0cf751436593c07deed8030006a1c298672287e"
+  integrity sha512-W51ylvCB4a421U9QUqQ9fWyRF3bO3kchCXenYpenkcWzeLWpCjmfNza6H5xjTJe2VFfjfYstT6f5MGu88n5X2Q==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
@@ -8481,9 +8481,9 @@ webpack@*:
     webpack-sources "^2.1.1"
 
 website-utilities@*:
-  version "1.0.227"
-  resolved "https://registry.yarnpkg.com/website-utilities/-/website-utilities-1.0.227.tgz#8d400be4f5d8c3feee98f24388287cf33c1f1313"
-  integrity sha512-iC1wHFGqWTVHDATjLGJNmYyoX6sMfPuLQubgA5o92uQEJO2pZeKxYIKsBJzTxOAJDeATp9doO0TJY2ux4uRsBA==
+  version "1.0.229"
+  resolved "https://registry.yarnpkg.com/website-utilities/-/website-utilities-1.0.229.tgz#777b8fb312884fba2d51dfe3a4e04bf7fea3a74b"
+  integrity sha512-sNcnA8S9InckGwqiZN0NFoKANwSX0xKBbhnZktx1Xmfj4s7K3U+aGJxzzjyeZfs7g7ii8rT9ZzCIcuLmvty8+w==
 
 websocket-driver@>=0.5.1, websocket-driver@^0.7.4:
   version "0.7.4"

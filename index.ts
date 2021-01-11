@@ -17,11 +17,9 @@
     endregion
 */
 // region imports
-import Tools from 'clientnode'
+import Tools, {$} from 'clientnode'
 import {
-    Mapping,
-    ProcedureFunction,
-    TimeoutPromise
+    Mapping, ProcedureFunction, TimeoutPromise, $DomNode
 } from 'clientnode/type'
 import {object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
@@ -93,8 +91,8 @@ import {
  * @property resolvedConfiguration - Holds given configuration object.
  * @property urlConfiguration - URL given configurations object.
  */
-export class StoreLocator extends Web {
-    static applicationInterfaceLoad:Promise<$DomNode>
+export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
+    static applicationInterfaceLoad:Promise<void>
     static defaultConfiguration:Configuration = {
         additionalStoreProperties: {},
         applicationInterface: {
@@ -165,6 +163,7 @@ export class StoreLocator extends Web {
                 size: {height: 49, unit: 'px', width: 44}
             }
         },
+        name: 'storeLocator',
         onInfoWindowOpen: Tools.noop,
         onInfoWindowOpened: Tools.noop,
         onAddSearchResults: Tools.noop,
@@ -181,7 +180,21 @@ export class StoreLocator extends Web {
             number: 100,
             southWest: {latitude: -85, longitude: -180}
         },
-        successfulSearchZoomLevel: 12
+        successfulSearchZoomLevel: 12,
+        urlModelMask: {
+            exclude: false,
+            include: {
+                model: false,
+
+                reCaptcha: {
+                    secret: true,
+                    skip: true
+                },
+
+                tag: true,
+                tags: true
+            }
+        }
     }
     static defaultSearchConfiguration:SearchConfiguration = {
         generic: {
@@ -194,7 +207,7 @@ export class StoreLocator extends Web {
             prefer: true,
             retrieveOptions: {radius: 50000, query: ''}
         },
-        loadingContent: this._options.infoWindow.loadingContent,
+        loadingContent: '<div class="idle">loading...</div>',
         maximumNumberOfResults: 50,
         noResultsContent: '<div class="no-results">No results found</div>',
         normalizer: (value:string):string =>
@@ -233,6 +246,9 @@ export class StoreLocator extends Web {
         configuration: object
     }
 
+    configuration:Partial<Configuration>|undefined
+    resolvedConfiguration:Configuration = {} as Configuration
+
     currentlyHighlightedItem:Item|null = null
     currentlyOpenWindow:InfoWindow|null = null
     currentSearchResultRange:Array<number>|null = null
@@ -241,17 +257,18 @@ export class StoreLocator extends Web {
     currentSearchSegments:Array<string> = []
     currentSearchText:string|null = null
     currentSearchWords:Array<string> = []
-
+    searchResultsDirty:boolean = false
     items:Array<Item> = []
+    searchResultsStyleProperties:Mapping<number|string> = {}
+    seenLocations:Array<string> = []
+
     // Map is set after initialisation promise has been resolved.
     map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
     markerClusterer:MarkerClusterer|null = null
     resetMarkerCluster:Function|null = null
     resultsDomNode:$DomNode|null = null
-    searchResultsDirty:boolean = false
-    searchResultsStyleProperties:Mapping<number|string> = {}
-    readonly self:typeof StoreLocator = StoreLocator
-    seenLocations:Array<string> = []
+    root:TElement
+    $root:$DomNode<TElement>
 
     readonly self:typeof StoreLocator = StoreLocator
     // region live cycle hooks
@@ -271,21 +288,41 @@ export class StoreLocator extends Web {
         this.resolveConfiguration()
     }
     /**
-     * Entry point after (default) properties have been set. Merges given
-     * options with default ones.
-     * @param parameter - Options to overwrite default ones.
-     * @returns Promise resolving to the current wrapped dom node when
-     * map is initialized.
+     * Parses given configuration object and (re-)renders map.
+     * @param name - Attribute name which was updates.
+     * @param oldValue - Old attribute value.
+     * @param newValue - New updated value.
+     * @returns Nothing.
      */
-    initialize(options:Partial<Options> = {}):Promise<$DomNode<TElement>> {
-        super.initialize(options)
-        this.$domNode
-            .find(this._options.input.selector)
-            .css(this._options.input.hide)
+    attributeChangedCallback(
+        name:string, oldValue:string, newValue:string
+    ):void {
+        super.attributeChangedCallback(name, oldValue, newValue)
+
+        this.resolveConfiguration()
+    }
+    /**
+     * De-registers all needed event listener.
+     * @returns Nothing.
+     */
+    disconnectedCallback():void {
+        super.disconnectedCallback()
+
+        // TODO release event listener.
+    }
+    /**
+     * Triggered when content projected and nested dom nodes are ready to be
+     * traversed. Selects all needed dom nodes.
+     * @returns A promise resolving to nothing.
+     */
+    async render():Promise<void> {
+        this.$root = $(this.root)
+            .find(this.resolvedConfiguration.input.selector)
+            .css(this.resolvedConfiguration.input.hide)
         let loadInitialized:boolean = true
         const applicationInterfaceLoadCallbacks:{
-            reject:Function
-            resolve:Function
+            reject:ProcedureFunction
+            resolve:ProcedureFunction
             resolved:boolean
         } = {
             resolve: Tools.noop,
@@ -295,36 +332,38 @@ export class StoreLocator extends Web {
         if (typeof this.self.applicationInterfaceLoad !== 'object') {
             loadInitialized = false
             this.self.applicationInterfaceLoad = new Promise((
-                resolve:Function, reject:Function
+                resolve:ProcedureFunction, reject:ProcedureFunction
             ):void => {
                 applicationInterfaceLoadCallbacks.resolve = ():void => {
                     applicationInterfaceLoadCallbacks.resolved = true
-                    resolve(this.$domNode)
+                    resolve()
                 }
                 applicationInterfaceLoadCallbacks.reject = reject
             })
         }
-        const result:Promise<$DomNode<TElement>> =
-            this.self.applicationInterfaceLoad
-                .then(this.bootstrap.bind(this))
-                .then(():StoreLocator<TElement> => this.fireEvent('loaded'))
-                .then(():$DomNode<TElement> => this.$domNode)
+        this.self.applicationInterfaceLoad
+            .then(this.bootstrap)
+            .then(():void =>
+                this.dispatchEvent(
+                    new CustomEvent('loaded', {detail: {target: this}})
+                )
+            )
         if ($.global.window?.google?.maps) {
             this.self.maps = $.global.window.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
                 Tools.timeout(():void =>
-                    applicationInterfaceLoadCallbacks.resolve(this.$domNode)
+                    applicationInterfaceLoadCallbacks.resolve()
                 )
         } else if (!loadInitialized) {
             const callbackName:string =
-                this._options.applicationInterface.callbackName ?
-                    this._options.applicationInterface.callbackName :
-                    this.self.determineUniqueScopeName()
+                this.resolvedConfiguration.applicationInterface.callbackName ?
+                    this.resolvedConfiguration.applicationInterface.callbackName :
+                    Tools.determineUniqueScopeName()
             const callback:ProcedureFunction = ():void => {
                 if (!applicationInterfaceLoadCallbacks.resolved)
                     if ($.global.window?.google?.maps) {
                         this.self.maps = $.global.window.google.maps
-                        applicationInterfaceLoadCallbacks.resolve(this.$domNode)
+                        applicationInterfaceLoadCallbacks.resolve()
                     } else
                         applicationInterfaceLoadCallbacks.reject(
                             new Error('No google maps environment set.')
@@ -332,9 +371,9 @@ export class StoreLocator extends Web {
             }
             ;($.global as unknown as Mapping<Function>)[callbackName] = callback
             $.getScript(Tools.stringFormat(
-                this._options.applicationInterface.url,
-                this._options.applicationInterface.key ?
-                    `key=${this._options.applicationInterface.key}&` :
+                this.resolvedConfiguration.applicationInterface.url,
+                this.resolvedConfiguration.applicationInterface.key ?
+                    `key=${this.resolvedConfiguration.applicationInterface.key}&` :
                     '',
                 (
                     window === ($.global as unknown as Window) ?
@@ -349,18 +388,71 @@ export class StoreLocator extends Web {
                     error:JQuery.Ajax.ErrorTextStatus
                 ):void => applicationInterfaceLoadCallbacks.reject(error))
         }
-        return result
     }
+    // endregion
+    // region helper
+    // / region configuration
+    /**
+     * Merges configuration sources into final object.
+     * @returns Nothing.
+     */
+    resolveConfiguration():void {
+        this.resolvedConfiguration = Tools.extend(
+            true,
+            Tools.copy(this.self.defaultConfiguration) as Configuration,
+            this.configuration || {}
+        )
+
+        this.extendConfigurationByGivenURLParameter()
+
+        if (this.resolvedConfiguration.debug)
+            console.debug('Got configuration:', this.resolvedConfiguration)
+    }
+    /**
+     * Extends current configuration object by given url parameter.
+     * @param name - URL parameter name to interpret.
+     * @returns Nothing.
+     */
+    extendConfigurationByGivenURLParameter(name?:string):void {
+        if (!name)
+            name = this.resolvedConfiguration.name
+
+        const parameter:Array<string>|null|string =
+            Tools.stringGetURLParameter(name)
+        if (typeof parameter === 'string') {
+            const evaluated:EvaluationResult =
+                Tools.stringEvaluate(decodeURI(parameter))
+            if (evaluated.error) {
+                console.warn(
+                    'Error occurred during processing given url parameter "' +
+                    `${name}": ${evaluated.error}`
+                )
+                return
+            }
+            if (
+                evaluated.result !== null &&
+                typeof evaluated.result === 'object'
+            ) {
+                this.urlConfiguration = Tools.maskObject(
+                    evaluated.result, this.resolvedConfiguration.urlModelMask
+                ) as PlainObject
+                Tools.extend(
+                    true, this.resolvedConfiguration, this.urlConfiguration
+                )
+            }
+        }
+    }
+    // / endregion
     /**
      * Determines useful location cluster, info windows and marker.
      * @returns Promise resolving to the current instance.
      */
-    bootstrap():Promise<$DomNode<TElement>> {
-        if (this._options.startLocation)
+    bootstrap = ():Promise<void> => {
+        if (this.resolvedConfiguration.startLocation)
             return this.initializeMap()
-        this._options.startLocation = this._options.fallbackLocation
+        this.resolvedConfiguration.startLocation = this.resolvedConfiguration.fallbackLocation
         if ([null, undefined].includes(
-            this._options.ipToLocationApplicationInterface.key as null
+            this.resolvedConfiguration.ipToLocationApplicationInterface.key as null
         ))
             return this.initializeMap()
         /*
@@ -369,34 +461,36 @@ export class StoreLocator extends Web {
             That's why we use our own timeout implementation.
         */
         let loaded:boolean = false
-        return new Promise((resolve:Function, reject:Function):void => {
+        return new Promise((
+            resolve:ProcedureFunction, reject:ProcedureFunction
+        ):void => {
             const fallbackTimeout:TimeoutPromise = Tools.timeout(
                 async ():Promise<void> => {
                     loaded = true
                     await this.initializeMap()
-                    resolve(this.$domNode)
+                    resolve()
                 },
-                this._options.ipToLocationApplicationInterface
+                this.resolvedConfiguration.ipToLocationApplicationInterface
                     .timeoutInMilliseconds
             )
             $.ajax({
                 cache: true,
                 dataType: 'jsonp',
                 url: Tools.stringFormat(
-                    this._options.ipToLocationApplicationInterface.url,
+                    this.resolvedConfiguration.ipToLocationApplicationInterface.url,
                     (
-                        this._options.ipToLocationApplicationInterface
+                        this.resolvedConfiguration.ipToLocationApplicationInterface
                             .protocol &&
-                        !this._options.ipToLocationApplicationInterface
+                        !this.resolvedConfiguration.ipToLocationApplicationInterface
                             .protocol.endsWith(':')
                     ) ?
-                        this._options.ipToLocationApplicationInterface
+                        this.resolvedConfiguration.ipToLocationApplicationInterface
                             .protocol +
                         ':' :
-                        this._options.ipToLocationApplicationInterface
+                        this.resolvedConfiguration.ipToLocationApplicationInterface
                             .protocol,
-                    this._options.ipToLocationApplicationInterface.key,
-                    this._options.ip || ''
+                    this.resolvedConfiguration.ipToLocationApplicationInterface.key,
+                    this.resolvedConfiguration.ip || ''
                 )
             }).always(async (
                 currentLocation:Position, textStatus:string
@@ -407,23 +501,23 @@ export class StoreLocator extends Web {
                     if (textStatus === 'success')
                         // Check if determined location is within defined bounds.
                         if (
-                            !this._options
+                            !this.resolvedConfiguration
                                 .ipToLocationApplicationInterface.bounds ||
                             (
                                 new this.self.maps.LatLngBounds(
                                     new this.self.maps.LatLng(
-                                        this._options
+                                        this.resolvedConfiguration
                                             .ipToLocationApplicationInterface
                                             .bounds.southWest.latitude,
-                                        this._options
+                                        this.resolvedConfiguration
                                             .ipToLocationApplicationInterface
                                             .bounds.southWest.longitude
                                     ),
                                     new this.self.maps.LatLng(
-                                        this._options
+                                        this.resolvedConfiguration
                                             .ipToLocationApplicationInterface
                                             .bounds.northEast.latitude,
-                                        this._options
+                                        this.resolvedConfiguration
                                             .ipToLocationApplicationInterface
                                             .bounds.northEast.longitude
                                     )
@@ -433,9 +527,9 @@ export class StoreLocator extends Web {
                                 currentLocation.longitude
                             ))
                         )
-                            this._options.startLocation = currentLocation
+                            this.resolvedConfiguration.startLocation = currentLocation
                     await this.initializeMap()
-                    resolve(this.$domNode)
+                    resolve()
                 }
             })
         })
@@ -444,29 +538,29 @@ export class StoreLocator extends Web {
      * Initializes cluster, info windows and marker.
      * @returns Promise resolving to the current instance.
      */
-    initializeMap():Promise<$DomNode<TElement>> {
-        const startLocation:Position = this._options.startLocation as Position
-        this._options.map.center = new this.self.maps.LatLng(
+    initializeMap():Promise<void> {
+        const startLocation:Position = this.resolvedConfiguration.startLocation as Position
+        this.resolvedConfiguration.map.center = new this.self.maps.LatLng(
             startLocation.latitude, startLocation.longitude
         )
         this.map = new this.self.maps.Map<TElement>(
             $('<div>').appendTo(this.$domNode.css('display', 'block'))[0] as
                 TElement,
-            this._options.map
+            this.resolvedConfiguration.map
         )
-        if (this._options.limit)
+        if (this.resolvedConfiguration.limit)
             this.self.maps.event.addListenerOnce(
                 this.map,
                 'dragend',
                 ():void => {
                     const area:MapArea = new StoreLocator.maps.LatLngBounds(
                         new StoreLocator.maps.LatLng(
-                            this._options.limit.southWest.latitude,
-                            this._options.limit.southWest.longitude
+                            this.resolvedConfiguration.limit.southWest.latitude,
+                            this.resolvedConfiguration.limit.southWest.longitude
                         ),
                         new StoreLocator.maps.LatLng(
-                            this._options.limit.northEast.latitude,
-                            this._options.limit.northEast.longitude
+                            this.resolvedConfiguration.limit.northEast.latitude,
+                            this.resolvedConfiguration.limit.northEast.longitude
                         )
                     )
                     const currentCenter:MapPosition = this.map.getCenter()
@@ -488,9 +582,9 @@ export class StoreLocator extends Web {
                         ))
                     }
                 })
-        if (this._options.marker.cluster) {
+        if (this.resolvedConfiguration.marker.cluster) {
             this.markerClusterer = new MarkerClusterer(
-                this.map, [], this._options.marker.cluster
+                this.map, [], this.resolvedConfiguration.marker.cluster
             )
             this.resetMarkerCluster = ():void => {
                 const markers:Array<MapMarker> = []
@@ -510,7 +604,7 @@ export class StoreLocator extends Web {
                     this.markerClusterer = new MarkerClusterer(
                         this.map,
                         markers,
-                        this._options.marker.cluster as
+                        this.resolvedConfiguration.marker.cluster as
                             MapMarkerClustererOptions
                     )
                 }
@@ -520,40 +614,45 @@ export class StoreLocator extends Web {
         const addMarkerPromise:Promise<Array<Item>> = new Promise((
             resolve:Function, reject:Function
         ):void => {
-            if (Array.isArray(this._options.stores))
-                for (const store of this._options.stores) {
+            if (Array.isArray(this.resolvedConfiguration.stores))
+                for (const store of this.resolvedConfiguration.stores) {
                     Tools.extend(
-                        true, store, this._options.additionalStoreProperties
+                        true,
+                        store,
+                        this.resolvedConfiguration.additionalStoreProperties
                     )
                     const marker:MapMarker = this.createMarker(store)
                     if (this.markerClusterer)
                         this.markerClusterer.addMarker(marker)
                 }
-            else if (typeof this._options.stores === 'string')
-                $.getJSON(this._options.stores, (stores:Array<Store>):void => {
-                    for (const store of stores) {
-                        Tools.extend(
-                            true,
-                            store,
-                            this._options.additionalStoreProperties
-                        )
-                        const marker:MapMarker = this.createMarker(store)
-                        if (this.markerClusterer)
-                            this.markerClusterer.addMarker(marker)
+            else if (typeof this.resolvedConfiguration.stores === 'string')
+                $.getJSON(
+                    this.resolvedConfiguration.stores,
+                    (stores:Array<Store>):void => {
+                        for (const store of stores) {
+                            Tools.extend(
+                                true,
+                                store,
+                                this.resolvedConfiguration.additionalStoreProperties
+                            )
+                            const marker:MapMarker = this.createMarker(store)
+                            if (this.markerClusterer)
+                                this.markerClusterer.addMarker(marker)
+                        }
                     }
-                })
+                )
             else {
                 const southWest:MapPosition = new this.self.maps.LatLng(
-                    this._options.stores.southWest.latitude,
-                    this._options.stores.southWest.longitude
+                    this.resolvedConfiguration.stores.southWest.latitude,
+                    this.resolvedConfiguration.stores.southWest.longitude
                 )
                 const northEast:MapPosition = new this.self.maps.LatLng(
-                    this._options.stores.northEast.latitude,
-                    this._options.stores.northEast.longitude
+                    this.resolvedConfiguration.stores.northEast.latitude,
+                    this.resolvedConfiguration.stores.northEast.longitude
                 )
                 for (
                     let index:number = 0;
-                    index < this._options.stores.number;
+                    index < this.resolvedConfiguration.stores.number;
                     index++
                 ) {
                     const store:Store = {
@@ -565,12 +664,12 @@ export class StoreLocator extends Web {
                             southWest.lng() +
                             (northEast.lng() - southWest.lng()) *
                             Math.random(),
-                        ...this._options.additionalStoreProperties
+                        ...this.resolvedConfiguration.additionalStoreProperties
                     }
                     Tools.extend(
                         true,
                         store,
-                        this._options.stores.generateProperties(store)
+                        this.resolvedConfiguration.stores.generateProperties(store)
                     )
                     const marker:MapMarker = this.createMarker()
                     if (this.markerClusterer)
@@ -583,7 +682,7 @@ export class StoreLocator extends Web {
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT].push(
             this.$domNode.find('input')[0]
         )
-        if (typeof this._options.search === 'number')
+        if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
         else {
             this.self.maps.event.addListenerOnce(
@@ -592,16 +691,16 @@ export class StoreLocator extends Web {
             this.self.maps.event.addListenerOnce(
                 this.map, 'dragstart', ():void => this.closeSearchResults()
             )
-            this._options.search = Tools.extend(
+            this.resolvedConfiguration.search = Tools.extend(
                 true, 
-                Tools.copy(this.defaultSearchOptions),
-                this._options.search
+                Tools.copy(this.self.defaultSearchConfiguration),
+                this.resolvedConfiguration.search
             )
             this.initializeDataSourceSearch()
         }
         const markerClusterZoomLevel:number =
             this.markerClusterer &&
-            (this._options.marker.cluster as MapMarkerClustererOptions)
+            (this.resolvedConfiguration.marker.cluster as MapMarkerClustererOptions)
                 .maxZoom ||
             0
         if (markerClusterZoomLevel > 0)
@@ -624,7 +723,7 @@ export class StoreLocator extends Web {
         return new Promise((resolve:Function, reject:Function):void => {
             const doResolve:Function = async ():Promise<void> => {
                 await addMarkerPromise
-                resolve(this.$domNode)
+                resolve()
             }
             if (this.self.maps.mockup)
                 doResolve()
@@ -649,7 +748,7 @@ export class StoreLocator extends Web {
             $inputDomNode.Tools('style')
         for (const propertyName in allStyleProperties)
             if (
-                (this._options.search as SearchOptions)
+                (this.resolvedConfiguration.search as SearchOptions)
                     .stylePropertiesToDeriveFromInputField
                     .includes(propertyName)
             )
@@ -690,9 +789,8 @@ export class StoreLocator extends Web {
                         )
                     ]
                 else
-                    this.currentSearchResultRange = [
-                        0, this.currentSearchResults.length - 1
-                    ]
+                    this.currentSearchResultRange =
+                        [0, this.currentSearchResults.length - 1]
                 let currentIndex:number = -1
                 if (this.currentlyHighlightedItem)
                     currentIndex = this.currentSearchResults.indexOf(
@@ -781,7 +879,7 @@ export class StoreLocator extends Web {
         const placesService:MapPlacesService =
             new this.self.maps.places.PlacesService(this.map)
         const searchOptions:SearchOptions =
-            this._options.search as SearchOptions
+            this.resolvedConfiguration.search as SearchOptions
         return Tools.debounce(
             async (event?:KeyboardEvent):Promise<void> => {
                 for (const name in Tools.keyCode)
@@ -898,7 +996,7 @@ export class StoreLocator extends Web {
     ):void {
         const searchResults:Array<Item> = []
         const searchOptions:SearchOptions =
-            this._options.search as SearchOptions
+            this.resolvedConfiguration.search as SearchOptions
         /*
             NOTE: Since google text search doesn't support sorting by distance
             we have to sort by our own.
@@ -942,7 +1040,7 @@ export class StoreLocator extends Web {
                                 `${$.global.location.protocol}$1`
                             ) :
                             null
-                    }
+                    },
                     foundWords: this.currentSearchSegments.filter((
                         word:string
                     ):boolean =>
@@ -975,7 +1073,7 @@ export class StoreLocator extends Web {
         searchText:string, searchResults:Array<Item> = []
     ):void {
         const searchOptions:SearchOptions =
-            this._options.search as SearchOptions
+            this.resolvedConfiguration.search as SearchOptions
         const numberOfGenericSearchResults:number = searchResults.length
         const defaultProperties:Array<string>|null =
             searchOptions.hasOwnProperty('properties') ?
@@ -1162,12 +1260,12 @@ export class StoreLocator extends Web {
             this.$domNode.find('input')[0],
             {bounds: new this.self.maps.LatLngBounds(
                 new this.self.maps.LatLng(
-                    this._options.limit.southWest.latitude,
-                    this._options.limit.southWest.longitude
+                    this.resolvedConfiguration.limit.southWest.latitude,
+                    this.resolvedConfiguration.limit.southWest.longitude
                 ),
                 new this.self.maps.LatLng(
-                    this._options.limit.northEast.latitude,
-                    this._options.limit.northEast.longitude
+                    this.resolvedConfiguration.limit.northEast.latitude,
+                    this.resolvedConfiguration.limit.northEast.longitude
                 )
             )}
         )
@@ -1213,11 +1311,11 @@ export class StoreLocator extends Web {
                     }
                     if (
                         matchingItem &&
-                        shortestDistanceInMeter <= this._options.search
+                        shortestDistanceInMeter <= this.resolvedConfiguration.search
                     ) {
-                        if (this._options.successfulSearchZoomLevel)
+                        if (this.resolvedConfiguration.successfulSearchZoomLevel)
                             this.map.setZoom(
-                                this._options.successfulSearchZoomLevel
+                                this.resolvedConfiguration.successfulSearchZoomLevel
                             )
                         await this.openMarker(matchingItem)
                         return
@@ -1229,9 +1327,9 @@ export class StoreLocator extends Web {
                     }
                     if (foundPlace.geometry)
                         this.map.setCenter(foundPlace.geometry.location)
-                    if (this._options.successfulSearchZoomLevel)
+                    if (this.resolvedConfiguration.successfulSearchZoomLevel)
                         this.map.setZoom(
-                            this._options.successfulSearchZoomLevel
+                            this.resolvedConfiguration.successfulSearchZoomLevel
                         )
                 }
             }
@@ -1324,9 +1422,9 @@ export class StoreLocator extends Web {
     onLoaded():void {
         Tools.timeout(():$DomNode =>
             this.$domNode.find('input').animate(
-                ...this._options.input.showAnimation
+                ...this.resolvedConfiguration.input.showAnimation
             ),
-            this._options.showInputAfterLoadedDelayInMilliseconds
+            this.resolvedConfiguration.showInputAfterLoadedDelayInMilliseconds
         )
     }
     /**
@@ -1342,10 +1440,10 @@ export class StoreLocator extends Web {
             )) {
                 if (index % 2)
                     store.latitude +=
-                        this._options.distanceToMoveByDuplicatedEntries
+                        this.resolvedConfiguration.distanceToMoveByDuplicatedEntries
                 else
                     store.longitude +=
-                        this._options.distanceToMoveByDuplicatedEntries
+                        this.resolvedConfiguration.distanceToMoveByDuplicatedEntries
                 index += 1
             }
             this.seenLocations.push(`${store.latitude}-${store.longitude}`)
@@ -1363,10 +1461,10 @@ export class StoreLocator extends Web {
         }
         if (
             store?.markerIconFileName ||
-            this._options.defaultMarkerIconFileName
+            this.resolvedConfiguration.defaultMarkerIconFileName
         ) {
-            item.icon = this._options.marker.icon ?
-                Tools.copy(this._options.marker.icon as unknown as Icon) :
+            item.icon = this.resolvedConfiguration.marker.icon ?
+                Tools.copy(this.resolvedConfiguration.marker.icon as unknown as Icon) :
                 {} as Icon
             if (item.icon.scaledSize) {
                 const square:Square = item.icon.scaledSize as Square
@@ -1382,11 +1480,11 @@ export class StoreLocator extends Web {
             }
             if (store?.markerIconFileName)
                 item.icon.url =
-                    this._options.iconPath + store.markerIconFileName
+                    this.resolvedConfiguration.iconPath + store.markerIconFileName
             else
                 item.icon.url =
-                    this._options.iconPath +
-                    this._options.defaultMarkerIconFileName
+                    this.resolvedConfiguration.iconPath +
+                    this.resolvedConfiguration.defaultMarkerIconFileName
         }
         if (store?.title)
             item.title = store.title
@@ -1461,10 +1559,10 @@ export class StoreLocator extends Web {
             the clustering can appear. Since a cluster hides an open window.
         */
         if (
-            this._options.marker.cluster?.maxZoom &&
-            this.map.getZoom() <= this._options.marker.cluster.maxZoom
+            this.resolvedConfiguration.marker.cluster?.maxZoom &&
+            this.map.getZoom() <= this.resolvedConfiguration.marker.cluster.maxZoom
         )
-            this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
+            this.map.setZoom(this.resolvedConfiguration.marker.cluster.maxZoom + 1)
         this.closeSearchResults(event)
         if (
             this.currentlyOpenWindow?.isOpen &&
@@ -1476,7 +1574,7 @@ export class StoreLocator extends Web {
         item.refreshSize = ():void =>
             // Simulates a content update to enforce info box size adjusting.
             infoWindow.setContent(infoWindow.getContent())
-        infoWindow.setContent(this._options.infoWindow.loadingContent)
+        infoWindow.setContent(this.resolvedConfiguration.infoWindow.loadingContent)
         infoWindow.setContent(await this.makeInfoWindow(item))
         if (this.currentlyOpenWindow) {
             this.currentlyOpenWindow.isOpen = false
@@ -1487,7 +1585,7 @@ export class StoreLocator extends Web {
         infoWindow.open(this.map, item.marker)
         this.map.panTo(item.position as MapPosition)
         this.map.panBy(
-            0, -this._options.infoWindow.additionalMoveToBottomInPixel
+            0, -this.resolvedConfiguration.infoWindow.additionalMoveToBottomInPixel
         )
         this.fireEvent('infoWindowOpened', false, this, event, item)
     }
@@ -1506,7 +1604,7 @@ export class StoreLocator extends Web {
             this.currentlyOpenWindow.close()
         }
         this.map.setCenter(place.position as MapPosition)
-        this.map.setZoom(this._options.successfulSearchZoomLevel)
+        this.map.setZoom(this.resolvedConfiguration.successfulSearchZoomLevel)
     }
     /**
      * Opens given item's marker info window and closes a potential opened
@@ -1536,15 +1634,15 @@ export class StoreLocator extends Web {
                     open window.
                 */
                 if (
-                    this._options.marker.cluster?.maxZoom &&
+                    this.resolvedConfiguration.marker.cluster?.maxZoom &&
                     this.map.getZoom() <=
-                        this._options.marker.cluster.maxZoom &&
+                        this.resolvedConfiguration.marker.cluster.maxZoom &&
                     item.position &&
                     (this.map.getBounds() as MapArea)
                         .contains(item.position as MapPosition)
                 ) {
                     this.map.setCenter(item.position as MapPosition)
-                    this.map.setZoom(this._options.marker.cluster.maxZoom + 1)
+                    this.map.setZoom(this.resolvedConfiguration.marker.cluster.maxZoom + 1)
                 }
                 if (item !== this.currentlyHighlightedItem && item.marker) {
                     item.marker.setAnimation(
@@ -1569,18 +1667,18 @@ export class StoreLocator extends Web {
     async makeInfoWindow(
         item:Item, ...additionalParameter:Array<any>
     ):Promise<string> {
-        if (this._options.infoWindow.content) {
-            if (Tools.isFunction(this._options.infoWindow.content)) {
+        if (this.resolvedConfiguration.infoWindow.content) {
+            if (Tools.isFunction(this.resolvedConfiguration.infoWindow.content)) {
                 const result:Promise<string>|string =
-                    this._options.infoWindow.content(
+                    this.resolvedConfiguration.infoWindow.content(
                         item, ...additionalParameter
                     )
                 if (typeof result === 'string')
                     return result
                 return await result
             }
-            if (this._options.infoWindow.content)
-                return this._options.infoWindow.content
+            if (this.resolvedConfiguration.infoWindow.content)
+                return this.resolvedConfiguration.infoWindow.content
         }
         let content:string = '<div>'
         for (const name in item.data)
@@ -1605,7 +1703,7 @@ export class StoreLocator extends Web {
         searchResults:Array<Item>, limitReached:boolean
     ):Promise<string> {
         const searchOptions:SearchOptions =
-            this._options.search as SearchOptions
+            this.resolvedConfiguration.search as SearchOptions
         if (searchOptions.content) {
             if (Tools.isFunction(searchOptions.content)) {
                 const result:Promise<string>|string =
@@ -1644,6 +1742,7 @@ export class StoreLocator extends Web {
         }
         return searchOptions.noResultsContent
     }
+    // endregion
 }
 // endregion
 export const api:WebComponentAPI<typeof StoreLocator> = {
