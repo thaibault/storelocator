@@ -79,8 +79,8 @@ import {
  * search result range. This is useful for pagination implementations in
  * template level.
  * @property currentSearchResults - Saves last found search results.
- * @property $currentSearchResultsDomNode - Saves current search results
- * content dom node.
+ * @property currentSearchResultsDomNode - Saves current search results content
+ * dom node.
  * @property currentSearchSegments - Saves last searched segments.
  * @property currentSearchText - Saves last searched string.
  * @property currentSearchWords - Saves last searched words.
@@ -88,7 +88,7 @@ import {
  * @property map - Holds the currently used map instance.
  * @property markerClusterer - Holds the currently used marker cluster
  * instance.
- * @property $resultsDomNode - Saves currently opened results dom node or null
+ * @property resultsDomNode - Saves currently opened results dom node or null
  * if no results exists yet.
  * @property searchResultsDirty - Indicates whether current search results
  * aren't valid anymore.
@@ -99,7 +99,7 @@ import {
  * @property resolvedConfiguration - Holds given configuration object.
  * @property urlConfiguration - URL given configurations object.
  */
-export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
+export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TElement> {
     static applicationInterfaceLoad:Promise<void>
     static defaultConfiguration:Configuration = {
         additionalStoreProperties: {},
@@ -254,6 +254,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     static propertyTypes:Mapping<ValueOf<PropertyTypes>> = {
         configuration: object
     }
+    static _name:string = 'StoreLocator'
 
     configuration:Partial<Configuration>|undefined
     resolvedConfiguration:Configuration = {} as Configuration
@@ -263,7 +264,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     currentlyOpenWindow:InfoWindow|null = null
     currentSearchResultRange:Array<number>|null = null
     currentSearchResults:Array<Item> = []
-    $currentSearchResultsDomNode:null|$DomNode = null
+    currentSearchResultsDomNode:HTMLElement|null = null
     currentSearchSegments:Array<string> = []
     currentSearchText:string|null = null
     currentSearchWords:Array<string> = []
@@ -272,16 +273,17 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     searchResultsStyleProperties:Mapping<number|string> = {}
     seenLocations:Array<string> = []
 
-    map:MapImpl<TElement>|null = null
+    // NOTE: Will be initialized during bootstrapping.
+    map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
     markerClusterer:MarkerClusterer|null = null
     resetMarkerCluster:Function|null = null
-    root:ShadowRoot|StoreLocator<TElement>
 
-    $input:$DomNode<ShadowRoot|StoreLocator<TElement>>
-    $resultsDomNode:$DomNode<HTMLDivElement>|null = null
-    $root:$DomNode<TElement>
+    input:HTMLInputElement = null as unknown as HTMLInputElement
+    resultsDomNode:HTMLDivElement|null = null
 
     readonly self:typeof StoreLocator = StoreLocator
+
+    readonly tools:Tools = new Tools()
     // region live cycle hooks
     /**
      * Defines dynamic getter and setter interface and resolves configuration
@@ -327,8 +329,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      * @returns A promise resolving to nothing.
      */
     async render():Promise<void> {
-        this.$root = $(this.root)
-        this.$root
+        $(this.root)
             .find(this.resolvedConfiguration.input.selector)
             .css(this.resolvedConfiguration.input.hide)
         let loadInitialized:boolean = true
@@ -407,7 +408,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     // region event handler
     onMapCenterChanged = ():void => {
         // NOTE: Search results depends on current position.
-        if (this.currentSearchText && this.$resultsDomNode.length)
+        if (this.currentSearchText && this.resultsDomNode)
             this.searchResultsDirty = true
     }
     onInputClick = ():void => {
@@ -644,10 +645,10 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
         this.resolvedConfiguration.map.center = new this.self.maps.LatLng(
             startLocation.latitude, startLocation.longitude
         )
+        ;(this.root as HTMLElement).style.display = 'block'
+        this.root.appendChild(document.createElement('div'))
         this.map = new this.self.maps.Map<TElement>(
-            $('<div>').appendTo(this.$root.css('display', 'block'))[0] as
-                TElement,
-            this.resolvedConfiguration.map
+            this.root as unknown as TElement, this.resolvedConfiguration.map
         )
         if (this.resolvedConfiguration.limit)
             this.self.maps.event.addListenerOnce(
@@ -779,10 +780,10 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
             }
             resolve(this.items)
         })
-        this.$input = this.$root.find('input')
+        this.input = this.root.querySelector('input') as HTMLInputElement
         // Create the search box and link it to the UI element.
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
-            .push(this.$input[0])
+            .push(this.input)
         if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
         else {
@@ -844,26 +845,27 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     initializeDataSourceSearchResultsBox():void {
         this.searchResultsStyleProperties = {}
         const allStyleProperties:Mapping<number|string> =
-            this.$input.Tools('style')
+            $(this.input).Tools('style')
         for (const propertyName in allStyleProperties)
             if (
-                (this.resolvedConfiguration.search as SearchOptions)
+                (this.resolvedConfiguration.search as SearchConfiguration)
                     .stylePropertiesToDeriveFromInputField
                     .includes(propertyName)
             )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
-        const outerHeight:number|undefined = this.$input.outerHeight(true)
+        const outerHeight:number|undefined = $(this.input).outerHeight(true)
         if (outerHeight)
             this.searchResultsStyleProperties.marginTop = outerHeight
         // Prepare search result positioning.
-        this.$resultsDomNode = $('<div>')
+        this.resultsDomNode = $('<div>')
             .addClass(Tools.stringCamelCaseToDelimited(
                 `${this.self._name}SearchResults`
             ))
-            .css(this.searchResultsStyleProperties)
+            .css(this.searchResultsStyleProperties)[0] as HTMLDivElement
         // Inject the final search results into the dom tree.
-        this.$input.after(this.$resultsDomNode)
+        this.input.parentNode!
+            .insertBefore(this.resultsDomNode, this.input.nextSibling)
     }
     /**
      * Initializes a data source based search box to open and focus them
@@ -872,12 +874,10 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      */
     initializeDataSourceSearch():void {
         this.root.addEventListener('keydown', this.onKeyDown)
-        this.$input[0].addEventListener('click', this.onInputClick)
-        this.$input[0].addEventListener('focus', this.onInputFocus)
-        this.$input[0].addEventListener('keydown', this.onInputKeyDown)
-        this.$input[0].addEventListener(
-            'keyup', this.updateSearchResultsHandler
-        )
+        this.input.addEventListener('click', this.onInputClick)
+        this.input.addEventListener('focus', this.onInputFocus)
+        this.input.addEventListener('keydown', this.onInputKeyDown)
+        this.input.addEventListener('keyup', this.updateSearchResultsHandler)
         this.self.maps.event.addListenerOnce(
             this.map, 'center_changed', this.onMapCenterChanged
         )
@@ -889,8 +889,8 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     get updateSearchResultsHandler():Function {
         const placesService:MapPlacesService =
             new this.self.maps.places.PlacesService(this.map)
-        const searchOptions:SearchOptions =
-            this.resolvedConfiguration.search as SearchOptions
+        const searchOptions:SearchConfiguration =
+            this.resolvedConfiguration.search as SearchConfiguration
         return Tools.debounce(
             async (event?:KeyboardEvent):Promise<void> => {
                 for (const name in Tools.keyCode)
@@ -910,60 +910,66 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                         ].includes(name)
                     )
                         return
-                await this.acquireLock(`${this.self._name}Search`)
+                await this.tools.acquireLock(`${this.self._name}Search`)
                 const searchText:string =
-                    searchOptions.normalizer(this.$input.val() as string || '')
+                    searchOptions.normalizer(this.input.value)
                 if (
                     this.currentSearchText === searchText &&
                     !this.searchResultsDirty
                 )
-                    return this.releaseLock(`${this.self._name}Search`)
+                    return this.tools.releaseLock(`${this.self._name}Search`)
                 this.searchResultsDirty = false
-                if (this.$resultsDomNode.length === 0)
+                if (!this.resultsDomNode)
                     this.initializeDataSourceSearchResultsBox()
-                if (!searchText && this.$resultsDomNode.length) {
+                if (!searchText && this.resultsDomNode) {
                     this.currentSearchResults = []
                     this.currentSearchText = ''
-                    this.$resultsDomNode.html('')
-                    this.fireEvent(
+                    this.resultsDomNode.innerHTML = ''
+                    if (this.dispatchEvent(new CustomEvent(
                         'removeSearchResults',
-                        false,
-                        this,
-                        this.$currentSearchResultsDomNode
-                    )
-                    this.$currentSearchResultsDomNode = null
-                    this.closeSearchResults()
-                    return this.releaseLock(`${this.self._name}Search`)
+                        {detail: {
+                            searchResultsDomNode:
+                                this.currentSearchResultsDomNode,
+                            target: this
+                        }}
+                    )))
+                        this.closeSearchResults()
+                    this.currentSearchResultsDomNode = null
+                    return this.tools.releaseLock(`${this.self._name}Search`)
                 }
                 this.openSearchResults()
-                const loadingDomNode:$DomNode =
-                    $(searchOptions.loadingContent as string)
+                let loadingDomNode:HTMLDivElement =
+                    document.createElement('div')
+                loadingDomNode.innerHTML = searchOptions.loadingContent
+                loadingDomNode = loadingDomNode.firstChild
                 if (
-                    this.$resultsDomNode.length &&
-                    this.fireEvent(
+                    this.resultsDomNode &&
+                    this.dispatchEvent(new CustomEvent(
                         'addSearchResults',
-                        false,
-                        this,
-                        loadingDomNode,
-                        this.$resultsDomNode.length,
-                        this.$currentSearchResultsDomNode || []
-                    )
+                        {detail: {
+                            loadingDomNode,
+                            resultsDomNode: this.resultsDomNode,
+                            currentSearchResultsDomNode:
+                                this.currentSearchResultsDomNode,
+                            target: this
+                        }}
+                    ))
                 )
                     /*
                         NOTE: Cast to string because specified signature misses
                         valid wrapped dom node type.
                     */
-                    this.$resultsDomNode.html(
-                        loadingDomNode as unknown as string
-                    )
-                if (this.$currentSearchResultsDomNode?.length)
-                    this.fireEvent(
+                    this.resultsDomNode.appendChild(loadingDomNode)
+                if (this.currentSearchResultsDomNode)
+                    this.dispatchEvent(new CustomEvent(
                         'removeSearchResults',
-                        false,
-                        this,
-                        this.$currentSearchResultsDomNode
+                        {detail: {
+                            currentSearchResultsDomNode:
+                                this.currentSearchResultsDomNode,
+                            target: this
+                        }}
                     )
-                this.$currentSearchResultsDomNode = loadingDomNode
+                this.currentSearchResultsDomNode = loadingDomNode
                 this.currentSearchWords = searchText.split(' ')
                 this.currentSearchSegments = this.currentSearchWords
                 if (!this.currentSearchSegments.includes(searchText))
@@ -1005,8 +1011,8 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
         places:Array<MapPlaceResult>, searchText:string
     ):void {
         const searchResults:Array<Item> = []
-        const searchOptions:SearchOptions =
-            this.resolvedConfiguration.search as SearchOptions
+        const searchOptions:SearchConfiguration =
+            this.resolvedConfiguration.search as SearchConfiguration
         /*
             NOTE: Since google text search doesn't support sorting by distance
             we have to sort by our own.
@@ -1082,8 +1088,8 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     performLocalSearch(
         searchText:string, searchResults:Array<Item> = []
     ):void {
-        const searchOptions:SearchOptions =
-            this.resolvedConfiguration.search as SearchOptions
+        const searchOptions:SearchConfiguration =
+            this.resolvedConfiguration.search as SearchConfiguration
         const numberOfGenericSearchResults:number = searchResults.length
         const defaultProperties:Array<string>|null =
             searchOptions.hasOwnProperty('properties') ?
@@ -1181,14 +1187,16 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                 $(resultsRepresentation)
             if (
                 this.$resultsDomNode.length &&
-                this.fireEvent(
+                this.dispatchEvent(new CustomEvent(
                     'addSearchResults',
-                    false,
-                    this,
-                    resultsRepresentationDomNode,
-                    this.$resultsDomNode,
-                    this.$currentSearchResultsDomNode || []
-                )
+                    {detail: {
+                        resultsRepresentationDomNode,
+                        resultsDomNode: this.$resultsDomNode,
+                        currenSearchResultsDomNode:
+                            this.currentSearchResultsDomNode,
+                        target: this
+                    }}
+                ))
             )
                 /*
                     NOTE: Cast to string because specified signature misses
@@ -1197,15 +1205,17 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                 this.$resultsDomNode.html(
                     resultsRepresentationDomNode as unknown as string
                 )
-            if (this.$currentSearchResultsDomNode?.length)
-                this.fireEvent(
+            if (this.currentSearchResultsDomNode)
+                this.dispatchEvent(new CustomEvent(
                     'removeSearchResults',
-                    false,
-                    this,
-                    this.$currentSearchResultsDomNode
-                )
-            this.$currentSearchResultsDomNode = resultsRepresentationDomNode
-            this.releaseLock(`${this.self._name}Search`)
+                    {detail: {
+                        currentSearchResultsDomNode:
+                            this.currentSearchResultsDomNode,
+                        target: this
+                    }}
+                ))
+            this.currentSearchResultsDomNode = resultsRepresentationDomNode
+            this.tools.releaseLock(`${this.self._name}Search`)
         })
         this.currentSearchText = searchText
         this.currentSearchResults = searchResults.slice()
@@ -1222,9 +1232,13 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
         if (
             this.$resultsDomNode.length &&
             !this.$resultsDomNode.hasClass('open') &&
-            this.fireEvent(
-                'openSearchResults', false, this, event, this.$resultsDomNode
-            )
+            this.dispatchEvent(new CustomEvent(
+                'openSearchResults',
+                {detail: {
+                    resultsDomNode: this.$resultsDomNode,
+                    target: this
+                }}
+            ))
         ) {
             for (const propertyName in this.searchResultsStyleProperties)
                 if (this.searchResultsStyleProperties.hasOwnProperty(
@@ -1248,9 +1262,13 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
             event.stopPropagation()
         if (
             this.$resultsDomNode?.hasClass('open') &&
-            this.fireEvent(
-                'closeSearchResults', false, this, event, this.$resultsDomNode
-            )
+            this.dispatchEvent(new CustomEvent(
+                'closeSearchResults',
+                {detail: {
+                    currentSearchResultsDomNode: this.$resultsDomNode,
+                    target: this
+                }}
+            ))
         ) {
             for (const propertyName in this.searchResultsStyleProperties)
                 if (this.searchResultsStyleProperties.hasOwnProperty(
@@ -1267,7 +1285,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      */
     initializeGenericSearch():void {
         const searchBox:MapSearchBox = new this.self.maps.places.SearchBox(
-            this.$input[0],
+            this.input,
             {bounds: new this.self.maps.LatLngBounds(
                 new this.self.maps.LatLng(
                     this.resolvedConfiguration.limit.southWest.latitude,
@@ -1431,7 +1449,7 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
      */
     onLoaded():void {
         Tools.timeout(():$DomNode =>
-            this.$input.animate(
+            $(this.input).animate(
                 ...this.resolvedConfiguration.input.showAnimation
             ),
             this.resolvedConfiguration.showInputAfterLoadedDelayInMilliseconds
@@ -1579,25 +1597,42 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
             this.currentlyOpenWindow === item.infoWindow
         )
             return
-        this.fireEvent('infoWindowOpen', false, this, event, item)
-        const infoWindow:InfoWindow = item.infoWindow as InfoWindow
-        item.refreshSize = ():void =>
-            // Simulates a content update to enforce info box size adjusting.
-            infoWindow.setContent(infoWindow.getContent())
-        infoWindow.setContent(this.resolvedConfiguration.infoWindow.loadingContent)
-        infoWindow.setContent(await this.makeInfoWindow(item))
-        if (this.currentlyOpenWindow) {
-            this.currentlyOpenWindow.isOpen = false
-            this.currentlyOpenWindow.close()
+        if (this.dispatchEvent(new CustomEvent(
+            'infoWindowOpen',
+            {detail: {
+                event,
+                item,
+                target: this
+            }}
+        ))) {
+            const infoWindow:InfoWindow = item.infoWindow as InfoWindow
+            item.refreshSize = ():void =>
+                /*
+                    Simulates a content update to enforce info box size
+                    adjusting.
+                */
+                infoWindow.setContent(infoWindow.getContent())
+            infoWindow.setContent(
+                this.resolvedConfiguration.infoWindow.loadingContent
+            )
+            infoWindow.setContent(await this.makeInfoWindow(item))
+            if (this.currentlyOpenWindow) {
+                this.currentlyOpenWindow.isOpen = false
+                this.currentlyOpenWindow.close()
+            }
+            infoWindow.isOpen = true
+            this.currentlyOpenWindow = infoWindow
+            infoWindow.open(this.map, item.marker)
+            this.map.panTo(item.position as MapPosition)
+            this.map.panBy(
+                0,
+                -this.resolvedConfiguration.infoWindow
+                    .additionalMoveToBottomInPixel
+            )
+            this.dispatchEvent(new CustomEvent(
+                'infoWindowOpened', {event, item, target: this
+            ))
         }
-        infoWindow.isOpen = true
-        this.currentlyOpenWindow = infoWindow
-        infoWindow.open(this.map, item.marker)
-        this.map.panTo(item.position as MapPosition)
-        this.map.panBy(
-            0, -this.resolvedConfiguration.infoWindow.additionalMoveToBottomInPixel
-        )
-        this.fireEvent('infoWindowOpened', false, this, event, item)
     }
     /**
      * Focuses given place on map.
@@ -1663,7 +1698,9 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
                     item.isHighlighted = true
                     this.currentlyHighlightedItem = item
                 }
-                this.fireEvent('markerHighlighted', true, this, item)
+                this.dispatchEvent(new CustomEvent(
+                    'markerHighlighted', {detail: {item, target: this}}
+                ))
             }
     }
     /**
@@ -1712,8 +1749,8 @@ export class StoreLocator<TElement = HTMLElement> extends Web<TElement> {
     async makeSearchResults(
         searchResults:Array<Item>, limitReached:boolean
     ):Promise<string> {
-        const searchOptions:SearchOptions =
-            this.resolvedConfiguration.search as SearchOptions
+        const searchOptions:SearchConfiguration =
+            this.resolvedConfiguration.search as SearchConfiguration
         if (searchOptions.content) {
             if (Tools.isFunction(searchOptions.content)) {
                 const result:Promise<string>|string =
