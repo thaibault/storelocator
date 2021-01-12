@@ -14,6 +14,8 @@
     endregion
 */
 // region imports
+import Tools from 'clientnode'
+
 import api, {StoreLocator} from './index'
 // endregion
 const name:string = 'test-store-locator'
@@ -58,6 +60,7 @@ describe('StoreLocator', ():void => {
             }
         },
     } as unknown as typeof google
+    beforeAll(():Promise<void> => StoreLocator.applicationInterfaceLoad)
     // endregion
     // region tests
     test('custom element definition', ():void => {
@@ -77,13 +80,12 @@ describe('StoreLocator', ():void => {
         expect(storeLocator).toHaveProperty('configuration.value', 2)
         expect(storeLocator).toHaveProperty('resolvedConfiguration.value', 2)
     })
-    test('initialisation', ():Promise<void> => {
+    test('initialisation', ():void => {
         const storeLocator:StoreLocator =
             document.createElement(name) as StoreLocator
         document.body.appendChild(storeLocator)
 
-
-        $domNode = await $('store-locator').StoreLocator({
+        storeLocator.setAttribute('configuration', JSON.stringify({
             applicationInterface: {
                 key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
             },
@@ -104,23 +106,25 @@ describe('StoreLocator', ():void => {
                 name: '1 & 1 Telecom GmbH',
                 phoneNumber: '+49 721 9600'
             }]
-        })
-        storeLocator = $domNode.data(storeLocatorClass._name)
+        }))
     })
+    test('search results', async ():Promise<void> => {
+        const storeLocator:StoreLocator =
+            document.createElement(name) as StoreLocator
+        document.body.appendChild(storeLocator)
 
-    test('search results', ():void => {
-        expect($domNode.children('div').length).toBeGreaterThan(0)
-        const $inputDomNode:$DomNode<HTMLInputElement> =
-            $domNode.find('input')
-        expect($inputDomNode.length).toBeGreaterThan(0)
-        $inputDomNode.val('a')
-        $inputDomNode.trigger({
-            keyCode: Tools.keyCode.a,
-            type: 'keyup'
-        } as JQuery.Event)
+        expect(Array.from(storeLocator.querySelectorAll('div')).length)
+            .toBeGreaterThan(0)
+        const inputDomNode:HTMLInputElement =
+            storeLocator.querySelector('input')
+        expect(inputDomNode).toBeDefined()
+        inputDomNode.value = 'a'
+        inputDomNode.dispatchEvent(
+            new KeyboardEvent('keyup', {key: Tools.keyCode.a})
+        )
         await Tools.timeout()
-        expect($domNode.find('.store-locator-search-results').length)
-            .toStrictEqual(1)
+        expect(storeLocator.querySelector('.store-locator-search-results'))
+            .toBeDefined()
     })
     // endregion
 })
