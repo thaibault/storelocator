@@ -116,12 +116,10 @@ describe('StoreLocator', ():void => {
         expect(Array.from(storeLocator.querySelectorAll('div')).length)
             .toBeGreaterThan(0)
         const inputDomNode:HTMLInputElement =
-            storeLocator.querySelector('input')
+            storeLocator.querySelector('input') as HTMLInputElement
         expect(inputDomNode).toBeDefined()
         inputDomNode.value = 'a'
-        inputDomNode.dispatchEvent(
-            new KeyboardEvent('keyup', {key: Tools.keyCode.a})
-        )
+        inputDomNode.dispatchEvent(new KeyboardEvent('keyup', {key: 'a'}))
         await Tools.timeout()
         expect(storeLocator.querySelector('.store-locator-search-results'))
             .toBeDefined()
