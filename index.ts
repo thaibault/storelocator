@@ -279,7 +279,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     markerClusterer:MarkerClusterer|null = null
     resetMarkerCluster:Function|null = null
 
-    input:HTMLInputElement = null as unknown as HTMLInputElement
+    inputDomNode:HTMLInputElement = null as unknown as HTMLInputElement
     resultsDomNode:HTMLDivElement|null = null
 
     readonly self:typeof StoreLocator = StoreLocator
@@ -330,6 +330,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      * @returns A promise resolving to nothing.
      */
     async render():Promise<void> {
+        this.inputDomNode =
+            this.root.querySelector('input') as HTMLInputElement
         $(this.root)
             .find(this.resolvedConfiguration.input.selector)
             .css(this.resolvedConfiguration.input.hide)
@@ -339,8 +341,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             resolve:ProcedureFunction
             resolved:boolean
         } = {
-            resolve: Tools.noop,
             reject: Tools.noop,
+            resolve: Tools.noop,
             resolved: false
         }
         if (typeof this.self.applicationInterfaceLoad !== 'object') {
@@ -601,7 +603,10 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     fallbackTimeout.clear()
                     loaded = true
                     if (textStatus === 'success')
-                        // Check if determined location is within defined bounds.
+                        /*
+                            Check if determined location is within defined
+                            bounds.
+                        */
                         if (
                             !this.resolvedConfiguration
                                 .ipToLocationApplicationInterface.bounds ||
@@ -629,7 +634,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                                 currentLocation.longitude
                             ))
                         )
-                            this.resolvedConfiguration.startLocation = currentLocation
+                            this.resolvedConfiguration.startLocation =
+                                currentLocation
                     await this.initializeMap()
                     resolve()
                 }
@@ -781,10 +787,9 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             }
             resolve(this.items)
         })
-        this.input = this.root.querySelector('input') as HTMLInputElement
         // Create the search box and link it to the UI element.
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
-            .push(this.input)
+            .push(this.inputDomNode)
         if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
         else {
@@ -846,7 +851,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     initializeDataSourceSearchResultsBox():void {
         this.searchResultsStyleProperties = {}
         const allStyleProperties:Mapping<number|string> =
-            $(this.input).Tools('style')
+            $(this.inputDomNode).Tools('style')
         for (const propertyName in allStyleProperties)
             if (
                 (this.resolvedConfiguration.search as SearchConfiguration)
@@ -855,7 +860,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
-        const outerHeight:number|undefined = $(this.input).outerHeight(true)
+        const outerHeight:number|undefined =
+            $(this.inputDomNode).outerHeight(true)
         if (outerHeight)
             this.searchResultsStyleProperties.marginTop = outerHeight
         // Prepare search result positioning.
@@ -865,8 +871,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             ))
             .css(this.searchResultsStyleProperties)[0] as HTMLDivElement
         // Inject the final search results into the dom tree.
-        this.input.parentNode!
-            .insertBefore(this.resultsDomNode, this.input.nextSibling)
+        this.inputDomNode.parentNode!
+            .insertBefore(this.resultsDomNode, this.inputDomNode.nextSibling)
     }
     /**
      * Initializes a data source based search box to open and focus them
@@ -875,10 +881,12 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      */
     initializeDataSourceSearch():void {
         this.root.addEventListener('keydown', this.onKeyDown as EventListener)
-        this.input.addEventListener('click', this.onInputClick)
-        this.input.addEventListener('focus', this.onInputFocus)
-        this.input.addEventListener('keydown', this.onInputKeyDown)
-        this.input.addEventListener('keyup', this.updateSearchResultsHandler)
+        this.inputDomNode.addEventListener('click', this.onInputClick)
+        this.inputDomNode.addEventListener('focus', this.onInputFocus)
+        this.inputDomNode.addEventListener('keydown', this.onInputKeyDown)
+        this.inputDomNode.addEventListener(
+            'keyup', this.updateSearchResultsHandler
+        )
         this.self.maps.event.addListenerOnce(
             this.map, 'center_changed', this.onMapCenterChanged
         )
@@ -913,7 +921,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                         return
                 await this.tools.acquireLock(`${this.self._name}Search`)
                 const searchText:string =
-                    searchOptions.normalizer(this.input.value)
+                    searchOptions.normalizer(this.inputDomNode.value)
                 if (
                     this.currentSearchText === searchText &&
                     !this.searchResultsDirty
@@ -1285,7 +1293,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      */
     initializeGenericSearch():void {
         const searchBox:MapSearchBox = new this.self.maps.places.SearchBox(
-            this.input,
+            this.inputDomNode,
             {bounds: new this.self.maps.LatLngBounds(
                 new this.self.maps.LatLng(
                     this.resolvedConfiguration.limit.southWest.latitude,
@@ -1449,7 +1457,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      */
     onLoaded():void {
         Tools.timeout(():$DomNode =>
-            $(this.input).animate(
+            $(this.inputDomNode).animate(
                 ...this.resolvedConfiguration.input.showAnimation
             ),
             this.resolvedConfiguration.showInputAfterLoadedDelayInMilliseconds

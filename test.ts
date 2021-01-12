@@ -15,6 +15,7 @@
 */
 // region imports
 import Tools from 'clientnode'
+import {ProcedureFunction} from 'clientnode/type'
 
 import api, {StoreLocator} from './index'
 // endregion
@@ -40,7 +41,10 @@ describe('StoreLocator', ():void => {
                 addListenerOnce: Tools.noop
             },
             InfoWindow: Tools.noop,
-            LatLng: Tools.noop,
+            LatLng: class {
+                lat = ():number => 1
+                lng = ():number => 1
+            },
             LatLngBounds: class {
                 contains:Function = ():true => true
             },
@@ -111,16 +115,23 @@ describe('StoreLocator', ():void => {
     test('search results', async ():Promise<void> => {
         const storeLocator:StoreLocator =
             document.createElement(name) as StoreLocator
+        await new Promise((resolve:ProcedureFunction):void =>
+            storeLocator.addEventListener('loaded', resolve)
+        )
         document.body.appendChild(storeLocator)
 
         expect(Array.from(storeLocator.querySelectorAll('div')).length)
             .toBeGreaterThan(0)
+
         const inputDomNode:HTMLInputElement =
             storeLocator.querySelector('input') as HTMLInputElement
         expect(inputDomNode).toBeDefined()
+
         inputDomNode.value = 'a'
         inputDomNode.dispatchEvent(new KeyboardEvent('keyup', {key: 'a'}))
+
         await Tools.timeout()
+
         expect(storeLocator.querySelector('.store-locator-search-results'))
             .toBeDefined()
     })
