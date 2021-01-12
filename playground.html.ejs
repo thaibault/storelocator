@@ -49,6 +49,10 @@
         <%-
             include(
                 'web-component-wrapper/polyfill.html',
+                {additionalFeatures: [
+                    // MDC-Select - Throws about missing object.
+                    'CustomEvent'
+                ]}
             )
         %>
         <!--endregion-->
@@ -81,6 +85,7 @@
                 storelocator.index.api.register()
             }
         </script>
+        <!--endregion-->
     </head>
     <body>
         <store-locator configuration="{
@@ -223,7 +228,7 @@
                     websiteURL: 'http://www.zweirad-butschko.de'
                 }
             ]
-        }"><input></store-locator>
+        }"><input slot="input" /></store-locator>
     </body>
 <html>
 <%_ /*

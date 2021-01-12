@@ -130,9 +130,6 @@ export type Position = {
     longitude:number
 }
 export type SearchConfiguration = {
-    content?:string|((searchResults:Array<Item>, limitReached:boolean) =>
-        Promise<string>|string
-    )
     generic:{
         filter:(place:MapPlaceResult) => boolean
         maximalDistanceInMeter:number
@@ -140,7 +137,6 @@ export type SearchConfiguration = {
         prefer:boolean
         retrieveOptions:MapTextSearchRequest
     },
-    loadingContent:string
     maximumNumberOfResults:number
     noResultsContent:string
     normalizer:(value:string) => string
@@ -160,12 +156,7 @@ export type Configuration = {
     distanceToMoveByDuplicatedEntries:number
     fallbackLocation:Position
     iconPath:string
-    infoWindow:{
-        additionalMoveToBottomInPixel:number
-        content?:((item:Item, ...additionalParameter:Array<any>) =>
-            Promise<string>|string)|null|string
-        loadingContent:string
-    }
+    infoWindow:{additionalMoveToBottomInPixel:number}
     input:{
         hide:Mapping<number|string>
         selector:string
@@ -195,13 +186,6 @@ export type Configuration = {
         }
     }
     name:string
-    onInfoWindowOpen:Function
-    onInfoWindowOpened:Function
-    onAddSearchResults:Function
-    onRemoveSearchResults:Function
-    onOpenSearchResults:Function
-    onCloseSearchResults:Function
-    onMarkerHighlighted:Function
     search:number|SearchConfiguration
     showInputAfterLoadedDelayInMilliseconds:number
     startLocation?:null|Position

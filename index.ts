@@ -64,7 +64,7 @@ import {
 // endregion
 // region components
 /**
- * A storelocator component to represent searchable/clusterable items on an
+ * A store locator component to represent searchable items grouped on an
  * interactive map.
  * @property static:applicationInterfaceLoad - Holds the currently promise to
  * retrieve a new maps application interface.
@@ -73,6 +73,15 @@ import {
  * @property static:defaultSearchConfiguration - Sets default search box
  * options.
  * @property static:maps - Holds the currently used maps scope.
+ *
+ * @property configuration - Holds given configuration object.
+ * @property resolvedConfiguration - Holds resolved configuration object.
+ * @property urlConfiguration - URL given configurations object.
+ *
+ * @property items - Holds all recognized stores to represent as marker.
+ * @property searchResultsStyleProperties - Dynamically computed CSS properties
+ * to append to search result list (derived from search input field).
+ * @property seenLocations - Saves all seen locations to recognize duplicates.
  *
  * @property currentlyHighlightedItem - Holds currently highlighted item.
  * @property currentlyOpenWindow - Holds currently opened window instance.
@@ -85,23 +94,43 @@ import {
  * @property currentSearchSegments - Saves last searched segments.
  * @property currentSearchText - Saves last searched string.
  * @property currentSearchWords - Saves last searched words.
- * @property items - Holds all recognized stores to represent as marker.
+ * @property searchResultsDirty - Indicates whether current search results
+ * aren't valid anymore.
+ *
  * @property map - Holds the currently used map instance.
  * @property markerClusterer - Holds the currently used marker cluster
  * instance.
+ * @property resetMarkerCluster - API-method to reset marker cluster.
+ *
+ * @property inputDomNode - Search box input node.
+ * @property infoWindowDomNode - Window which is opened when a marker is
+ * focused.
+ * @property loadingInfoWindowDomNode - Node to show during info window
+ * loading.
+ * @property loadingSearchDomNode - Node to show during search result loading.
+ * @property searchResultsDomNode - Node to represent search results.
  * @property resultsDomNode - Saves currently opened results dom node or null
  * if no results exists yet.
- * @property searchResultsDirty - Indicates whether current search results
- * aren't valid anymore.
- * @property searchResultsStyleProperties - Dynamically computed CSS properties
- * to append to search result list (derived from search input field).
- * @property seenLocations - Saves all seen locations to recognize duplicates.
  *
- * @property resolvedConfiguration - Holds given configuration object.
- * @property urlConfiguration - URL given configurations object.
+ * @property tools - Holds tools instance for saving instance specific locks.
  */
 export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TElement> {
     static applicationInterfaceLoad:Promise<void>
+    static content:string = `
+        <div>
+            <slot name="input"><input /></slot>
+            <slot name="infoWindow"></slot>
+            <slot name="loadingInfoWindow">
+                <div class="idle">loading...</div>
+            </slot>
+            <slot name="loadingSearch">
+                <div class="idle">loading...</div>
+            </slot>
+            <slot name="searchResults">
+                <div class="no-results">No results found</div>
+            </slot>
+        </div>
+    `
     static defaultConfiguration:Configuration = {
         additionalStoreProperties: {},
         applicationInterface: {
@@ -121,14 +150,9 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         distanceToMoveByDuplicatedEntries: 0.0001,
         fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
         iconPath: '',
-        infoWindow: {
-            additionalMoveToBottomInPixel: 120,
-            content: null,
-            loadingContent: '<div class="idle">loading...</div>'
-        },
+        infoWindow: {additionalMoveToBottomInPixel: 120},
         input: {
             hide: {opacity: 0},
-            selector: 'input',
             showAnimation: [{opacity: 1}, {duration: 'fast'}]
         },
         ip: 'check',
@@ -151,12 +175,12 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             southWest: {latitude: -85, longitude: -180}
         },
         map: {
+            disableDefaultUI: true,
             maxZoom: 0,
             minZoom: 9999,
+            streetViewControl: true,
             zoom: 3,
-            disableDefaultUI: true,
-            zoomControl: true,
-            streetViewControl: true
+            zoomControl: true
         },
         marker: {
             cluster: {
@@ -174,13 +198,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             }
         },
         name: 'storeLocator',
-        onInfoWindowOpen: Tools.noop,
-        onInfoWindowOpened: Tools.noop,
-        onAddSearchResults: Tools.noop,
-        onRemoveSearchResults: Tools.noop,
-        onOpenSearchResults: Tools.noop,
-        onCloseSearchResults: Tools.noop,
-        onMarkerHighlighted: Tools.noop,
         search: 50,
         showInputAfterLoadedDelayInMilliseconds: 500,
         startLocation: null,
@@ -217,9 +234,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             prefer: true,
             retrieveOptions: {radius: 50000, query: ''}
         },
-        loadingContent: '<div class="idle">loading...</div>',
         maximumNumberOfResults: 50,
-        noResultsContent: '<div class="no-results">No results found</div>',
         normalizer: (value:string):string =>
             `${value}`
                 .toLowerCase()
@@ -261,6 +276,10 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     resolvedConfiguration:Configuration = {} as Configuration
     urlConfiguration:null|PlainObject = null
 
+    items:Array<Item> = []
+    searchResultsStyleProperties:Mapping<number|string> = {}
+    seenLocations:Array<string> = []
+
     currentlyHighlightedItem:Item|null = null
     currentlyOpenWindow:InfoWindow|null = null
     currentSearchResultRange:Array<number>|null = null
@@ -270,9 +289,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     currentSearchText:string|null = null
     currentSearchWords:Array<string> = []
     searchResultsDirty:boolean = false
-    items:Array<Item> = []
-    searchResultsStyleProperties:Mapping<number|string> = {}
-    seenLocations:Array<string> = []
 
     // NOTE: Will be initialized during bootstrapping.
     map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
@@ -331,81 +347,21 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      */
     async render():Promise<void> {
         this.inputDomNode =
-            this.root.querySelector('input') as HTMLInputElement
+            this.root.querySelector('[slot="input"]') as HTMLInputElement
+        this.infoWindowDomNode =
+            this.root.querySelector('[slot="infoWindow"]') as HTMLElement
+        this.loadingInfoWindowDomNode =
+            this.root.querySelector('[slot="loadingInfoWindow"]') as HTMLElement
+        this.loadingSearchDomNode =
+            this.root.querySelector('[slot="loadingSearch"]') as HTMLElement
+        this.searchResultsDomNode =
+            this.root.querySelector('[slot="searchResults"]') as HTMLElement
+
         $(this.root)
             .find(this.resolvedConfiguration.input.selector)
             .css(this.resolvedConfiguration.input.hide)
-        let loadInitialized:boolean = true
-        const applicationInterfaceLoadCallbacks:{
-            reject:ProcedureFunction
-            resolve:ProcedureFunction
-            resolved:boolean
-        } = {
-            reject: Tools.noop,
-            resolve: Tools.noop,
-            resolved: false
-        }
-        if (typeof this.self.applicationInterfaceLoad !== 'object') {
-            loadInitialized = false
-            this.self.applicationInterfaceLoad = new Promise((
-                resolve:ProcedureFunction, reject:ProcedureFunction
-            ):void => {
-                applicationInterfaceLoadCallbacks.resolve = ():void => {
-                    applicationInterfaceLoadCallbacks.resolved = true
-                    resolve()
-                }
-                applicationInterfaceLoadCallbacks.reject = reject
-            })
-        }
-        this.self.applicationInterfaceLoad
-            .then(this.bootstrap)
-            .then(():boolean =>
-                this.dispatchEvent(
-                    new CustomEvent('loaded', {detail: {target: this}})
-                )
-            )
-        if ($.global.window?.google?.maps) {
-            this.self.maps = $.global.window.google.maps
-            if (!applicationInterfaceLoadCallbacks.resolved)
-                Tools.timeout(():Promise<void>|void =>
-                    applicationInterfaceLoadCallbacks.resolve()
-                )
-        } else if (!loadInitialized) {
-            const callbackName:string =
-                this.resolvedConfiguration.applicationInterface.callbackName ?
-                    this.resolvedConfiguration.applicationInterface.callbackName :
-                    Tools.determineUniqueScopeName()
-            const callback:ProcedureFunction = ():void => {
-                if (!applicationInterfaceLoadCallbacks.resolved)
-                    if ($.global.window?.google?.maps) {
-                        this.self.maps = $.global.window.google.maps
-                        applicationInterfaceLoadCallbacks.resolve()
-                    } else
-                        applicationInterfaceLoadCallbacks.reject(
-                            new Error('No google maps environment set.')
-                        )
-            }
-            ;($.global as unknown as Mapping<Function>)[callbackName] = callback
-            $.getScript(Tools.stringFormat(
-                this.resolvedConfiguration.applicationInterface.url,
-                this.resolvedConfiguration.applicationInterface.key ?
-                    `key=${this.resolvedConfiguration.applicationInterface.key}&` :
-                    '',
-                (
-                    window === ($.global as unknown as Window) ?
-                        'window' :
-                        'global'
-                ) +
-                `.${callbackName}`
-            ))
-                .done(callback)
-                .fail((
-                    response:JQuery.jqXHR<string|undefined>,
-                    error:JQuery.Ajax.ErrorTextStatus
-                ):Promise<void>|void =>
-                    applicationInterfaceLoadCallbacks.reject(error)
-                )
-        }
+
+        await this.loadMapEnvironmentIfNotAvailable()
     }
     // endregion
     // region event handler
@@ -546,6 +502,91 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     }
     // / endregion
     /**
+     * Loads google map resources if not loaded yet (or loading triggered).
+     * Initializes map instances.
+     * @returns Promise resolving when everything is loaded and initialized.
+     */
+    loadMapEnvironmentIfNotAvailable():Promise<void> {
+        let loadInitialized:boolean = true
+        const applicationInterfaceLoadCallbacks:{
+            reject:ProcedureFunction
+            resolve:ProcedureFunction
+            resolved:boolean
+        } = {
+            reject: Tools.noop,
+            resolve: Tools.noop,
+            resolved: false
+        }
+        if (typeof this.self.applicationInterfaceLoad !== 'object') {
+            loadInitialized = false
+            this.self.applicationInterfaceLoad = new Promise((
+                resolve:ProcedureFunction, reject:ProcedureFunction
+            ):void => {
+                applicationInterfaceLoadCallbacks.resolve = ():void => {
+                    applicationInterfaceLoadCallbacks.resolved = true
+                    resolve()
+                }
+                applicationInterfaceLoadCallbacks.reject = reject
+            })
+        }
+
+        const result:Promise<void> = this.self.applicationInterfaceLoad
+            .then(this.bootstrap)
+            .then(():boolean =>
+                this.dispatchEvent(
+                    new CustomEvent('loaded', {detail: {target: this}})
+                )
+            )
+
+        if ($.global.window?.google?.maps) {
+            this.self.maps = $.global.window.google.maps
+            if (!applicationInterfaceLoadCallbacks.resolved)
+                Tools.timeout(():Promise<void>|void =>
+                    applicationInterfaceLoadCallbacks.resolve()
+                )
+        } else if (!loadInitialized) {
+            const callbackName:string =
+                this.resolvedConfiguration.applicationInterface.callbackName ?
+                    this.resolvedConfiguration.applicationInterface.callbackName :
+                    Tools.determineUniqueScopeName()
+
+            const callback:ProcedureFunction = ():void => {
+                if (!applicationInterfaceLoadCallbacks.resolved)
+                    if ($.global.window?.google?.maps) {
+                        this.self.maps = $.global.window.google.maps
+                        applicationInterfaceLoadCallbacks.resolve()
+                    } else
+                        applicationInterfaceLoadCallbacks.reject(
+                            new Error('No google maps environment set.')
+                        )
+            }
+            ;($.global as unknown as Mapping<Function>)[callbackName] =
+                callback
+
+            $.getScript(Tools.stringFormat(
+                this.resolvedConfiguration.applicationInterface.url,
+                this.resolvedConfiguration.applicationInterface.key ?
+                    `key=${this.resolvedConfiguration.applicationInterface.key}&` :
+                    '',
+                (
+                    window === ($.global as unknown as Window) ?
+                        'window' :
+                        'global'
+                ) +
+                `.${callbackName}`
+            ))
+                .done(callback)
+                .fail((
+                    response:JQuery.jqXHR<string|undefined>,
+                    error:JQuery.Ajax.ErrorTextStatus
+                ):Promise<void>|void =>
+                    applicationInterfaceLoadCallbacks.reject(error)
+                )
+        }
+
+        return result
+    }
+    /**
      * Determines useful location cluster, info windows and marker.
      * @returns Promise resolving to the current instance.
      */
@@ -568,32 +609,30 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         return new Promise((
             resolve:ProcedureFunction, reject:ProcedureFunction
         ):void => {
+            const ipToLocationAPIConfiguration:Configuration[
+                'ipToLocationApplicationInterface'
+            ] = this.resolvedConfiguration.ipToLocationApplicationInterface
+
             const fallbackTimeout:TimeoutPromise = Tools.timeout(
                 async ():Promise<void> => {
                     loaded = true
                     await this.initializeMap()
                     resolve()
                 },
-                this.resolvedConfiguration.ipToLocationApplicationInterface
-                    .timeoutInMilliseconds
+                ipToLocationAPIConfiguration.timeoutInMilliseconds
             )
             $.ajax({
                 cache: true,
                 dataType: 'jsonp',
                 url: Tools.stringFormat(
-                    this.resolvedConfiguration.ipToLocationApplicationInterface.url,
+                    ipToLocationAPIConfiguration.url,
                     (
-                        this.resolvedConfiguration.ipToLocationApplicationInterface
-                            .protocol &&
-                        !this.resolvedConfiguration.ipToLocationApplicationInterface
-                            .protocol.endsWith(':')
+                        ipToLocationAPIConfiguration.protocol &&
+                        !ipToLocationAPIConfiguration.protocol.endsWith(':')
                     ) ?
-                        this.resolvedConfiguration.ipToLocationApplicationInterface
-                            .protocol +
-                        ':' :
-                        this.resolvedConfiguration.ipToLocationApplicationInterface
-                            .protocol,
-                    this.resolvedConfiguration.ipToLocationApplicationInterface.key,
+                        `${ipToLocationAPIConfiguration.protocol}:` :
+                        ipToLocationAPIConfiguration.protocol,
+                    ipToLocationAPIConfiguration.key,
                     this.resolvedConfiguration.ip || ''
                 )
             }).always(async (
@@ -608,31 +647,25 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                             bounds.
                         */
                         if (
-                            !this.resolvedConfiguration
-                                .ipToLocationApplicationInterface.bounds ||
-                            (
-                                new this.self.maps.LatLngBounds(
-                                    new this.self.maps.LatLng(
-                                        this.resolvedConfiguration
-                                            .ipToLocationApplicationInterface
-                                            .bounds.southWest.latitude,
-                                        this.resolvedConfiguration
-                                            .ipToLocationApplicationInterface
-                                            .bounds.southWest.longitude
-                                    ),
-                                    new this.self.maps.LatLng(
-                                        this.resolvedConfiguration
-                                            .ipToLocationApplicationInterface
-                                            .bounds.northEast.latitude,
-                                        this.resolvedConfiguration
-                                            .ipToLocationApplicationInterface
-                                            .bounds.northEast.longitude
-                                    )
+                            !ipToLocationAPIConfiguration.bounds ||
+                            (new this.self.maps.LatLngBounds(
+                                new this.self.maps.LatLng(
+                                    ipToLocationAPIConfiguration
+                                        .bounds.southWest.latitude,
+                                    ipToLocationAPIConfiguration
+                                        .bounds.southWest.longitude
+                                ),
+                                new this.self.maps.LatLng(
+                                    ipToLocationAPIConfiguration
+                                        .bounds.northEast.latitude,
+                                    ipToLocationAPIConfiguration
+                                        .bounds.northEast.longitude
                                 )
-                            ).contains(new this.self.maps.LatLng(
-                                currentLocation.latitude,
-                                currentLocation.longitude
                             ))
+                                .contains(new this.self.maps.LatLng(
+                                    currentLocation.latitude,
+                                    currentLocation.longitude
+                                ))
                         )
                             this.resolvedConfiguration.startLocation =
                                 currentLocation
@@ -653,7 +686,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             startLocation.latitude, startLocation.longitude
         )
         ;(this.root as HTMLElement).style.display = 'block'
-        this.root.appendChild(document.createElement('div'))
         this.map = new this.self.maps.Map<TElement>(
             this.root as unknown as TElement, this.resolvedConfiguration.map
         )
@@ -742,7 +774,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                             Tools.extend(
                                 true,
                                 store,
-                                this.resolvedConfiguration.additionalStoreProperties
+                                this.resolvedConfiguration
+                                    .additionalStoreProperties
                             )
                             const marker:MapMarker = this.createMarker(store)
                             if (this.markerClusterer)
@@ -844,6 +877,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 )
         })
     }
+    // TODO
     /**
      * Position search results right below the search input field.
      * @returns Nothing.
@@ -1722,7 +1756,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     async makeInfoWindow(
         item:Item, ...additionalParameter:Array<any>
     ):Promise<string> {
-        if (this.resolvedConfiguration.infoWindow.content) {
+        if (this.infoWindowDomNode) {
+            // TODO
             if (Tools.isFunction(this.resolvedConfiguration.infoWindow.content)) {
                 const result:Promise<string>|string =
                     this.resolvedConfiguration.infoWindow.content(
