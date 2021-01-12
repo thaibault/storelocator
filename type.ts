@@ -93,7 +93,7 @@ export type PropertyTypes = {
     configuration:ValueOf<typeof PropertyTypes>
     dynamicConfiguration:ValueOf<typeof PropertyTypes>
 }
-export type Store = object & {
+export type Store = Mapping<any> & {
     latitude?:number
     longitude?:number
     markerIconFileName?:string

@@ -14,73 +14,75 @@
     endregion
 */
 // region imports
-import Tools, {augment$, determine$} from 'clientnode'
-import {$Global, $DomNode} from 'clientnode/type'
-import {getInitializedBrowser} from 'weboptimizer/browser'
-import {InitializedBrowser} from 'weboptimizer/type'
+import api, {StoreLocator} from './index'
+// endregion
+const name:string = 'test-store-locator'
+api.register(name)
 
-/*
-    NOTE: Import and use only as type. Since real loading should be delayed
-    until dom environment has been created.
-*/
-import StoreLocator from './index'
-// endregion
-// region declaration
-declare var TARGET_TECHNOLOGY:string
-// endregion
-let testEnvironment:string = 'browser'
-if (typeof TARGET_TECHNOLOGY === 'undefined' || TARGET_TECHNOLOGY === 'node') {
-    testEnvironment = typeof document === 'undefined' ?
-        'node' :
-        'node-with-dom'
-}
-describe(`StoreLocator (${testEnvironment})`, ():void => {
+describe('api', ():void => {
+    test('api definitions', ():void => {
+        expect(api).toBeDefined()
+        expect(api).toHaveProperty('component', StoreLocator)
+
+        expect(document.createElement(name)).toBeInstanceOf(StoreLocator)
+    })
+})
+describe('StoreLocator', ():void => {
     // region mockup
-    let $domNode:$DomNode
-    let storeLocator:StoreLocator
-    beforeAll(async ():Promise<void> => {
-        const browser:InitializedBrowser = await getInitializedBrowser()
-        globalThis.window = browser.window as Window & typeof globalThis
-        (globalThis as $Global).$ = require('jquery')
-        augment$(determine$())
-        /*
-            NOTE: Import plugin with side effects (augmenting "$" scope /
-            registering plugin) when other imports are only used as type.
-        */
-        const storeLocatorClass:typeof StoreLocator =
-            require('./index').default
-        if (testEnvironment !== 'browser')
-            globalThis.window.google = {
-                maps: {
-                    ControlPosition: {
-                        TOP_LEFT: 0
-                    },
-                    event: {
-                        addListenerOnce: Tools.noop
-                    },
-                    InfoWindow: Tools.noop,
-                    LatLng: Tools.noop,
-                    LatLngBounds: class {
-                        contains:Function = ():true => true
-                    },
-                    Map: class {
-                        controls:Array<Array<number>> = [[]]
-                        getCenter:Function = ():{} => ({})
-                    },
-                    Marker: Tools.noop,
-                    mockup: true,
-                    places: {
-                        PlacesService: class {
-                            textSearch:Function = (
-                                options:object, callback:Function
-                            ):void => callback([])
-                        },
-                        SearchBox: Tools.noop
-                    }
+    window.google = {
+        maps: {
+            ControlPosition: {
+                TOP_LEFT: 0
+            },
+            event: {
+                addListenerOnce: Tools.noop
+            },
+            InfoWindow: Tools.noop,
+            LatLng: Tools.noop,
+            LatLngBounds: class {
+                contains:Function = ():true => true
+            },
+            Map: class {
+                controls:Array<Array<number>> = [[]]
+                getCenter:Function = ():{} => ({})
+            },
+            Marker: Tools.noop,
+            mockup: true,
+            places: {
+                PlacesService: class {
+                    textSearch:Function = (
+                        options:object, callback:Function
+                    ):void => callback([])
                 },
-            } as unknown as typeof google
-        $(window.document.body)
-            .append('<store-locator><input></store-locator>')
+                SearchBox: Tools.noop
+            }
+        },
+    } as unknown as typeof google
+    // endregion
+    // region tests
+    test('custom element definition', ():void => {
+        const storeLocator:StoreLocator =
+            document.createElement(name) as StoreLocator
+        document.body.appendChild(storeLocator)
+
+        expect(storeLocator).toBeDefined()
+    })
+    test('attribute configuration', ():void => {
+        const storeLocator:StoreLocator =
+            document.createElement(name) as StoreLocator
+        document.body.appendChild(storeLocator)
+
+        storeLocator.setAttribute('configuration', '{value: 2}')
+
+        expect(storeLocator).toHaveProperty('configuration.value', 2)
+        expect(storeLocator).toHaveProperty('resolvedConfiguration.value', 2)
+    })
+    test('initialisation', ():Promise<void> => {
+        const storeLocator:StoreLocator =
+            document.createElement(name) as StoreLocator
+        document.body.appendChild(storeLocator)
+
+
         $domNode = await $('store-locator').StoreLocator({
             applicationInterface: {
                 key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
@@ -105,24 +107,20 @@ describe(`StoreLocator (${testEnvironment})`, ():void => {
         })
         storeLocator = $domNode.data(storeLocatorClass._name)
     })
-    // endregion
-    // region tests 
-    test('initialize', async ():Promise<void> => {
-        expect(storeLocator).toBeDefined()
-        if (testEnvironment !== 'node') {
-            expect($domNode.children('div').length).toBeGreaterThan(0)
-            const $inputDomNode:$DomNode<HTMLInputElement> =
-                $domNode.find('input')
-            expect($inputDomNode.length).toBeGreaterThan(0)
-            $inputDomNode.val('a')
-            $inputDomNode.trigger({
-                keyCode: Tools.keyCode.a,
-                type: 'keyup'
-            } as JQuery.Event)
-            await Tools.timeout()
-            expect($domNode.find('.store-locator-search-results').length)
-                .toStrictEqual(1)
-        }
+
+    test('search results', ():void => {
+        expect($domNode.children('div').length).toBeGreaterThan(0)
+        const $inputDomNode:$DomNode<HTMLInputElement> =
+            $domNode.find('input')
+        expect($inputDomNode.length).toBeGreaterThan(0)
+        $inputDomNode.val('a')
+        $inputDomNode.trigger({
+            keyCode: Tools.keyCode.a,
+            type: 'keyup'
+        } as JQuery.Event)
+        await Tools.timeout()
+        expect($domNode.find('.store-locator-search-results').length)
+            .toStrictEqual(1)
     })
     // endregion
 })
