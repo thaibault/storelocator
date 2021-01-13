@@ -85,6 +85,8 @@ import {
  *
  * @property highlightedItem - Holds currently highlighted item.
  * @property openWindow - Holds currently opened window instance.
+ * @property searchBoxInitialized - Indicates whether search results have been
+ * initialized yet.
  * @property searchResultRange - Public editable property to set current search
  * result range. This is useful for pagination implementations in template
  * level.
@@ -103,11 +105,8 @@ import {
  * @property inputDomNode - Search box input node.
  * @property infoWindowDomNode - Window which is opened when a marker is
  * focused.
- * @property loadingInfoWindowDomNode - Node to show during info window
- * loading.
- * @property loadingSearchDomNode - Node to show during search result loading.
- * @property resultsDomNode - Saves currently opened results dom node or null
- * if no results exists yet.
+ * @property searchResultsDomNode - Saves currently opened results dom node or
+ * null if no results exists yet.
  *
  * @property tools - Holds tools instance for saving instance specific locks.
  */
@@ -279,6 +278,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
 
     highlightedItem:Item|null = null
     openWindow:InfoWindow|null = null
+    searchBoxInitialized:boolean = true
     searchResultRange:Array<number>|null = null
     searchResults:Array<Item> = []
     searchSegments:Array<string> = []
@@ -293,8 +293,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
 
     inputDomNode:HTMLInputElement = null as unknown as HTMLInputElement
     infoWindowDomNode:HTMLElement = null as unknown as HTMLElement
-    loadingInfoWindowDomNode:HTMLElement = null as unknown as HTMLElement
-    loadingSearchDomNode:HTMLElement = null as unknown as HTMLElement
     searchResultsDomNode:HTMLElelemt = null as unknown as HTMLElement
 
     readonly self:typeof StoreLocator = StoreLocator
@@ -349,10 +347,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             this.root.querySelector('[slot="input"]') as HTMLInputElement
         this.infoWindowDomNode =
             this.root.querySelector('[slot="infoWindow"]') as HTMLElement
-        this.loadingInfoWindowDomNode =
-            this.root.querySelector('[slot="loadingInfoWindow"]') as HTMLElement
-        this.loadingSearchDomNode =
-            this.root.querySelector('[slot="loadingSearch"]') as HTMLElement
         this.searchResultsDomNode =
             this.root.querySelector('[slot="searchResults"]') as HTMLElement
 
@@ -871,7 +865,9 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      * Position search results right below the search input field.
      * @returns Nothing.
      */
-    initializeDataSourceSearchResultsBox():void {
+    initializeSearchResultsBox():void {
+        this.searchBoxInitialized = true
+
         this.searchResultsStyleProperties = {}
         const allStyleProperties:Mapping<number|string> =
             $(this.inputDomNode).Tools('style')
@@ -883,22 +879,22 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             )
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
+
         const outerHeight:number|undefined =
             $(this.inputDomNode).outerHeight(true)
         if (outerHeight)
             this.searchResultsStyleProperties.marginTop = outerHeight
+
         // Prepare search result positioning.
-        this.resultsDomNode = $('<div>')
-            .addClass(Tools.stringCamelCaseToDelimited(
-                `${this.self._name}SearchResults`
-            ))
-            .css(this.searchResultsStyleProperties)[0] as HTMLDivElement
+        $(this.searchResultsDomNode).css(this.searchResultsStyleProperties)
+
         /*
             Inject the final search results into the dom tree next to the input
             node.
         */
-        this.inputDomNode.parentNode!
-            .insertBefore(this.resultsDomNode, this.inputDomNode.nextSibling)
+        this.inputDomNode.parentNode!.insertBefore(
+            this.resultsDomNode, this.inputDomNode.nextSibling
+        )
     }
     /**
      * Initializes a data source based search box to open and focus them
@@ -946,15 +942,18 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                         ].includes(name)
                     )
                         return
+
                 await this.tools.acquireLock(`${this.self._name}Search`)
+
                 const searchText:string =
                     searchOptions.normalizer(this.inputDomNode.value)
                 if (this.searchText === searchText && !this.searchResultsDirty)
                     return this.tools.releaseLock(`${this.self._name}Search`)
+
                 this.searchResultsDirty = false
-                if (!this.resultsDomNode)
-                    this.initializeDataSourceSearchResultsBox()
-                if (!searchText && this.resultsDomNode) {
+                if (!this.searchBoxInitialized)
+                    this.initializeSearchResultsBox()
+                if (!searchText && this.searchResults.length) {
                     this.searchResults = []
                     this.searchText = ''
                     this.resultsDomNode.innerHTML = ''
@@ -964,33 +963,34 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                         this.closeSearchResults()
                     return this.tools.releaseLock(`${this.self._name}Search`)
                 }
+
+                this.searchWords = searchText.split(' ')
+                this.searchSegments = this.searchWords
+                if (!this.searchSegments.includes(searchText))
+                    this.searchSegments.push(searchText)
+
                 this.openSearchResults()
-                const loadingDomNode:HTMLElement =
-                    this.loadingSearchDomNode.cloneNode(true)
                 if (
-                    this.resultsDomNode &&
+                    this.searchResultsDomNode &&
                     this.dispatchEvent(new CustomEvent(
-                        'addSearchResults',
-                        {detail: {
-                            loadingDomNode,
-                            resultsDomNode: this.resultsDomNode,
-                            target: this
-                        }}
+                        'loadSearchResults', {detail: {target: this}}
                     ))
                 )
                     /*
                         NOTE: Cast to string because specified signature misses
                         valid wrapped dom node type.
                     */
-                    this.resultsDomNode.appendChild(loadingDomNode)
-                if (this.currentSearchResultsDomNode)
-                    this.dispatchEvent(new CustomEvent(
-                        'removeSearchResults', {detail: {target: this}}
-                    ))
-                this.searchWords = searchText.split(' ')
-                this.searchSegments = this.searchWords
-                if (!this.searchSegments.includes(searchText))
-                    this.searchSegments.push(searchText)
+                    this.self.evaluateDomNode(
+                        this.searchResultsDomNode,
+                        {
+                            instance: this,
+                            loading: true,
+                            searchSegments: this.searchSegments,
+                            searchText: this.searchText,
+                            searchWords: this.searchWords
+                        }
+                    )
+
                 if (searchOptions.generic.number)
                     /*
                         NOTE: Google searches for more items than exists in the
@@ -1030,6 +1030,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         const searchResults:Array<Item> = []
         const searchOptions:SearchConfiguration =
             this.resolvedConfiguration.search as SearchConfiguration
+
         /*
             NOTE: Since google text search doesn't support sorting by distance
             we have to sort by our own.
@@ -1053,6 +1054,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             return firstDistance - secondDistance
         })) {
             index += 1
+
             let distance:number = 0
             if (place.geometry)
                 distance = this.self.maps.geometry.spherical
@@ -1061,6 +1063,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     )
             if (distance > searchOptions.generic.maximalDistanceInMeter)
                 break
+
             if (searchOptions.generic.filter(place)) {
                 const result:Item = {
                     data: {
@@ -1090,6 +1093,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     position: place.geometry ? place.geometry.location : null
                 }
                 searchResults.push(result)
+
                 if (searchOptions.generic.number[1] < index)
                     break
             }
@@ -1112,23 +1116,25 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             searchOptions.hasOwnProperty('properties') ?
                 searchOptions.properties :
                 null
+
         for (const item of this.items) {
             const properties:Array<string> = defaultProperties ?
                 defaultProperties :
                 item.data ? Object.keys(item.data) : []
+
             item.foundWords = []
             for (const key of properties)
                 for (const searchWord of this.searchSegments)
                     if (
                         !item.foundWords.includes(searchWord) &&
-                        item.data &&
-                        item.data[key as keyof Store] &&
+                        item.data?[key as keyof Store] &&
                         typeof item.data[key as keyof Store] === 'string' &&
                         searchOptions.normalizer(
                             item.data[key as keyof Store] as unknown as string
                         ).includes(searchWord)
                     ) {
                         item.foundWords.push(searchWord)
+
                         if (item.foundWords.length === 1) {
                             item.open = (event?:Event):Promise<void> =>
                                 this.openMarker(item, event)
@@ -1138,6 +1144,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                             if (searchOptions.resultAggregation === 'union')
                                 searchResults.push(item)
                         }
+
                         if (
                             item.foundWords.length >=
                                 this.searchWords.length &&
@@ -1170,10 +1177,12 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     return -1
                 else if (!second.infoWindow && first.infoWindow)
                     return 1
+
             if (first.foundWords.length < second.foundWords.length)
                 return 1
             if (second.foundWords.length < first.foundWords.length)
                 return -1
+
             let firstDistance:number = 0
             if (first.position)
                 firstDistance = this.self.maps.geometry.spherical
@@ -1186,8 +1195,10 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     .computeDistanceBetween(
                         this.map.getCenter(), second.position
                     )
+
             return firstDistance - secondDistance
         })
+
         // Slice additional unneeded local search results.
         let limitReached:boolean = false
         if (searchOptions.maximumNumberOfResults < searchResults.length) {
@@ -1196,6 +1207,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 searchOptions.maximumNumberOfResults, searchResults.length
             )
         }
+
+        // TODO
         // Compile search results markup.
         this.makeSearchResults(searchResults, limitReached).then((
             resultsRepresentation:string
@@ -1719,7 +1732,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         item:Item, ...additionalParameter:Array<any>
     ):Promise<string> {
         if (this.infoWindowDomNode) {
-            // TODO
             if (Tools.isFunction(this.resolvedConfiguration.infoWindow.content)) {
                 const result:Promise<string>|string =
                     this.resolvedConfiguration.infoWindow.content(
