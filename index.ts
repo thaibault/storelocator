@@ -31,7 +31,9 @@ import {
 import {object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
 import Web from 'web-component-wrapper/Web'
-import {WebComponentAPI} from 'web-component-wrapper/type'
+import {
+    CompiledDomNodeTemplate, WebComponentAPI
+} from 'web-component-wrapper/type'
 
 import {
     Configuration,
@@ -96,6 +98,8 @@ import {
  * @property searchWords - Saves last searched words.
  * @property searchResultsDirty - Indicates whether current search results
  * aren't valid anymore.
+ *
+ * @property domNodeTemplateCache - Caches template compilation results.
  *
  * @property map - Holds the currently used map instance.
  * @property markerClusterer - Holds the currently used marker cluster
@@ -285,6 +289,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     searchText:null|string = null
     searchWords:Array<string> = []
     searchResultsDirty:boolean = false
+
+    domNodeTemplateCache:CompiledDomNodeTemplate = new Map()
 
     // NOTE: Will be initialized during bootstrapping.
     map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
@@ -988,7 +994,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                             searchSegments: this.searchSegments,
                             searchText: this.searchText,
                             searchWords: this.searchWords
-                        }
+                        },
+                        this.domNodeTemplateCache
                     )
 
                 if (searchOptions.generic.number)
