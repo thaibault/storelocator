@@ -299,7 +299,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
 
     inputDomNode:HTMLInputElement = null as unknown as HTMLInputElement
     infoWindowDomNode:HTMLElement = null as unknown as HTMLElement
-    searchResultsDomNode:HTMLElelemt = null as unknown as HTMLElement
+    searchResultsDomNode:HTMLElement = null as unknown as HTMLElement
 
     readonly self:typeof StoreLocator = StoreLocator
 
@@ -356,9 +356,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         this.searchResultsDomNode =
             this.root.querySelector('[slot="searchResults"]') as HTMLElement
 
-        $(this.root)
-            .find(this.resolvedConfiguration.input.selector)
-            .css(this.resolvedConfiguration.input.hide)
+        $(this.inputDomNode).css(this.resolvedConfiguration.input.hide)
 
         await this.loadMapEnvironmentIfNotAvailable()
     }
@@ -366,7 +364,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     // region event handler
     onMapCenterChanged = ():void => {
         // NOTE: Search results depends on current position.
-        if (this.searchText && this.resultsDomNode)
+        if (this.searchText && this.searchResultsDomNode)
             this.searchResultsDirty = true
     }
     onInputClick = ():void => {
@@ -520,11 +518,11 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
 
         const result:Promise<void> = this.self.applicationInterfaceLoad
             .then(this.bootstrap)
-            .then(():boolean =>
+            .then(():void => {
                 this.dispatchEvent(
                     new CustomEvent('loaded', {detail: {target: this}})
                 )
-            )
+            })
 
         if ($.global.window?.google?.maps) {
             this.self.maps = $.global.window.google.maps
@@ -900,7 +898,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             node.
         */
         this.inputDomNode.parentNode!.insertBefore(
-            this.resultsDomNode, this.inputDomNode.nextSibling
+            this.searchResultsDomNode, this.inputDomNode.nextSibling
         )
     }
     /**
@@ -964,7 +962,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 if (!searchText && this.searchResults.length) {
                     this.searchResults = []
                     this.searchText = ''
-                    this.resultsDomNode.innerHTML = ''
                     if (this.dispatchEvent(new CustomEvent(
                         'removeSearchResults', {detail: {target: this}}
                     )))
@@ -989,7 +986,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                         NOTE: Cast to string because specified signature misses
                         valid wrapped dom node type.
                     */
-                    this.self.evaluateDomNode(
+                    this.self.evaluateDomNodeTemplate(
                         this.searchResultsDomNode,
                         {
                             instance: this,
@@ -1132,7 +1129,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 for (const searchWord of this.searchSegments)
                     if (
                         !item.foundWords.includes(searchWord) &&
-                        item.data?[key as keyof Store] &&
+                        item.data &&
+                        item.data[key as keyof Store] &&
                         typeof item.data[key as keyof Store] === 'string' &&
                         searchOptions.normalizer(
                             item.data[key as keyof Store] as unknown as string
@@ -1141,7 +1139,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                         item.foundWords.push(searchWord)
 
                         if (item.foundWords.length === 1) {
-                            item.open = (event?:Event):Promise<void> =>
+                            item.open = (event?:Event):void =>
                                 this.openMarker(item, event)
                             item.highlight = (
                                 event?:Event, type?:string
@@ -1213,7 +1211,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             )
         }
 
-        this.searchResults = searchResults.slice()
+        this.searchResults = results.slice()
 
         if (this.dispatchEvent(new CustomEvent(
             'addSearchResults', {detail: {results, target: this}}
@@ -1289,7 +1287,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             this.searchResultsDomNode!.setAttribute(
                 'class',
                 this.searchResultsDomNode!
-                    .getAttribute('class')
+                    .getAttribute('class')!
                     .replace('open', '')
             )
         }
@@ -1634,7 +1632,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 */
                 infoWindow.setContent(infoWindow.getContent())
 
-            this.self.evaluateDomNode(
+            this.self.evaluateDomNodeTemplate(
                 this.infoWindowDomNode,
                 {instance: this, item},
                 this.domNodeTemplateCache
