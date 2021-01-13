@@ -26,10 +26,9 @@ Project status
 Use case
 --------
 
-A jQuery plugin to serve a store locator with google maps Application
-interface.
+A webcomponent to serve a store locator via google maps.
 <!--deDE:
-    Ein jQuery-Plugin zum Bereitstellen eines Google-Maps-Storelocator.
+    Eine Web-Komponente zum Bereitstellen eines Google-Maps-Storelocators.
 -->
 
 <!--|deDE:Inhalt-->
