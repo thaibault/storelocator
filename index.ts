@@ -488,6 +488,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         }
     }
     // / endregion
+    // / region initializing
     /**
      * Loads google map resources if not loaded yet (or loading triggered).
      * Initializes map instances.
@@ -857,7 +858,9 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 doResolve()
             const listener:MapEventListener =
                 this.self.maps.event.addListenerOnce(
-                    this.map, 'idle', async ():Promise<void> => {
+                    this.map,
+                    'idle',
+                    ():void => {
                         listener.remove()
                         doResolve()
                     }
@@ -914,6 +917,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             this.map, 'center_changed', this.onMapCenterChanged
         )
     }
+    // / endregion
     /**
      * Triggers on each search request.
      * @returns Debounced function.
