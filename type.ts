@@ -138,7 +138,6 @@ export type SearchConfiguration = {
         retrieveOptions:MapTextSearchRequest
     },
     maximumNumberOfResults:number
-    noResultsContent:string
     normalizer:(value:string) => string
     properties:Array<string>
     resultAggregation:'cut'|'union'
@@ -159,7 +158,6 @@ export type Configuration = {
     infoWindow:{additionalMoveToBottomInPixel:number}
     input:{
         hide:Mapping<number|string>
-        selector:string
         showAnimation:[Mapping<number|string>, Mapping<number|string>]
     }
     ip:string
