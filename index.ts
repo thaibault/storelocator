@@ -710,7 +710,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                             newCenter.latitude, newCenter.longitude
                         ))
                     }
-                })
+                }
+            )
         if (this.resolvedConfiguration.marker.cluster) {
             this.markerClusterer = new MarkerClusterer(
                 this.map, [], this.resolvedConfiguration.marker.cluster
@@ -929,6 +930,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             new this.self.maps.places.PlacesService(this.map)
         const searchOptions:SearchConfiguration =
             this.resolvedConfiguration.search as SearchConfiguration
+
         return Tools.debounce(
             async (event?:KeyboardEvent):Promise<void> => {
                 for (const name in Tools.keyCode)
@@ -970,18 +972,19 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     return this.tools.releaseLock(`${this.self._name}Search`)
                 }
 
-                this.searchWords = searchText.split(' ')
+                this.searchText = searchText
+                this.searchWords = this.searchText.split(' ')
                 this.searchSegments = this.searchWords
-                if (!this.searchSegments.includes(searchText))
-                    this.searchSegments.push(searchText)
+                if (!this.searchSegments.includes(this.searchText))
+                    this.searchSegments.push(this.searchText)
 
-                this.openSearchResults()
                 if (
                     this.searchResultsDomNode &&
                     this.dispatchEvent(new CustomEvent(
                         'loadSearchResults', {detail: {target: this}}
                     ))
-                )
+                ) {
+                    this.openSearchResults()
                     /*
                         NOTE: Cast to string because specified signature misses
                         valid wrapped dom node type.
@@ -997,6 +1000,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                         },
                         this.domNodeTemplateCache
                     )
+                }
 
                 if (searchOptions.generic.number)
                     /*
@@ -1008,17 +1012,18 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                         {
                             ...searchOptions.generic.retrieveOptions,
                             location: this.map.getCenter(),
-                            query: searchText
+                            query: this.searchText
                         },
                         (places:Array<MapPlaceResult>):void => {
                             if (places)
-                                this.handleGenericSearchResults(
-                                    places, searchText
-                                )
+                                this.handleGenericSearchResults(places)
+                            this.tools.releaseLock(`${this.self._name}Search`)
                         }
                     )
-                else
-                    this.performLocalSearch(searchText)
+                else {
+                    this.performLocalSearch()
+                    this.tools.releaseLock(`${this.self._name}Search`)
+                }
             },
             1000
         )
@@ -1027,14 +1032,10 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      * Sorts and filters search results given by google's aplication
      * interface.
      * @param places - List of place objects.
-     * @param searchText - Words which should occur in requested search
-     * results.
      * @returns Nothing.
      */
-    handleGenericSearchResults(
-        places:Array<MapPlaceResult>, searchText:string
-    ):void {
-        const searchResults:Array<Item> = []
+    handleGenericSearchResults(places:Array<MapPlaceResult>):void {
+        const results:Array<Item> = []
         const searchOptions:SearchConfiguration =
             this.resolvedConfiguration.search as SearchConfiguration
 
@@ -1099,26 +1100,23 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                         this.focusPlace(result, event),
                     position: place.geometry ? place.geometry.location : null
                 }
-                searchResults.push(result)
+                results.push(result)
 
                 if (searchOptions.generic.number[1] < index)
                     break
             }
         }
-        this.performLocalSearch(searchText, searchResults)
+        this.performLocalSearch(results)
     }
     /**
      * Performs a search on locally given store data.
-     * @param searchText - Text to search for.
-     * @param searchResults - A list if generic search results.
+     * @param results - A list if generic search results.
      * @returns Nothing.
      */
-    performLocalSearch(
-        searchText:string, searchResults:Array<Item> = []
-    ):void {
+    performLocalSearch(results:Array<Item> = []):void {
         const searchOptions:SearchConfiguration =
             this.resolvedConfiguration.search as SearchConfiguration
-        const numberOfGenericSearchResults:number = searchResults.length
+        const numberOfGenericSearchResults:number = results.length
         const defaultProperties:Array<string>|null =
             searchOptions.hasOwnProperty('properties') ?
                 searchOptions.properties :
@@ -1149,7 +1147,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                                 event?:Event, type?:string
                             ):void => this.highlightMarker(item, event, type)
                             if (searchOptions.resultAggregation === 'union')
-                                searchResults.push(item)
+                                results.push(item)
                         }
 
                         if (
@@ -1157,7 +1155,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                                 this.searchWords.length &&
                             searchOptions.resultAggregation === 'cut'
                         )
-                            searchResults.push(item)
+                            results.push(item)
                     }
         }
         /*
@@ -1166,11 +1164,11 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         */
         if (
             searchOptions.generic.number &&
-            searchResults.length &&
+            results.length &&
             numberOfGenericSearchResults > searchOptions.generic.number[0] &&
-            searchResults.length > searchOptions.generic.number[1]
+            results.length > searchOptions.generic.number[1]
         )
-            searchResults.splice(
+            results.splice(
                 searchOptions.generic.number[0],
                 numberOfGenericSearchResults - searchOptions.generic.number[0]
             )
@@ -1178,7 +1176,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             Sort results by current map center form nearer to more fare away
             results.
         */
-        searchResults.sort((first:Item, second:Item):number => {
+        results.sort((first:Item, second:Item):number => {
             if (searchOptions.generic.prefer)
                 if (!first.infoWindow && second.infoWindow)
                     return -1
@@ -1208,44 +1206,30 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
 
         // Slice additional unneeded local search results.
         let limitReached:boolean = false
-        if (searchOptions.maximumNumberOfResults < searchResults.length) {
+        if (searchOptions.maximumNumberOfResults < results.length) {
             limitReached = true
-            searchResults.splice(
-                searchOptions.maximumNumberOfResults, searchResults.length
+            results.splice(
+                searchOptions.maximumNumberOfResults, results.length
             )
         }
 
-        // TODO
-        // Compile search results markup.
-        this.makeSearchResults(searchResults, limitReached).then((
-            resultsRepresentation:string
-        ):void => {
-            let resultsRepresentationDomNode:HTMLElement =
-                document.createElement('div')
-            resultsRepresentationDomNode.innerHTML = resultsRepresentation
-            resultsRepresentationDomNode =
-                resultsRepresentationDomNode.firstChild as HTMLElement
-            if (
-                this.resultsDomNode &&
-                this.dispatchEvent(new CustomEvent(
-                    'addSearchResults',
-                    {detail: {
-                        resultsRepresentationDomNode,
-                        resultsDomNode: this.resultsDomNode,
-                        target: this
-                    }}
-                ))
-            )
-                this.resultsDomNode.appendChild(resultsRepresentationDomNode)
-            if (this.currentSearchResultsDomNode)
-                this.dispatchEvent(new CustomEvent(
-                    'removeSearchResults', {detail: {target: this}}
-                ))
-            this.currentSearchResultsDomNode = resultsRepresentationDomNode
-            this.tools.releaseLock(`${this.self._name}Search`)
-        })
-        this.nnsearchText = searchText
         this.searchResults = searchResults.slice()
+
+        if (this.dispatchEvent(new CustomEvent(
+            'addSearchResults', {detail: {results, target: this}}
+        )))
+            this.self.evaluateDomNodeTemplate(
+                this.searchResultsDomNode,
+                {
+                    instance: this,
+                    loading: false,
+                    results: this.searchResults,
+                    searchSegments: this.searchSegments,
+                    searchText: this.searchText,
+                    searchWords: this.searchWords
+                },
+                this.domNodeTemplateCache
+            )
     }
     /**
      * Opens current search results.
@@ -1256,24 +1240,26 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     openSearchResults(event?:Event):void {
         if (event)
             event.stopPropagation()
+
         if (
-            this.resultsDomNode &&
-            !this.resultsDomNode.getAttribute('class')?.includes('open') &&
+            this.searchResultsDomNode &&
+            !this.searchResultsDomNode.getAttribute('class')?.includes('open') &&
             this.dispatchEvent(new CustomEvent(
-                'openSearchResults',
-                {detail: {
-                    resultsDomNode: this.resultsDomNode,
-                    target: this
-                }}
+                'openSearchResults', {detail: {target: this}}
             ))
         ) {
             for (const propertyName in this.searchResultsStyleProperties)
                 if (this.searchResultsStyleProperties.hasOwnProperty(
                     propertyName
                 ))
-                    this.resultsDomNode.style[propertyName as 'display'] =
-                        `${this.searchResultsStyleProperties[propertyName]}`
-            this.resultsDomNode.setAttribute('class', 'open')
+                    this.searchResultsDomNode.style[
+                        propertyName as 'display'
+                    ] = `${this.searchResultsStyleProperties[propertyName]}`
+
+            this.searchResultsDomNode!.setAttribute(
+                'class',
+                `${this.searchResultsDomNode!.getAttribute('class')} open`
+            )
         }
     }
     /**
@@ -1285,8 +1271,9 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     closeSearchResults(event?:Event):void {
         if (event)
             event.stopPropagation()
+
         if (
-            this.resultsDomNode!.getAttribute('class')?.includes('open') &&
+            this.searchResultsDomNode?.getAttribute('class')?.includes('open') &&
             this.dispatchEvent(new CustomEvent(
                 'closeSearchResults', {detail: {target: this}}
             ))
@@ -1295,12 +1282,15 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 if (this.searchResultsStyleProperties.hasOwnProperty(
                     propertyName
                 ))
-                    this.resultsDomNode!.style[propertyName as 'display'] = ''
-            this.resultsDomNode!.setAttribute(
+                    this.searchResultsDomNode!.style[
+                        propertyName as 'display'
+                    ] = ''
+
+            this.searchResultsDomNode!.setAttribute(
                 'class',
-                this.resultsDomNode!
-                    .getAttribute('class')?.replace('open', '') ||
-                    ''
+                this.searchResultsDomNode!
+                    .getAttribute('class')
+                    .replace('open', '')
             )
         }
     }
@@ -1348,6 +1338,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     await this.ensurePlaceLocations(searchBox.getPlaces())
                 const foundPlace:MapPlaceResult|null =
                     this.determineBestSearchResult(places)
+
                 if (foundPlace) {
                     let shortestDistanceInMeter:number = Number.MAX_VALUE
                     let matchingItem:Item|undefined
@@ -1365,11 +1356,16 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     }
                     if (
                         matchingItem &&
-                        shortestDistanceInMeter <= this.resolvedConfiguration.search
+                        shortestDistanceInMeter <=
+                            this.resolvedConfiguration.search
                     ) {
-                        if (this.resolvedConfiguration.successfulSearchZoomLevel)
+                        if (
+                            this.resolvedConfiguration
+                                .successfulSearchZoomLevel
+                        )
                             this.map.setZoom(
-                                this.resolvedConfiguration.successfulSearchZoomLevel
+                                this.resolvedConfiguration
+                                    .successfulSearchZoomLevel
                             )
                         await this.openMarker(matchingItem)
                         return
@@ -1383,7 +1379,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                         this.map.setCenter(foundPlace.geometry.location)
                     if (this.resolvedConfiguration.successfulSearchZoomLevel)
                         this.map.setZoom(
-                            this.resolvedConfiguration.successfulSearchZoomLevel
+                            this.resolvedConfiguration
+                                .successfulSearchZoomLevel
                         )
                 }
             }
@@ -1430,7 +1427,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                                     ' the places list.'
                                 )
                             }
-                            // Resolve all after last resolved geocoding.
+                            // Resolve all after last resolved geo coding.
                             if (runningGeocodes === 0)
                                 resolve(places)
                         }
@@ -1545,9 +1542,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         item.infoWindow = new this.self.maps.InfoWindow({content: ''}) as
             InfoWindow
         item.infoWindow.isOpen = false
-        item.marker = new this.self.maps.Marker(
-            this.createMarkerConfiguration(item)
-        )
+        item.marker =
+            new this.self.maps.Marker(this.createMarkerConfiguration(item))
         this.attachMarkerEventListener(item)
         this.items.push(item)
         return item.marker
@@ -1602,12 +1598,15 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      * windows.
      * @param item - Item's marker to open.
      * @param event - Event which has triggered the marker opening call.
-     * @returns Promise resolving to nothing.
+     * @returns Nothing.
      */
-    async openMarker(item:Item, event?:Event):Promise<void> {
+    openMarker(item:Item, event?:Event):void {
         if (event && !event.stopPropagation)
             event = undefined
+
+        // TODO state
         this.highlightMarker(item, event, 'stop')
+
         /*
             We have to ensure that the minimum zoom level has one more then
             the clustering can appear. Since a cluster hides an open window.
@@ -1618,16 +1617,14 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 this.resolvedConfiguration.marker.cluster.maxZoom
         )
             this.map.setZoom(this.resolvedConfiguration.marker.cluster.maxZoom + 1)
+
         this.closeSearchResults(event)
+
         if (this.openWindow?.isOpen && this.openWindow === item.infoWindow)
             return
+
         if (this.dispatchEvent(new CustomEvent(
-            'infoWindowOpen',
-            {detail: {
-                event,
-                item,
-                target: this
-            }}
+            'infoWindowOpen', {detail: {event, item, target: this}}
         ))) {
             const infoWindow:InfoWindow = item.infoWindow as InfoWindow
             item.refreshSize = ():void =>
@@ -1636,10 +1633,14 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     adjusting.
                 */
                 infoWindow.setContent(infoWindow.getContent())
-            infoWindow.setContent(
-                this.resolvedConfiguration.infoWindow.loadingContent
+
+            this.self.evaluateDomNode(
+                this.infoWindowDomNode,
+                {instance: this, item},
+                this.domNodeTemplateCache
             )
-            infoWindow.setContent(await this.makeInfoWindow(item))
+            infoWindow.setContent(this.infoWindowDomNode.outerHTML)
+
             if (this.openWindow) {
                 this.openWindow.isOpen = false
                 this.openWindow.close()
@@ -1647,12 +1648,14 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             infoWindow.isOpen = true
             this.openWindow = infoWindow
             infoWindow.open(this.map, item.marker)
+
             this.map.panTo(item.position as MapPosition)
             this.map.panBy(
                 0,
                 -this.resolvedConfiguration.infoWindow
                     .additionalMoveToBottomInPixel
             )
+
             this.dispatchEvent(new CustomEvent(
                 'infoWindowOpened', {detail: {event, item, target: this}}
             ))
@@ -1667,11 +1670,14 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     focusPlace(place:Item, event?:Event):void {
         if (event)
             event.stopPropagation()
+
         this.closeSearchResults(event)
+
         if (this.openWindow) {
             this.openWindow.isOpen = false
             this.openWindow.close()
         }
+
         this.map.setCenter(place.position as MapPosition)
         this.map.setZoom(this.resolvedConfiguration.successfulSearchZoomLevel)
     }
@@ -1687,12 +1693,14 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     highlightMarker(item:Item, event?:Event, type:string = 'bounce'):void {
         if (event)
             event.stopPropagation()
+
         if (this.highlightedItem) {
             if (this.highlightedItem.marker)
                 this.highlightedItem.marker.setAnimation(null)
             this.highlightedItem.isHighlighted = false
             this.highlightedItem = null
         }
+
         if (item.marker)
             if (type === 'stop')
                 item.marker.setAnimation(null)
@@ -1726,92 +1734,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     'markerHighlighted', {detail: {item, target: this}}
                 ))
             }
-    }
-    /**
-     * Takes the item's marker for a store and creates the HTML content of the
-     * info window.
-     * @param item - Item to generate info window for.
-     * @param additionalParameter - Additional parameter to forward to options
-     * given render callback.
-     * @returns Promise resolving to info window markup.
-     */
-    async makeInfoWindow(
-        item:Item, ...additionalParameter:Array<any>
-    ):Promise<string> {
-        if (this.infoWindowDomNode) {
-            if (Tools.isFunction(this.resolvedConfiguration.infoWindow.content)) {
-                const result:Promise<string>|string =
-                    this.resolvedConfiguration.infoWindow.content(
-                        item, ...additionalParameter
-                    )
-                if (typeof result === 'string')
-                    return result
-                return await result
-            }
-            if (this.resolvedConfiguration.infoWindow.content)
-                return this.resolvedConfiguration.infoWindow.content
-        }
-        let content:string = '<div>'
-        for (const name in item.data)
-            if (
-                item.data.hasOwnProperty(name) &&
-                ['boolean', 'number', 'string'].includes(
-                    typeof item.data[name as keyof Store]
-                )
-            )
-                content += `${name}: ${item.data[name as keyof Store]}<br />`
-        return `${content}</div>`
-    }
-    /**
-     * Takes the search results and creates the HTML content of the search
-     * results.
-     * @param searchResults - Search result to generate markup for.
-     * @param limitReached - Indicated whether defined limit was reached or
-     * not.
-     * @returns Promise resolving to generated markup.
-     */
-    async makeSearchResults(
-        searchResults:Array<Item>, limitReached:boolean
-    ):Promise<string> {
-        const searchOptions:SearchConfiguration =
-            this.resolvedConfiguration.search as SearchConfiguration
-        if (searchOptions.content) {
-            if (Tools.isFunction(searchOptions.content)) {
-                const result:Promise<string>|string =
-                    searchOptions.content.call(
-                        this, searchResults, limitReached
-                    )
-                if (typeof result === 'string')
-                    return result
-                return await result
-            }
-            return searchOptions.content as string
-        }
-        if (searchResults.length) {
-            let content:string = ''
-            for (const result of searchResults) {
-                content += '<div>'
-                for (const name in result.data)
-                    if (
-                        result.data.hasOwnProperty(name) &&
-                        (
-                            searchOptions.properties.length === 0 ||
-                            searchOptions.properties.includes(name)
-                        )
-                    )
-                        content +=
-                            `${name}: ` +
-                            Tools.stringMark(
-                                `${result.data[name as keyof object]}`,
-                                this.searchWords,
-                                searchOptions.normalizer
-                            ) +
-                            '<br />'
-                content += '</div>'
-            }
-            return content
-        }
-        return searchOptions.noResultsContent
     }
     // endregion
 }
