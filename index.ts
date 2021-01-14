@@ -25,8 +25,7 @@ import {
     ProcedureFunction,
     SecondParameter,
     TimeoutPromise,
-    ValueOf,
-    $DomNode
+    ValueOf
 } from 'clientnode/type'
 import {object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
@@ -106,12 +105,6 @@ import {
  * instance.
  * @property resetMarkerCluster - API-method to reset marker cluster.
  *
- * @property inputDomNode - Search box input node.
- * @property infoWindowDomNode - Window which is opened when a marker is
- * focused.
- * @property searchResultsDomNode - Saves currently opened results dom node or
- * null if no results exists yet.
- *
  * @property tools - Holds tools instance for saving instance specific locks.
  */
 export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TElement> {
@@ -119,15 +112,15 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     static content:string = `
         <div>
             <slot name="input"><input /></slot>
-            <slot name="infoWindow"></slot>
-            <slot name="loadingInfoWindow">
-                <div class="idle">loading...</div>
-            </slot>
-            <slot name="loadingSearch">
-                <div class="idle">loading...</div>
-            </slot>
+
             <slot name="searchResults">
+                <div class="idle">loading...</div>
+
                 <div class="no-results">No results found</div>
+            </slot>
+
+            <slot name="infoWindow">
+                <div class="idle">loading...</div>
             </slot>
         </div>
     `
@@ -297,10 +290,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     markerClusterer:MarkerClusterer|null = null
     resetMarkerCluster:Function|null = null
 
-    inputDomNode:HTMLInputElement = null as unknown as HTMLInputElement
-    infoWindowDomNode:HTMLElement = null as unknown as HTMLElement
-    searchResultsDomNode:HTMLElement = null as unknown as HTMLElement
-
     readonly self:typeof StoreLocator = StoreLocator
 
     readonly tools:Tools = new Tools()
@@ -349,14 +338,9 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      * @returns A promise resolving to nothing.
      */
     async render():Promise<void> {
-        this.inputDomNode =
-            this.root.querySelector('[slot="input"]') as HTMLInputElement
-        this.infoWindowDomNode =
-            this.root.querySelector('[slot="infoWindow"]') as HTMLElement
-        this.searchResultsDomNode =
-            this.root.querySelector('[slot="searchResults"]') as HTMLElement
+        super.render()
 
-        $(this.inputDomNode).css(this.resolvedConfiguration.input.hide)
+        $(this.slots.input).css(this.resolvedConfiguration.input.hide)
 
         await this.loadMapEnvironmentIfNotAvailable()
     }
@@ -364,7 +348,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     // region event handler
     onMapCenterChanged = ():void => {
         // NOTE: Search results depends on current position.
-        if (this.searchText && this.searchResultsDomNode)
+        if (this.searchText && this.slots.searchResults)
             this.searchResultsDirty = true
     }
     onInputClick = ():void => {
@@ -809,7 +793,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         })
         // Create the search box and link it to the UI element.
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
-            .push(this.inputDomNode)
+            .push(this.slots.input)
         if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
         else {
@@ -875,7 +859,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
 
         this.searchResultsStyleProperties = {}
         const allStyleProperties:Mapping<number|string> =
-            $(this.inputDomNode).Tools('style')
+            $(this.slots.input).Tools('style')
         for (const propertyName in allStyleProperties)
             if (
                 (this.resolvedConfiguration.search as SearchConfiguration)
@@ -886,19 +870,19 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     allStyleProperties[propertyName]
 
         const outerHeight:number|undefined =
-            $(this.inputDomNode).outerHeight(true)
+            $(this.slots.input).outerHeight(true)
         if (outerHeight)
             this.searchResultsStyleProperties.marginTop = outerHeight
 
         // Prepare search result positioning.
-        $(this.searchResultsDomNode).css(this.searchResultsStyleProperties)
+        $(this.slots.searchResults).css(this.searchResultsStyleProperties)
 
         /*
             Inject the final search results into the dom tree next to the input
             node.
         */
-        this.inputDomNode.parentNode!.insertBefore(
-            this.searchResultsDomNode, this.inputDomNode.nextSibling
+        this.slots.input.parentNode!.insertBefore(
+            this.slots.searchResults, this.slots.input.nextSibling
         )
     }
     /**
@@ -908,10 +892,10 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      */
     initializeDataSourceSearch():void {
         this.root.addEventListener('keydown', this.onKeyDown as EventListener)
-        this.inputDomNode.addEventListener('click', this.onInputClick)
-        this.inputDomNode.addEventListener('focus', this.onInputFocus)
-        this.inputDomNode.addEventListener('keydown', this.onInputKeyDown)
-        this.inputDomNode.addEventListener(
+        this.slots.input.addEventListener('click', this.onInputClick)
+        this.slots.input.addEventListener('focus', this.onInputFocus)
+        this.slots.input.addEventListener('keydown', this.onInputKeyDown)
+        this.slots.input.addEventListener(
             'keyup', this.updateSearchResultsHandler
         )
         this.self.maps.event.addListenerOnce(
@@ -952,7 +936,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 await this.tools.acquireLock(`${this.self._name}Search`)
 
                 const searchText:string =
-                    searchOptions.normalizer(this.inputDomNode.value)
+                    searchOptions.normalizer(this.slots.input.value)
                 if (this.searchText === searchText && !this.searchResultsDirty)
                     return this.tools.releaseLock(`${this.self._name}Search`)
 
@@ -976,7 +960,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     this.searchSegments.push(this.searchText)
 
                 if (
-                    this.searchResultsDomNode &&
+                    this.slots.searchResults &&
                     this.dispatchEvent(new CustomEvent(
                         'loadSearchResults', {detail: {target: this}}
                     ))
@@ -987,7 +971,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                         valid wrapped dom node type.
                     */
                     this.self.evaluateDomNodeTemplate(
-                        this.searchResultsDomNode,
+                        this.slots.searchResults,
                         {
                             instance: this,
                             loading: true,
@@ -1240,8 +1224,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             event.stopPropagation()
 
         if (
-            this.searchResultsDomNode &&
-            !this.searchResultsDomNode.getAttribute('class')?.includes('open') &&
+            this.slots.searchResults &&
+            !this.slots.searchResults.getAttribute('class')?.includes('open') &&
             this.dispatchEvent(new CustomEvent(
                 'openSearchResults', {detail: {target: this}}
             ))
@@ -1250,13 +1234,13 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 if (this.searchResultsStyleProperties.hasOwnProperty(
                     propertyName
                 ))
-                    this.searchResultsDomNode.style[
+                    this.slots.searchResults.style[
                         propertyName as 'display'
                     ] = `${this.searchResultsStyleProperties[propertyName]}`
 
-            this.searchResultsDomNode!.setAttribute(
+            this.slots.searchResults!.setAttribute(
                 'class',
-                `${this.searchResultsDomNode!.getAttribute('class')} open`
+                `${this.slots.searchResults!.getAttribute('class')} open`
             )
         }
     }
@@ -1271,7 +1255,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             event.stopPropagation()
 
         if (
-            this.searchResultsDomNode?.getAttribute('class')?.includes('open') &&
+            this.slots.searchResults?.getAttribute('class')?.includes('open') &&
             this.dispatchEvent(new CustomEvent(
                 'closeSearchResults', {detail: {target: this}}
             ))
@@ -1280,13 +1264,13 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 if (this.searchResultsStyleProperties.hasOwnProperty(
                     propertyName
                 ))
-                    this.searchResultsDomNode!.style[
+                    this.slots.searchResults!.style[
                         propertyName as 'display'
                     ] = ''
 
-            this.searchResultsDomNode!.setAttribute(
+            this.slots.searchResults!.setAttribute(
                 'class',
-                this.searchResultsDomNode!
+                this.slots.searchResults!
                     .getAttribute('class')!
                     .replace('open', '')
             )
@@ -1299,7 +1283,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      */
     initializeGenericSearch():void {
         const searchBox:MapSearchBox = new this.self.maps.places.SearchBox(
-            this.inputDomNode,
+            this.slots.input,
             {bounds: new this.self.maps.LatLngBounds(
                 new this.self.maps.LatLng(
                     this.resolvedConfiguration.limit.southWest.latitude,
@@ -1469,10 +1453,12 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      * @returns Nothing.
      */
     onLoaded():void {
-        Tools.timeout(():$DomNode =>
-            $(this.inputDomNode).animate(
-                ...this.resolvedConfiguration.input.showAnimation
-            ),
+        Tools.timeout(
+            ():void => {
+                $(this.slots.input).animate(
+                    ...this.resolvedConfiguration.input.showAnimation
+                )
+            },
             this.resolvedConfiguration.showInputAfterLoadedDelayInMilliseconds
         )
     }
@@ -1633,11 +1619,11 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 infoWindow.setContent(infoWindow.getContent())
 
             this.self.evaluateDomNodeTemplate(
-                this.infoWindowDomNode,
+                this.slots.infoWindow,
                 {instance: this, item},
                 this.domNodeTemplateCache
             )
-            infoWindow.setContent(this.infoWindowDomNode.outerHTML)
+            infoWindow.setContent(this.slots.infoWindow.outerHTML)
 
             if (this.openWindow) {
                 this.openWindow.isOpen = false

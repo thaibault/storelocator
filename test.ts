@@ -13,15 +13,41 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-// region imports
+// region  imports
 import Tools from 'clientnode'
-import {ProcedureFunction} from 'clientnode/type'
+import {ProcedureFunction, RecursivePartial} from 'clientnode/type'
 
 import api, {StoreLocator} from './index'
+import {Configuration} from './type'
 // endregion
+// region prepare environment
+const defaultConfiguration:RecursivePartial<Configuration> = {
+    applicationInterface: {
+        key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
+    },
+    ipToLocationApplicationInterface: {
+        key: '11a62990a1424e894da6eec464a747e6'
+    },
+    marker: {
+        // Is not loadable without browser environment.
+        cluster: null
+    },
+    search: {},
+    // Automatically generated store with option: "stores: bounds"
+    stores: [{
+        address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
+        eMailAddress: 'info@fake-1.de',
+        latitude: 50.4356,
+        longitude: 7.81226,
+        name: '1 & 1 Telecom GmbH',
+        phoneNumber: '+49 721 9600'
+    }]
+}
+Tools.extend(true, StoreLocator.defaultConfiguration, defaultConfiguration)
 const name:string = 'test-store-locator'
 api.register(name)
-
+// endregion
+// region tests
 describe('api', ():void => {
     test('api definitions', ():void => {
         expect(api).toBeDefined()
@@ -84,41 +110,14 @@ describe('StoreLocator', ():void => {
         expect(storeLocator).toHaveProperty('configuration.value', 2)
         expect(storeLocator).toHaveProperty('resolvedConfiguration.value', 2)
     })
-    test('initialisation', ():void => {
+    test('search results', async ():Promise<void> => {
         const storeLocator:StoreLocator =
             document.createElement(name) as StoreLocator
         document.body.appendChild(storeLocator)
 
-        storeLocator.setAttribute('configuration', JSON.stringify({
-            applicationInterface: {
-                key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
-            },
-            ipToLocationApplicationInterface: {
-                key: '11a62990a1424e894da6eec464a747e6'
-            },
-            marker: {
-                // Is not loadable without browser environment.
-                cluster: null
-            },
-            search: {},
-            // Automatically generated store with option: "stores: bounds"
-            stores: [{
-                address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
-                eMailAddress: 'info@fake-1.de',
-                latitude: 50.4356,
-                longitude: 7.81226,
-                name: '1 & 1 Telecom GmbH',
-                phoneNumber: '+49 721 9600'
-            }]
-        }))
-    })
-    test('search results', async ():Promise<void> => {
-        const storeLocator:StoreLocator =
-            document.createElement(name) as StoreLocator
         await new Promise((resolve:ProcedureFunction):void =>
             storeLocator.addEventListener('loaded', resolve)
         )
-        document.body.appendChild(storeLocator)
 
         expect(Array.from(storeLocator.querySelectorAll('div')).length)
             .toBeGreaterThan(0)
@@ -137,6 +136,7 @@ describe('StoreLocator', ():void => {
     })
     // endregion
 })
+// endregion
 // region vim modline
 // vim: set tabstop=4 shiftwidth=4 expandtab:
 // vim: foldmethod=marker foldmarker=region,endregion:
