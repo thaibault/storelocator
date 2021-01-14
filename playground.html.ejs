@@ -59,13 +59,11 @@
         <!--region script-->
         <script>
             window.onload = function() {
-                const bounds = {
-                    northEast: {latitude: 55.12, longitude: 14.89},
-                    southWest: {latitude: 47.32, longitude: 5.50}
-                }
-                const markSearchResults = function() {
+                storelocator.index.api.register()
+
+                const markSearchResults = function(event) {
                     let changed = false
-                    for (const marker of this.markers)
+                    for (const marker of event.detail.target.markers)
                         if (
                             marker.hasOwnProperty('storeLocatorFoundWords') ||
                             this.currentSearchText === ''
@@ -79,10 +77,17 @@
                             changed = true
                         }
                     if (changed)
-                        this.resetMarkerCluster()
+                        event.detail.target.resetMarkerCluster()
                     return true
                 }
-                storelocator.index.api.register()
+
+                const storeLocatorDomNode =
+                    document.querySelector('store-locator')
+
+                storeLocatorDomNode
+                    .addEventListener('addSearchResults', markSearchResults)
+                storeLocatorDomNode
+                    .addEventListener('removeSearchResults', markSearchResults)
             }
         </script>
         <!--endregion-->
@@ -93,16 +98,23 @@
                 key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
             },
             ipToLocationApplicationInterface: {
-                bounds,
+                bounds: {
+                    northEast: {latitude: 55.12, longitude: 14.89},
+                    southWest: {latitude: 47.32, longitude: 5.50}
+                },
                 key: '11a62990a1424e894da6eec464a747e6'
             },
-            limit: {zoom: {minimum: 5}, bounds},
+            limit: {
+                bounds: {
+                    northEast: {latitude: 55.12, longitude: 14.89},
+                    southWest: {latitude: 47.32, longitude: 5.50}
+                },
+                zoom: {minimum: 5}
+            },
             map: {zoom: 5},
             searchBox: {},
             defaultMarkerIconFileName: 'https://placeholdit.imgix.net/~text?txtsize=9&bg=0099ff&txtclr=ffffff&txt=match&w=50&h=50&fm=png',
-            onAddSearchResults: markSearchResults,
-            onRemoveSearchResults: markSearchResults,
-            // Automatically generated stores with option: "stores: bounds"
+            // Automatically generated stores with option: {stores: bounds}
             stores: [
                 {
                     address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
