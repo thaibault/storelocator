@@ -60,12 +60,8 @@ describe('StoreLocator', ():void => {
     // region mockup
     window.google = {
         maps: {
-            ControlPosition: {
-                TOP_LEFT: 0
-            },
-            event: {
-                addListenerOnce: Tools.noop
-            },
+            ControlPosition: {TOP_LEFT: 0},
+            event: {addListener: Tools.noop},
             InfoWindow: Tools.noop,
             LatLng: class {
                 lat = ():number => 1

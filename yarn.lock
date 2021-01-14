@@ -3056,9 +3056,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.650"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.650.tgz#d5ac84680415c0662abe1eafb8aa5fad4786fc7d"
-  integrity sha512-9fJBo2uWcP4i5z2YS8Tn7WA4l+HiT0wnM9IwfWy8GCDmP+sCVwGMGbW1SCIyQq2nmo5iOsZIYkX+QGT4ZeEv0A==
+  version "3.0.651"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.651.tgz#ae51eaca2553ddaca45235ff8527d481e2ac6d43"
+  integrity sha512-Oe52L/FOphbD/SK+ewvwXO5Qr4kS+1EWQyjy3KuREXAGpntlOQd7WQ086AyClWi86cIIQVnuV00oBRESRP2UqA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3790,9 +3790,9 @@ eslint-config-google@*:
   integrity sha512-WsbX4WbjuMvTdeVL6+J3rK1RGhCTqjsFjX7UMSMgZiyxxaNLkoJENbrGExzERFeoTpGw3F3FypTiWAP9ZXzkEw==
 
 eslint-plugin-jsdoc@*:
-  version "31.0.3"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-31.0.3.tgz#23dd8bee22421af1dab0a00a91dfc3d47f644a76"
-  integrity sha512-O2HXyXyw2FYXWngFGeuCxhmClb4M1Y/w+bPcahO31P/Tw+vHZUU9wkPkSML2izznJ1dp3dnTG4on9bXDZDWfyQ==
+  version "31.0.4"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-31.0.4.tgz#a0daf907933e4a3f312d2f27987a75ff016545e4"
+  integrity sha512-jZDKbvIYNqZgS+MB+8EmO/dm5aRbAdXqbmV++uyJDjxUUevWmtbnbzJ6aSFBYteUeyL72WD34eAPOe6vuiiyCg==
   dependencies:
     comment-parser "1.0.1"
     debug "^4.3.1"
@@ -4664,9 +4664,9 @@ html-minifier@*:
     uglify-js "^3.5.1"
 
 html-webpack-plugin@^5.0.0-alpha.16:
-  version "5.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/html-webpack-plugin/-/html-webpack-plugin-5.0.0-beta.4.tgz#b07f76a546f7423fe057af7dce3fa983f774f581"
-  integrity sha512-4CWq246BVHfS2l8Ni68q/oWquwJuaHs5s2Z+yVCmKNWadxS28RAqZo98hMtpnTLwhbhIg04psduDMcUr9JJpXg==
+  version "5.0.0-beta.5"
+  resolved "https://registry.yarnpkg.com/html-webpack-plugin/-/html-webpack-plugin-5.0.0-beta.5.tgz#a5f03394996c2cbb5b587f424556ff938f06decb"
+  integrity sha512-5zxdMIutk7qnqYxZYf8B+0IQVqa/AvYX9dEXKq90Uw0/svWergof10vBPsckCkXhUdo9nst9FE/Uf+WIUyVUsw==
   dependencies:
     "@types/html-minifier-terser" "^5.0.0"
     html-minifier-terser "^5.0.1"
@@ -8319,9 +8319,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.137"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.137.tgz#144da848212804a15344bb38f25a627fe35db51e"
-  integrity sha512-rLTx2k9q1+LHo1UDg1b9lh3oX2Ta3rxZvsD5rVDIEOhWUayS2XhJjZnqMw4ZTcw9qMShxR/2t3+tZeqFQ8oT8w==
+  version "0.0.140"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.140.tgz#52b64457a4bf7cac027ef068dab1c39c3999c652"
+  integrity sha512-A4EGXj5kuT5gtsoIIl5u+aluF0SQ5lf9/wEvOt+VppZELGnoiyZdaRmS9wvsrfUgsqXzRlyiztpFXgxHIpwwNg==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
@@ -8334,9 +8334,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.879"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.879.tgz#5497b96adea701668a1ed3babeaf335a05047ed4"
-  integrity sha512-oti15PvrOfg7B9OCpHcVON4jiH1LSKRf9LKwBjNrXBacTXlU+poKDLmEJR+rqIicBD1tb8cu3bVgVUw4qK67hQ==
+  version "2.0.880"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.880.tgz#364f36e36e6f89abf4c443a9aeb03af6cc1d39fa"
+  integrity sha512-dx3cdG9eP+/+lUGtbYMeT7vmZzlL1SHMwQkBHU7CHNkcnQ96GDwIUO1pwPFbpTPYAtfmm6Jvu6tdL7fr9wrweQ==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"

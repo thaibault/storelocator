@@ -58,7 +58,7 @@ import {
     MapSearchBox,
     SearchConfiguration,
     Square,
-    Store,
+    Store as BaseStore,
     Position,
     PropertyTypes
 } from './type'
@@ -107,24 +107,38 @@ import {
  *
  * @property tools - Holds tools instance for saving instance specific locks.
  */
-export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TElement> {
+export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends Element = HTMLElement> extends Web<TElement> {
     static applicationInterfaceLoad:Promise<void>
     static content:string = `
         <div>
             <slot name="input"><input /></slot>
 
             <slot name="searchResults">
-                <div class="idle">loading...</div>
-
-                <div class="no-results">No results found</div>
+                \\\${loading ?
+                    '<div class="idle">loading...</div>' :
+                    '<div class="no-results">No results found</div>'
+                }
             </slot>
 
             <slot name="infoWindow">
-                <div class="idle">loading...</div>
+                <ul>
+                    <li>
+                        \\\${Object.keys(item.data)
+                            .filter(function(name) {
+                                return ['number', 'string']
+                                    .includes(typeof item.data[name])
+                            })
+                            .map(function(name) {
+                                return name + ': ' + item.data[name]
+                            })
+                            .join('</li><li>')
+                        }
+                    </li>
+                </ul>
             </slot>
         </div>
     `
-    static defaultConfiguration:Configuration = {
+    static defaultConfiguration:Configuration<Store> = {
         additionalStoreProperties: {},
         applicationInterface: {
             callbackName: null,
@@ -142,6 +156,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         defaultMarkerIconFileName: null,
         distanceToMoveByDuplicatedEntries: 0.0001,
         fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
+        filter:(store:Store):boolean => true,
         iconPath: '',
         infoWindow: {additionalMoveToBottomInPixel: 120},
         input: {
@@ -265,8 +280,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     }
     static _name:string = 'StoreLocator'
 
-    configuration:Partial<Configuration>|undefined
-    resolvedConfiguration:Configuration = {} as Configuration
+    configuration:Partial<Configuration<Store>>|undefined
+    resolvedConfiguration:Configuration<Store> = {} as Configuration<Store>
     urlConfiguration:null|PlainObject = null
 
     items:Array<Item> = []
@@ -426,7 +441,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
     resolveConfiguration():void {
         this.resolvedConfiguration = Tools.extend(
             true,
-            Tools.copy(this.self.defaultConfiguration) as Configuration,
+            Tools.copy(this.self.defaultConfiguration) as Configuration<Store>,
             this.configuration || {}
         )
 
@@ -580,7 +595,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         return new Promise((
             resolve:ProcedureFunction, reject:ProcedureFunction
         ):void => {
-            const ipToLocationAPIConfiguration:Configuration[
+            const ipToLocationAPIConfiguration:Configuration<Store>[
                 'ipToLocationApplicationInterface'
             ] = this.resolvedConfiguration.ipToLocationApplicationInterface
 
@@ -664,7 +679,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             this.root as unknown as TElement, this.resolvedConfiguration.map
         )
         if (this.resolvedConfiguration.limit)
-            this.self.maps.event.addListenerOnce(
+            this.self.maps.event.addListener(
                 this.map,
                 'dragend',
                 ():void => {
@@ -730,30 +745,33 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         ):void => {
             if (Array.isArray(this.resolvedConfiguration.stores))
                 for (const store of this.resolvedConfiguration.stores) {
-                    Tools.extend(
-                        true,
-                        store,
-                        this.resolvedConfiguration.additionalStoreProperties
-                    )
-                    const marker:MapMarker = this.createMarker(store)
-                    if (this.markerClusterer)
-                        this.markerClusterer.addMarker(marker)
-                }
+                    if (this.resolvedConfiguration.filter(store))
+                        Tools.extend(
+                            true,
+                            store,
+                            this.resolvedConfiguration.additionalStoreProperties
+                        )
+                        const marker:MapMarker = this.createMarker(store)
+                        if (this.markerClusterer)
+                            this.markerClusterer.addMarker(marker)
+                    }
             else if (typeof this.resolvedConfiguration.stores === 'string')
                 $.getJSON(
                     this.resolvedConfiguration.stores,
                     (stores:Array<Store>):void => {
-                        for (const store of stores) {
-                            Tools.extend(
-                                true,
-                                store,
-                                this.resolvedConfiguration
-                                    .additionalStoreProperties
-                            )
-                            const marker:MapMarker = this.createMarker(store)
-                            if (this.markerClusterer)
-                                this.markerClusterer.addMarker(marker)
-                        }
+                        for (const store of stores)
+                            if (this.resolvedConfiguration.filter(store)) {
+                                Tools.extend(
+                                    true,
+                                    store,
+                                    this.resolvedConfiguration
+                                        .additionalStoreProperties
+                                )
+                                const marker:MapMarker =
+                                    this.createMarker(store)
+                                if (this.markerClusterer)
+                                    this.markerClusterer.addMarker(marker)
+                            }
                     }
                 )
             else {
@@ -781,14 +799,16 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                             Math.random(),
                         ...this.resolvedConfiguration.additionalStoreProperties
                     }
-                    Tools.extend(
-                        true,
-                        store,
-                        this.resolvedConfiguration.stores.generateProperties(store)
-                    )
-                    const marker:MapMarker = this.createMarker()
-                    if (this.markerClusterer)
-                        this.markerClusterer.addMarker(marker)
+                    if (this.resolvedConfiguration.filter(store)) {
+                        Tools.extend(
+                            true,
+                            store,
+                            this.resolvedConfiguration.stores.generateProperties(store)
+                        )
+                        const marker:MapMarker = this.createMarker()
+                        if (this.markerClusterer)
+                            this.markerClusterer.addMarker(marker)
+                    }
                 }
             }
             resolve(this.items)
@@ -799,10 +819,10 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
         else {
-            this.self.maps.event.addListenerOnce(
+            this.self.maps.event.addListener(
                 this.map, 'click', ():void => this.closeSearchResults()
             )
-            this.self.maps.event.addListenerOnce(
+            this.self.maps.event.addListener(
                 this.map, 'dragstart', ():void => this.closeSearchResults()
             )
             this.resolvedConfiguration.search = Tools.extend(
@@ -821,7 +841,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             0
         if (markerClusterZoomLevel > 0)
             // Close marker if zoom level is bigger than the aggregation.
-            this.self.maps.event.addListenerOnce(
+            this.self.maps.event.addListener(
                 this.map,
                 'zoom_changed',
                 ():void => {
@@ -844,7 +864,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             if (this.self.maps.mockup)
                 doResolve()
             const listener:MapEventListener =
-                this.self.maps.event.addListenerOnce(
+                this.self.maps.event.addListener(
                     this.map,
                     'idle',
                     ():void => {
@@ -902,7 +922,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         this.slots.input.addEventListener(
             'keyup', this.updateSearchResultsHandler
         )
-        this.self.maps.event.addListenerOnce(
+        this.self.maps.event.addListener(
             this.map, 'center_changed', this.onMapCenterChanged
         )
     }
@@ -981,9 +1001,10 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                             loading: true,
                             searchSegments: this.searchSegments,
                             searchText: this.searchText,
-                            searchWords: this.searchWords
+                            searchWords: this.searchWords,
+                            Tools
                         },
-                        this.domNodeTemplateCache
+                        {map: this.domNodeTemplateCache, unsafe: true}
                     )
                 }
 
@@ -1205,16 +1226,17 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             'addSearchResults', {detail: {results, target: this}}
         )))
             this.self.evaluateDomNodeTemplate(
-                this.searchResultsDomNode,
+                this.slots.searchResults,
                 {
                     instance: this,
                     loading: false,
                     results: this.searchResults,
                     searchSegments: this.searchSegments,
                     searchText: this.searchText,
-                    searchWords: this.searchWords
+                    searchWords: this.searchWords,
+                    Tools
                 },
-                this.domNodeTemplateCache
+                {map: this.domNodeTemplateCache, unsafe: true}
             )
     }
     /**
@@ -1303,7 +1325,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             Bias the search box results towards places that are within the
             bounds of the current map's viewport.
         */
-        this.self.maps.event.addListenerOnce(
+        this.self.maps.event.addListener(
             this.map,
             'bounds_changed',
             ():void => {
@@ -1316,7 +1338,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
             Listen for the event fired when the user selects an item from the
             pick list. Retrieve the matching places for that item.
         */
-        this.self.maps.event.addListenerOnce(
+        this.self.maps.event.addListener(
             searchBox,
             'places_changed',
             async ():Promise<void> => {
@@ -1568,14 +1590,14 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
      * @returns Nothing.
      */
     attachMarkerEventListener(item:Item):void {
-        this.self.maps.event.addListenerOnce(
+        this.self.maps.event.addListener(
             item.infoWindow as InfoWindow,
             'closeclick',
             ():void => {
                 (item.infoWindow as InfoWindow).isOpen = false
             }
         )
-        this.self.maps.event.addListenerOnce(
+        this.self.maps.event.addListener(
             item.marker as MapMarker,
             'click',
             this.openMarker.bind(this, item)
@@ -1592,7 +1614,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         if (event && !event.stopPropagation)
             event = undefined
 
-        // TODO state
         this.highlightMarker(item, event, 'stop')
 
         /*
@@ -1624,8 +1645,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
 
             this.self.evaluateDomNodeTemplate(
                 this.slots.infoWindow,
-                {instance: this, item},
-                this.domNodeTemplateCache
+                {...item, item, instance: this, Tools},
+                {map: this.domNodeTemplateCache, unsafe: true}
             )
             infoWindow.setContent(this.slots.infoWindow.outerHTML)
 
