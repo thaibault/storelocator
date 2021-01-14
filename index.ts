@@ -118,9 +118,9 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     '<div class="idle">loading...</div>' :
                     results.length ?
                         results.map(function(result) {
-                            return `<ul>
-                                <li>
-                                    \\\${Object.keys(result)
+                            return ('<ul>' +
+                                '<li>' +
+                                    Object.keys(result)
                                         .filter(function(name) {
                                             return ['number', 'string']
                                                 .includes(typeof result[name])
@@ -128,10 +128,9 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                                         .map(function(name) {
                                             return name + ': ' + result[name]
                                         })
-                                        .join('</li><li>')
-                                    }
-                                </li>
-                            </ul>`
+                                        .join('</li><li>') +
+                                '</li>'
+                            '</ul>')
                         }) :
                         '<div class="no-results">No results found</div>'
                 }
