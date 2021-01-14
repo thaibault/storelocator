@@ -169,8 +169,8 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         },
         map: {
             disableDefaultUI: true,
-            maxZoom: 0,
-            minZoom: 9999,
+            maxZoom: 9999,
+            minZoom: 0,
             streetViewControl: true,
             zoom: 3,
             zoomControl: true
@@ -503,9 +503,10 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         const result:Promise<void> = this.self.applicationInterfaceLoad
             .then(this.bootstrap)
             .then(():void => {
-                this.dispatchEvent(
+                if (this.dispatchEvent(
                     new CustomEvent('loaded', {detail: {target: this}})
-                )
+                ))
+                    this.onLoaded()
             })
 
         if ($.global.window?.google?.maps) {
@@ -606,17 +607,19 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     this.resolvedConfiguration.ip || ''
                 )
             }).always(async (
-                currentLocation:Position, textStatus:string
+                currentLocation:Position
             ):Promise<void> => {
                 if (!loaded) {
                     fallbackTimeout.clear()
                     loaded = true
-                    if (textStatus === 'success')
-                        /*
-                            Check if determined location is within defined
-                            bounds.
-                        */
-                        if (
+                    /*
+                        Check if determined location is valid and within
+                        defined bounds.
+                    */
+                    if (
+                        typeof currentLocation.latitude === 'number' &&
+                        typeof currentLocation.longitude === 'number' &&
+                        (
                             !ipToLocationAPIConfiguration.bounds ||
                             (new this.self.maps.LatLngBounds(
                                 new this.self.maps.LatLng(
@@ -637,8 +640,9 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                                     currentLocation.longitude
                                 ))
                         )
-                            this.resolvedConfiguration.startLocation =
-                                currentLocation
+                    )
+                        this.resolvedConfiguration.startLocation =
+                            currentLocation
                     await this.initializeMap()
                     resolve()
                 }
@@ -695,9 +699,6 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 }
             )
         if (this.resolvedConfiguration.marker.cluster) {
-            this.markerClusterer = new MarkerClusterer(
-                this.map, [], this.resolvedConfiguration.marker.cluster
-            )
             this.resetMarkerCluster = ():void => {
                 const markers:Array<MapMarker> = []
                 for (const item of this.items) {
@@ -721,6 +722,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                     )
                 }
             }
+            this.resetMarkerCluster()
         }
         // Add a marker for each retrieved store.
         const addMarkerPromise:Promise<Array<Item>> = new Promise((
@@ -804,7 +806,7 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
                 this.map, 'dragstart', ():void => this.closeSearchResults()
             )
             this.resolvedConfiguration.search = Tools.extend(
-                true, 
+                true,
                 Tools.copy(this.self.defaultSearchConfiguration),
                 this.resolvedConfiguration.search
             )
@@ -812,8 +814,10 @@ export class StoreLocator<TElement extends Element = HTMLElement> extends Web<TE
         }
         const markerClusterZoomLevel:number =
             this.markerClusterer &&
-            (this.resolvedConfiguration.marker.cluster as MapMarkerClustererOptions)
-                .maxZoom ||
+            (
+                this.resolvedConfiguration.marker.cluster as
+                    MapMarkerClustererOptions
+            ).maxZoom ||
             0
         if (markerClusterZoomLevel > 0)
             // Close marker if zoom level is bigger than the aggregation.
