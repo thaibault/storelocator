@@ -116,7 +116,24 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             <slot name="searchResults">
                 \\\${loading ?
                     '<div class="idle">loading...</div>' :
-                    '<div class="no-results">No results found</div>'
+                    results.length ?
+                        results.map(function(result) {
+                            return `<ul>
+                                <li>
+                                    \\\${Object.keys(result)
+                                        .filter(function(name) {
+                                            return ['number', 'string']
+                                                .includes(typeof result[name])
+                                        })
+                                        .map(function(name) {
+                                            return name + ': ' + result[name]
+                                        })
+                                        .join('</li><li>')
+                                    }
+                                </li>
+                            </ul>`
+                        }) :
+                        '<div class="no-results">No results found</div>'
                 }
             </slot>
 
