@@ -866,7 +866,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                         (northEast.lng() - southWest.lng()) *
                         Math.random(),
                     ...this.resolvedConfiguration.additionalStoreProperties
-                })
+                } as Store)
         }
     }
     /**
@@ -913,7 +913,9 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         this.root.addEventListener('keydown', this.onKeyDown as EventListener)
         this.slots.input.addEventListener('click', this.onInputClick)
         this.slots.input.addEventListener('focus', this.onInputFocus)
-        this.slots.input.addEventListener('keydown', this.onInputKeyDown)
+        this.slots.input.addEventListener(
+            'keydown', this.onInputKeyDown as EventListener
+        )
         this.slots.input.addEventListener(
             'keyup', this.updateSearchResultsHandler
         )
@@ -954,8 +956,9 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
                 await this.tools.acquireLock(`${this.self._name}Search`)
 
-                const searchText:string =
-                    searchOptions.normalizer(this.slots.input.value)
+                const searchText:string = searchOptions.normalizer(
+                        (this.slots.input as HTMLInputElement).value
+                    )
                 if (this.searchText === searchText && !this.searchResultsDirty)
                     return this.tools.releaseLock(`${this.self._name}Search`)
 
@@ -1134,10 +1137,10 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     if (
                         !item.foundWords.includes(searchWord) &&
                         item.data &&
-                        item.data[key as keyof Store] &&
-                        typeof item.data[key as keyof Store] === 'string' &&
+                        item.data[key] &&
+                        typeof item.data[key] === 'string' &&
                         searchOptions.normalizer(
-                            item.data[key as keyof Store] as unknown as string
+                            item.data[key] as unknown as string
                         ).includes(searchWord)
                     ) {
                         item.foundWords.push(searchWord)
@@ -1304,7 +1307,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
      */
     initializeGenericSearch():void {
         const searchBox:MapSearchBox = new this.self.maps.places.SearchBox(
-            this.slots.input,
+            this.slots.input as HTMLInputElement,
             {bounds: new this.self.maps.LatLngBounds(
                 new this.self.maps.LatLng(
                     this.resolvedConfiguration.limit.southWest.latitude,

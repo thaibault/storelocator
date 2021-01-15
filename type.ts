@@ -59,6 +59,11 @@ export type Maps = {
     Animation:typeof google.maps.Animation
     ControlPosition:typeof google.maps.ControlPosition
     event:{
+        addListener:(
+            instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
+            eventName:string,
+            handler:(...args: any[]) => void
+        ) => MapEventListener
         addListenerOnce:(
             instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
             eventName:string,
