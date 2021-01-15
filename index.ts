@@ -29,6 +29,7 @@ import {
 } from 'clientnode/type'
 import {object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
+import FetchType, {Response} from 'node-fetch'
 import Web from 'web-component-wrapper/Web'
 import {
     CompiledDomNodeTemplate, WebComponentAPI
@@ -223,6 +224,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         },
         name: 'storeLocator',
         search: 50,
+        securityResponsePrefix: ")]}',",
         showInputAfterLoadedDelayInMilliseconds: 500,
         startLocation: null,
         stores: {
@@ -681,10 +683,27 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         })
     }
     /**
+     * Adds given store as marker to the map.
+     * @param store - Store to add as marker.
+     * @returns Nothing.
+     */
+    addMarker(store:Store):void {
+        if (this.resolvedConfiguration.filter(store)) {
+            Tools.extend(
+                true,
+                store,
+                this.resolvedConfiguration.additionalStoreProperties
+            )
+            const marker:MapMarker = this.createMarker(store)
+            if (this.markerClusterer)
+                this.markerClusterer.addMarker(marker)
+        }
+    }
+    /**
      * Initializes cluster, info windows and marker.
      * @returns Promise resolving to the current instance.
      */
-    initializeMap():Promise<void> {
+    async initializeMap():Promise<void> {
         const startLocation:Position =
             this.resolvedConfiguration.startLocation as Position
         this.resolvedConfiguration.map.center = new this.self.maps.LatLng(
@@ -755,80 +774,6 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             }
             this.resetMarkerCluster()
         }
-        // Add a marker for each retrieved store.
-        const addMarkerPromise:Promise<Array<Item>> = new Promise((
-            resolve:Function, reject:Function
-        ):void => {
-            if (Array.isArray(this.resolvedConfiguration.stores))
-                for (const store of this.resolvedConfiguration.stores) {
-                    if (this.resolvedConfiguration.filter(store))
-                        Tools.extend(
-                            true,
-                            store,
-                            this.resolvedConfiguration.additionalStoreProperties
-                        )
-                        const marker:MapMarker = this.createMarker(store)
-                        if (this.markerClusterer)
-                            this.markerClusterer.addMarker(marker)
-                    }
-            else if (typeof this.resolvedConfiguration.stores === 'string')
-                $.getJSON(
-                    this.resolvedConfiguration.stores,
-                    (stores:Array<Store>):void => {
-                        for (const store of stores)
-                            if (this.resolvedConfiguration.filter(store)) {
-                                Tools.extend(
-                                    true,
-                                    store,
-                                    this.resolvedConfiguration
-                                        .additionalStoreProperties
-                                )
-                                const marker:MapMarker =
-                                    this.createMarker(store)
-                                if (this.markerClusterer)
-                                    this.markerClusterer.addMarker(marker)
-                            }
-                    }
-                )
-            else {
-                const southWest:MapPosition = new this.self.maps.LatLng(
-                    this.resolvedConfiguration.stores.southWest.latitude,
-                    this.resolvedConfiguration.stores.southWest.longitude
-                )
-                const northEast:MapPosition = new this.self.maps.LatLng(
-                    this.resolvedConfiguration.stores.northEast.latitude,
-                    this.resolvedConfiguration.stores.northEast.longitude
-                )
-                for (
-                    let index:number = 0;
-                    index < this.resolvedConfiguration.stores.number;
-                    index++
-                ) {
-                    const store:Store = {
-                        latitude:
-                            southWest.lat() +
-                            (northEast.lat() - southWest.lat()) *
-                            Math.random(),
-                        longitude:
-                            southWest.lng() +
-                            (northEast.lng() - southWest.lng()) *
-                            Math.random(),
-                        ...this.resolvedConfiguration.additionalStoreProperties
-                    }
-                    if (this.resolvedConfiguration.filter(store)) {
-                        Tools.extend(
-                            true,
-                            store,
-                            this.resolvedConfiguration.stores.generateProperties(store)
-                        )
-                        const marker:MapMarker = this.createMarker()
-                        if (this.markerClusterer)
-                            this.markerClusterer.addMarker(marker)
-                    }
-                }
-            }
-            resolve(this.items)
-        })
         // Create the search box and link it to the UI element.
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
             .push(this.slots.input)
@@ -872,23 +817,56 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     }
                 }
             )
-        return new Promise((resolve:Function, reject:Function):void => {
-            const doResolve:Function = async ():Promise<void> => {
-                await addMarkerPromise
-                resolve()
-            }
-            if (this.self.maps.mockup)
-                doResolve()
-            const listener:MapEventListener =
-                this.self.maps.event.addListener(
-                    this.map,
-                    'idle',
-                    ():void => {
-                        listener.remove()
-                        doResolve()
-                    }
+
+        if (!this.self.maps.mockup)
+            await new Promise((resolve:Function) =>
+                this.self.maps.event.addListenerOnce(
+                    this.map, 'idle', ():void => resolve()
                 )
-        })
+            )
+
+        if (Array.isArray(this.resolvedConfiguration.stores))
+            for (const store of this.resolvedConfiguration.stores)
+                this.addMarker(store)
+        else if (typeof this.resolvedConfiguration.stores === 'string') {
+            const result:Response = await (
+                fetch as unknown as typeof FetchType
+            )(this.resolvedConfiguration.stores)
+            let responseString:string = await result.text()
+            if (responseString.startsWith(
+                this.resolvedConfiguration.securityResponsePrefix
+            ))
+                responseString = responseString.substring(
+                    this.resolvedConfiguration.securityResponsePrefix.length
+                )
+            for (const store of JSON.parse(responseString))
+                this.addMarker(store)
+        } else {
+            const southWest:MapPosition = new this.self.maps.LatLng(
+                this.resolvedConfiguration.stores.southWest.latitude,
+                this.resolvedConfiguration.stores.southWest.longitude
+            )
+            const northEast:MapPosition = new this.self.maps.LatLng(
+                this.resolvedConfiguration.stores.northEast.latitude,
+                this.resolvedConfiguration.stores.northEast.longitude
+            )
+            for (
+                let index:number = 0;
+                index < this.resolvedConfiguration.stores.number;
+                index++
+            )
+                this.addMarker({
+                    latitude:
+                        southWest.lat() +
+                        (northEast.lat() - southWest.lat()) *
+                        Math.random(),
+                    longitude:
+                        southWest.lng() +
+                        (northEast.lng() - southWest.lng()) *
+                        Math.random(),
+                    ...this.resolvedConfiguration.additionalStoreProperties
+                })
+        }
     }
     /**
      * Position search results right below the search input field.

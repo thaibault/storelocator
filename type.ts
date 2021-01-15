@@ -186,6 +186,7 @@ export type <Store>Configuration = {
     }
     name:string
     search:number|SearchConfiguration
+    securityResponsePrefix:string
     showInputAfterLoadedDelayInMilliseconds:number
     startLocation?:null|Position
     stores:Array<Store>|string|{
