@@ -155,7 +155,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             </slot>
         </div>
     `
-    static defaultConfiguration:Configuration<Store> = {
+    static defaultConfiguration:Configuration<BaseStore> = {
         additionalStoreProperties: {},
         applicationInterface: {
             callbackName: null,
@@ -173,7 +173,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         defaultMarkerIconFileName: null,
         distanceToMoveByDuplicatedEntries: 0.0001,
         fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
-        filter:(store:Store):boolean => true,
+        filter:(store:BaseStore):boolean => true,
         iconPath: '',
         infoWindow: {additionalMoveToBottomInPixel: 120},
         input: {
@@ -459,7 +459,8 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
     resolveConfiguration():void {
         this.resolvedConfiguration = Tools.extend(
             true,
-            Tools.copy(this.self.defaultConfiguration) as Configuration<Store>,
+            Tools.copy(this.self.defaultConfiguration) as
+                unknown as Configuration<Store>,
             this.configuration || {}
         )
 

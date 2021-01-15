@@ -143,7 +143,7 @@ export type SearchConfiguration = {
     resultAggregation:'cut'|'union'
     stylePropertiesToDeriveFromInputField:Array<string>
 }
-export type <Store>Configuration = {
+export type Configuration<StoreItem = Store> = {
     additionalStoreProperties:object
     applicationInterface:{
         callbackName?:null|string
@@ -154,7 +154,7 @@ export type <Store>Configuration = {
     defaultMarkerIconFileName?:null|string
     distanceToMoveByDuplicatedEntries:number
     fallbackLocation:Position
-    filter:(store:Store) => boolean
+    filter:(store:StoreItem) => boolean
     iconPath:string
     infoWindow:{additionalMoveToBottomInPixel:number}
     input:{
@@ -189,7 +189,7 @@ export type <Store>Configuration = {
     securityResponsePrefix:string
     showInputAfterLoadedDelayInMilliseconds:number
     startLocation?:null|Position
-    stores:Array<Store>|string|{
+    stores:Array<StoreItem>|string|{
         generateProperties:(store:object) => object
         northEast:Position
         number:number
