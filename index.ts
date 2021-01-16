@@ -297,6 +297,16 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
     static propertyTypes:Mapping<ValueOf<PropertyTypes>> = {
         configuration: object
     }
+    /*
+       Renders component given slot contents into given dom node. We avoid that
+       since all slots will be injected dynamically triggered through google
+       map events.
+       NOTE: We render slots to use them as mocks for testing.
+    */
+    static renderSlots:boolean = Boolean(
+        globalContext.window?.google?.maps &&
+        (globalContext.window.google.maps as Maps).mockup
+    )
     static _name:string = 'StoreLocator'
 
     configuration:Partial<Configuration<Store>>|undefined
@@ -309,7 +319,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
     highlightedItem:Item|null = null
     openWindow:InfoWindow|null = null
-    searchBoxInitialized:boolean = true
+    searchBoxInitialized:boolean = false
     searchResultRange:Array<number>|null = null
     searchResults:Array<Item> = []
     searchSegments:Array<string> = []
@@ -365,23 +375,6 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         super.disconnectedCallback()
 
         // TODO release event listener.
-    }
-    /**
-     * Renders component given slot contents into given dom node. We avoid that
-     * since all slots will be injected dynamically triggered through google
-     * map events.
-     * @param targetDomNode - Target dom node to render slots into.
-     * @returns Nothing.
-     */
-    applySlots(targetDomNode:HTMLElement):void {
-        if (
-            globalContext.window?.google?.maps &&
-            (globalContext.window.google.maps as Maps).mockup
-        )
-            // NOTE: We render slots to use them as mocks for testing.
-            super.applySlots(targetDomNode)
-        else
-            targetDomNode.innerHTML = ''
     }
     /**
      * Triggered when content projected and nested dom nodes are ready to be
@@ -974,8 +967,8 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                 await this.tools.acquireLock(`${this.self._name}Search`)
 
                 const searchText:string = searchOptions.normalizer(
-                        (this.slots.input as HTMLInputElement).value
-                    )
+                    (this.slots.input as HTMLInputElement).value
+                )
                 if (this.searchText === searchText && !this.searchResultsDirty)
                     return this.tools.releaseLock(`${this.self._name}Search`)
 

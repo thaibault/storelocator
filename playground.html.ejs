@@ -63,17 +63,17 @@
 
                 const markSearchResults = function(event) {
                     let changed = false
-                    for (const marker of event.detail.target.markers)
+                    for (const item of event.detail.target.items)
                         if (
-                            marker.hasOwnProperty('storeLocatorFoundWords') ||
+                            item.hasOwnProperty('storeLocatorFoundWords') ||
                             this.currentSearchText === ''
                         ) {
-                            if (marker.icon.url !== 'https://placeholdit.imgix.net/~text?txtsize=9&bg=0099ff&txtclr=ffffff&txt=match&w=50&h=50&fm=png') {
-                                marker.icon.url = 'https://placeholdit.imgix.net/~text?txtsize=9&bg=0099ff&txtclr=ffffff&txt=match&w=50&h=50&fm=png'
+                            if (item.data.iconURL !== 'https://via.placeholder.com/50/0099ff/ffffff.png?text=match') {
+                                item.data.iconURL = 'https://via.placeholder.com/50/0099ff/ffffff.png?text=match'
                                 changed = true
                             }
-                        } else if (marker.icon.url !== 'https://placeholdit.imgix.net/~text?txtsize=9&txtclr=ffffff&txt=miss&w=50&h=50&fm=png') {
-                            marker.icon.url = 'https://placeholdit.imgix.net/~text?txtsize=9&txtclr=ffffff&txt=miss&w=50&h=50&fm=png'
+                        } else if (item.data.iconURL !== 'https://via.placeholder.com/50/0099ff/ffffff.png') {
+                            item.data.iconURL = 'https://via.placeholder.com/50/0099ff/ffffff.png'
                             changed = true
                         }
                     if (changed)
@@ -97,7 +97,7 @@
             applicationInterface: {
                 key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
             },
-            defaultMarkerIconFileName: 'https://via.placeholder.com/50/0099ff/ffffff.png?text=match',
+            defaultMarkerIconFileName: 'https://via.placeholder.com/50/0099ff/ffffff.png',
             ipToLocationApplicationInterface: {
                 bounds: {
                     northEast: {latitude: 55.12, longitude: 14.89},
@@ -125,10 +125,6 @@
                     address: 'Freiheitsstr.1a, 53842 Troisdorf, Deutschland',
                     eMailAddress: '1a@demo.de',
                     latitude: 50.82791,
-                    logoFile: {
-                        hash: '512abb0d27ff2731017a0437059c117f',
-                        name: '78192.jpeg'
-                    },
                     longitude: 7.1219600000000005,
                     name: '1A-Bike&Parts GmbH',
                     phoneNumber: '02241 / 91 18 09 3',
@@ -138,10 +134,6 @@
                     address: 'Niederrheinische Str. 27, 34626 Neukirchen, Deutschland',
                     eMailAddress: 'tfddfa@de.de',
                     latitude: 50.871640000000006,
-                    logoFile: {
-                        hash: 'ece8f32f3b825ddf05c447008d396db7',
-                        name: '18852.jpeg'
-                    },
                     longitude: 9.337940000000001,
                     name: '1a Fahrradservice',
                     phoneNumber: '+49 (6694) 7878',
@@ -151,10 +143,6 @@
                     address: 'Dener Strasse 73, 48653 Coesfeld, Deutschland',
                     eMailAddress: '12345@jobrad.org',
                     latitude: 51.93271000000001,
-                    logoFile: {
-                        hash: '8915ed56691b09a0158af336aae4e270',
-                        name: '196.png'
-                    },
                     longitude: 9.337940000000001,
                     name: '2-Rad-Baumeister',
                     phoneNumber: '+49 (2541) 2509',
@@ -164,10 +152,6 @@
                     address: 'Friedrichstr. 100, 47475 Kamp - Lintfort, Deutschland',
                     eMailAddress: 'test@jobrad.org',
                     latitude: 51.508750000000006,
-                    logoFile: {
-                        hash: '08bab9b7774b77bd1d503f786422f720',
-                        name: '34619.jpeg'
-                    },
                     longitude: 6.553020000000001,
                     name: '2 - Rad Behringer',
                     phoneNumber: '02842 / 42 471',
@@ -177,10 +161,6 @@
                     address: 'Werster Str. 86, 32549 Bad Oeynhausen, Deutschland',
                     eMailAddress: 'test@jobrad.org',
                     latitude: 52.215630000000004,
-                    logoFile: {
-                        hash: 'e4676ce3b22a9caf79cb76c2a9c2e224',
-                        name: '190.jpeg'
-                    },
                     longitude: 8.785,
                     name: '2Rad Berger Fahrradhandel & Tankstelle Marcus Berger',
                     phoneNumber: '+49 (5731) 28930',
@@ -190,10 +170,6 @@
                     address: 'Rauchstr. 16, 34454 Bad Arolsen, Deutschland',
                     eMailAddress: 'test@jobrad.org',
                     latitude: 51.38242,
-                    logoFile: {
-                        hash: 'a53fcd4aabfc64d76e8757b720c0bc13',
-                        name: '24784.jpeg'
-                    },
                     longitude: 9.01524,
                     name: '2Rad Br\u00fcne',
                     phoneNumber: '05691 / 2220',
@@ -202,10 +178,6 @@
                 {
                     address: 'Schneiderstr.40, 46244 Bottrop, Deutschland',
                     latitude: 51.57477,
-                    logoFile: {
-                        hash: '40c11802365ea722109d41537a0925a8',
-                        name: '83385.jpeg'
-                    },
                     longitude: 6.90406,
                     name: '2 - Rad B\u00fcning',
                     phoneNumber: '02045 / 57 38',
@@ -215,10 +187,6 @@
                     address: 'Butenwall 63, 46325 Borken, Deutschland',
                     eMailAddress: 'test@jobrad.org',
                     latitude: 51.846050000000005,
-                    logoFile: {
-                        hash: '0ec7668751c6cac94025d2e5304b0160',
-                        name: '191.png'
-                    },
                     longitude: 6.8543,
                     name: '2Rad Busch',
                     phoneNumber: '+49 (2861) 2692',
@@ -228,17 +196,13 @@
                     address: 'Herzebrockerstrasse 12, 33378 Rheda-Wiedenbrück, Deutschland',
                     eMailAddress: 'test@jobrad.org',
                     latitude: 51.85799,
-                    logoFile: {
-                        hash: '5bd864762cae057d53dd9f4cbc61f04e',
-                        name: '63636.jpeg'
-                    },
                     longitude: 8.28283,
                     name: '2-rad Butschko',
                     phoneNumber: '05242 / 4 31 61',
                     websiteURL: 'http://www.zweirad-butschko.de'
                 }
             ]
-        }"><input slot="input" /></store-locator>
+        }"></store-locator>
     </body>
 <html>
 <%_ /*
