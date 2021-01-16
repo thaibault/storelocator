@@ -110,6 +110,7 @@ import {
  */
 export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends Element = HTMLElement> extends Web<TElement> {
     static applicationInterfaceLoad:Promise<void>
+    static cloneSlots:boolean = true
     static content:string = `
         <div>
             <slot name="input"><input /></slot>
@@ -763,15 +764,14 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     this.attachMarkerEventListener(item)
                     markers.push(item.marker)
                 }
-                if (this.markerClusterer) {
+                if (this.markerClusterer)
                     this.markerClusterer.clearMarkers()
-                    this.markerClusterer = new MarkerClusterer(
-                        this.map,
-                        markers,
-                        this.resolvedConfiguration.marker.cluster as
-                            MapMarkerClustererOptions
-                    )
-                }
+                this.markerClusterer = new MarkerClusterer(
+                    this.map,
+                    markers,
+                    this.resolvedConfiguration.marker.cluster as
+                        MapMarkerClustererOptions
+                )
             }
             this.resetMarkerCluster()
         }
