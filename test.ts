@@ -21,6 +21,35 @@ import api, {StoreLocator} from './index'
 import {Configuration} from './type'
 // endregion
 // region prepare environment
+window.google = {
+    maps: {
+        ControlPosition: {TOP_LEFT: 0},
+        event: {addListener: Tools.noop},
+        InfoWindow: Tools.noop,
+        LatLng: class {
+            lat = ():number => 1
+            lng = ():number => 1
+        },
+        LatLngBounds: class {
+            contains:Function = ():true => true
+        },
+        Map: class {
+            controls:Array<Array<number>> = [[]]
+            getCenter:Function = ():{} => ({})
+        },
+        Marker: Tools.noop,
+        mockup: true,
+        places: {
+            PlacesService: class {
+                textSearch:Function = (
+                    options:object, callback:Function
+                ):void => callback([])
+            },
+            SearchBox: Tools.noop
+        }
+    },
+} as unknown as typeof google
+
 const defaultConfiguration:RecursivePartial<Configuration> = {
     applicationInterface: {
         key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
@@ -44,6 +73,7 @@ const defaultConfiguration:RecursivePartial<Configuration> = {
     }]
 }
 Tools.extend(true, StoreLocator.defaultConfiguration, defaultConfiguration)
+
 const name:string = 'test-store-locator'
 api.register(name)
 // endregion
@@ -57,37 +87,7 @@ describe('api', ():void => {
     })
 })
 describe('StoreLocator', ():void => {
-    // region mockup
-    window.google = {
-        maps: {
-            ControlPosition: {TOP_LEFT: 0},
-            event: {addListener: Tools.noop},
-            InfoWindow: Tools.noop,
-            LatLng: class {
-                lat = ():number => 1
-                lng = ():number => 1
-            },
-            LatLngBounds: class {
-                contains:Function = ():true => true
-            },
-            Map: class {
-                controls:Array<Array<number>> = [[]]
-                getCenter:Function = ():{} => ({})
-            },
-            Marker: Tools.noop,
-            mockup: true,
-            places: {
-                PlacesService: class {
-                    textSearch:Function = (
-                        options:object, callback:Function
-                    ):void => callback([])
-                },
-                SearchBox: Tools.noop
-            }
-        },
-    } as unknown as typeof google
     beforeAll(():Promise<void> => StoreLocator.applicationInterfaceLoad)
-    // endregion
     // region tests
     test('custom element definition', ():void => {
         const storeLocator:StoreLocator =

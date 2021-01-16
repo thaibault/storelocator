@@ -17,7 +17,7 @@
     endregion
 */
 // region imports
-import Tools, {$} from 'clientnode'
+import Tools, {globalContext, $} from 'clientnode'
 import {
     EvaluationResult,
     Mapping,
@@ -367,6 +367,23 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         // TODO release event listener.
     }
     /**
+     * Renders component given slot contents into given dom node. We avoid that
+     * since all slots will be injected dynamically triggered through google
+     * map events.
+     * @param targetDomNode - Target dom node to render slots into.
+     * @returns Nothing.
+     */
+    applySlots(targetDomNode:HTMLElement):void {
+        if (
+            globalContext.window?.google?.maps &&
+            (globalContext.window.google.maps as Maps).mockup
+        )
+            // NOTE: We render slots to use them as mocks for testing.
+            super.applySlots(targetDomNode)
+        else
+            targetDomNode.innerHTML = ''
+    }
+    /**
      * Triggered when content projected and nested dom nodes are ready to be
      * traversed. Selects all needed dom nodes.
      * @returns A promise resolving to nothing.
@@ -376,7 +393,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
         $(this.slots.input).css(this.resolvedConfiguration.input.hide)
 
-        await this.loadMapEnvironmentIfNotAvailable()
+        await this.loadMapEnvironmentIfNotAvailableAndInitializeMap()
     }
     // endregion
     // region event handler
@@ -511,7 +528,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
      * Initializes map instances.
      * @returns Promise resolving when everything is loaded and initialized.
      */
-    loadMapEnvironmentIfNotAvailable():Promise<void> {
+    loadMapEnvironmentIfNotAvailableAndInitializeMap():Promise<void> {
         let loadInitialized:boolean = true
         const applicationInterfaceLoadCallbacks:{
             reject:ProcedureFunction
@@ -544,8 +561,8 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     this.onLoaded()
             })
 
-        if ($.global.window?.google?.maps) {
-            this.self.maps = $.global.window.google.maps
+        if (globalContext.window?.google?.maps) {
+            this.self.maps = globalContext.window.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
                 Tools.timeout(():Promise<void>|void =>
                     applicationInterfaceLoadCallbacks.resolve()
@@ -558,15 +575,15 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
             const callback:ProcedureFunction = ():void => {
                 if (!applicationInterfaceLoadCallbacks.resolved)
-                    if ($.global.window?.google?.maps) {
-                        this.self.maps = $.global.window.google.maps
+                    if (globalContext.window?.google?.maps) {
+                        this.self.maps = globalContext.window.google.maps
                         applicationInterfaceLoadCallbacks.resolve()
                     } else
                         applicationInterfaceLoadCallbacks.reject(
                             new Error('No google maps environment set.')
                         )
             }
-            ;($.global as unknown as Mapping<Function>)[callbackName] =
+            ;(globalContext as unknown as Mapping<Function>)[callbackName] =
                 callback
 
             $.getScript(Tools.stringFormat(
@@ -575,7 +592,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     `key=${this.resolvedConfiguration.applicationInterface.key}&` :
                     '',
                 (
-                    window === ($.global as unknown as Window) ?
+                    window === (globalContext as unknown as Window) ?
                         'window' :
                         'global'
                 ) +
@@ -1085,7 +1102,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                         logoFilePath: place.icon ?
                             place.icon.replace(
                                 /^http:(\/\/)/,
-                                `${$.global.location.protocol}$1`
+                                `${globalContext.location.protocol}$1`
                             ) :
                             null
                     },
