@@ -28,19 +28,32 @@
                 right: 0;
                 bottom: 0;
             }
-            store-locator > div {
-                height: 100%;
-            }
-            store-locator input {
-                margin-left: 10px;
+
+            store-locator .store-locator__input {
+                height: 25px;
                 margin-top: 10px;
                 width: 230px;
-                height: 25px;
             }
-            store-locator .store-locator-search-results div {
-                border-bottom: 1px solid black;
+
+            store-locator .store-locator__input,
+            store-locator .store-locator__search-results {
+                border: 1px solid grey;
+                margin-left: 10px;
             }
-            store-locator .store-locator-search-results div .tools-mark {
+
+            store-locator .store-locator__search-results {
+                border-top: 0;
+            }
+
+            store-locator .store-locator__search-results ul {
+                padding-inline-start: 12px;
+            }
+
+            store-locator .store-locator__search-results ul:hover {
+                background-color: #f3f2ef;
+            }
+
+            store-locator .store-locator__search-results .tools-mark {
                 color: blue;
             }
         </style>

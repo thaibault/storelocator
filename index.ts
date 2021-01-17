@@ -113,10 +113,10 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
     static cloneSlots:boolean = true
     static content:string = `
         <div>
-            <slot name="input"><input /></slot>
+            <slot name="input"><input class="store-locator__input" /></slot>
 
             <slot name="searchResults">
-                <div class="store-locator__search_results"><textarea>
+                <div class="store-locator__search-results"><textarea>
                     \\\${loading ?
                         '<div class="idle">loading...</div>' :
                         results.length ?
@@ -134,7 +134,12 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                                                 return (
                                                     name +
                                                     ': ' +
-                                                    result.data[name]
+                                                    ${Tools.stringMark(
+                                                        result.data[name],
+                                                        storeLocator.currentSearchWords,
+                                                        storeLocator.resolvedConfiguration.search.normalizer
+                                                    )}
+                                                    
                                                 )
                                             })
                                             .join('</li><li>') +
@@ -143,7 +148,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                             }).join('') :
                             '<div class="no-results">No results found</div>'
                     }
-                </div></textarea>
+                </textarea></div>
             </slot>
 
             <slot name="infoWindow">
@@ -1268,7 +1273,9 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
         if (
             this.slots.searchResults &&
-            !this.slots.searchResults.getAttribute('class')?.includes('open') &&
+            !this.slots.searchResults.getAttribute('class')?.includes(
+                'store-locator__search-results--open'
+            ) &&
             this.dispatchEvent(new CustomEvent(
                 'openSearchResults', {detail: {target: this}}
             ))
@@ -1283,7 +1290,8 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
             this.slots.searchResults!.setAttribute(
                 'class',
-                `${this.slots.searchResults!.getAttribute('class')} open`
+                `${this.slots.searchResults!.getAttribute('class')} ` +
+                'store-locator__search-results--open'
             )
         }
     }
@@ -1298,7 +1306,9 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             event.stopPropagation()
 
         if (
-            this.slots.searchResults?.getAttribute('class')?.includes('open') &&
+            this.slots.searchResults?.getAttribute('class')?.includes(
+                'store-locator__search-results--open'
+            ) &&
             this.dispatchEvent(new CustomEvent(
                 'closeSearchResults', {detail: {target: this}}
             ))
@@ -1315,7 +1325,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                 'class',
                 this.slots.searchResults!
                     .getAttribute('class')!
-                    .replace('open', '')
+                    .replace('store-locator__search-results--open', '')
             )
         }
     }
