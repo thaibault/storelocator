@@ -123,21 +123,24 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                             results.map(function(result) {
                                 return ('<ul>' +
                                     '<li>' +
-                                        Object.keys(result)
+                                        Object.keys(result.data)
                                             .filter(function(name) {
                                                 return ['number', 'string']
                                                     .includes(
-                                                        typeof result[name]
+                                                        typeof result.data[name]
                                                     )
                                             })
                                             .map(function(name) {
-                                                return
-                                                    name + ': ' + result[name]
+                                                return (
+                                                    name +
+                                                    ': ' +
+                                                    result.data[name]
+                                                )
                                             })
                                             .join('</li><li>') +
-                                    '</li>'
+                                    '</li>' +
                                 '</ul>')
-                            }) :
+                            }).join('') :
                             '<div class="no-results">No results found</div>'
                     }
                 </div></textarea>
@@ -1012,6 +1015,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                         {
                             instance: this,
                             loading: true,
+                            results: [],
                             searchSegments: this.searchSegments,
                             searchText: this.searchText,
                             searchWords: this.searchWords,
