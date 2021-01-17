@@ -116,30 +116,35 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             <slot name="input"><input /></slot>
 
             <slot name="searchResults">
-                \\\${loading ?
-                    '<div class="idle">loading...</div>' :
-                    results.length ?
-                        results.map(function(result) {
-                            return ('<ul>' +
-                                '<li>' +
-                                    Object.keys(result)
-                                        .filter(function(name) {
-                                            return ['number', 'string']
-                                                .includes(typeof result[name])
-                                        })
-                                        .map(function(name) {
-                                            return name + ': ' + result[name]
-                                        })
-                                        .join('</li><li>') +
-                                '</li>'
-                            '</ul>')
-                        }) :
-                        '<div class="no-results">No results found</div>'
-                }
+                <div class="store-locator__search_results"><textarea>
+                    \\\${loading ?
+                        '<div class="idle">loading...</div>' :
+                        results.length ?
+                            results.map(function(result) {
+                                return ('<ul>' +
+                                    '<li>' +
+                                        Object.keys(result)
+                                            .filter(function(name) {
+                                                return ['number', 'string']
+                                                    .includes(
+                                                        typeof result[name]
+                                                    )
+                                            })
+                                            .map(function(name) {
+                                                return
+                                                    name + ': ' + result[name]
+                                            })
+                                            .join('</li><li>') +
+                                    '</li>'
+                                '</ul>')
+                            }) :
+                            '<div class="no-results">No results found</div>'
+                    }
+                </div></textarea>
             </slot>
 
             <slot name="infoWindow">
-                <ul>
+                <ul class="store-locator__info-window"><textarea>
                     <li>
                         \\\${Object.keys(item.data)
                             .filter(function(name) {
@@ -152,7 +157,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                             .join('</li><li>')
                         }
                     </li>
-                </ul>
+                </textarea></ul>
             </slot>
         </div>
     `
