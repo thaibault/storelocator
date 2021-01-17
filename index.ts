@@ -134,12 +134,12 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                                                 return (
                                                     name +
                                                     ': ' +
-                                                    ${Tools.stringMark(
+                                                    Tools.stringMark(
                                                         result.data[name],
-                                                        storeLocator.currentSearchWords,
-                                                        storeLocator.resolvedConfiguration.search.normalizer
-                                                    )}
-                                                    
+                                                        searchWords,
+                                                        configuration.search
+                                                            .normalizer
+                                                    )
                                                 )
                                             })
                                             .join('</li><li>') +
@@ -1018,6 +1018,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     this.self.evaluateDomNodeTemplate(
                         this.slots.searchResults,
                         {
+                            configuration: this.resolvedConfiguration,
                             instance: this,
                             loading: true,
                             results: [],
@@ -1250,6 +1251,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             this.self.evaluateDomNodeTemplate(
                 this.slots.searchResults,
                 {
+                    configuration: this.resolvedConfiguration,
                     instance: this,
                     loading: false,
                     results: this.searchResults,
@@ -1672,7 +1674,13 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
             this.self.evaluateDomNodeTemplate(
                 this.slots.infoWindow,
-                {...item, item, instance: this, Tools},
+                {
+                    ...item,
+                    configuration: this.resolvedConfiguration,
+                    item,
+                    instance: this,
+                    Tools
+                },
                 {map: this.domNodeTemplateCache, unsafe: true}
             )
             infoWindow.setContent(this.slots.infoWindow.outerHTML)
