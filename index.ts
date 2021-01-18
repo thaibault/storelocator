@@ -397,6 +397,10 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
     async render():Promise<void> {
         super.render()
 
+        this.self.applyPropertyBindings(
+            this.slots.input,
+            {configuration: this.resolvedConfiguration, instance: this}
+        )
         $(this.slots.input).css(this.resolvedConfiguration.input.hide)
 
         await this.loadMapEnvironmentIfNotAvailableAndInitializeMap()

@@ -215,7 +215,14 @@
                     websiteURL: 'http://www.zweirad-butschko.de'
                 }
             ]
-        }"></store-locator>
+        }">
+            <input
+                bind-property-title="configuration.name"
+                class="store-locator__input"
+                placeholder="Please provide some search words"
+                slot="input"
+            />
+        </store-locator>
     </body>
 <html>
 <%_ /*

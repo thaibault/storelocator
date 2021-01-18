@@ -115,7 +115,7 @@ export type Icon = {
     url:string
 }
 export type InfoWindow = MapInfoWindow & {isOpen:boolean}
-export type Item = {
+export type Item<StoreType extends Store = Store> = {
     close?:Function
     data:null|Store
     foundWords:Array<string>
