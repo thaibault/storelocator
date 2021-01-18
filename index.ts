@@ -31,9 +31,7 @@ import {object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
 import FetchType, {Response} from 'node-fetch'
 import Web from 'web-component-wrapper/Web'
-import {
-    CompiledDomNodeTemplate, WebComponentAPI
-} from 'web-component-wrapper/type'
+import {WebComponentAPI} from 'web-component-wrapper/type'
 
 import {
     Configuration,
@@ -98,8 +96,6 @@ import {
  * @property searchWords - Saves last searched words.
  * @property searchResultsDirty - Indicates whether current search results
  * aren't valid anymore.
- *
- * @property domNodeTemplateCache - Caches template compilation results.
  *
  * @property map - Holds the currently used map instance.
  * @property markerClusterer - Holds the currently used marker cluster
@@ -320,6 +316,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         globalContext.window?.google?.maps &&
         (globalContext.window.google.maps as Maps).mockup
     )
+    static renderUnsafe:boolean = true
     static _name:string = 'StoreLocator'
 
     configuration:Partial<Configuration<Store>>|undefined
@@ -339,8 +336,6 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
     searchText:null|string = null
     searchWords:Array<string> = []
     searchResultsDirty:boolean = false
-
-    domNodeTemplateCache:CompiledDomNodeTemplate = new Map()
 
     // NOTE: Will be initialized during bootstrapping.
     map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
@@ -1019,7 +1014,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                         NOTE: Cast to string because specified signature misses
                         valid wrapped dom node type.
                     */
-                    this.self.evaluateDomNodeTemplate(
+                    this.evaluateDomNodeTemplate(
                         this.slots.searchResults,
                         {
                             configuration: this.resolvedConfiguration,
@@ -1030,8 +1025,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                             searchText: this.searchText,
                             searchWords: this.searchWords,
                             Tools
-                        },
-                        {map: this.domNodeTemplateCache, unsafe: true}
+                        }
                     )
                 }
 
@@ -1252,19 +1246,19 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         if (this.dispatchEvent(new CustomEvent(
             'addSearchResults', {detail: {results, target: this}}
         )))
-            this.self.evaluateDomNodeTemplate(
+            this.evaluateDomNodeTemplate(
                 this.slots.searchResults,
                 {
                     configuration: this.resolvedConfiguration,
                     instance: this,
+                    limitReached,
                     loading: false,
                     results: this.searchResults,
                     searchSegments: this.searchSegments,
                     searchText: this.searchText,
                     searchWords: this.searchWords,
                     Tools
-                },
-                {map: this.domNodeTemplateCache, unsafe: true}
+                }
             )
     }
     /**
@@ -1676,7 +1670,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                 */
                 infoWindow.setContent(infoWindow.getContent())
 
-            this.self.evaluateDomNodeTemplate(
+            this.evaluateDomNodeTemplate(
                 this.slots.infoWindow,
                 {
                     ...item,
@@ -1684,8 +1678,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     item,
                     instance: this,
                     Tools
-                },
-                {map: this.domNodeTemplateCache, unsafe: true}
+                }
             )
             infoWindow.setContent(this.slots.infoWindow.outerHTML)
 
