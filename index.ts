@@ -1019,6 +1019,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                         {
                             configuration: this.resolvedConfiguration,
                             instance: this,
+                            limitReached: false,
                             loading: true,
                             results: [],
                             searchSegments: this.searchSegments,
