@@ -1274,7 +1274,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
         if (
             this.slots.searchResults &&
-            !this.slots.searchResults.getAttribute('class')?.includes(
+            !this.slots.searchResults.classList?.contains(
                 'store-locator__search-results--open'
             ) &&
             this.dispatchEvent(new CustomEvent(
@@ -1289,9 +1289,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                         propertyName as 'display'
                     ] = `${this.searchResultsStyleProperties[propertyName]}`
 
-            this.slots.searchResults!.setAttribute(
-                'class',
-                `${this.slots.searchResults!.getAttribute('class')} ` +
+            this.slots.searchResults!.classList?.add(
                 'store-locator__search-results--open'
             )
         }
@@ -1307,7 +1305,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             event.stopPropagation()
 
         if (
-            this.slots.searchResults?.getAttribute('class')?.includes(
+            this.slots.searchResults?.classList?.contains(
                 'store-locator__search-results--open'
             ) &&
             this.dispatchEvent(new CustomEvent(
@@ -1322,11 +1320,8 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                         propertyName as 'display'
                     ] = ''
 
-            this.slots.searchResults!.setAttribute(
-                'class',
-                this.slots.searchResults!
-                    .getAttribute('class')!
-                    .replace('store-locator__search-results--open', '')
+            this.slots.searchResults!.classList?.remove(
+                'store-locator__search-results--open'
             )
         }
     }

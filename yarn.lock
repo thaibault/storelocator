@@ -8277,9 +8277,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.156"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.156.tgz#e7c5df8abdd453fd50f947a070fe360954eead44"
-  integrity sha512-dv6D1lp7VpfFMtwn4l/Lb7RchRKTIi9isr7I57U3JGiQioU2XE51rwfrtY5OrnayuXobF5u0+8ky/VK6HmbhxA==
+  version "0.0.157"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.157.tgz#03feae97d00488b5d0825712edc0184f4f2f7f80"
+  integrity sha512-N2c2kN/YeqDL0/9OuTvN/h4zz5lDy4ecI65fGCFd+6YDCa57c4VlFimTjCp1zNfVUxw1F7xJz3pqrpryDHW1MA==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
