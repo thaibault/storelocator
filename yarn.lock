@@ -4280,9 +4280,9 @@ flat-cache@^3.0.4:
     rimraf "^3.0.2"
 
 flatted@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.1.0.tgz#a5d06b4a8b01e3a63771daa5cb7a1903e2e57067"
-  integrity sha512-tW+UkmtNg/jv9CSofAKvgVcO7c2URjhTdW1ZTkcAritblu8tajiYy7YisnIflEwtKssCtOxpnBRoCB7iap0/TA==
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.1.1.tgz#c4b489e80096d9df1dfc97c79871aea7c617c469"
+  integrity sha512-zAoAQiudy+r5SvnSw3KJy5os/oRJYHzrzja/tBDqrZtNhUw8bt6y8OBzMWcjWr+8liV8Eb6yOhw8WZ7VFZ5ZzA==
 
 follow-redirects@^1.0.0:
   version "1.13.1"
@@ -8298,9 +8298,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.158"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.158.tgz#7f03bee90744fe3d91461da8781a40bfe5266a46"
-  integrity sha512-YmGZFiK8SN4Ck4dio5xKYnBLyVa4y50fsKtzzUFCZinRSTmd5pkk/Nh16hGqsMc/Mj+SzG42208rP1/gJa5g7w==
+  version "0.0.159"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.159.tgz#f31654bbf91a02e7bc04ca1d0bfea050fdf12a99"
+  integrity sha512-yDLCnRdWpRHU5N0uzyxwfJKKrH14mT3PK7PyuUyn/OC+Ps1hslmsCS5jWiJt012HzIGusNGbEFZkrevP/3gZSQ==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"

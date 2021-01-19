@@ -392,7 +392,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
     async render():Promise<void> {
         super.render()
 
-        this.self.applyPropertyBindings(
+        this.self.applyBindings(
             this.slots.input,
             {configuration: this.resolvedConfiguration, instance: this}
         )
