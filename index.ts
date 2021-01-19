@@ -394,7 +394,11 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
         this.self.applyBindings(
             this.slots.input,
-            {configuration: this.resolvedConfiguration, instance: this}
+            {
+                [Tools.stringLowerCase(this.self._name) || 'instance']: this,
+                configuration: this.resolvedConfiguration,
+                Tools
+            }
         )
         $(this.slots.input).css(this.resolvedConfiguration.input.hide)
 
@@ -1017,8 +1021,11 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     this.evaluateDomNodeTemplate(
                         this.slots.searchResults,
                         {
+                            [
+                                Tools.stringLowerCase(this.self._name) ||
+                                'instance'
+                            ]: this,
                             configuration: this.resolvedConfiguration,
-                            instance: this,
                             limitReached: false,
                             loading: true,
                             results: [],
@@ -1250,8 +1257,11 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             this.evaluateDomNodeTemplate(
                 this.slots.searchResults,
                 {
+[
+                    Tools.stringLowerCase(this.self._name) ||
+                        'instance'
+                    ]: this,
                     configuration: this.resolvedConfiguration,
-                    instance: this,
                     limitReached,
                     loading: false,
                     results: this.searchResults,
@@ -1670,6 +1680,9 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                 this.slots.infoWindow,
                 {
                     ...item,
+                    Tools.stringLowerCase(this.self._name) ||
+                        'instance'
+                    ]: this,
                     configuration: this.resolvedConfiguration,
                     item,
                     instance: this,
