@@ -564,9 +564,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         const result:Promise<void> = this.self.applicationInterfaceLoad
             .then(this.bootstrap)
             .then(():void => {
-                if (this.dispatchEvent(
-                    new CustomEvent('loaded', {detail: {target: this}})
-                ))
+                if (this.dispatchEvent(new CustomEvent('loaded')))
                     this.onLoaded()
             })
 
@@ -995,7 +993,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     this.searchResults = []
                     this.searchText = ''
                     if (this.dispatchEvent(new CustomEvent(
-                        'removeSearchResults', {detail: {target: this}}
+                        'removeSearchResults'
                     )))
                         this.closeSearchResults()
                     return this.tools.releaseLock(`${this.self._name}Search`)
@@ -1009,9 +1007,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
                 if (
                     this.slots.searchResults &&
-                    this.dispatchEvent(new CustomEvent(
-                        'loadSearchResults', {detail: {target: this}}
-                    ))
+                    this.dispatchEvent(new CustomEvent('loadSearchResults'))
                 ) {
                     this.openSearchResults()
                     /*
@@ -1252,7 +1248,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         this.searchResults = results.slice()
 
         if (this.dispatchEvent(new CustomEvent(
-            'addSearchResults', {detail: {results, target: this}}
+            'addSearchResults', {detail: {results}}
         )))
             this.evaluateDomNodeTemplate(
                 this.slots.searchResults,
@@ -1286,7 +1282,14 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                 'store-locator__search-results--open'
             ) &&
             this.dispatchEvent(new CustomEvent(
-                'openSearchResults', {detail: {target: this}}
+                'openSearchResults',
+                {detail: {
+                    event,
+                    searchResults: this.searchResults,
+                    searchSegments: this.searchSegments,
+                    searchText: this.searchText,
+                    searchWords: this.searchWords
+                }}
             ))
         ) {
             for (const propertyName in this.searchResultsStyleProperties)
@@ -1316,9 +1319,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             this.slots.searchResults?.classList?.contains(
                 'store-locator__search-results--open'
             ) &&
-            this.dispatchEvent(new CustomEvent(
-                'closeSearchResults', {detail: {target: this}}
-            ))
+            this.dispatchEvent(new CustomEvent('closeSearchResults'))
         ) {
             for (const propertyName in this.searchResultsStyleProperties)
                 if (this.searchResultsStyleProperties.hasOwnProperty(
@@ -1664,7 +1665,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             return
 
         if (this.dispatchEvent(new CustomEvent(
-            'infoWindowOpen', {detail: {event, item, target: this}}
+            'infoWindowOpen', {detail: {event, item}}
         ))) {
             const infoWindow:InfoWindow = item.infoWindow as InfoWindow
             item.refreshSize = ():void =>
@@ -1704,7 +1705,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             )
 
             this.dispatchEvent(new CustomEvent(
-                'infoWindowOpened', {detail: {event, item, target: this}}
+                'infoWindowOpened', {detail: {event, item}}
             ))
         }
     }
@@ -1778,7 +1779,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     item.isHighlighted = true
                 }
                 this.dispatchEvent(new CustomEvent(
-                    'markerHighlighted', {detail: {item, target: this}}
+                    'markerHighlighted', {detail: {item}}
                 ))
             }
     }
