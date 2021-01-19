@@ -1257,10 +1257,8 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             this.evaluateDomNodeTemplate(
                 this.slots.searchResults,
                 {
-[
-                    Tools.stringLowerCase(this.self._name) ||
-                        'instance'
-                    ]: this,
+                    [Tools.stringLowerCase(this.self._name) || 'instance']:
+                        this,
                     configuration: this.resolvedConfiguration,
                     limitReached,
                     loading: false,
@@ -1680,9 +1678,8 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                 this.slots.infoWindow,
                 {
                     ...item,
-                    Tools.stringLowerCase(this.self._name) ||
-                        'instance'
-                    ]: this,
+                    [Tools.stringLowerCase(this.self._name) || 'instance']:
+                        this,
                     configuration: this.resolvedConfiguration,
                     item,
                     instance: this,
