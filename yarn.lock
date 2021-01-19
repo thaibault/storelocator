@@ -3658,9 +3658,9 @@ ejs@*:
     jake "^10.6.1"
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.3.634:
-  version "1.3.641"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.641.tgz#03f14efd70a7971eff2efc947b3c1d0f717c82b9"
-  integrity sha512-b0DLhsHSHESC1I+Nx6n4w4Lr61chMd3m/av1rZQhS2IXTzaS5BMM5N+ldWdMIlni9CITMRM09m8He4+YV/92TA==
+  version "1.3.642"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.642.tgz#8b884f50296c2ae2a9997f024d0e3e57facc2b94"
+  integrity sha512-cev+jOrz/Zm1i+Yh334Hed6lQVOkkemk2wRozfMF4MtTR7pxf3r3L5Rbd7uX1zMcEqVJ7alJBnJL7+JffkC6FQ==
 
 emittery@^0.7.1:
   version "0.7.2"
@@ -8298,9 +8298,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.159"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.159.tgz#f31654bbf91a02e7bc04ca1d0bfea050fdf12a99"
-  integrity sha512-yDLCnRdWpRHU5N0uzyxwfJKKrH14mT3PK7PyuUyn/OC+Ps1hslmsCS5jWiJt012HzIGusNGbEFZkrevP/3gZSQ==
+  version "0.0.160"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.160.tgz#a759fb06c6c0a86612be282e1a13b4538ee3f42a"
+  integrity sha512-fy9ogxLtCrI2UhV1drP2jg979z0gnjDPDqPR4TM8jnPuG0C8XLDNhZH0XniU5ZZWjeESMnpLpQ+8EUV4ICI7Dg==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
@@ -8442,9 +8442,9 @@ webpack-sources@*, webpack-sources@^2.1.1:
     source-map "^0.6.1"
 
 webpack@*:
-  version "5.15.0"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.15.0.tgz#63d7b6228a4e15ee8c89899c2cfdd993e809bdd2"
-  integrity sha512-y/xG+ONDz78yn3VvP6gAvGr1/gkxOgitvHSXBmquyN8KDtrGEyE3K9WkXOPB7QmfcOBCpO4ELXwNcCYQnEmexA==
+  version "5.16.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.16.0.tgz#796e093c2d92c229f013aefefde82b50c0572570"
+  integrity sha512-QOkctcjYfEGxcYg4AzPJafyAQ7ANc266/URkX881uFA7b2k31E0Dmpy1ExfppHOTp1kHDTsRh9sXojVUvgPF0g==
   dependencies:
     "@types/eslint-scope" "^3.7.0"
     "@types/estree" "^0.0.45"
@@ -8472,9 +8472,9 @@ webpack@*:
     webpack-sources "^2.1.1"
 
 website-utilities@*:
-  version "1.0.230"
-  resolved "https://registry.yarnpkg.com/website-utilities/-/website-utilities-1.0.230.tgz#1acd4fc11b9fe88c0365270c51cf5f91243731ff"
-  integrity sha512-gU7G4uZC0mJ/3UXLsrOfJBplxqdV2b9zWupgB0EhWZRzWfSz/pt34rrI6r3U7IrnrfeIWRJIUL7+HwhjT8WThw==
+  version "1.0.231"
+  resolved "https://registry.yarnpkg.com/website-utilities/-/website-utilities-1.0.231.tgz#1e8d08546070f172972817139d2776f0c9428466"
+  integrity sha512-TBe2NV+ajPLq21hhWrhHzPgSpLn4RORrezHMSuY672SS/edoQ/g7vazH/yVjxDwHgi3ARctpjuSgjlnj025iUw==
 
 websocket-driver@>=0.5.1, websocket-driver@^0.7.4:
   version "0.7.4"
