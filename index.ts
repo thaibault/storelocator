@@ -1711,7 +1711,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         if (event && !event.stopPropagation)
             event = undefined
 
-        this.internalProperties.value = item
+        this.setPropertyValue('value', item)
         this.updateState()
 
         this.highlightMarker(item, event, 'stop')
