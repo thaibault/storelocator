@@ -24,6 +24,7 @@ import {
     PlainObject,
     ProcedureFunction,
     SecondParameter,
+    TemplateFunction,
     TimeoutPromise,
     ValueOf
 } from 'clientnode/type'
@@ -78,6 +79,7 @@ import {
  * @property resolvedConfiguration - Holds resolved configuration object.
  * @property urlConfiguration - URL given configurations object.
  *
+ * @property filter - Filter function to dynamically sort out some stores.
  * @property items - Holds all recognized stores to represent as marker.
  * @property searchResultsStyleProperties - Dynamically computed CSS properties
  * to append to search result list (derived from search input field).
@@ -189,7 +191,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         defaultMarkerIconFileName: null,
         distanceToMoveByDuplicatedEntries: 0.0001,
         fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
-        filter:(store:BaseStore):boolean => true,
+        filter: null,
         iconPath: '',
         infoWindow: {additionalMoveToBottomInPixel: 120},
         input: {
@@ -333,6 +335,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
     resolvedConfiguration:Configuration<Store> = {} as Configuration<Store>
     urlConfiguration:null|PlainObject = null
 
+    filter = (store:Store):boolean => true
     items:Array<Item> = []
     searchResultsStyleProperties:Mapping<number|string> = {}
     seenLocations:Array<string> = []
@@ -502,6 +505,20 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
 
         if (this.resolvedConfiguration.debug)
             console.debug('Got configuration:', this.resolvedConfiguration)
+
+        if (this.resolvedConfiguration.filter) {
+            const filterCandidate:string|TemplateFunction =
+                Tools.stringCompile(
+                    this.resolvedConfiguration.filter, ['store']
+                )[1]
+            if (typeof filterCandidate === 'string')
+                console.warn(
+                    `Given filter "${this.resolvedConfiguration.filter}" ` +
+                    `does not compile: ${Tools.represent(filterCandidate)}`
+                )
+            else
+                this.filter = filterCandidate
+        }
     }
     /**
      * Extends current configuration object by given url parameter.
@@ -721,7 +738,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
      * @returns Nothing.
      */
     addMarker(store:Store):void {
-        if (this.resolvedConfiguration.filter(store)) {
+        if (this.filter(store)) {
             Tools.extend(
                 true,
                 store,

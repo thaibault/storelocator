@@ -160,7 +160,7 @@ export type Configuration<StoreItem = Store> = {
     defaultMarkerIconFileName?:null|string
     distanceToMoveByDuplicatedEntries:number
     fallbackLocation:Position
-    filter:(store:StoreItem) => boolean
+    filter:null|string
     iconPath:string
     infoWindow:{additionalMoveToBottomInPixel:number}
     input:{
