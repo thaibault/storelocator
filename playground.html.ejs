@@ -57,6 +57,27 @@
                 color: blue;
             }
 
+            store-locator .store-locator__link {
+                bottom: 0;
+                left: 0;
+                position: absolute;
+                padding-right: 6px;
+                padding-left: 6px;
+                text-decoration: none;
+                z-index: 2;
+
+                /*
+                    NOTE: This properties are derived from googles native legal notice
+                    link styles.
+                */
+                font-size: 10px;
+                font-family: Roboto, Arial, sans-serif;
+                color: black;
+                background-color: #eaf0e7;
+
+                opacity: .7;
+            }
+
             store-locator .web-component-template {
                 display: none;
             }
@@ -240,6 +261,12 @@
                 placeholder="Please provide some search words"
                 slot="input"
             />
+
+            <a
+                class="store-locator__link"
+                href="https://www.google.com"
+                slot="link"
+            >Legal notes example</a>
         </store-locator>
     </body>
 <html>

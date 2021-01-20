@@ -863,6 +863,19 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
             .push(this.slots.input)
 
+        if (this.slots.link) {
+            this.evaluateDomNodeTemplate(
+                this.slots.link,
+                {
+                    [Tools.stringLowerCase(this.self._name) || 'instance']:
+                        this,
+                    configuration: this.resolvedConfiguration,
+                    Tools
+                }
+            )
+            this.root.appendChild(this.slots.link)
+        }
+
         if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
         else {
