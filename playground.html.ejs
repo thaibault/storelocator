@@ -101,7 +101,8 @@
 
                 const markSearchResults = function(event) {
                     let changed = false
-                    for (const item of event.target.items)
+                    for (var index = 0; index < event.target.items.length; index++) {
+                        const item = event.target.items[index]
                         if (
                             item.hasOwnProperty('storeLocatorFoundWords') ||
                             this.currentSearchText === ''
@@ -114,6 +115,7 @@
                             item.data.iconURL = 'https://via.placeholder.com/50/0099ff/ffffff.png'
                             changed = true
                         }
+                    }
                     if (changed)
                         event.target.resetMarkerCluster()
                     return true
