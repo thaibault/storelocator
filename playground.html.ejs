@@ -80,7 +80,7 @@
 
                 const markSearchResults = function(event) {
                     let changed = false
-                    for (const item of event.detail.target.items)
+                    for (const item of event.target.items)
                         if (
                             item.hasOwnProperty('storeLocatorFoundWords') ||
                             this.currentSearchText === ''
@@ -94,7 +94,7 @@
                             changed = true
                         }
                     if (changed)
-                        event.detail.target.resetMarkerCluster()
+                        event.target.resetMarkerCluster()
                     return true
                 }
 
@@ -110,116 +110,130 @@
         <!--endregion-->
     </head>
     <body>
-        <store-locator configuration="{
-            applicationInterface: {
-                key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
-            },
-            defaultMarkerIconFileName: 'https://via.placeholder.com/50/0099ff/ffffff.png',
-            ipToLocationApplicationInterface: {
-                bounds: {
+        <store-locator
+            configuration="{
+                applicationInterface: {
+                    key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
+                },
+                defaultMarkerIconFileName: 'https://via.placeholder.com/50/0099ff/ffffff.png',
+                ipToLocationApplicationInterface: {
+                    bounds: {
+                        northEast: {latitude: 55.12, longitude: 14.89},
+                        southWest: {latitude: 47.32, longitude: 5.50}
+                    },
+                    key: '11a62990a1424e894da6eec464a747e6'
+                },
+                limit: {
                     northEast: {latitude: 55.12, longitude: 14.89},
                     southWest: {latitude: 47.32, longitude: 5.50}
                 },
-                key: '11a62990a1424e894da6eec464a747e6'
-            },
-            limit: {
-                northEast: {latitude: 55.12, longitude: 14.89},
-                southWest: {latitude: 47.32, longitude: 5.50}
-            },
-            map: {minZoom: 5, zoom: 9},
-            search: {},
-            // Automatically generated stores with option: {stores: bounds}
-            stores: [
-                {
-                    address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
-                    eMailAddress: 'info@fake-1.de',
-                    latitude: 50.4356,
-                    longitude: 7.81226,
-                    name: '1 & 1 Telecom GmbH',
-                    phoneNumber: '+49 721 9600'
-                },
-                {
-                    address: 'Freiheitsstr.1a, 53842 Troisdorf, Deutschland',
-                    eMailAddress: '1a@demo.de',
-                    latitude: 50.82791,
-                    longitude: 7.1219600000000005,
-                    name: '1A-Bike&Parts GmbH',
-                    phoneNumber: '02241 / 91 18 09 3',
-                    websiteURL: 'http://www.1a-bike.bike'
-                },
-                {
-                    address: 'Niederrheinische Str. 27, 34626 Neukirchen, Deutschland',
-                    eMailAddress: 'tfddfa@de.de',
-                    latitude: 50.871640000000006,
-                    longitude: 9.337940000000001,
-                    name: '1a Fahrradservice',
-                    phoneNumber: '+49 (6694) 7878',
-                    websiteURL: 'http://www.1a-fahrradservice-diegelmann.de'
-                },
-                {
-                    address: 'Dener Strasse 73, 48653 Coesfeld, Deutschland',
-                    eMailAddress: '12345@jobrad.org',
-                    latitude: 51.93271000000001,
-                    longitude: 9.337940000000001,
-                    name: '2-Rad-Baumeister',
-                    phoneNumber: '+49 (2541) 2509',
-                    websiteURL: 'www.2rad-baumeister.de'
-                },
-                {
-                    address: 'Friedrichstr. 100, 47475 Kamp - Lintfort, Deutschland',
-                    eMailAddress: 'test@jobrad.org',
-                    latitude: 51.508750000000006,
-                    longitude: 6.553020000000001,
-                    name: '2 - Rad Behringer',
-                    phoneNumber: '02842 / 42 471',
-                    websiteURL: 'www.zweirad-behringer.de'
-                },
-                {
-                    address: 'Werster Str. 86, 32549 Bad Oeynhausen, Deutschland',
-                    eMailAddress: 'test@jobrad.org',
-                    latitude: 52.215630000000004,
-                    longitude: 8.785,
-                    name: '2Rad Berger Fahrradhandel & Tankstelle Marcus Berger',
-                    phoneNumber: '+49 (5731) 28930',
-                    websiteURL: 'www.2radberger.de'
-                },
-                {
-                    address: 'Rauchstr. 16, 34454 Bad Arolsen, Deutschland',
-                    eMailAddress: 'test@jobrad.org',
-                    latitude: 51.38242,
-                    longitude: 9.01524,
-                    name: '2Rad Br\u00fcne',
-                    phoneNumber: '05691 / 2220',
-                    websiteURL: 'http://2rad-bruene.de'
-                },
-                {
-                    address: 'Schneiderstr.40, 46244 Bottrop, Deutschland',
-                    latitude: 51.57477,
-                    longitude: 6.90406,
-                    name: '2 - Rad B\u00fcning',
-                    phoneNumber: '02045 / 57 38',
-                    websiteURL: 'http://www.2-rad-buening.de'
-                },
-                {
-                    address: 'Butenwall 63, 46325 Borken, Deutschland',
-                    eMailAddress: 'test@jobrad.org',
-                    latitude: 51.846050000000005,
-                    longitude: 6.8543,
-                    name: '2Rad Busch',
-                    phoneNumber: '+49 (2861) 2692',
-                    websiteURL: 'www.2rad-busch.de '
-                },
-                {
-                    address: 'Herzebrockerstrasse 12, 33378 Rheda-Wiedenbrück, Deutschland',
-                    eMailAddress: 'test@jobrad.org',
-                    latitude: 51.85799,
-                    longitude: 8.28283,
-                    name: '2-rad Butschko',
-                    phoneNumber: '05242 / 4 31 61',
-                    websiteURL: 'http://www.zweirad-butschko.de'
-                }
-            ]
-        }">
+                map: {minZoom: 5, zoom: 9},
+                search: {},
+                // Automatically generated stores with option: {stores: bounds}
+                stores: [
+                    {
+                        address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
+                        eMailAddress: 'info@fake-1.de',
+                        id: 1,
+                        latitude: 50.4356,
+                        longitude: 7.81226,
+                        name: '1 & 1 Telecom GmbH',
+                        phoneNumber: '+49 721 9600'
+                    },
+                    {
+                        address: 'Freiheitsstr.1a, 53842 Troisdorf, Deutschland',
+                        eMailAddress: '1a@demo.de',
+                        id: 2,
+                        latitude: 50.82791,
+                        longitude: 7.1219600000000005,
+                        name: '1A-Bike&Parts GmbH',
+                        phoneNumber: '02241 / 91 18 09 3',
+                        websiteURL: 'http://www.1a-bike.bike'
+                    },
+                    {
+                        address: 'Niederrheinische Str. 27, 34626 Neukirchen, Deutschland',
+                        eMailAddress: 'tfddfa@de.de',
+                        id: 3,
+                        latitude: 50.871640000000006,
+                        longitude: 9.337940000000001,
+                        name: '1a Fahrradservice',
+                        phoneNumber: '+49 (6694) 7878',
+                        websiteURL: 'http://www.1a-fahrradservice-diegelmann.de'
+                    },
+                    {
+                        address: 'Dener Strasse 73, 48653 Coesfeld, Deutschland',
+                        eMailAddress: '12345@example.org',
+                        id: 4,
+                        latitude: 51.93271000000001,
+                        longitude: 9.337940000000001,
+                        name: '2-Rad-Baumeister',
+                        phoneNumber: '+49 (2541) 2509',
+                        websiteURL: 'www.2rad-baumeister.de'
+                    },
+                    {
+                        address: 'Friedrichstr. 100, 47475 Kamp - Lintfort, Deutschland',
+                        eMailAddress: 'test@example.org',
+                        id: 5,
+                        latitude: 51.508750000000006,
+                        longitude: 6.553020000000001,
+                        name: '2 - Rad Behringer',
+                        phoneNumber: '02842 / 42 471',
+                        websiteURL: 'www.zweirad-behringer.de'
+                    },
+                    {
+                        address: 'Werster Str. 86, 32549 Bad Oeynhausen, Deutschland',
+                        eMailAddress: 'test@example.org',
+                        id: 6,
+                        latitude: 52.215630000000004,
+                        longitude: 8.785,
+                        name: '2Rad Berger Fahrradhandel & Tankstelle Marcus Berger',
+                        phoneNumber: '+49 (5731) 28930',
+                        websiteURL: 'www.2radberger.de'
+                    },
+                    {
+                        address: 'Rauchstr. 16, 34454 Bad Arolsen, Deutschland',
+                        eMailAddress: 'test@example.org',
+                        id: 7,
+                        latitude: 51.38242,
+                        longitude: 9.01524,
+                        name: '2Rad Br\u00fcne',
+                        phoneNumber: '05691 / 2220',
+                        websiteURL: 'http://2rad-bruene.de'
+                    },
+                    {
+                        address: 'Schneiderstr.40, 46244 Bottrop, Deutschland',
+                        id: 8,
+                        latitude: 51.57477,
+                        longitude: 6.90406,
+                        name: '2 - Rad B\u00fcning',
+                        phoneNumber: '02045 / 57 38',
+                        websiteURL: 'http://www.2-rad-buening.de'
+                    },
+                    {
+                        address: 'Butenwall 63, 46325 Borken, Deutschland',
+                        eMailAddress: 'test@example.org',
+                        id: 9,
+                        latitude: 51.846050000000005,
+                        longitude: 6.8543,
+                        name: '2Rad Busch',
+                        phoneNumber: '+49 (2861) 2692',
+                        websiteURL: 'www.2rad-busch.de '
+                    },
+                    {
+                        address: 'Herzebrockerstrasse 12, 33378 Rheda-Wiedenbrück, Deutschland',
+                        eMailAddress: 'test@example.org',
+                        id: 10,
+                        latitude: 51.85799,
+                        longitude: 8.28283,
+                        name: '2-rad Butschko',
+                        phoneNumber: '05242 / 4 31 61',
+                        websiteURL: 'http://www.zweirad-butschko.de'
+                    }
+                ]
+            }"
+            value="5"
+            required
+        >
             <input
                 bind-property-title="configuration.name"
                 class="store-locator__input"

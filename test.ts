@@ -25,7 +25,10 @@ window.google = {
     maps: {
         ControlPosition: {TOP_LEFT: 0},
         event: {addListener: Tools.noop},
-        InfoWindow: Tools.noop,
+        InfoWindow: class {
+            open:Function = Tools.noop
+            setContent:Function = Tools.noop
+        },
         LatLng: class {
             lat = ():number => 1
             lng = ():number => 1
@@ -36,8 +39,12 @@ window.google = {
         Map: class {
             controls:Array<Array<number>> = [[]]
             getCenter:Function = ():{} => ({})
+            panBy:Function = Tools.noop
+            panTo:Function = Tools.noop
         },
-        Marker: Tools.noop,
+        Marker: class {
+            setAnimation:Function = Tools.noop
+        },
         mockup: true,
         places: {
             PlacesService: class {

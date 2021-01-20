@@ -99,6 +99,7 @@ export type PropertyTypes = {
     dynamicConfiguration:ValueOf<typeof PropertyTypes>
 }
 export type Store = Mapping<any> & {
+    id?:number|string
     latitude?:number
     longitude?:number
     markerIconFileName?:string

@@ -27,7 +27,7 @@ import {
     TimeoutPromise,
     ValueOf
 } from 'clientnode/type'
-import {object} from 'clientnode/property-types'
+import {any, boolean, object, string} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
 import FetchType, {Response} from 'node-fetch'
 import Web from 'web-component-wrapper/Web'
@@ -96,6 +96,12 @@ import {
  * @property searchWords - Saves last searched words.
  * @property searchResultsDirty - Indicates whether current search results
  * aren't valid anymore.
+ *
+ * @property invalid - Indicates whether this component is in invalid state.
+ * @property required - Indicates whether this is invalid as long there is no
+ * item selected yet.
+ * @property valid - Indicates whether this component is in valid state.
+ * @property value - Currently selected item (for using as form component).
  *
  * @property map - Holds the currently used map instance.
  * @property markerClusterer - Holds the currently used marker cluster
@@ -302,9 +308,13 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         ]
     }
     static maps:Maps
-    static observedAttributes:Array<string> = ['configuration']
+    static observedAttributes:Array<string> =
+        ['configuration', 'name', 'required', 'value']
     static propertyTypes:Mapping<ValueOf<PropertyTypes>> = {
-        configuration: object
+        configuration: object,
+        name: string,
+        value: any,
+        required: boolean
     }
     /*
        Renders component given slot contents into given dom node. We avoid that
@@ -336,6 +346,11 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
     searchText:null|string = null
     searchWords:Array<string> = []
     searchResultsDirty:boolean = false
+
+    invalid:boolean = false
+    required:boolean = false
+    valid:boolean = true
+    value:Item|null = null
 
     // NOTE: Will be initialized during bootstrapping.
     map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
@@ -392,14 +407,6 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
     async render():Promise<void> {
         super.render()
 
-        this.self.applyBindings(
-            this.slots.input,
-            {
-                [Tools.stringLowerCase(this.self._name) || 'instance']: this,
-                configuration: this.resolvedConfiguration,
-                Tools
-            }
-        )
         $(this.slots.input).css(this.resolvedConfiguration.input.hide)
 
         await this.loadMapEnvironmentIfNotAvailableAndInitializeMap()
@@ -726,6 +733,33 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         }
     }
     /**
+     * Initializes given value and state.
+     * @return Nothing.
+     */
+    initializeState():void {
+        if (![null, 'undefined'].includes(this.value as null)) {
+            const hasID:boolean =
+                typeof this.value === 'object' &&
+                'id' in (this.value as unknown as Store)
+            const id:unknown = hasID ?
+                (this.value as unknown as Store).id :
+                this.value
+
+            let found:boolean = false
+            for (const item of this.items)
+                if (id === (typeof id === 'object' ? item : item.data?.id)) {
+                    this.setPropertyValue('value', item, false)
+                    if (!item.isOpen)
+                        this.openMarker(item)
+                    found = true
+                    break
+                }
+            if (!found)
+                this.setPropertyValue('value', null, false)
+        }
+        this.updateState()
+    }
+    /**
      * Initializes cluster, info windows and marker.
      * @returns Promise resolving to the current instance.
      */
@@ -799,9 +833,19 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             }
             this.resetMarkerCluster()
         }
+
         // Create the search box and link it to the UI element.
+        this.self.applyBindings(
+            this.slots.input,
+            {
+                [Tools.stringLowerCase(this.self._name) || 'instance']: this,
+                configuration: this.resolvedConfiguration,
+                Tools
+            }
+        )
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
             .push(this.slots.input)
+
         if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
         else {
@@ -892,6 +936,8 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     ...this.resolvedConfiguration.additionalStoreProperties
                 } as Store)
         }
+
+        this.initializeState()
     }
     /**
      * Position search results right below the search input field.
@@ -948,6 +994,22 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         )
     }
     // / endregion
+    /**
+     * Update input state.
+     * @returns Nothing.
+     */
+    updateState():void {
+        this.valid = this.value !== null || !this.required
+        this.invalid = !this.valid
+
+        if (this.valid) {
+            this.removeAttribute('invalid')
+            this.setAttribute('valid', '')
+        } else {
+            this.removeAttribute('valid')
+            this.setAttribute('invalid', '')
+        }
+    }
     /**
      * Triggers on each search request.
      * @returns Debounced function.
@@ -1627,6 +1689,9 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             'closeclick',
             ():void => {
                 (item.infoWindow as InfoWindow).isOpen = false
+
+                this.setPropertyValue('value', null, false)
+                this.updateState()
             }
         )
         this.self.maps.event.addListener(
@@ -1646,6 +1711,9 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         if (event && !event.stopPropagation)
             event = undefined
 
+        this.internalProperties.value = item
+        this.updateState()
+
         this.highlightMarker(item, event, 'stop')
 
         /*
@@ -1657,7 +1725,9 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             this.map.getZoom() <=
                 this.resolvedConfiguration.marker.cluster.maxZoom
         )
-            this.map.setZoom(this.resolvedConfiguration.marker.cluster.maxZoom + 1)
+            this.map.setZoom(
+                this.resolvedConfiguration.marker.cluster.maxZoom + 1
+            )
 
         this.closeSearchResults(event)
 
