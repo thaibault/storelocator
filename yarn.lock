@@ -2949,9 +2949,9 @@ camelcase@^6.0.0:
   integrity sha512-c7wVvbw3f37nuobQNtgsgG9POC9qMbNuMQmTCqZv23b6MIz0fcYpBiOlv9gEN/hdLdnZTDQhg6e9Dq5M1vKvfg==
 
 caniuse-lite@^1.0.30000844, caniuse-lite@^1.0.30001173:
-  version "1.0.30001178"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001178.tgz#3ad813b2b2c7d585b0be0a2440e1e233c6eabdbc"
-  integrity sha512-VtdZLC0vsXykKni8Uztx45xynytOi71Ufx9T8kHptSw9AL4dpqailUJJHavttuzUe1KYuBYtChiWv+BAb7mPmQ==
+  version "1.0.30001179"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001179.tgz#b0803883b4471a6c62066fb1752756f8afc699c8"
+  integrity sha512-blMmO0QQujuUWZKyVrD1msR4WNDAqb/UPO1Sw2WWsQ7deoM5bJiicKnWJ1Y0NS/aGINSnKPIWBMw5luX+NDUCA==
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -3069,9 +3069,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.655"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.655.tgz#e8d8d0c49a8f9279ba493e75a29211634db34469"
-  integrity sha512-r0hxzVG8f6ILAzquBu/NY5EI9oZVjLYm0/pks8G1tPjq4rUaCvQsSIsd3t3BQL5nz7LNKwnWKAGC6RVFhHqYwQ==
+  version "3.0.657"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.657.tgz#638a8234dd99e829ee4d46c190935d430ad276ca"
+  integrity sha512-wm63hXBHqfALGfUV9Dnomq3OsrVWnRpIOwd080gse5umwesSHhDyuK0Q7TBDhO6izvJW4+KohZKD9YABM/L2Fw==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -8298,9 +8298,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.166"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.166.tgz#4a31eb1fbfea18cc88798957a7171743c267e08a"
-  integrity sha512-bUZTj2lMsstyvBgi/sO4qLMSjX6oJTxyM5cQVKB9DsKJF31UF6TNGoSdtXo3Wrx3w+QO6XUdzKfL5jUSTvrbzQ==
+  version "0.0.167"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.167.tgz#9b0bd6366bda5bd7a0c1cd3322565be968b8bc10"
+  integrity sha512-YsDIRg1Wgcc2WHiVJCXFVKIbdW9Mgh7pY5weL6jR8S4Z/17ZWTgU+DY75SpjPQ0h/hLicNoNoMxIRRdWsOFn7g==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
