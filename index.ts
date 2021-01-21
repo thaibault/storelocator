@@ -115,44 +115,47 @@ import {
 export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends Element = HTMLElement> extends Web<TElement> {
     static applicationInterfaceLoad:Promise<void>
     static cloneSlots:boolean = true
+    /*
+        Nested quotes in code can work in IE 11 if only one type of quote is
+        used according to escaping.
+    */
     static content:string = `
         <div>
             <slot name="input"><input class="store-locator__input" /></slot>
 
             <slot name="searchResults">
-                <div class="store-locator__search-results"><textarea>
-                    \\\${loading ?
-                        '<div class="idle">loading...</div>' :
-                        results.length ?
-                            results.map(function(result) {
-                                return ('<ul>' +
-                                    '<li>' +
-                                        Object.keys(result.data)
-                                            .filter(function(name) {
-                                                return ['number', 'string']
-                                                    .includes(
-                                                        typeof result.data[name]
-                                                    )
-                                            })
-                                            .map(function(name) {
-                                                return (
-                                                    name +
-                                                    ': ' +
-                                                    Tools.stringMark(
-                                                        result.data[name],
-                                                        searchWords,
-                                                        configuration.search
-                                                            .normalizer
-                                                    )
-                                                )
-                                            })
-                                            .join('</li><li>') +
-                                    '</li>' +
-                                '</ul>')
-                            }).join('') :
-                            '<div class="no-results">No results found</div>'
-                    }
-                </textarea></div>
+                <div class="store-locator__search-results"><textarea>\\\${
+
+loading ?
+    "<div class=\\\\"idle\\\\">loading...</div>" :
+    results.length ?
+        results.map(function(result) {
+            return ("<ul>" +
+                "<li>" +
+                    Object.keys(result.data)
+                        .filter(function(name) {
+                            return ["number", "string"]
+                                .includes(typeof result.data[name])
+                        })
+                        .map(function(name) {
+                            return (
+                                name +
+                                ": " +
+                                Tools.stringMark(
+                                    result.data[name],
+                                    searchWords,
+                                    configuration.search.normalizer
+                                )
+                            )
+                        })
+                        .join("</li><li>") +
+                "</li>" +
+            "</ul>")
+        })
+        .join("") :
+        "<div class=\\\\"no-results\\\\">No results found</div>"
+
+                }</textarea></div>
             </slot>
 
             <slot name="infoWindow">
@@ -160,13 +163,13 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
                     <li>
                         \\\${Object.keys(item.data)
                             .filter(function(name) {
-                                return ['number', 'string']
+                                return ["number", "string"]
                                     .includes(typeof item.data[name])
                             })
                             .map(function(name) {
-                                return name + ': ' + item.data[name]
+                                return name + ": " + item.data[name]
                             })
-                            .join('</li><li>')
+                            .join("</li><li>")
                         }
                     </li>
                 </textarea></ul>
