@@ -75,6 +75,9 @@ import {
  * options.
  * @property static:maps - Holds the currently used maps scope.
  *
+ * @property initialized - Indicates whether map has been initialized yet.
+ * Avoids re-initializing due to property updates (would be too expensive).
+ *
  * @property configuration - Holds given configuration object.
  * @property resolvedConfiguration - Holds resolved configuration object.
  * @property urlConfiguration - URL given configurations object.
@@ -338,6 +341,8 @@ loading ?
     static renderUnsafe:boolean = true
     static _name:string = 'StoreLocator'
 
+    initialized:boolean = false
+
     configuration:Partial<Configuration<Store>>|undefined
     resolvedConfiguration:Configuration<Store> = {} as Configuration<Store>
     urlConfiguration:null|PlainObject = null
@@ -411,13 +416,40 @@ loading ?
 
         // TODO release event listener.
     }
+    /*
+     * Generic property setter. Forwards field writes into "properties" field
+     * and triggers re-rendering (batched).
+     * @param name - Property name to write.
+     * @param value - New value to write.
+     * @param render - Indicates to trigger a new render cycle.
+     * @returns Nothing.
+     */
+    setPropertyValue(name:string, value:any, render:boolean = true):void {
+        /*
+            NOTE: Avoid re-rendering an already initialized map to improve
+            performance.
+        */
+        if (render && this.initialized) {
+            if (name === 'value')
+                this.updateValue(value)
+            else {
+                super.setPropertyValue(name, value, false)
+
+                this.updateValueState()
+            }
+        } else
+            super.setPropertyValue(name, value, render)
+    }
     /**
      * Triggered when content projected and nested dom nodes are ready to be
      * traversed. Selects all needed dom nodes.
+     * @param reason - Description why rendering is necessary.
      * @returns A promise resolving to nothing.
      */
-    async render():Promise<void> {
-        super.render()
+    async render(reason:string = 'unknown'):Promise<void> {
+        this.initialized = true
+
+        super.render(reason)
 
         $(this.slots.input).css(this.resolvedConfiguration.input.hide)
 
@@ -760,16 +792,19 @@ loading ?
     }
     /**
      * Initializes given value and state.
+     * @param setModifiedState - Indicates whether to set modified state
+     * properties.
      * @return Nothing.
      */
-    initializeState():void {
-        if (![null, 'undefined'].includes(this.value as null)) {
+    updateValue(value:any, setModifiedState:boolean = true):void {
+        if (this.value === value)
+            return
+
+        if (![null, 'undefined'].includes(value as null)) {
             const hasID:boolean =
-                typeof this.value === 'object' &&
-                'id' in (this.value as unknown as Store)
-            const id:unknown = hasID ?
-                (this.value as unknown as Store).id :
-                this.value
+                typeof value === 'object' &&
+                'id' in (value as unknown as Store)
+            const id:unknown = hasID ? (value as unknown as Store).id : value
 
             let found:boolean = false
             for (const item of this.items)
@@ -783,7 +818,7 @@ loading ?
             if (!found)
                 this.setPropertyValue('value', null, false)
         }
-        this.updateState(false)
+        this.updateValueState(setModifiedState)
 
         this.dispatchEvent(
             new CustomEvent('change', {detail: {value: this.value}})
@@ -980,7 +1015,7 @@ loading ?
                 } as Store)
         }
 
-        this.initializeState()
+        this.updateValue(this.value, false)
     }
     /**
      * Position search results right below the search input field.
@@ -1043,7 +1078,7 @@ loading ?
      * properties.
      * @returns Nothing.
      */
-    updateState(setModifiedState:boolean = true):void {
+    updateValueState(setModifiedState:boolean = true):void {
         this.valid = this.value !== null || !this.required
         this.invalid = !this.valid
 
@@ -1752,7 +1787,7 @@ loading ?
                     (item.infoWindow as InfoWindow).isOpen = false
 
                     this.setPropertyValue('value', null, false)
-                    this.updateState()
+                    this.updateValueState()
 
                     this.dispatchEvent(new CustomEvent(
                         'change', {detail: {event, value: this.value}}
@@ -1785,7 +1820,7 @@ loading ?
             'infoWindowOpen', {detail: {event, item}}
         ))) {
             this.setPropertyValue('value', item, false)
-            this.updateState()
+            this.updateValueState()
             this.dispatchEvent(
                 new CustomEvent('change', {detail: {event, value: item}})
             )
