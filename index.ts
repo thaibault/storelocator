@@ -778,6 +778,10 @@ loading ?
                 this.setPropertyValue('value', null, false)
         }
         this.updateState()
+
+        this.dispatchEvent(
+            new CustomEvent('change', {detail: {value: this.value}})
+        )
     }
     /**
      * Initializes cluster, info windows and marker.
@@ -1720,11 +1724,23 @@ loading ?
         this.self.maps.event.addListener(
             item.infoWindow as InfoWindow,
             'closeclick',
-            ():void => {
-                (item.infoWindow as InfoWindow).isOpen = false
+            (event:Event):void => {
+                if (this.dispatchEvent(new CustomEvent(
+                    'infoWindowClose', {detail: {event, item}}
+                ))) {
+                    (item.infoWindow as InfoWindow).isOpen = false
 
-                this.setPropertyValue('value', null, false)
-                this.updateState()
+                    this.setPropertyValue('value', null, false)
+                    this.updateState()
+
+                    this.dispatchEvent(new CustomEvent(
+                        'change', {detail: {event, value: this.value}}
+                    ))
+
+                    this.dispatchEvent(new CustomEvent(
+                        'infoWindowClosed', {detail: {event, item}}
+                    ))
+                }
             }
         )
         this.self.maps.event.addListener(
@@ -1744,32 +1760,36 @@ loading ?
         if (event && !event.stopPropagation)
             event = undefined
 
-        this.setPropertyValue('value', item, false)
-        this.updateState()
-
-        this.highlightMarker(item, event, 'stop')
-
-        /*
-            We have to ensure that the minimum zoom level has one more then
-            the clustering can appear. Since a cluster hides an open window.
-        */
-        if (
-            this.resolvedConfiguration.marker.cluster?.maxZoom &&
-            this.map.getZoom() <=
-                this.resolvedConfiguration.marker.cluster.maxZoom
-        )
-            this.map.setZoom(
-                this.resolvedConfiguration.marker.cluster.maxZoom + 1
-            )
-
-        this.closeSearchResults(event)
-
-        if (this.openWindow?.isOpen && this.openWindow === item.infoWindow)
-            return
-
         if (this.dispatchEvent(new CustomEvent(
             'infoWindowOpen', {detail: {event, item}}
         ))) {
+            this.setPropertyValue('value', item, false)
+            this.updateState()
+            this.dispatchEvent(
+                new CustomEvent('change', {detail: {event, value: item}})
+            )
+
+            this.highlightMarker(item, event, 'stop')
+
+            /*
+                We have to ensure that the minimum zoom level has one more then
+                the clustering can appear. Since a cluster hides an open
+                window.
+            */
+            if (
+                this.resolvedConfiguration.marker.cluster?.maxZoom &&
+                this.map.getZoom() <=
+                    this.resolvedConfiguration.marker.cluster.maxZoom
+            )
+                this.map.setZoom(
+                    this.resolvedConfiguration.marker.cluster.maxZoom + 1
+                )
+
+            this.closeSearchResults(event)
+
+            if (this.openWindow?.isOpen && this.openWindow === item.infoWindow)
+                return
+
             const infoWindow:InfoWindow = item.infoWindow as InfoWindow
             item.refreshSize = ():void =>
                 /*
@@ -1882,7 +1902,7 @@ loading ?
                     item.isHighlighted = true
                 }
                 this.dispatchEvent(new CustomEvent(
-                    'markerHighlighted', {detail: {item}}
+                    'markerHighlighted', {detail: {event, item}}
                 ))
             }
     }
