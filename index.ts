@@ -117,6 +117,7 @@ import {
  */
 export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends Element = HTMLElement> extends Web<TElement> {
     static applicationInterfaceLoad:Promise<void>
+    static applyRootBinding:boolean = true
     static cloneSlots:boolean = true
     /*
         Nested quotes in code can work in IE 11 if only one type of quote is
