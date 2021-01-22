@@ -99,7 +99,10 @@ import {
  * @property searchResultsDirty - Indicates whether current search results
  * aren't valid anymore.
  *
+ * @property dirty - Indicates whether this component has been modified input.
  * @property invalid - Indicates whether this component is in invalid state.
+ * @property pristine - Indicates whether this component hasn't been modified
+ * yet.
  * @property required - Indicates whether this is invalid as long there is no
  * item selected yet.
  * @property valid - Indicates whether this component is in valid state.
@@ -353,7 +356,9 @@ loading ?
     searchWords:Array<string> = []
     searchResultsDirty:boolean = false
 
+    dirty:boolean = false
     invalid:boolean = false
+    pristine:boolean = true
     required:boolean = false
     valid:boolean = true
     value:Item|null = null
@@ -777,7 +782,7 @@ loading ?
             if (!found)
                 this.setPropertyValue('value', null, false)
         }
-        this.updateState()
+        this.updateState(false)
 
         this.dispatchEvent(
             new CustomEvent('change', {detail: {value: this.value}})
@@ -1033,11 +1038,26 @@ loading ?
     // / endregion
     /**
      * Update input state.
+     * @param setModifiedState - Indicates whether to set modified state
+     * properties.
      * @returns Nothing.
      */
-    updateState():void {
+    updateState(setModifiedState:boolean = true):void {
         this.valid = this.value !== null || !this.required
         this.invalid = !this.valid
+
+        if (setModifiedState) {
+            this.dirty = true
+            this.pristine = !this.dirty
+        }
+
+        if (this.dirty) {
+            this.removeAttribute('pristine')
+            this.setAttribute('dirty', '')
+        } else {
+            this.removeAttribute('dirty')
+            this.setAttribute('pristine', '')
+        }
 
         if (this.valid) {
             this.removeAttribute('invalid')
