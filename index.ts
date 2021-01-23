@@ -128,6 +128,11 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
     */
     static content:string = `
         <div>
+            <!--TODO-->
+            <slot name"loading">
+                <div class="store-locator__loading">Loading...</div>
+            </slot>
+
             <slot name="input"><input class="store-locator__input" /></slot>
 
             <slot name="searchResults">
