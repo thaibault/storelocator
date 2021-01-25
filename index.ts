@@ -28,9 +28,10 @@ import {
     TimeoutPromise,
     ValueOf
 } from 'clientnode/type'
-import {any, boolean, object, string} from 'clientnode/property-types'
+import {any, boolean, object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
 import FetchType, {Response} from 'node-fetch'
+import property from 'web-component-wrapper/decorator'
 import Web from 'web-component-wrapper/Web'
 import {WebComponentAPI} from 'web-component-wrapper/type'
 
@@ -328,15 +329,6 @@ loading ?
         ]
     }
     static maps:Maps
-    static observedAttributes:Array<string> =
-        ['configuration', 'default', 'name', 'required', 'value']
-    static propertyTypes:Mapping<ValueOf<PropertyTypes>> = {
-        configuration: object,
-        default: any,
-        name: string,
-        required: boolean,
-        value: any
-    }
     /*
        Renders component given slot contents into given dom node. We avoid that
        since all slots will be injected dynamically triggered through google
@@ -352,6 +344,7 @@ loading ?
 
     initialized:boolean = false
 
+    @property({type: object})
     configuration:Partial<Configuration<Store>>|undefined
     resolvedConfiguration:Configuration<Store> = {} as Configuration<Store>
     urlConfiguration:null|PlainObject = null
@@ -371,12 +364,18 @@ loading ?
     searchWords:Array<string> = []
     searchResultsDirty:boolean = false
 
+    @property()
+    name:string = 'storeLocator'
+
+    @property({type: any})
     default:Item|null = null
     dirty:boolean = false
     invalid:boolean = false
     pristine:boolean = true
+    @property({type: boolean})
     required:boolean = false
     valid:boolean = true
+    @property({type: any})
     value:Item|null = null
 
     // NOTE: Will be initialized during bootstrapping.
