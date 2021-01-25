@@ -102,6 +102,7 @@ import {
  * @property searchResultsDirty - Indicates whether current search results
  * aren't valid anymore.
  *
+ * @property default - Sets default value if not alternate value set yet.
  * @property dirty - Indicates whether this component has been modified input.
  * @property invalid - Indicates whether this component is in invalid state.
  * @property pristine - Indicates whether this component hasn't been modified
@@ -328,12 +329,13 @@ loading ?
     }
     static maps:Maps
     static observedAttributes:Array<string> =
-        ['configuration', 'name', 'required', 'value']
+        ['configuration', 'default', 'name', 'required', 'value']
     static propertyTypes:Mapping<ValueOf<PropertyTypes>> = {
         configuration: object,
+        default: any,
         name: string,
-        value: any,
-        required: boolean
+        required: boolean,
+        value: any
     }
     /*
        Renders component given slot contents into given dom node. We avoid that
@@ -369,6 +371,7 @@ loading ?
     searchWords:Array<string> = []
     searchResultsDirty:boolean = false
 
+    default:Item|null = null
     dirty:boolean = false
     invalid:boolean = false
     pristine:boolean = true
@@ -432,6 +435,9 @@ loading ?
      * @returns Nothing.
      */
     setPropertyValue(name:string, value:any, render:boolean = true):void {
+        if (name === 'default' && !this.initialized)
+            super.setPropertyValue('value', value, false)
+
         /*
             NOTE: Avoid re-rendering an already initialized map to improve
             performance.
@@ -1091,7 +1097,8 @@ loading ?
      * @returns Nothing.
      */
     updateValueState(setModifiedState:boolean = true):void {
-        this.valid = ![null, undefined].includes(this.value) || !this.required
+        this.valid =
+            !([null, undefined].includes(this.value as null) && this.required)
         this.invalid = !this.valid
 
         if (setModifiedState) {
