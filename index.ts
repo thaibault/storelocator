@@ -1091,7 +1091,7 @@ loading ?
      * @returns Nothing.
      */
     updateValueState(setModifiedState:boolean = true):void {
-        this.valid = this.value !== null || !this.required
+        this.valid = ![null, undefined].includes(this.value) || !this.required
         this.invalid = !this.valid
 
         if (setModifiedState) {
