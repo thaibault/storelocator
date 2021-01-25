@@ -149,6 +149,10 @@ export type SearchConfiguration = {
     resultAggregation:'cut'|'union'
     stylePropertiesToDeriveFromInputField:Array<string>
 }
+export type AppearanceConfiguration = {
+    hide:Mapping<number|string>
+    showAnimation:[Mapping<number|string>, Mapping<number|string>]
+}
 export type Configuration<StoreItem = Store> = {
     additionalStoreProperties:object
     applicationInterface:{
@@ -163,10 +167,7 @@ export type Configuration<StoreItem = Store> = {
     filter:null|string
     iconPath:string
     infoWindow:{additionalMoveToBottomInPixel:number}
-    input:{
-        hide:Mapping<number|string>
-        showAnimation:[Mapping<number|string>, Mapping<number|string>]
-    }
+    input:AppearanceConfiguration
     ip:string
     ipToLocationApplicationInterface:{
         bounds:{
@@ -191,6 +192,7 @@ export type Configuration<StoreItem = Store> = {
         }
     }
     name:string
+    root:AppearanceConfiguration
     search:number|SearchConfiguration
     securityResponsePrefix:string
     showInputAfterLoadedDelayInMilliseconds:number

@@ -127,16 +127,18 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         used according to escaping.
     */
     static content:string = `
-        <div>
-            <!--TODO-->
-            <slot name"loading">
-                <div class="store-locator__loading">Loading...</div>
-            </slot>
+        <slot name="loading">
+            <div class="store-locator__loading">
+                <span class="store-locator__loading__content">
+                    Loading...
+                </span>
+            </div>
+        </slot>
 
-            <slot name="input"><input class="store-locator__input" /></slot>
+        <slot name="input"><input class="store-locator__input" /></slot>
 
-            <slot name="searchResults">
-                <div class="store-locator__search-results"><textarea>\\\${
+        <slot name="searchResults">
+            <div class="store-locator__search-results"><textarea>\\\${
 
 loading ?
     "<div class=\\\\"idle\\\\">loading...</div>" :
@@ -167,26 +169,25 @@ loading ?
         .join("") :
         "<div class=\\\\"no-results\\\\">No results found</div>"
 
-                }</textarea></div>
-            </slot>
+            }</textarea></div>
+        </slot>
 
-            <slot name="infoWindow">
-                <ul class="store-locator__info-window"><textarea>
-                    <li>
-                        \\\${Object.keys(item.data)
-                            .filter(function(name) {
-                                return ["number", "string"]
-                                    .includes(typeof item.data[name])
-                            })
-                            .map(function(name) {
-                                return name + ": " + item.data[name]
-                            })
-                            .join("</li><li>")
-                        }
-                    </li>
-                </textarea></ul>
-            </slot>
-        </div>
+        <slot name="infoWindow">
+            <ul class="store-locator__info-window"><textarea>
+                <li>
+                    \\\${Object.keys(item.data)
+                        .filter(function(name) {
+                            return ["number", "string"]
+                                .includes(typeof item.data[name])
+                        })
+                        .map(function(name) {
+                            return name + ": " + item.data[name]
+                        })
+                        .join("</li><li>")
+                    }
+                </li>
+            </textarea></ul>
+        </slot>
     `
     static defaultConfiguration:Configuration<BaseStore> = {
         additionalStoreProperties: {},
@@ -210,7 +211,7 @@ loading ?
         iconPath: '',
         infoWindow: {additionalMoveToBottomInPixel: 120},
         input: {
-            hide: {opacity: 0},
+            hide: {display: 'block', opacity: 0},
             showAnimation: [{opacity: 1}, {duration: 'fast'}]
         },
         ip: 'check',
@@ -243,11 +244,9 @@ loading ?
         marker: {
             cluster: {
                 gridSize: 100,
-                // TODO take existing images.
-                imagePath: `
-                    https://cdn.rawgit.com/
-                    googlemaps/js-marker-clusterer/gh-pages/images/m
-                `.replace(/[ \n]+/g, ''),
+                imagePath:
+                    'https://raw.githubusercontent.com/googlemaps/' +
+                    'js-markerclustererplus/main/images/m',
                 maxZoom: 11
             },
             icon: {
@@ -256,6 +255,10 @@ loading ?
             }
         },
         name: 'storeLocator',
+        root: {
+            hide: {display: 'block', opacity: 0},
+            showAnimation: [{opacity: 1}, {duration: 'fast'}]
+        },
         search: 50,
         securityResponsePrefix: ")]}',",
         showInputAfterLoadedDelayInMilliseconds: 500,
@@ -839,10 +842,14 @@ loading ?
         this.resolvedConfiguration.map.center = new this.self.maps.LatLng(
             startLocation.latitude, startLocation.longitude
         )
+
         ;(this.root as HTMLElement).style.display = 'block'
         this.map = new this.self.maps.Map<TElement>(
             this.root as unknown as TElement, this.resolvedConfiguration.map
         )
+        $(this.root.firstElementChild)
+            .css(this.resolvedConfiguration.root.hide)
+
         if (this.resolvedConfiguration.limit)
             this.self.maps.event.addListener(
                 this.map,
@@ -916,18 +923,19 @@ loading ?
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
             .push(this.slots.input)
 
-        if (this.slots.link) {
-            this.evaluateDomNodeTemplate(
-                this.slots.link,
-                {
-                    [Tools.stringLowerCase(this.self._name) || 'instance']:
-                        this,
-                    configuration: this.resolvedConfiguration,
-                    Tools
-                }
-            )
-            this.root.appendChild(this.slots.link)
-        }
+        for (const domNode of [this.slots.loading, this.slots.link])
+            if (domNode) {
+                this.evaluateDomNodeTemplate(
+                    domNode,
+                    {
+                        [Tools.stringLowerCase(this.self._name) || 'instance']:
+                            this,
+                        configuration: this.resolvedConfiguration,
+                        Tools
+                    }
+                )
+                this.root.appendChild(domNode)
+            }
 
         if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
@@ -1671,6 +1679,8 @@ loading ?
      * @returns Nothing.
      */
     onLoaded():void {
+        $(this.root.firstElementChild)
+            .animate(...this.resolvedConfiguration.root.showAnimation)
         Tools.timeout(
             ():void => {
                 $(this.slots.input).animate(

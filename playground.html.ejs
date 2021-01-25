@@ -22,6 +22,9 @@
         <!--region style-->
         <style>
             store-locator {
+                font-family: Roboto, Arial, sans-serif;
+
+                height: 100%;
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -29,7 +32,16 @@
                 bottom: 0;
             }
 
+            store-locator .store-locator__loading {
+                display: flex;
+                font-size: 50px;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+            }
+
             store-locator .store-locator__input {
+                display: none;
                 height: 25px;
                 margin-top: 10px;
                 width: 230px;
@@ -71,8 +83,6 @@
                     link styles.
                 */
                 font-size: 10px;
-                font-family: Roboto, Arial, sans-serif;
-                color: black;
                 background-color: #eaf0e7;
 
                 opacity: .7;
