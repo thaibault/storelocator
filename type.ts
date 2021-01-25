@@ -183,6 +183,7 @@ export type Configuration<StoreItem = Store> = {
         northEast:Position
         southWest:Position
     }
+    loadingHideAnimation:[Mapping<number|string>, Mapping<number|string>]
     map:MapOptions
     marker:{
         cluster?:MapMarkerClustererOptions|null

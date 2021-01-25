@@ -223,16 +223,15 @@ loading ?
             key: null,
             protocol: 'https',
             timeoutInMilliseconds: 1000,
-            url: `
-                {1}//api.ipstack.com/{3} ?
-                    access_key={2} &
-                    fields=latitude,longitude
-            `.replace(/[ \n]+/g, '')
+            url:
+                '{1}//api.ipstack.com/{3}?access_key={2}&' +
+                'fields=latitude,longitude'
         },
         limit: {
             northEast: {latitude: 85, longitude: 180},
             southWest: {latitude: -85, longitude: -180}
         },
+        loadingHideAnimation: [{opacity: 0}, {duration: 'fast'}],
         map: {
             disableDefaultUI: true,
             maxZoom: 9999,
@@ -1676,19 +1675,22 @@ loading ?
     }
     /**
      * Is triggered if the complete map ist loaded.
-     * @returns Nothing.
+     * @returns Promise resolving when start up animation has been completed.
      */
-    onLoaded():void {
+    async onLoaded():Promise<void> {
+        $(this.slots.loading)
+            .animate(...this.resolvedConfiguration.loadingHideAnimation)
+            .promise()
+            .then(():void => {
+                this.slots.loading.style.display = 'none'
+            })
         $(this.root.firstElementChild)
             .animate(...this.resolvedConfiguration.root.showAnimation)
-        Tools.timeout(
-            ():void => {
-                $(this.slots.input).animate(
-                    ...this.resolvedConfiguration.input.showAnimation
-                )
-            },
+        await Tools.timeout(
             this.resolvedConfiguration.showInputAfterLoadedDelayInMilliseconds
         )
+        $(this.slots.input)
+            .animate(...this.resolvedConfiguration.input.showAnimation)
     }
     /**
      * Registers given store to the google maps canvas.
