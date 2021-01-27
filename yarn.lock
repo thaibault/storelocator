@@ -3669,9 +3669,9 @@ ejs@*:
     jake "^10.6.1"
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.3.634:
-  version "1.3.645"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.645.tgz#c0b269ae2ecece5aedc02dd4586397d8096affb1"
-  integrity sha512-T7mYop3aDpRHIQaUYcmzmh6j9MAe560n6ukqjJMbVC6bVTau7dSpvB18bcsBPPtOSe10cKxhJFtlbEzLa0LL1g==
+  version "1.3.646"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.646.tgz#a7dc089d6d83b6d6cc01f91de524e91f12e6ccfa"
+  integrity sha512-P+3q8ugIPezulqoBYaLoUsF0fT4YNpe+zEDmdDUDnHZUAeSbBjMbis+JjJp9duU8BdfWV3VXf27NTBcwhRTsAQ==
 
 emittery@^0.7.1:
   version "0.7.2"
@@ -8309,9 +8309,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.180"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.180.tgz#47f0cf3efc1c096394baa0e1353c0daf02397d7a"
-  integrity sha512-oac2PkhUdgCGl2w8igHV6I8jxrNmDsokUolVTVH8Tj7vTEjQqWvvaJqRUupFsuUdh4keBuhAlvpld8+HvjYUNw==
+  version "0.0.181"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.181.tgz#1faeb4cf222a180d8627978cfbc7157ed1ae1bc6"
+  integrity sha512-SNO9LUWZkTBbNo5hJNPbdXjjCjTB8Nyb30Xk40D9a1zTD1RckVyCVcvMcs5FngwEYa15/d0fAOXZAXYo8/qE0w==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
