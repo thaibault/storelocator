@@ -423,7 +423,16 @@ loading ?
     disconnectedCallback():void {
         super.disconnectedCallback()
 
-        // TODO release event listener.
+        this.root.removeEventListener(
+            'keydown', this.onKeyDown as EventListener)
+        this.slots.input?.removeEventListener('click', this.onInputClick)
+        this.slots.input?.removeEventListener('focus', this.onInputFocus)
+        this.slots.input?.removeEventListener(
+            'keydown', this.onInputKeyDown as EventListener
+        )
+        this.slots.input?.removeEventListener(
+            'keyup', this.updateSearchResultsHandler
+        )
     }
     /*
      * Generic property setter. Forwards field writes into "properties" field
@@ -916,7 +925,7 @@ loading ?
         }
 
         // Create the search box and link it to the UI element.
-        this.self.applyBindings(
+        this.applyBindings(
             this.slots.input,
             {
                 [Tools.stringLowerCase(this.self._name) || 'instance']: this,
