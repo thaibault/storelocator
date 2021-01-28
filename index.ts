@@ -78,6 +78,7 @@ import {
  *
  * @property initialized - Indicates whether map has been initialized yet.
  * Avoids re-initializing due to property updates (would be too expensive).
+ * @property loaded - Indicates whether map has been finished to initialize.
  *
  * @property configuration - Holds given configuration object.
  * @property resolvedConfiguration - Holds resolved configuration object.
@@ -105,6 +106,7 @@ import {
  *
  * @property default - Sets default value if not alternate value set yet.
  * @property dirty - Indicates whether this component has been modified input.
+ * @property disabled - Indicates whether this component is in editable.
  * @property invalid - Indicates whether this component is in invalid state.
  * @property pristine - Indicates whether this component hasn't been modified
  * yet.
@@ -129,12 +131,19 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         used according to escaping.
     */
     static content:string = `
-        <slot name="loading">
-            <div class="store-locator__loading">
-                <span class="store-locator__loading__content">
+        <slot name="loadingOverlay">
+            <div class="store-locator__loading-overlay">
+                <span class="store-locator__loading-overlay__content">
                     Loading...
                 </span>
             </div>
+        </slot>
+
+        <slot name="disabledOverlay">
+            <div
+                class="store-locator__disabled-overlay"
+                style="display: \${this.disabled ? 'none' : 'block'}"
+            ></div>
         </slot>
 
         <slot name="input"><input class="store-locator__input" /></slot>
@@ -343,6 +352,7 @@ loading ?
     static _name:string = 'StoreLocator'
 
     initialized:boolean = false
+    loaded:boolean = false
 
     @property({type: object})
     configuration:Partial<Configuration<Store>>|undefined
@@ -370,6 +380,8 @@ loading ?
     @property({type: any})
     default:Item|null = null
     dirty:boolean = false
+    @property({type: boolean, writeAttribute: true})
+    disabled:boolean = true
     invalid:boolean = false
     pristine:boolean = true
     @property({type: boolean})
@@ -439,27 +451,30 @@ loading ?
      * and triggers re-rendering (batched).
      * @param name - Property name to write.
      * @param value - New value to write.
-     * @param render - Indicates to trigger a new render cycle.
      * @returns Nothing.
      */
-    setPropertyValue(name:string, value:any, render:boolean = true):void {
+    setPropertyValue(name:string, value:any):void {
+        const oldValue:Item|null = this.value
+
         if (name === 'default' && !this.initialized)
-            super.setPropertyValue('value', value, false)
+            super.setPropertyValue('value', value)
+
+        if (this.initialized && name === 'value')
+            value = this.initializeValue(value)
+
+        super.setPropertyValue(name, value)
 
         /*
-            NOTE: Avoid re-rendering an already initialized map to improve
-            performance.
+            NOTE: Since we avoid re-rendering an already initialized map (to
+            improve performance) we have to adapt already rendered state here.
         */
-        if (render && this.initialized) {
-            if (name === 'value')
-                this.updateValue(value)
-            else {
-                super.setPropertyValue(name, value, false)
+        if (this.initialized && name === 'disabled')
+            this.slots.disabledOverlay.style.display = value ? 'block' : 'none'
 
-                this.updateValueState()
-            }
-        } else
-            super.setPropertyValue(name, value, render)
+        this.updateValueState()
+
+        if (this.initialized && oldValue !== value && name === 'value')
+            this.dispatchEvent(new CustomEvent('change', {detail: {value}}))
     }
     /**
      * Triggered when content projected and nested dom nodes are ready to be
@@ -468,6 +483,9 @@ loading ?
      * @returns A promise resolving to nothing.
      */
     async render(reason:string = 'unknown'):Promise<void> {
+        if (this.initialized && reason === 'propertyChanged')
+            return
+
         this.initialized = true
 
         super.render(reason)
@@ -475,6 +493,8 @@ loading ?
         $(this.slots.input).css(this.resolvedConfiguration.input.hide)
 
         await this.loadMapEnvironmentIfNotAvailableAndInitializeMap()
+
+        this.loaded = true
     }
     // endregion
     // region event handler
@@ -812,14 +832,14 @@ loading ?
         }
     }
     /**
-     * Initializes given value and state.
-     * @param setModifiedState - Indicates whether to set modified state
-     * properties.
-     * @return Nothing.
+     * Initializes given value. Maps to internally determined item and opens
+     * corresponding marker.
+     * @param value - Value to initialize.
+     * @return Determined value.
      */
-    updateValue(value:any, setModifiedState:boolean = true):void {
-        if (this.value === value)
-            return
+    initializeValue(value:any):any {
+        if (this.loaded && this.value === value)
+            return value
 
         if (![null, 'undefined'].includes(value as null)) {
             const hasID:boolean =
@@ -830,20 +850,13 @@ loading ?
             let found:boolean = false
             for (const item of this.items)
                 if (id === (typeof id === 'object' ? item : item.data?.id)) {
-                    this.setPropertyValue('value', item, false)
                     if (!item.isOpen)
                         this.openMarker(item)
-                    found = true
-                    break
+                    return item
                 }
-            if (!found)
-                this.setPropertyValue('value', null, false)
         }
-        this.updateValueState(setModifiedState)
 
-        this.dispatchEvent(
-            new CustomEvent('change', {detail: {value: this.value}})
-        )
+        return null
     }
     /**
      * Initializes cluster, info windows and marker.
@@ -936,7 +949,11 @@ loading ?
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
             .push(this.slots.input)
 
-        for (const domNode of [this.slots.loading, this.slots.link])
+        for (const domNode of [
+            this.slots.disabledOverlay,
+            this.slots.loadingOverlay,
+            this.slots.link
+        ])
             if (domNode) {
                 this.evaluateDomNodeTemplate(
                     domNode,
@@ -1041,7 +1058,7 @@ loading ?
                 } as Store)
         }
 
-        this.updateValue(this.value, false)
+        this.setPropertyValue('value', this.value)
     }
     /**
      * Position search results right below the search input field.
@@ -1100,19 +1117,22 @@ loading ?
     // / endregion
     /**
      * Update input state.
-     * @param setModifiedState - Indicates whether to set modified state
-     * properties.
      * @returns Nothing.
      */
-    updateValueState(setModifiedState:boolean = true):void {
+    updateValueState():void {
         this.valid =
             !([null, undefined].includes(this.value as null) && this.required)
         this.invalid = !this.valid
 
-        if (setModifiedState) {
-            this.dirty = true
-            this.pristine = !this.dirty
-        }
+        /*
+            Do not modify if internal initialisation is running. No user
+            interaction possible yet.
+        */
+        if (!this.loaded)
+            return
+
+        this.dirty = true
+        this.pristine = !this.dirty
 
         if (this.dirty) {
             this.removeAttribute('pristine')
@@ -1121,6 +1141,11 @@ loading ?
             this.removeAttribute('dirty')
             this.setAttribute('pristine', '')
         }
+
+        if (this.disabled)
+            this.setAttribute('disabled', '')
+        else
+            this.removeAttribute('disabled')
 
         if (this.valid) {
             this.removeAttribute('invalid')
@@ -1693,11 +1718,11 @@ loading ?
      * @returns Promise resolving when start up animation has been completed.
      */
     async onLoaded():Promise<void> {
-        $(this.slots.loading)
+        $(this.slots.loadingOverlay)
             .animate(...this.resolvedConfiguration.loadingHideAnimation)
             .promise()
             .then(():void => {
-                this.slots.loading.style.display = 'none'
+                this.slots.loadingOverlay.style.display = 'none'
             })
         $(this.root.firstElementChild)
             .animate(...this.resolvedConfiguration.root.showAnimation)
@@ -1818,12 +1843,7 @@ loading ?
                 ))) {
                     (item.infoWindow as InfoWindow).isOpen = false
 
-                    this.setPropertyValue('value', null, false)
-                    this.updateValueState()
-
-                    this.dispatchEvent(new CustomEvent(
-                        'change', {detail: {event, value: this.value}}
-                    ))
+                    this.setPropertyValue('value', null)
 
                     this.dispatchEvent(new CustomEvent(
                         'infoWindowClosed', {detail: {event, item}}
@@ -1851,12 +1871,6 @@ loading ?
         if (this.dispatchEvent(new CustomEvent(
             'infoWindowOpen', {detail: {event, item}}
         ))) {
-            this.setPropertyValue('value', item, false)
-            this.updateValueState()
-            this.dispatchEvent(
-                new CustomEvent('change', {detail: {event, value: item}})
-            )
-
             this.highlightMarker(item, event, 'stop')
 
             /*
@@ -1907,6 +1921,8 @@ loading ?
             infoWindow.isOpen = true
             this.openWindow = infoWindow
             infoWindow.open(this.map, item.marker)
+
+            this.setPropertyValue('value', item)
 
             this.map.panTo(item.position as MapPosition)
             this.map.panBy(

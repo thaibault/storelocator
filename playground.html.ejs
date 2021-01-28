@@ -32,7 +32,13 @@
                 bottom: 0;
             }
 
-            store-locator .store-locator__loading {
+            store-locator .store-locator__disabled-overlay {
+                background-color: black;
+                height: 100%;
+                opacity: .2;
+            }
+
+            store-locator .store-locator__loading-overlay {
                 display: flex;
                 font-size: 50px;
                 justify-content: center;
@@ -270,7 +276,8 @@
                     }
                 ]
             }"
-            a-value="5"
+            disabled
+            value="5"
             required
         >
             <input

@@ -3080,9 +3080,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.664"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.664.tgz#c38713447890ae64c85459c8516355fc3d40dc76"
-  integrity sha512-qp+apsgAErJMdaI5UhyZfy22BhDSa99NalGPvrBkihoI+VwNYO75hPnlNpaCLXRbEasC8VOHHHBl3NQiBLCHQA==
+  version "3.0.665"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.665.tgz#9e55bb4a8e0b45a16dbf6668463b089b2aee88e6"
+  integrity sha512-cdlZ+8T0oJeWtCErRWK38RlEEppO0pGtaETKgtF2Om4mE5vT1whueABmVyedg8fzHXf2mytzAIXO9jKPsW1/vg==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3669,9 +3669,9 @@ ejs@*:
     jake "^10.6.1"
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.3.634:
-  version "1.3.646"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.646.tgz#a7dc089d6d83b6d6cc01f91de524e91f12e6ccfa"
-  integrity sha512-P+3q8ugIPezulqoBYaLoUsF0fT4YNpe+zEDmdDUDnHZUAeSbBjMbis+JjJp9duU8BdfWV3VXf27NTBcwhRTsAQ==
+  version "1.3.647"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.647.tgz#8f1750ab7a5137f1a9a27f8f4ebdf550e08ae10b"
+  integrity sha512-Or2Nu8TjkmSywY9hk85K/Y6il28hchlonITz30fkC87qvSNupQl29O12BzDDDTnUFlo6kEIFL2QGSpkZDMxH8g==
 
 emittery@^0.7.1:
   version "0.7.2"
@@ -4166,9 +4166,9 @@ fastest-levenshtein@^1.0.12:
   integrity sha512-On2N+BpYJ15xIC974QNVuYGMOlEVt4s0EOI3wwMqOmK1fdDY+FN/zltPV8vosq4ad4c/gJ1KHScUn/6AWIgiow==
 
 fastq@^1.6.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.10.0.tgz#74dbefccade964932cdf500473ef302719c652bb"
-  integrity sha512-NL2Qc5L3iQEsyYzweq7qfgy5OtXCmGzGvhElGEd/SoFWEMOEczNh5s5ocaF01HDetxz+p8ecjNPA6cZxxIHmzA==
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.10.1.tgz#8b8f2ac8bf3632d67afcd65dac248d5fdc45385e"
+  integrity sha512-AWuv6Ery3pM+dY7LYS8YIaCiQvUaos9OB1RyNgaOWnaX+Tik7Onvcsf8x8c+YtDeT0maYLniBip2hox5KtEXXA==
   dependencies:
     reusify "^1.0.4"
 
@@ -8309,9 +8309,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.181"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.181.tgz#1faeb4cf222a180d8627978cfbc7157ed1ae1bc6"
-  integrity sha512-SNO9LUWZkTBbNo5hJNPbdXjjCjTB8Nyb30Xk40D9a1zTD1RckVyCVcvMcs5FngwEYa15/d0fAOXZAXYo8/qE0w==
+  version "0.0.182"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.182.tgz#7ab96b851676976201df7740d2df84a7bbb629f3"
+  integrity sha512-oeJizpWiMAJgTmqc3ukPaomTU7xDQpaQSzQ3n6/I7eiPEQwWvYTFQqNOwVniCZ+AhYJAIdKjJ7jYvwRawXl5lQ==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
@@ -8324,9 +8324,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.892"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.892.tgz#2d31390f3e03a62bde2e4b7e5946923ef707b524"
-  integrity sha512-mhH6PTEp9QN2FLZ2/iThXN4L3V2wFhLfj3HS3AoZIk6vHDkH/OxfecAGzk5ks3kR0ZxQPUhUw/u17Q2to9ts5Q==
+  version "2.0.893"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.893.tgz#413b1d6873f3a05eb95308e4215829b714a47a56"
+  integrity sha512-cIc6ziQxur/1kMgMcbjB4D3JqfHj0rp1TpmnPKV9J2/Tw3nmOYVP9kT2tc68zHc5eJU4Iw0hqNa94w+PETrtrA==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
