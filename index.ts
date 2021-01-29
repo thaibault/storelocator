@@ -142,7 +142,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         <slot name="disabledOverlay">
             <div
                 class="store-locator__disabled-overlay"
-                style="display: \${this.disabled ? 'none' : 'block'}"
+                style="display: \${disabled ? 'block' : 'none'}"
             ></div>
         </slot>
 
@@ -381,10 +381,10 @@ loading ?
     default:Item|null = null
     dirty:boolean = false
     @property({type: boolean, writeAttribute: true})
-    disabled:boolean = true
+    disabled:boolean = false
     invalid:boolean = false
     pristine:boolean = true
-    @property({type: boolean})
+    @property({type: boolean, writeAttribute: true})
     required:boolean = false
     valid:boolean = true
     @property({type: any})
@@ -447,22 +447,24 @@ loading ?
         )
     }
     /*
-     * Generic property setter. Forwards field writes into "properties" field
-     * and triggers re-rendering (batched).
+     * Generic property setter. Forwards field writes into internal and
+     * external properties representation.
+     *
      * @param name - Property name to write.
      * @param value - New value to write.
+     *
      * @returns Nothing.
      */
-    setPropertyValue(name:string, value:any):void {
+    setInternalPropertyValue(name:string, value:any):void {
         const oldValue:Item|null = this.value
 
-        if (name === 'default' && !this.initialized)
-            super.setPropertyValue('value', value)
+        if (!this.initialized && name === 'default')
+            super.setInternalPropertyValue('value', value)
 
-        if (this.initialized && name === 'value')
-            value = this.initializeValue(value)
+        if (this.loaded && name === 'value')
+            value = this.mapValue(value)
 
-        super.setPropertyValue(name, value)
+        super.setInternalPropertyValue(name, value)
 
         /*
             NOTE: Since we avoid re-rendering an already initialized map (to
@@ -478,13 +480,20 @@ loading ?
     }
     /**
      * Triggered when content projected and nested dom nodes are ready to be
-     * traversed. Selects all needed dom nodes.
+     * traversed / injected.
      * @param reason - Description why rendering is necessary.
      * @returns A promise resolving to nothing.
      */
     async render(reason:string = 'unknown'):Promise<void> {
         if (this.initialized && reason === 'propertyChanged')
             return
+
+        // NOTE: We have to reset open window state first.
+        if (typeof this.openWindow === 'object' && this.openWindow?.isOpen) {
+            this.openWindow.isOpen = false
+            if (this.openWindow.close)
+                this.openWindow.close()
+        }
 
         this.initialized = true
 
@@ -493,8 +502,6 @@ loading ?
         $(this.slots.input).css(this.resolvedConfiguration.input.hide)
 
         await this.loadMapEnvironmentIfNotAvailableAndInitializeMap()
-
-        this.loaded = true
     }
     // endregion
     // region event handler
@@ -833,19 +840,28 @@ loading ?
     }
     /**
      * Initializes given value. Maps to internally determined item and opens
-     * corresponding marker.
+     * corresponding marker. Normalizes from id, data item or item to internal
+     * item representation.
+     *
      * @param value - Value to initialize.
+     *
      * @return Determined value.
      */
-    initializeValue(value:any):any {
-        if (this.loaded && this.value === value)
-            return value
-
+    mapValue(value:any):any {
         if (![null, 'undefined'].includes(value as null)) {
             const hasID:boolean =
                 typeof value === 'object' &&
-                'id' in (value as unknown as Store)
-            const id:unknown = hasID ? (value as unknown as Store).id : value
+                (
+                    'id' in (value as unknown as Store) ||
+                    'data' in (value as unknown as Item) &&
+                    'id' in (value.data as unknown as Store)
+                )
+            const id:unknown = hasID ?
+                (
+                    (value as unknown as Store).id ||
+                    (value as unknown as Item).data?.id
+                ) :
+                value
 
             let found:boolean = false
             for (const item of this.items)
@@ -1057,6 +1073,8 @@ loading ?
                     ...this.resolvedConfiguration.additionalStoreProperties
                 } as Store)
         }
+
+        this.loaded = true
 
         this.setPropertyValue('value', this.value)
     }
@@ -1854,7 +1872,10 @@ loading ?
         this.self.maps.event.addListener(
             item.marker as MapMarker,
             'click',
-            this.openMarker.bind(this, item)
+            (event:Event):void => {
+                this.setPropertyValue('value', item)
+                this.openMarker(item, event)
+            }
         )
     }
     /**
@@ -1921,8 +1942,6 @@ loading ?
             infoWindow.isOpen = true
             this.openWindow = infoWindow
             infoWindow.open(this.map, item.marker)
-
-            this.setPropertyValue('value', item)
 
             this.map.panTo(item.position as MapPosition)
             this.map.panBy(
