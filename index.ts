@@ -445,8 +445,7 @@ loading ?
         )
     }
     /*
-     * Generic property setter. Forwards field writes into internal and
-     * external properties representation.
+     * Generic internal property setter. Forwards field writes into internal.
      *
      * @param name - Property name to write.
      * @param value - New value to write.
