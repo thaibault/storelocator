@@ -140,11 +140,7 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         </slot>
 
         <slot name="disabledOverlay">
-            <div
-                class="store-locator__disabled-overlay"
-                TODO!
-                data-bind-property-style="\${'\\\'display: \\\' + (storeLocator.disabled ? \\\'block\\\' : \\\'none\\\')'}"
-            ></div>
+            <div class="store-locator__disabled-overlay"></div>
         </slot>
 
         <slot name="input"><input class="store-locator__input" /></slot>
@@ -221,7 +217,7 @@ loading ?
         fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
         filter: null,
         iconPath: '',
-        infoWindow: {additionalMoveToBottomInPixel: 120},
+        infoWindow: {additionalMoveToBottomInPixel: 80},
         input: {
             hide: {display: 'block', opacity: 0},
             showAnimation: [{opacity: 1}, {duration: 'fast'}]
@@ -503,6 +499,8 @@ loading ?
         super.render(reason)
 
         $(this.slots.input).css(this.resolvedConfiguration.input.hide)
+        this.slots.disabledOverlay.style.display =
+            this.disabled ? 'block' : 'none'
 
         await this.loadMapEnvironmentIfNotAvailableAndInitializeMap()
     }
