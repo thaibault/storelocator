@@ -142,9 +142,8 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
         <slot name="disabledOverlay">
             <div
                 class="store-locator__disabled-overlay"
-                data-bind-property-style="
-                    \\"display: \\" + (storeLocator.disabled ? \\"block\\" : \\"none\\")
-                "
+                TODO!
+                data-bind-property-style="\${'\\\'display: \\\' + (storeLocator.disabled ? \\\'block\\\' : \\\'none\\\')'}"
             ></div>
         </slot>
 
