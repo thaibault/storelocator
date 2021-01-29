@@ -124,7 +124,6 @@ export type Item<StoreType extends Store = Store> = {
     icon?:Icon
     infoWindow?:InfoWindow
     isHighlighted:boolean
-    isOpen:boolean
     marker?:MapMarker
     open:(event?:Event) => void
     position:MapPosition|null

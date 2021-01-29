@@ -436,7 +436,8 @@ loading ?
         super.disconnectedCallback()
 
         this.root.removeEventListener(
-            'keydown', this.onKeyDown as EventListener)
+            'keydown', this.onKeyDown as EventListener
+        )
         this.slots.input?.removeEventListener('click', this.onInputClick)
         this.slots.input?.removeEventListener('focus', this.onInputFocus)
         this.slots.input?.removeEventListener(
@@ -458,11 +459,19 @@ loading ?
     setInternalPropertyValue(name:string, value:any):void {
         const oldValue:Item|null = this.value
 
-        if (!this.initialized && name === 'default')
-            super.setInternalPropertyValue('value', value)
+        if (!this.initialized && name === 'default') {
+            this.setPropertyValue('value', value)
+            return
+        }
 
-        if (this.loaded && name === 'value')
+        if (this.loaded && name === 'value') {
+            const givenValue:any = value
             value = this.mapValue(value)
+            if (givenValue !== value) {
+                this.setPropertyValue(name, value)
+                return
+            }
+        }
 
         super.setInternalPropertyValue(name, value)
 
@@ -862,7 +871,7 @@ loading ?
             let found:boolean = false
             for (const item of this.items)
                 if (id === (typeof id === 'object' ? item : item.data?.id)) {
-                    if (!item.isOpen)
+                    if (item.infoWindow && !item.infoWindow.isOpen)
                         this.openMarker(item)
                     return item
                 }
@@ -1066,6 +1075,23 @@ loading ?
         this.loaded = true
 
         this.setPropertyValue('value', this.value)
+
+        /*
+            NOTE: This fixes initial window focus not respecting
+            "infoWindow.additionalMoveToBottomInPixel" configuration to take
+            effect.
+        */
+        await Tools.timeout(1000)
+        if (
+            this.value?.infoWindow?.isOpen &&
+            this.resolvedConfiguration.infoWindow
+                .additionalMoveToBottomInPixel !== 0
+        )
+            this.map.panBy(
+                0,
+                -this.resolvedConfiguration.infoWindow
+                    .additionalMoveToBottomInPixel
+            )
     }
     /**
      * Position search results right below the search input field.
@@ -1340,7 +1366,6 @@ loading ?
                         result.isHighlighted = type !== 'stop'
                     },
                     isHighlighted: false,
-                    isOpen: false,
                     open: (event?:Event):void =>
                         this.focusPlace(result, event),
                     position: place.geometry ? place.geometry.location : null
@@ -1775,7 +1800,6 @@ loading ?
             foundWords: [],
             highlight: Tools.noop,
             isHighlighted: false,
-            isOpen: false,
             open: Tools.noop,
             position: (store && store.latitude && store.longitude) ?
                 new this.self.maps.LatLng(store.latitude, store.longitude) :
@@ -1852,13 +1876,13 @@ loading ?
      */
     attachMarkerEventListener(item:Item):void {
         this.self.maps.event.addListener(
-            item.infoWindow as InfoWindow,
+            item.infoWindow!,
             'closeclick',
             (event:Event):void => {
                 if (this.dispatchEvent(new CustomEvent(
                     'infoWindowClose', {detail: {event, item}}
                 ))) {
-                    (item.infoWindow as InfoWindow).isOpen = false
+                    item.infoWindow!.isOpen = false
 
                     this.setPropertyValue('value', null)
 
