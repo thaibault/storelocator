@@ -489,11 +489,7 @@ loading ?
             return
 
         // NOTE: We have to reset open window state first.
-        if (typeof this.openWindow === 'object' && this.openWindow?.isOpen) {
-            this.openWindow.isOpen = false
-            if (this.openWindow.close)
-                this.openWindow.close()
-        }
+        this.closeCurrentWindow()
 
         this.initialized = true
 
@@ -1012,15 +1008,8 @@ loading ?
                 this.map,
                 'zoom_changed',
                 ():void => {
-                    if (
-                        typeof this.openWindow === 'object' &&
-                        this.openWindow?.isOpen &&
-                        this.map.getZoom() <= markerClusterZoomLevel
-                    ) {
-                        this.openWindow.isOpen = false
-                        if (this.openWindow.close)
-                            this.openWindow.close()
-                    }
+                    if (this.map.getZoom() <= markerClusterZoomLevel)
+                        this.closeCurrentWindow()
                 }
             )
 
@@ -1635,11 +1624,9 @@ loading ?
                         await this.openMarker(matchingItem)
                         return
                     }
-                    if (this.openWindow) {
-                        this.openWindow.isOpen = false
-                        if (this.openWindow.close)
-                            this.openWindow.close()
-                    }
+
+                    this.closeCurrentWindow()
+
                     if (foundPlace.geometry)
                         this.map.setCenter(foundPlace.geometry.location)
                     if (this.resolvedConfiguration.successfulSearchZoomLevel)
@@ -1650,6 +1637,18 @@ loading ?
                 }
             }
         )
+    }
+    /**
+     * Closes current window if opened.
+     *
+     * @returns Nothing.
+     */
+    closeCurrentWindow():void {
+        if (this.openWindow) {
+            this.openWindow.isOpen = false
+            if (this.openWindow.close)
+                this.openWindow.close()
+        }
     }
     /**
      * Ensures that every given place have a location property.
@@ -1935,10 +1934,8 @@ loading ?
             )
             infoWindow.setContent(this.slots.infoWindow.outerHTML)
 
-            if (this.openWindow) {
-                this.openWindow.isOpen = false
-                this.openWindow.close()
-            }
+            this.closeCurrentWindow()
+
             infoWindow.isOpen = true
             this.openWindow = infoWindow
             infoWindow.open(this.map, item.marker)
@@ -1967,10 +1964,7 @@ loading ?
 
         this.closeSearchResults(event)
 
-        if (this.openWindow) {
-            this.openWindow.isOpen = false
-            this.openWindow.close()
-        }
+        this.closeCurrentWindow()
 
         this.map.setCenter(place.position as MapPosition)
         this.map.setZoom(this.resolvedConfiguration.successfulSearchZoomLevel)
