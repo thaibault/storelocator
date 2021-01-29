@@ -483,9 +483,6 @@ loading ?
             this.slots.disabledOverlay.style.display = value ? 'block' : 'none'
 
         this.updateValueState()
-
-        if (this.initialized && oldValue !== value && name === 'value')
-            this.dispatchEvent(new CustomEvent('change', {detail: {value}}))
     }
     /**
      * Triggered when content projected and nested dom nodes are ready to be
@@ -1081,7 +1078,7 @@ loading ?
             "infoWindow.additionalMoveToBottomInPixel" configuration to take
             effect.
         */
-        await Tools.timeout(1000)
+        await Tools.timeout(3000)
         if (
             this.value?.infoWindow?.isOpen &&
             this.resolvedConfiguration.infoWindow
@@ -1880,24 +1877,31 @@ loading ?
             'closeclick',
             (event:Event):void => {
                 if (this.dispatchEvent(new CustomEvent(
-                    'infoWindowClose', {detail: {event, item}}
-                ))) {
-                    item.infoWindow!.isOpen = false
+                    'change', {detail: {value: null}}
+                )))
+                    if (this.dispatchEvent(new CustomEvent(
+                        'infoWindowClose', {detail: {event, item}}
+                    ))) {
+                        item.infoWindow!.isOpen = false
 
-                    this.setPropertyValue('value', null)
+                        this.setPropertyValue('value', null)
 
-                    this.dispatchEvent(new CustomEvent(
-                        'infoWindowClosed', {detail: {event, item}}
-                    ))
-                }
+                        this.dispatchEvent(new CustomEvent(
+                            'infoWindowClosed', {detail: {event, item}}
+                        ))
+                    }
             }
         )
         this.self.maps.event.addListener(
             item.marker as MapMarker,
             'click',
             (event:Event):void => {
-                this.setPropertyValue('value', item)
-                this.openMarker(item, event)
+                if (this.dispatchEvent(new CustomEvent(
+                    'change', {detail: {value: item}}
+                ))) {
+                    this.setPropertyValue('value', item)
+                    this.openMarker(item, event)
+                }
             }
         )
     }
