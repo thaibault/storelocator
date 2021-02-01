@@ -596,17 +596,16 @@ loading ?
             console.debug('Got configuration:', this.resolvedConfiguration)
 
         if (this.resolvedConfiguration.filter) {
-            const filterCandidate:string|TemplateFunction =
-                Tools.stringCompile(
-                    this.resolvedConfiguration.filter, ['store']
-                )[1]
-            if (typeof filterCandidate === 'string')
+            const {error, templateFunction} = Tools.stringCompile(
+                this.resolvedConfiguration.filter, ['store']
+            )
+            if (error)
                 console.warn(
                     `Given filter "${this.resolvedConfiguration.filter}" ` +
-                    `does not compile: ${Tools.represent(filterCandidate)}`
+                    `does not compile: ${error}`
                 )
             else
-                this.filter = filterCandidate
+                this.filter = templateFunction
         }
     }
     /**
