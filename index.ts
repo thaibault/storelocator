@@ -592,6 +592,12 @@ loading ?
 
         this.extendConfigurationByGivenURLParameter()
 
+        this.resolvedConfiguration.search = Tools.extend(
+            true,
+            Tools.copy(this.self.defaultSearchConfiguration),
+            this.resolvedConfiguration.search
+        )
+
         if (this.resolvedConfiguration.debug)
             console.debug('Got configuration:', this.resolvedConfiguration)
 
@@ -990,11 +996,6 @@ loading ?
             )
             this.self.maps.event.addListener(
                 this.map, 'dragstart', ():void => this.closeSearchResults()
-            )
-            this.resolvedConfiguration.search = Tools.extend(
-                true,
-                Tools.copy(this.self.defaultSearchConfiguration),
-                this.resolvedConfiguration.search
             )
             this.initializeDataSourceSearch()
         }
