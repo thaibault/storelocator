@@ -1235,7 +1235,7 @@ loading ?
 
                 this.searchText = searchText
                 this.searchWords = this.searchText.split(' ')
-                this.searchSegments = this.searchWords
+                this.searchSegments = [...this.searchWords]
                 if (!this.searchSegments.includes(this.searchText))
                     this.searchSegments.push(this.searchText)
 
