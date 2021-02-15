@@ -838,27 +838,26 @@ loading ?
                 this.resolvedConfiguration.additionalStoreProperties
             )
 
-            // TODO make configurable
-            if (!store.streetAndStreetnumber)
-                store.streetAndStreetnumber =
-                    (store.street || '') +
-                    (store.streetnumber ? `, ${store.streetnumber}` : '')
-            if (!store.zipCodeAndCity)
-                store.zipCodeAndCity =
-                    (store.zipCode || ''}) +
-                    (store.city ? ` ${store.city}` : '')
-            if (!store.address)
-                store.address =
-                    (store.streetAndStreetnumber || '') +
-                    (store.zipCodeAndCity ? `, ${store.zipCodeAndCity}` : '')
+        if (!store.streetAndStreetnumber)
+            store.streetAndStreetnumber =
+                (store.street || '') +
+                (store.streetnumber ? `, ${store.streetnumber}` : '')
+        if (!store.zipCodeAndCity)
+            store.zipCodeAndCity =
+            (store.zipCode || '') +
+            (store.city ? ` ${store.city}` : '')
+        if (!store.address)
+            store.address =
+                (store.streetAndStreetnumber || '') +
+                (store.zipCodeAndCity ? `, ${store.zipCodeAndCity}` : '')
 
-            const marker:MapMarker = this.createMarker(store)
-            if (this.markerClusterer)
-                this.markerClusterer.addMarker(marker)
-        }
+        const marker:MapMarker = this.createMarker(store)
+        if (this.markerClusterer)
+            this.markerClusterer.addMarker(marker)
     }
-    /**
-     * Initializes given value. Maps to internally determined item and opens
+}
+/**
+ * Initializes given value. Maps to internally determined item and opens
      * corresponding marker. Normalizes from id, data item or item to internal
      * item representation.
      *
