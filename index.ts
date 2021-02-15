@@ -837,6 +837,21 @@ loading ?
                 store,
                 this.resolvedConfiguration.additionalStoreProperties
             )
+
+            // TODO make configurable
+            if (!store.streetAndStreetnumber)
+                store.streetAndStreetnumber =
+                    (store.street || '') +
+                    (store.streetnumber ? `, ${store.streetnumber}` : '')
+            if (!store.zipCodeAndCity)
+                store.zipCodeAndCity =
+                    (store.zipCode || ''}) +
+                    (store.city ? ` ${store.city}` : '')
+            if (!store.address)
+                store.address =
+                    (store.streetAndStreetnumber || '') +
+                    (store.zipCodeAndCity ? `, ${store.zipCodeAndCity}` : '')
+
             const marker:MapMarker = this.createMarker(store)
             if (this.markerClusterer)
                 this.markerClusterer.addMarker(marker)
