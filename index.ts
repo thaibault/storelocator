@@ -850,6 +850,10 @@ loading ?
             store.address =
                 (store.streetAndStreetnumber || '') +
                 (store.zipCodeAndCity ? `, ${store.zipCodeAndCity}` : '')
+        if (store.premium || store.premiumPlus || store['4.0'])
+            store.markerIconFileName = 'jobRadMarkerPremium.png'
+        if (['off_online', 'online'].includes(store.shopType))
+            store.markerIconFileName = 'jobRadMarkerPremiumShipping.png'
 
         const marker:MapMarker = this.createMarker(store)
         if (this.markerClusterer)
@@ -1832,12 +1836,11 @@ loading ?
                     square.width, square.height, square.unit, square.unit
                 )
             }
+            item.icon.url = this.resolvedConfiguration.iconPath
             if (store?.markerIconFileName)
-                item.icon.url =
-                    this.resolvedConfiguration.iconPath + store.markerIconFileName
+                item.icon.url += store.markerIconFileName
             else
-                item.icon.url =
-                    this.resolvedConfiguration.iconPath +
+                item.icon.url +=
                     this.resolvedConfiguration.defaultMarkerIconFileName
         }
         if (store?.title)
