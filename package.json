@@ -51,7 +51,8 @@
     "watch": "weboptimizer build --watch"
   },
   "dependencies": {
-    "@googlemaps/markerclustererplus": "*"
+    "@googlemaps/markerclustererplus": "*",
+    "@types/webpack": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.0.tgz"
   },
   "devDependencies": {
     "@types/ejs": "*",
@@ -85,6 +86,9 @@
     "@babel/runtime": "*",
     "clientnode": "*",
     "jquery": "*"
+  },
+  "resolutions": {
+    "@types/webpack": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.0.tgz"
   },
   "sideEffects": false,
   "webOptimizer": {
