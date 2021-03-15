@@ -1241,7 +1241,7 @@ loading ?
                 if (
                     this.searchText === searchText &&
                     !this.searchResultsDirty ||
-                    searchText.length >=
+                    searchText.length <
                         searchOptions.generic.minimumNumberOfSymbols
                 )
                     return
