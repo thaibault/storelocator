@@ -145,9 +145,11 @@ export type SearchConfiguration = {
     generic:{
         filter:(place:MapPlaceResult) => boolean
         maximalDistanceInMeter:number
+        minimumNumberOfSymbols:number
         number:Array<number>
         prefer:boolean
         retrieveOptions:MapTextSearchRequest
+        searchDebounceTimeInMilliseconds:number
     },
     maximumNumberOfResults:number
     normalizer:(value:string) => string

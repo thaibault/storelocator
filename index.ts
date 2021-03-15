@@ -298,9 +298,11 @@ loading ?
                     place.formatted_address as string
                 ),
             maximalDistanceInMeter: 1000000,
+            minimumNumberOfSymbols: 3,
             number: [2, 5],
             prefer: true,
-            retrieveOptions: {radius: 50000, query: ''}
+            retrieveOptions: {radius: 50000, query: ''},
+            searchDebounceTimeInMilliseconds: 1000
         },
         maximumNumberOfResults: 50,
         normalizer: (value:string):string =>
@@ -538,9 +540,11 @@ loading ?
                 ]
             else
                 this.searchResultRange = [0, this.searchResults.length - 1]
+
             let currentIndex:number = -1
             if (this.highlightedItem)
                 currentIndex = this.searchResults.indexOf(this.highlightedItem)
+
             if (event.keyCode === Tools.keyCode.DOWN)
                 if (
                     currentIndex === -1 ||
@@ -566,6 +570,7 @@ loading ?
                 event.keyCode === Tools.keyCode.ENTER && this.highlightedItem
             ) {
                 event.stopPropagation()
+
                 if (this.highlightedItem)
                     if (this.highlightedItem.infoWindow)
                         this.openMarker(this.highlightedItem, event)
@@ -1230,13 +1235,18 @@ loading ?
                     )
                         return
 
-                await this.tools.acquireLock(`${this.self._name}Search`)
-
                 const searchText:string = searchOptions.normalizer(
                     (this.slots.input as HTMLInputElement).value
                 )
-                if (this.searchText === searchText && !this.searchResultsDirty)
-                    return this.tools.releaseLock(`${this.self._name}Search`)
+                if (
+                    this.searchText === searchText &&
+                    !this.searchResultsDirty ||
+                    searchText.length >=
+                        searchOptions.generic.minimumNumberOfSymbols
+                )
+                    return
+
+                await this.tools.acquireLock(`${this.self._name}Search`)
 
                 this.searchResultsDirty = false
                 if (!this.searchBoxInitialized)
@@ -1308,7 +1318,7 @@ loading ?
                     this.tools.releaseLock(`${this.self._name}Search`)
                 }
             },
-            1000
+            searchOptions.generic.searchDebounceTimeInMilliseconds
         )
     }
     /**
