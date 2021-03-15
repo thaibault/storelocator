@@ -1247,19 +1247,19 @@ loading ?
                 if (!this.searchBoxInitialized)
                     this.initializeSearchResultsBox()
                 if (
-                    (
-                        !searchText ||
-                        searchText.length <
-                            searchOptions.generic.minimumNumberOfSymbols
-                    ) &&
-                    this.searchResults.length
+                    !searchText ||
+                    searchText.length <
+                        searchOptions.generic.minimumNumberOfSymbols
                 ) {
-                    this.searchResults = []
-                    this.searchText = ''
-                    if (this.dispatchEvent(new CustomEvent(
-                        'removeSearchResults'
-                    )))
-                        this.closeSearchResults()
+                    if (this.searchResults.length) {
+                        this.searchResults = []
+                        this.searchText = ''
+                        if (this.dispatchEvent(new CustomEvent(
+                            'removeSearchResults'
+                        )))
+                            this.closeSearchResults()
+                    }
+
                     return this.tools.releaseLock(`${this.self._name}Search`)
                 }
 
