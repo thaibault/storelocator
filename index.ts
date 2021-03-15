@@ -1238,12 +1238,7 @@ loading ?
                 const searchText:string = searchOptions.normalizer(
                     (this.slots.input as HTMLInputElement).value
                 )
-                if (
-                    this.searchText === searchText &&
-                    !this.searchResultsDirty ||
-                    searchText.length <
-                        searchOptions.generic.minimumNumberOfSymbols
-                )
+                if (this.searchText === searchText && !this.searchResultsDirty)
                     return
 
                 await this.tools.acquireLock(`${this.self._name}Search`)
@@ -1251,7 +1246,14 @@ loading ?
                 this.searchResultsDirty = false
                 if (!this.searchBoxInitialized)
                     this.initializeSearchResultsBox()
-                if (!searchText && this.searchResults.length) {
+                if (
+                    (
+                        !searchText ||
+                        searchText.length <
+                            searchOptions.generic.minimumNumberOfSymbols
+                    ) &&
+                    this.searchResults.length
+                ) {
                     this.searchResults = []
                     this.searchText = ''
                     if (this.dispatchEvent(new CustomEvent(
