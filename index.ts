@@ -142,13 +142,15 @@ export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends 
             <div class="store-locator__disabled-overlay"></div>
         </slot>
 
-        <slot name="input"><input class="store-locator__input" /></slot>
+        <slot name="input">
+            <input class="store-locator__input" style="display:none" />
+        </slot>
 
-        <slot name="searchResults">
-            <div class="store-locator__search-results"><textarea>\\\${
+        <slot name="searchResults"><div class="store-locator__search-results">
+            <textarea style="display:none">\\\${
 
 loading ?
-    "<div class=\\\\"idle\\\\">loading...</div>" :
+    "<div class=\\\\"store-locator__search-results store-locator__search-results--loading\\\\">loading...</div>" :
     results.length ?
         results.map(function(result) {
             return ("<ul>" +
@@ -174,13 +176,13 @@ loading ?
             "</ul>")
         })
         .join("") :
-        "<div class=\\\\"no-results\\\\">No results found</div>"
+        "<div class=\\\\"store-locator__search-results store-locator__search-results--no-results\\\\">No results found</div>"
 
-            }</textarea></div>
-        </slot>
+            }</textarea>
+        </div></slot>
 
-        <slot name="infoWindow">
-            <ul class="store-locator__info-window"><textarea>
+        <slot name="infoWindow"><ul class="store-locator__info-window">
+            <textarea style="display:none">
                 <li>
                     \\\${Object.keys(item.data)
                         .filter(function(name) {
@@ -193,8 +195,8 @@ loading ?
                         .join("</li><li>")
                     }
                 </li>
-            </textarea></ul>
-        </slot>
+            </textarea>
+        </ul></slot>
     `
     static defaultConfiguration:Configuration<BaseStore> = {
         additionalStoreProperties: {},
