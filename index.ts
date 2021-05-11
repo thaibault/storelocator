@@ -645,7 +645,7 @@ loading ?
                 evaluated.result !== null &&
                 typeof evaluated.result === 'object'
             ) {
-                this.urlConfiguration = Tools.maskObject(
+                this.urlConfiguration = Tools.mask(
                     evaluated.result, this.resolvedConfiguration.urlModelMask
                 ) as PlainObject
                 Tools.extend(
