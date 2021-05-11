@@ -3820,9 +3820,9 @@ eslint-config-google@*:
   integrity sha512-WsbX4WbjuMvTdeVL6+J3rK1RGhCTqjsFjX7UMSMgZiyxxaNLkoJENbrGExzERFeoTpGw3F3FypTiWAP9ZXzkEw==
 
 eslint-plugin-jsdoc@*:
-  version "34.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-34.0.0.tgz#aa62e7550fe6761a373e640974e2d685965168b7"
-  integrity sha512-xosfhLEQgy8fFzwI/qcDn/YdCkOMPcYUrZsAICz3JBoTp+kjmbTmSJjqz7xPvErLcBETEy94Mrjn64iHzdAqkw==
+  version "34.0.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-34.0.1.tgz#d1ec714e8ea6ab13416f22ce9423bc9e6dca3640"
+  integrity sha512-fXFyhM571aW1Eg5Z9INobK1VeMIcfflY4cnqDYFf5KRUwcR5R+TQIC6pU2C+4xA84s7lML3zi7UIbPOWBjU1YQ==
   dependencies:
     "@es-joy/jsdoccomment" "^0.4.4"
     comment-parser "1.1.5"
@@ -8328,9 +8328,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.254"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.254.tgz#b259588357cf040af0c6a3b141fc57620934099c"
-  integrity sha512-N8npykDwuBrgBzSo8TfdIivYHrM7iG1z3oajkvFLVytc8q5PEbfqhBBxH0Be1/z8zyEhodKV+nMpXfz87rQaJw==
+  version "0.0.255"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.255.tgz#986810b646f7831ccc5820fdc61797f682d9b789"
+  integrity sha512-ewNl7fn1V3Wnm0TRg3Y6gBitfuOzId9USWd/FMIHzqBpnhPNnQKY2fg72IwgxnvtbeWFUJicsoxhbRUDhEMqUg==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.0.tgz"
 
