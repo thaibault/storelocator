@@ -54,7 +54,6 @@ import {
     MapPlaceResult,
     MapPlacesService,
     MapPosition,
-    MapReadonlyMarkerOptions,
     Maps,
     MapSearchBox,
     SearchConfiguration,
@@ -391,7 +390,7 @@ loading ?
     value:Item|null = null
 
     // NOTE: Will be initialized during bootstrapping.
-    map:MapImpl<TElement> = null as unknown as MapImpl<TElement>
+    map:MapImpl = null as unknown as MapImpl
     markerClusterer:MarkerClusterer|null = null
     resetMarkerCluster:Function|null = null
 
@@ -915,7 +914,7 @@ loading ?
         )
 
         ;(this.root as HTMLElement).style.display = 'block'
-        this.map = new this.self.maps.Map<TElement>(
+        this.map = new this.self.maps.Map(
             this.root as unknown as TElement, this.resolvedConfiguration.map
         )
         $(this.root.firstElementChild)

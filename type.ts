@@ -40,18 +40,16 @@ export type MapEventListener = google.maps.MapsEventListener
 export type MapGeocoder = google.maps.Geocoder
 export type MapGeocoderResult = google.maps.GeocoderResult
 export type MapGeocoderStatus = google.maps.GeocoderStatus
-export type MapIcon = google.maps.ReadonlyIcon
-export type MapImpl<TElement extends Element = Element> =
-    google.maps.Map<TElement>
+export type MapIcon = google.maps.Icon
+export type MapImpl = google.maps.Map
 export type MapInfoWindow = google.maps.InfoWindow
 export type MapMarker = google.maps.Marker
 export type MapMarkerClustererOptions = MarkerClustererOptions
-export type MapMarkerOptions = google.maps.ReadonlyMarkerOptions
+export type MapMarkerOptions = google.maps.MarkerOptions
 export type MapOptions = google.maps.MapOptions
 export type MapPosition = google.maps.LatLng
 export type MapPlaceResult = google.maps.places.PlaceResult
 export type MapPlacesService = google.maps.places.PlacesService
-export type MapReadonlyMarkerOptions = google.maps.ReadonlyMarkerOptions
 export type MapSearchBox = google.maps.places.SearchBox
 export type MapSearchBoxOptions = google.maps.places.SearchBoxOptions
 export type MapSize = google.maps.Size
