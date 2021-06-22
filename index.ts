@@ -935,8 +935,9 @@ loading ?
                             this.resolvedConfiguration.limit.northEast.longitude
                         )
                     )
-                    const currentCenter:MapPosition = this.map.getCenter()
-                    if (!area.contains(currentCenter)) {
+                    const currentCenter:MapPosition|undefined =
+                        this.map.getCenter()
+                    if (currentCenter && !area.contains(currentCenter)) {
                         const newCenter:Position = {
                             latitude: currentCenter.lat(),
                             longitude: currentCenter.lng()
@@ -1035,7 +1036,10 @@ loading ?
                 this.map,
                 'zoom_changed',
                 ():void => {
-                    if (this.map.getZoom() <= markerClusterZoomLevel)
+                    if (
+                        typeof this.map.getZoom() !== 'number' ||
+                        this.map.getZoom()! <= markerClusterZoomLevel
+                    )
                         this.closeCurrentWindow()
                 }
             )
@@ -1261,7 +1265,9 @@ loading ?
                             this.closeSearchResults()
                     }
 
-                    return this.tools.releaseLock(`${this.self._name}Search`)
+                    this.tools.releaseLock(`${this.self._name}Search`)
+
+                    return
                 }
 
                 this.searchText = searchText
@@ -1310,7 +1316,7 @@ loading ?
                             location: this.map.getCenter(),
                             query: this.searchText
                         },
-                        (places:Array<MapPlaceResult>):void => {
+                        (places:Array<MapPlaceResult>|null):void => {
                             if (places)
                                 this.handleGenericSearchResults(places)
                             this.tools.releaseLock(`${this.self._name}Search`)
@@ -1335,6 +1341,7 @@ loading ?
         const searchOptions:SearchConfiguration =
             this.resolvedConfiguration.search as SearchConfiguration
 
+        const center:MapPosition|undefined = this.map.getCenter()
         /*
             NOTE: Since google text search doesn't support sorting by distance
             we have to sort by our own.
@@ -1345,26 +1352,26 @@ loading ?
         ):number => {
             let firstDistance:number = 0
             let secondDistance:number = 0
-            if (firstPlace.geometry)
-                firstDistance = this.self.maps.geometry.spherical
-                    .computeDistanceBetween(
-                        this.map.getCenter(), firstPlace.geometry.location
-                    )
-            if (secondPlace.geometry)
-                secondDistance = this.self.maps.geometry.spherical
-                    .computeDistanceBetween(
-                        this.map.getCenter(), secondPlace.geometry.location
-                    )
+            if (center) {
+                if (firstPlace.geometry?.location)
+                    firstDistance = this.self.maps.geometry.spherical
+                        .computeDistanceBetween(
+                            center, firstPlace.geometry.location
+                        )
+                if (secondPlace.geometry?.location)
+                    secondDistance = this.self.maps.geometry.spherical
+                        .computeDistanceBetween(
+                            center, secondPlace.geometry.location
+                        )
+            }
             return firstDistance - secondDistance
         })) {
             index += 1
 
             let distance:number = 0
-            if (place.geometry)
+            if (center && place.geometry?.location)
                 distance = this.self.maps.geometry.spherical
-                    .computeDistanceBetween(
-                        this.map.getCenter(), place.geometry.location
-                    )
+                    .computeDistanceBetween(center, place.geometry.location)
             if (distance > searchOptions.generic.maximalDistanceInMeter)
                 break
 
@@ -1393,7 +1400,9 @@ loading ?
                     isHighlighted: false,
                     open: (event?:Event):void =>
                         this.focusPlace(result, event),
-                    position: place.geometry ? place.geometry.location : null
+                    position: place.geometry ?
+                        place.geometry.location ?? null :
+                        null
                 }
                 results.push(result)
 
@@ -1484,18 +1493,19 @@ loading ?
             if (second.foundWords.length < first.foundWords.length)
                 return -1
 
+            const center:MapPosition|undefined = this.map.getCenter()
+
             let firstDistance:number = 0
-            if (first.position)
-                firstDistance = this.self.maps.geometry.spherical
-                    .computeDistanceBetween(
-                        this.map.getCenter(), first.position
-                    )
             let secondDistance:number = 0
-            if (second.position)
-                secondDistance = this.self.maps.geometry.spherical
-                    .computeDistanceBetween(
-                        this.map.getCenter(), second.position
-                    )
+            if (center) {
+                if (first.position)
+                    firstDistance = this.self.maps.geometry.spherical
+                        .computeDistanceBetween(center, first.position)
+
+                if (second.position)
+                    secondDistance = this.self.maps.geometry.spherical
+                        .computeDistanceBetween(center, second.position)
+            }
 
             return firstDistance - secondDistance
         })
@@ -1638,8 +1648,14 @@ loading ?
             searchBox,
             'places_changed',
             async ():Promise<void> => {
+                const givenPlaces:Array<MapPlaceResult>|undefined =
+                    searchBox.getPlaces()
+
+                if (!Array.isArray(givenPlaces))
+                    return
+
                 const places:Array<MapPlaceResult> =
-                    await this.ensurePlaceLocations(searchBox.getPlaces())
+                    await this.ensurePlaceLocations(givenPlaces)
                 const foundPlace:MapPlaceResult|null =
                     this.determineBestSearchResult(places)
 
@@ -1648,7 +1664,7 @@ loading ?
                     let matchingItem:Item|undefined
                     for (const item of this.items) {
                         let distanceInMeter:number = 0
-                        if (foundPlace.geometry && item.position)
+                        if (foundPlace.geometry?.location && item.position)
                             distanceInMeter = this.self.maps.geometry
                                 .spherical.computeDistanceBetween(
                                     foundPlace.geometry.location, item.position
@@ -1677,7 +1693,7 @@ loading ?
 
                     this.closeCurrentWindow()
 
-                    if (foundPlace.geometry)
+                    if (foundPlace.geometry?.location)
                         this.map.setCenter(foundPlace.geometry.location)
                     if (this.resolvedConfiguration.successfulSearchZoomLevel)
                         this.map.setZoom(
@@ -1727,11 +1743,14 @@ loading ?
                     geocoder.geocode(
                         {address: place.name},
                         (
-                            results:Array<MapGeocoderResult>,
+                            results:Array<MapGeocoderResult>|null,
                             status:MapGeocoderStatus
                         ):void => {
                             runningGeocodes -= 1
-                            if (status === this.self.maps.GeocoderStatus.OK)
+                            if (
+                                results &&
+                                status === this.self.maps.GeocoderStatus.OK
+                            )
                                 place.geometry = results[0].geometry
                             else {
                                 delete places[places.indexOf(place)]
@@ -1762,15 +1781,17 @@ loading ?
     determineBestSearchResult(
         candidates:Array<MapPlaceResult>
     ):MapPlaceResult|null {
+        const center:MapPosition|undefined = this.map.getCenter()
+
         let result:null|MapPlaceResult = null
-        if (candidates.length) {
+        if (center && candidates.length) {
             let shortestDistanceInMeter:number = Number.MAX_VALUE
             for (const candidate of candidates) {
                 let distanceInMeter:number = 0
-                if (candidate.geometry)
+                if (candidate.geometry?.location)
                     distanceInMeter = this.self.maps.geometry.spherical
                         .computeDistanceBetween(
-                            candidate.geometry.location, this.map.getCenter()
+                            candidate.geometry.location, center
                         )
                 if (distanceInMeter < shortestDistanceInMeter) {
                     result = candidate
@@ -1955,7 +1976,7 @@ loading ?
             */
             if (
                 this.resolvedConfiguration.marker.cluster?.maxZoom &&
-                this.map.getZoom() <=
+                (this.map.getZoom() ?? 0) <=
                     this.resolvedConfiguration.marker.cluster.maxZoom
             )
                 this.map.setZoom(
@@ -2055,7 +2076,7 @@ loading ?
                 */
                 if (
                     this.resolvedConfiguration.marker.cluster?.maxZoom &&
-                    this.map.getZoom() <=
+                    (this.map.getZoom() ?? 0) <=
                         this.resolvedConfiguration.marker.cluster.maxZoom &&
                     item.position &&
                     (this.map.getBounds() as MapArea)
