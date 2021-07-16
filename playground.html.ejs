@@ -104,14 +104,16 @@
             include(
                 'web-component-wrapper/polyfill.html',
                 {additionalFeatures: [
+                    // Most polyfills are determined via "create-polyfill-service-url" subracted by already includes one due to "web-component-wrapper"..
                     /*
                         The included web-component polyfill already polyfills
                         "Array.from" but without "iterable" support so we have
                         to re-overwriting this here (need for google maps API).
                     */
                     'Array.from',
-                    // MDC-Select - Throws about missing object.
-                    'CustomEvent'
+                    'Array.prototype.indexOf',
+                    'Array.prototype.sort',
+                    'fetch'
                 ]}
             )
         %>
