@@ -140,6 +140,7 @@ yarn-error.log
 
 # JavaScript / TypeScript
 *.ngfactory.ts
+types/*.d.ts
 
 # Python
 __pycache__
