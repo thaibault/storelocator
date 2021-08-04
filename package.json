@@ -60,7 +60,6 @@
   "devDependencies": {
     "@types/ejs": "*",
     "@types/google-maps": "*",
-    "@types/google.maps": "*",
     "@types/html-minifier": "*",
     "@types/jest": "*",
     "@types/jquery": "*",
