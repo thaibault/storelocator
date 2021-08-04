@@ -24,8 +24,8 @@
     "web-component"
   ],
   "files": [
-    "index.ts",
-    "type.ts"
+    "index.d.ts",
+    "type.d.ts"
   ],
   "main": "index.js",
   "repository": {
@@ -33,19 +33,22 @@
     "url": "https://github.com/thaibault/storelocator"
   },
   "scripts": {
-    "build": "weboptimizer build",
+    "build": "yarn build:types; yarn build:plain",
     "build:export": "weboptimizer build '{__reference__: \"target:export\"}'",
+    "build:plain": "weboptimizer build",
+    "build:types": "weboptimizer build:types",
     "check": "yarn check:types; yarn lint",
     "check:types": "weboptimizer check:types",
     "clear": "weboptimizer clear",
     "document": "weboptimizer document",
     "lint": "weboptimizer lint",
     "prepare": "yarn build",
-    "report:coverage": "nyc report --reporter=text-lcov | coveralls",
     "serve": "weboptimizer serve",
     "start": "yarn serve",
     "test": "weboptimizer test '{__reference__: \"target:test\"}'",
     "test:browser": "weboptimizer test:browser",
+    "test:coverage": "weboptimizer test:coverage",
+    "test:coverage:report": "weboptimizer test:coverage:report",
     "update": "yarn version --patch && yarn publish",
     "update:documentation": "documentationWebsite --log-level info",
     "watch": "weboptimizer build --watch"
@@ -62,7 +65,6 @@
     "@types/jest": "*",
     "@types/jquery": "*",
     "@types/jsdom": "*",
-    "@types/loader-utils": "*",
     "@types/node": "*",
     "@types/node-fetch": "*",
     "@types/workbox-webpack-plugin": "*",
@@ -87,6 +89,17 @@
     "@babel/runtime": "*",
     "clientnode": "*",
     "jquery": "*"
+  },
+  "peerDependenciesMeta": {
+    "@babel/runtime": {
+      "optional": true
+    },
+    "clientnode": {
+      "optional": true
+    },
+    "jquery": {
+      "optional": true
+    }
   },
   "resolutions": {
     "@types/webpack": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.0.tgz"

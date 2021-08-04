@@ -673,8 +673,8 @@ loading ?
         }
         if (typeof this.self.applicationInterfaceLoad !== 'object') {
             loadInitialized = false
-            this.self.applicationInterfaceLoad = new Promise((
-                resolve:ProcedureFunction, reject:ProcedureFunction
+            this.self.applicationInterfaceLoad = new Promise<void>((
+                resolve:() => void, reject:() => void
             ):void => {
                 applicationInterfaceLoadCallbacks.resolve = ():void => {
                     applicationInterfaceLoadCallbacks.resolved = true
@@ -759,8 +759,8 @@ loading ?
             That's why we use our own timeout implementation.
         */
         let loaded:boolean = false
-        return new Promise((
-            resolve:ProcedureFunction, reject:ProcedureFunction
+        return new Promise<void>((
+            resolve:() => void, reject:() => void
         ):void => {
             const ipToLocationAPIConfiguration:Configuration<Store>[
                 'ipToLocationApplicationInterface'
