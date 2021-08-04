@@ -3130,9 +3130,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.770"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.770.tgz#092c80f315b6acb1a84c083f2c778ecd54a0e628"
-  integrity sha512-V1qO7wr0mdY0PKmChc/UWgYZ9nc9J1Coov0ICQneB+dlNk96U4EWIE+ZBnZgWDs7kd+k/hZX0iHF22SNWiNVtg==
+  version "3.0.772"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.772.tgz#7d3def43b310c90ac28ab23e0391d4a636317b64"
+  integrity sha512-3UekvzdYQtp5j7N8pXL+mQfI46QDVzfl8VgbyWv6mmC5VcPu9zjKs0nSMXQarBSOBLqeS5kujA+6TT9Y0K7qRQ==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.0.tgz"
 
@@ -8010,9 +8010,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.281"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.281.tgz#8e03ce927f69589accee1d6ad41bccf93c88145c"
-  integrity sha512-Wp7sr0hwOH3N3+TTxArhj/k67KYXCRW9NVHXSPTrIbJ5x2HJTgXhwp03+BAQZKVNppL9IWS/NRELy3fo+3Oxig==
+  version "0.0.282"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.282.tgz#ac1111945b1c5af6b48f9c81fb398215ef9a3261"
+  integrity sha512-aL70k9cnYK2WdUL9FOuX0lsxw/NEVXi9yhMiXf6KrjAGPHfqI2dpN1PMoREYajUgVcKc0wCh9isAOX69CEK5Rw==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.0.tgz"
 
@@ -8027,9 +8027,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.1018"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1018.tgz#0d6da6fcb21f904b01a73ddf184a478ad68637f9"
-  integrity sha512-Ks4zSgs89htYrRTwlBo41/xs9KxOe83Vzb3cYqGXlziE3xY8y4dQwwdV6/5j8T4XhO9eVN7RfZBDrC+YykzGgg==
+  version "2.0.1020"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1020.tgz#397b0f18a2678195707069fc1b8acada6cc7f095"
+  integrity sha512-v6T8OHcwxHtz5t2ovG8k+uXbEhUE198kB7AkpVTNP+S2gPQBTNXn97yFI1boTGlkMn+xYKPumuqQlPSiVBOvKg==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
