@@ -20,14 +20,14 @@ import PropertyTypes from 'clientnode/property-types'
 import {
     Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf, $DomNode
 } from 'clientnode/type'
-import 'googlemaps'
-import 'googlemaps/coordinates'
-import 'googlemaps/event'
-import 'googlemaps/geocoder'
-import 'googlemaps/map'
-import 'googlemaps/marker'
-import 'googlemaps/places-service'
-import 'googlemaps/places-widget'
+/// <reference path="googlemaps" />
+/// <reference path="googlemaps/coordinates" />
+/// <reference path="googlemaps/event" />
+/// <reference path="googlemaps/geocoder" />
+/// <reference path="googlemaps/map" />
+/// <reference path="googlemaps/marker" />
+/// <reference path="googlemaps/places-service" />
+/// <reference path="googlemaps/places-widget" />
 import {MarkerClustererOptions} from '@googlemaps/markerclustererplus'
 
 import StoreLocator from './index'
