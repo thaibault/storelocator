@@ -25,9 +25,9 @@
   ],
   "files": [
     "index.d.ts",
+    "index.js",
     "type.d.ts"
   ],
-  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/thaibault/storelocator"
