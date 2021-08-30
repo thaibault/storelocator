@@ -600,7 +600,7 @@ loading ?
         this.resolvedConfiguration.search = Tools.extend(
             true,
             Tools.copy(this.self.defaultSearchConfiguration),
-            this.resolvedConfiguration.search
+            this.resolvedConfiguration.search as SearchConfiguration
         )
 
         if (this.resolvedConfiguration.debug)
