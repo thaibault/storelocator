@@ -23,6 +23,7 @@ import {
     Mapping,
     PlainObject,
     ProcedureFunction,
+    QueryParameters,
     SecondParameter,
     TemplateFunction,
     TimeoutPromise,
@@ -629,7 +630,7 @@ loading ?
             name = this.resolvedConfiguration.name
 
         const parameter:Array<string>|null|string =
-            Tools.stringGetURLParameter(name)
+            Tools.stringGetURLParameter(name) as Array<string>|null|string
         if (typeof parameter === 'string') {
             const evaluated:EvaluationResult =
                 Tools.stringEvaluate(decodeURI(parameter))
