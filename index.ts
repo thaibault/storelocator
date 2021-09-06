@@ -598,7 +598,7 @@ loading ?
 
         this.extendConfigurationByGivenURLParameter()
 
-        this.resolvedConfiguration.search = Tools.extend(
+        this.resolvedConfiguration.search = Tools.extend<SearchConfiguration>(
             true,
             Tools.copy(this.self.defaultSearchConfiguration),
             this.resolvedConfiguration.search as SearchConfiguration
