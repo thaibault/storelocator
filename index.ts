@@ -1250,8 +1250,10 @@ loading ?
                 await this.tools.acquireLock(`${this.self._name}Search`)
 
                 this.searchResultsDirty = false
+
                 if (!this.searchBoxInitialized)
                     this.initializeSearchResultsBox()
+
                 if (
                     !searchText ||
                     searchText.length <
