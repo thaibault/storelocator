@@ -14,14 +14,16 @@
     endregion
 */
 // region  imports
-import Tools from 'clientnode'
+import Tools, {globalContext} from 'clientnode'
 import {ProcedureFunction, RecursivePartial} from 'clientnode/type'
+import nodeFetch from 'node-fetch'
 
 import api, {StoreLocator} from './index'
 import {Configuration} from './type'
 // endregion
 // region prepare environment
-window.google = {
+globalContext.fetch = nodeFetch as unknown as typeof fetch
+globalContext.google = {
     maps: {
         ControlPosition: {TOP_LEFT: 0},
         event: {addListener: Tools.noop},

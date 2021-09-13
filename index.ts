@@ -31,7 +31,6 @@ import {
 } from 'clientnode/type'
 import {any, boolean, object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
-import FetchType, {Response} from 'node-fetch'
 import property from 'web-component-wrapper/decorator'
 import Web from 'web-component-wrapper/Web'
 import {WebComponentAPI} from 'web-component-wrapper/type'
@@ -1056,9 +1055,8 @@ loading ?
             for (const store of this.resolvedConfiguration.stores)
                 this.addMarker(store)
         else if (typeof this.resolvedConfiguration.stores === 'string') {
-            const result:Response = await (
-                fetch as unknown as typeof FetchType
-            )(this.resolvedConfiguration.stores)
+            const result:Response =
+                await globalContext.fetch(this.resolvedConfiguration.stores)
             let responseString:string = await result.text()
             if (responseString.startsWith(
                 this.resolvedConfiguration.securityResponsePrefix
