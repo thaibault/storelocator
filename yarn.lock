@@ -2973,9 +2973,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.827"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.827.tgz#d6af172c2fac5606230cc4593bcc8c6cfcfe9df9"
-  integrity sha512-6OTdACAWzFCmoYm8yFjprij6qFJyiRDinqdwyXkQ0Sm6+wNw8aVV/row1NT552QLRovzu9EZICFdMJG6BzyXbA==
+  version "3.0.828"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.828.tgz#cab7664436bc40c7091c78e7925a66ba1d2f52a8"
+  integrity sha512-39oi5i8XNM5+dy6uTyPAW2hxXeNfjVzprqKAayIisH/v9J/gnfeTmavnw5LRRjZDtp6KVvEOqiLYDKRWuqdIqg==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -7089,9 +7089,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.310"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.310.tgz#4c69c02393104f42a3ce938d20448e91919f8345"
-  integrity sha512-5lJWRWRdu7XDiQguB0Tk504+lkdNNFuVCURB9qQ+u4k7+XNEyIw0ae+ZOiMh4QHRwBxEITRPZudM2skcxE36gQ==
+  version "0.0.311"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.311.tgz#1f727da63f6e21566f7268c1ca81880397f56690"
+  integrity sha512-PKJu3fTsDduPdYjOfUg1YdOa+ukD2zANl7lhgS78M/sCAkR1jcFgNGY6kPmLUrgP8KfrMGONlhERL9KCb5ri3A==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
