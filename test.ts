@@ -15,7 +15,7 @@
 */
 // region  imports
 import Tools, {globalContext} from 'clientnode'
-import {ProcedureFunction, RecursivePartial} from 'clientnode/type'
+import {ProcedureFunction, RecursivePartial, $Global} from 'clientnode/type'
 import nodeFetch from 'node-fetch'
 
 import api, {StoreLocator} from './index'
@@ -23,7 +23,7 @@ import {Configuration} from './type'
 // endregion
 // region prepare environment
 globalContext.fetch = nodeFetch as unknown as typeof fetch
-globalContext.google = {
+;(globalContext as $Global & {google:typeof google}).google = {
     maps: {
         ControlPosition: {TOP_LEFT: 0},
         event: {addListener: Tools.noop},
