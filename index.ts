@@ -1813,11 +1813,14 @@ loading ?
             .then(():void => {
                 this.slots.loadingOverlay.style.display = 'none'
             })
+
         $(this.root.firstElementChild)
             .animate(...this.resolvedConfiguration.root.showAnimation)
+
         await Tools.timeout(
             this.resolvedConfiguration.showInputAfterLoadedDelayInMilliseconds
         )
+
         $(this.slots.input)
             .animate(...this.resolvedConfiguration.input.showAnimation)
     }
@@ -1957,8 +1960,10 @@ loading ?
     /**
      * Opens given item's marker info window and closes potentially opened
      * windows.
+     *
      * @param item - Item's marker to open.
      * @param event - Event which has triggered the marker opening call.
+     *
      * @returns Nothing.
      */
     openMarker(item:Item, event?:Event):void {
