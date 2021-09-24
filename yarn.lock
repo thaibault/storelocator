@@ -2975,9 +2975,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.831"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.831.tgz#0c3875373d9c8f2ed0d7697d4b3188d84c7f3f92"
-  integrity sha512-/owyMCQ/e5UPZ1mOwwL7LQRE1SYqsoL/EmJL2yuf3jdAisfYRGwRu1lXBpv8Sk8ZJKnd23sXl0TMPGkBB8l2Lw==
+  version "3.0.835"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.835.tgz#b8902532d423811d6bbccdfbfc036cce007af1cb"
+  integrity sha512-so9E1hUdmItcdcS9J3ao3lQSWy+b0kSJ0BzRsDxZTV07BdGqrmWZeEzLkGxCmWjULFZZ8BAi4E0vwJjzFjvqaQ==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -5534,6 +5534,11 @@ nanocolors@^0.1.0, nanocolors@^0.1.5:
   resolved "https://registry.yarnpkg.com/nanocolors/-/nanocolors-0.1.12.tgz#8577482c58cbd7b5bb1681db4cf48f11a87fd5f6"
   integrity sha512-2nMHqg1x5PU+unxX7PGY7AuYxl2qDx7PSrTRjizr8sxdd3l/3hBuWWaki62qmtYm2U5i4Z5E7GbjlyDFhs9/EQ==
 
+nanocolors@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/nanocolors/-/nanocolors-0.2.1.tgz#0dcc2d7952bd324b8e5ad0829d907e997acf3a97"
+  integrity sha512-2IoEVGHuRGjhAQFzbLdK38agBum4vWW4ods4b2h1FhU5SY/6B9DSLEMziQ8XzPSaitPDJtMnpXTGcGcOocDTXQ==
+
 natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
@@ -7100,9 +7105,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.314"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.314.tgz#6b99b99738701766f95ae921004ef8e31443e768"
-  integrity sha512-pgQXCy75uJ0yWmvTmMI3N8PSqgjCW7lG5s6qhFvyleaLzZwRn/EJixhkrjgomHo4qYQTE+7fK6URfgJlFCvOdg==
+  version "0.0.315"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.315.tgz#b0448df1b87dde0ad6a70d3870a4727959015560"
+  integrity sha512-NPj/3F8LkLyFvimK7BmvpiyQKS9Iupgw0w+flIfeIqHNgUHYMd2fcMyM9jA2l78196igNjpFLJYC2bO4vnpV7Q==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -7122,9 +7127,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.1079"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1079.tgz#0341755fd7c8f2dc80d9ac600f4801fb5e48475a"
-  integrity sha512-oAgB9PKwFuPOWS21M3G/tzEuESsbvuAzQrx1q5VRHy3RsuxKJl8uZv88L+MmjKmfKDJ+RaFSCZopINZlhPa94w==
+  version "2.0.1080"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1080.tgz#f2971461469db79bd84ffd86c6402198406586c1"
+  integrity sha512-Q59Krm1yq99HpTapEO6L/Cg7mECItbM+tmzl19gAcsQ2oZfoC0jcCvrOAXXbA4ZZBgsC4Olz7luKflBHayxcUw==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
@@ -7175,13 +7180,13 @@ webpack-cli@*:
     webpack-merge "^5.7.3"
 
 webpack-dev-middleware@^5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/webpack-dev-middleware/-/webpack-dev-middleware-5.1.0.tgz#90a645b077e85f661c5bb967dc32adc3eceb5cfd"
-  integrity sha512-oT660AR1gOnU/NTdUQi3EiGR0iXG7CFxmKsj3ylWCBA2khJ8LFHK+sKv3BZEsC11gl1eChsltRhzUq7nWj7XIQ==
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/webpack-dev-middleware/-/webpack-dev-middleware-5.2.0.tgz#3047a66a4c4f53927c3834478054d8105b57dec5"
+  integrity sha512-akBZtC3GIdHCJ2rA4DJAIySTZRPG2T5OVB745cIetwvxWxsdTALXSrL81LjelvRM3xZQyuPKMqTlgBYd+I+z9Q==
   dependencies:
-    colorette "^1.2.2"
     memfs "^3.2.2"
     mime-types "^2.1.31"
+    nanocolors "^0.2.1"
     range-parser "^1.2.1"
     schema-utils "^3.1.0"
 
