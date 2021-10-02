@@ -607,9 +607,10 @@ loading ?
             console.debug('Got configuration:', this.resolvedConfiguration)
 
         if (this.resolvedConfiguration.filter) {
-            const {error, templateFunction} = Tools.stringCompile(
+            const {error, templateFunction} = Tools.stringCompile<boolean>(
                 this.resolvedConfiguration.filter, ['store']
             )
+
             if (error)
                 console.warn(
                     `Given filter "${this.resolvedConfiguration.filter}" ` +
@@ -917,7 +918,7 @@ loading ?
         this.map = new this.self.maps.Map(
             this.root as unknown as TElement, this.resolvedConfiguration.map
         )
-        $(this.root.firstElementChild)
+        $(this.root.firstElementChild!)
             .css(this.resolvedConfiguration.root.hide)
 
         if (this.resolvedConfiguration.limit)
@@ -1814,7 +1815,7 @@ loading ?
                 this.slots.loadingOverlay.style.display = 'none'
             })
 
-        $(this.root.firstElementChild)
+        $(this.root.firstElementChild!)
             .animate(...this.resolvedConfiguration.root.showAnimation)
 
         await Tools.timeout(
