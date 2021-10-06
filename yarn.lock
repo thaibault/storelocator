@@ -2974,9 +2974,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.843"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.843.tgz#ff383c0a5649681c9c7796329260b5cc03834758"
-  integrity sha512-X1cG94SuHjq4FZA8Cpyi5kgkX4nolbYSGOuizXPUdYaSq4fvvLyX7ebMLN/sAEI4mHjHZdaP1bidVIHZI5bp0A==
+  version "3.0.844"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.844.tgz#7e8c2ccbcf2d721cd1265a90fe22cfc61e0c1401"
+  integrity sha512-uHELFrjVceCpSix3HhxSZJpXCBhN9E15QOP7hCTAz2f86ROkkwDQGvu8YjRk+xS+jQt+JbpGe487XQMT8YWo8Q==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -4633,9 +4633,9 @@ istanbul-lib-source-maps@^4.0.0:
     source-map "^0.6.1"
 
 istanbul-reports@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/istanbul-reports/-/istanbul-reports-3.0.2.tgz#d593210e5000683750cb09fc0644e4b6e27fd53b"
-  integrity sha512-9tZvz7AiR3PEDNGiV9vIouQ/EAcqMXFmkcA1CDFTwOB98OZVDL0PH9glHotf5Ugp6GCOTypfzGWI/OqjWNCRUw==
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/istanbul-reports/-/istanbul-reports-3.0.3.tgz#974d682037f6d12b15dc55f9a2a5f8f1ea923831"
+  integrity sha512-0i77ZFLsb9U3DHi22WzmIngVzfoyxxbQcZRqlF3KoKmCJGq9nhFHoGi8FqBztN2rE8w6hURnZghetn0xpkVb6A==
   dependencies:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
@@ -7099,9 +7099,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.322"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.322.tgz#bc55ef54432f3843d0fc907dfefa78465213207a"
-  integrity sha512-wwBuGBsepmffNLeD4V6dSmVLiH4YN1zfP7k3/W1s3i8h6lPULfJJwZQWC+Hlt0KKNt5smTAbbpZCOl5wVvrQrQ==
+  version "0.0.323"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.323.tgz#3ed6ea96073daeb56f870911e48b3b36d3a939ed"
+  integrity sha512-buYDtmaq7EtPmkanQwUPtyDVWEKNuAgwlRwXlClOT1a9Or02OdKfZNYDIEAPelBnqnXLMeTdwHlwEGIH2hdODA==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -7121,9 +7121,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.1084"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1084.tgz#687f0053a20d88b9bcea34b0607ac8372f5681bb"
-  integrity sha512-nidPZiCDld65nqKySEuc7SW8egfVd07gYe94Z6Uh2TVym1kpj/YtA+lJbQWoKvw/i7Qt3A5am7uHn4ZRLwuaxw==
+  version "2.0.1087"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1087.tgz#1c2b857531c8eb3bd520a5cf396a86103a55fbf4"
+  integrity sha512-7lAlvXb7dbBpx+ZA/z4D3ImjH80o8GBqu81uGcREc7+WF7/J6zTqFsPMOpIKIStSU+D2kuxPA1lVh/VuJxXM8A==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"
