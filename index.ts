@@ -17,7 +17,7 @@
     endregion
 */
 // region imports
-import Tools, {globalContext, $} from 'clientnode'
+import Tools, {globalContext, Lock, $} from 'clientnode'
 import {
     EvaluationResult,
     Mapping,
@@ -119,7 +119,7 @@ import {
  * instance.
  * @property resetMarkerCluster - API-method to reset marker cluster.
  *
- * @property tools - Holds tools instance for saving instance specific locks.
+ * @property lock - Holds instance specific locks.
  */
 export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends Element = HTMLElement> extends Web<TElement> {
     static applicationInterfaceLoad:Promise<void>
@@ -396,7 +396,7 @@ loading ?
 
     readonly self:typeof StoreLocator = StoreLocator
 
-    readonly tools:Tools = new Tools()
+    readonly lock:Lock = new Lock()
     // region live cycle hooks
     /**
      * Defines dynamic getter and setter interface and resolves configuration
@@ -1246,7 +1246,7 @@ loading ?
                 if (this.searchText === searchText && !this.searchResultsDirty)
                     return
 
-                await this.tools.acquireLock(`${this.self._name}Search`)
+                await this.lock.acquire(`${this.self._name}Search`)
 
                 this.searchResultsDirty = false
 
@@ -1267,7 +1267,7 @@ loading ?
                             this.closeSearchResults()
                     }
 
-                    this.tools.releaseLock(`${this.self._name}Search`)
+                    this.lock.release(`${this.self._name}Search`)
 
                     return
                 }
@@ -1321,12 +1321,12 @@ loading ?
                         (places:Array<MapPlaceResult>|null):void => {
                             if (places)
                                 this.handleGenericSearchResults(places)
-                            this.tools.releaseLock(`${this.self._name}Search`)
+                            this.lock.release(`${this.self._name}Search`)
                         }
                     )
                 else {
                     this.performLocalSearch()
-                    this.tools.releaseLock(`${this.self._name}Search`)
+                    this.lock.release(`${this.self._name}Search`)
                 }
             },
             searchOptions.generic.searchDebounceTimeInMilliseconds
