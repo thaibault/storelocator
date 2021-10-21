@@ -448,7 +448,6 @@ loading ?
     }
     /*
      * Generic internal property setter. Forwards field writes into internal.
-     *
      * @param name - Property name to write.
      * @param value - New value to write.
      *
@@ -572,11 +571,11 @@ loading ?
             ) {
                 event.stopPropagation()
 
-                if (this.highlightedItem)
-                    if (this.highlightedItem.infoWindow)
-                        this.openMarker(this.highlightedItem, event)
-                    else
-                        this.focusPlace(this.highlightedItem, event)
+                if (this.highlightedItem.infoWindow) {
+                    this.setPropertyValue('value', this.highlightedItem)
+                    this.openMarker(this.highlightedItem, event)
+                } else
+                    this.focusPlace(this.highlightedItem, event)
             }
         }
     }
@@ -845,30 +844,30 @@ loading ?
                 this.resolvedConfiguration.additionalStoreProperties
             )
 
-        if (!store.streetAndStreetnumber)
-            store.streetAndStreetnumber =
-                (store.street || '') +
-                (store.streetnumber ? `, ${store.streetnumber}` : '')
-        if (!store.zipCodeAndCity)
-            store.zipCodeAndCity =
-            (store.zipCode || '') +
-            (store.city ? ` ${store.city}` : '')
-        if (!store.address)
-            store.address =
-                (store.streetAndStreetnumber || '') +
-                (store.zipCodeAndCity ? `, ${store.zipCodeAndCity}` : '')
-        if (store.premium || store.premiumPlus || store['4.0'])
-            store.markerIconFileName = 'jobRadMarkerPremium.png'
-        if (['off_online', 'online'].includes(store.shopType))
-            store.markerIconFileName = 'jobRadMarkerPremiumShipping.png'
+            if (!store.streetAndStreetnumber)
+                store.streetAndStreetnumber =
+                    (store.street || '') +
+                    (store.streetnumber ? `, ${store.streetnumber}` : '')
+            if (!store.zipCodeAndCity)
+                store.zipCodeAndCity =
+                (store.zipCode || '') +
+                (store.city ? ` ${store.city}` : '')
+            if (!store.address)
+                store.address =
+                    (store.streetAndStreetnumber || '') +
+                    (store.zipCodeAndCity ? `, ${store.zipCodeAndCity}` : '')
+            if (store.premium || store.premiumPlus || store['4.0'])
+                store.markerIconFileName = 'jobRadMarkerPremium.png'
+            if (['off_online', 'online'].includes(store.shopType))
+                store.markerIconFileName = 'jobRadMarkerPremiumShipping.png'
 
-        const marker:MapMarker = this.createMarker(store)
-        if (this.markerClusterer)
-            this.markerClusterer.addMarker(marker)
+            const marker:MapMarker = this.createMarker(store)
+            if (this.markerClusterer)
+                this.markerClusterer.addMarker(marker)
+        }
     }
-}
-/**
- * Initializes given value. Maps to internally determined item and opens
+    /**
+     * Initializes given value. Maps to internally determined item and opens
      * corresponding marker. Normalizes from id, data item or item to internal
      * item representation.
      *
@@ -897,6 +896,7 @@ loading ?
                 if (id === (typeof id === 'object' ? item : item.data?.id)) {
                     if (item.infoWindow && !item.infoWindow.isOpen)
                         this.openMarker(item)
+
                     return item
                 }
         }
@@ -1448,8 +1448,10 @@ loading ?
                         item.foundWords.push(searchWord)
 
                         if (item.foundWords.length === 1) {
-                            item.open = (event?:Event):void =>
+                            item.open = (event?:Event):void => {
+                                this.setPropertyValue('value', item)
                                 this.openMarker(item, event)
+                            }
                             item.highlight = (
                                 event?:Event, type?:string
                             ):void => this.highlightMarker(item, event, type)
@@ -1690,6 +1692,7 @@ loading ?
                                     .successfulSearchZoomLevel
                             )
                         await this.openMarker(matchingItem)
+
                         return
                     }
 

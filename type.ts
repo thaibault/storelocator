@@ -18,7 +18,7 @@
 // region imports
 import PropertyTypes from 'clientnode/property-types'
 import {
-    Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf, $DomNode
+    Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf
 } from 'clientnode/type'
 /// <reference path="googlemaps" />
 /// <reference path="googlemaps/coordinates" />
