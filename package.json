@@ -120,6 +120,11 @@
         "> 5%"
       ]
     },
+    "module": {
+      "aliases": {
+        "formdata-polyfill/esm.min.js$": "formdata-polyfill"
+      }
+    },
     "target:export": {
       "module": {
         "preprocessor": {

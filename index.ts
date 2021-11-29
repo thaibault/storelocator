@@ -27,6 +27,7 @@ import {
     SecondParameter,
     TemplateFunction,
     TimeoutPromise,
+    UnknownFunction,
     ValueOf
 } from 'clientnode/type'
 import {any, boolean, object} from 'clientnode/property-types'
@@ -341,10 +342,17 @@ loading ?
        Renders component given slot contents into given dom node. We avoid that
        since all slots will be injected dynamically triggered through google
        map events.
+
        NOTE: We render slots to use them as mocks for testing.
     */
     static renderSlots:boolean = Boolean(
-        globalContext.window?.google?.maps &&
+        /*
+            NOTE: "globalContext.window?.google?.maps" does not work since
+            experiencing a compiler bug.
+        */
+        globalContext.window &&
+        globalContext.window.google &&
+        globalContext.window.google.maps &&
         (globalContext.window.google.maps as Maps).mockup
     )
     static renderUnsafe:boolean = true
@@ -916,7 +924,7 @@ loading ?
 
         ;(this.root as HTMLElement).style.display = 'block'
         this.map = new this.self.maps.Map(
-            this.root as unknown as TElement, this.resolvedConfiguration.map
+            this.root as HTMLElement, this.resolvedConfiguration.map
         )
         $(this.root.firstElementChild!)
             .css(this.resolvedConfiguration.root.hide)
@@ -1220,8 +1228,8 @@ loading ?
         const searchOptions:SearchConfiguration =
             this.resolvedConfiguration.search as SearchConfiguration
 
-        return Tools.debounce(
-            async (event?:KeyboardEvent):Promise<void> => {
+        return Tools.debounce<void>(
+            (async (event?:KeyboardEvent):Promise<void> => {
                 for (const name in Tools.keyCode)
                     if (
                         event &&
@@ -1328,7 +1336,7 @@ loading ?
                     this.performLocalSearch()
                     this.lock.release(`${this.self._name}Search`)
                 }
-            },
+            }) as UnknownFunction,
             searchOptions.generic.searchDebounceTimeInMilliseconds
         )
     }
