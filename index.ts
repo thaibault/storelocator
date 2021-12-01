@@ -426,6 +426,7 @@ loading ?
      * @param name - Attribute name which was updates.
      * @param oldValue - Old attribute value.
      * @param newValue - New updated value.
+     *
      * @returns Nothing.
      */
     attributeChangedCallback(
@@ -493,6 +494,7 @@ loading ?
      * Triggered when content projected and nested dom nodes are ready to be
      * traversed / injected.
      * @param reason - Description why rendering is necessary.
+     *
      * @returns A promise resolving to nothing.
      */
     async render(reason:string = 'unknown'):Promise<void> {
@@ -589,7 +591,7 @@ loading ?
     }
     // endregion
     // region helper
-    // / region configuration
+    // / region  configuration
     /**
      * Merges configuration sources into final object.
      * @returns Nothing.
@@ -630,6 +632,7 @@ loading ?
     /**
      * Extends current configuration object by given url parameter.
      * @param name - URL parameter name to interpret.
+     *
      * @returns Nothing.
      */
     extendConfigurationByGivenURLParameter(name?:string):void {
@@ -662,7 +665,7 @@ loading ?
         }
     }
     // / endregion
-    // / region initializing
+    // / region  initializing
     /**
      * Loads google map resources if not loaded yet (or loading triggered).
      * Initializes map instances.
@@ -842,6 +845,7 @@ loading ?
     /**
      * Adds given store as marker to the map.
      * @param store - Store to add as marker.
+     *
      * @returns Nothing.
      */
     addMarker(store:Store):void {
@@ -878,7 +882,6 @@ loading ?
      * Initializes given value. Maps to internally determined item and opens
      * corresponding marker. Normalizes from id, data item or item to internal
      * item representation.
-     *
      * @param value - Value to initialize.
      *
      * @return Determined value.
@@ -1341,9 +1344,10 @@ loading ?
         )
     }
     /**
-     * Sorts and filters search results given by google's aplication
+     * Sorts and filters search results given by google's application
      * interface.
      * @param places - List of place objects.
+     *
      * @returns Nothing.
      */
     handleGenericSearchResults(places:Array<MapPlaceResult>):void {
@@ -1374,6 +1378,7 @@ loading ?
                             center, secondPlace.geometry.location
                         )
             }
+
             return firstDistance - secondDistance
         })) {
             index += 1
@@ -1425,6 +1430,7 @@ loading ?
     /**
      * Performs a search on locally given store data.
      * @param results - A list if generic search results.
+     *
      * @returns Nothing.
      */
     performLocalSearch(results:Array<Item> = []):void {
@@ -1556,6 +1562,7 @@ loading ?
      * Opens current search results.
      * @param event - Object with meta data for current event which has
      * triggered to show search results.
+     *
      * @returns Nothing.
      */
     openSearchResults(event?:Event):void {
@@ -1595,6 +1602,7 @@ loading ?
      * Closes current search results.
      * @param event - Object with meta data for current event which has
      * triggered to close search results.
+     *
      * @returns Nothing.
      */
     closeSearchResults(event?:Event):void {
@@ -1719,7 +1727,6 @@ loading ?
     }
     /**
      * Closes current window if opened.
-     *
      * @returns Nothing.
      */
     closeCurrentWindow():void {
@@ -1732,6 +1739,7 @@ loading ?
     /**
      * Ensures that every given place have a location property.
      * @param places - Places to check for.
+     *
      * @returns A promise which will be resolved if all places are ensured.
      */
     ensurePlaceLocations(
@@ -1739,6 +1747,7 @@ loading ?
     ):Promise<Array<MapPlaceResult>> {
         let runningGeocodes:number = 0
         const geocoder:MapGeocoder = new this.self.maps.Geocoder()
+
         return new Promise((resolve:Function, reject:Function):void => {
             for (const place of places)
                 if (!place.geometry?.location) {
@@ -1789,6 +1798,7 @@ loading ?
      * Determines the best search result from given list of candidates.
      * Currently the nearest result to current viewport will be preferred.
      * @param candidates - List of search results to determine best from.
+     *
      * @returns The determined best result.
      */
     determineBestSearchResult(
@@ -1839,6 +1849,7 @@ loading ?
     /**
      * Registers given store to the google maps canvas.
      * @param store - Store object to create a marker for.
+     *
      * @returns The created marker.
      */
     createMarker(store?:Store):MapMarker {
@@ -1857,6 +1868,7 @@ loading ?
             }
             this.seenLocations.push(`${store.latitude}-${store.longitude}`)
         }
+
         const item:Item = {
             data: store || null,
             foundWords: [],
@@ -1902,11 +1914,13 @@ loading ?
             new this.self.maps.Marker(this.createMarkerConfiguration(item))
         this.attachMarkerEventListener(item)
         this.items.push(item)
+
         return item.marker
     }
     /**
      * Create marker configuration from given item.
      * @param item - Marker to derive a configuration from.
+     *
      * @returns Configuration object.
      */
     createMarkerConfiguration(item:Item):MapMarkerOptions {
@@ -1933,6 +1947,7 @@ loading ?
     /**
      * Adds needed event listener to given item marker.
      * @param item - Marker to attach event listener to.
+     *
      * @returns Nothing.
      */
     attachMarkerEventListener(item:Item):void {
@@ -1956,6 +1971,7 @@ loading ?
                     }
             }
         )
+
         this.self.maps.event.addListener(
             item.marker as MapMarker,
             'click',
@@ -1972,7 +1988,6 @@ loading ?
     /**
      * Opens given item's marker info window and closes potentially opened
      * windows.
-     *
      * @param item - Item's marker to open.
      * @param event - Event which has triggered the marker opening call.
      *
@@ -2050,6 +2065,7 @@ loading ?
      * Focuses given place on map.
      * @param place - Place to open.
      * @param event - Event object which has triggered requested place opening.
+     *
      * @returns Nothing.
      */
     focusPlace(place:Item, event?:Event):void {
@@ -2070,6 +2086,7 @@ loading ?
      * @param event - Event object for corresponding event that has the
      * highlighting requested.
      * @param type - Type of highlighting.
+     *
      * @returns Nothing.
      */
     highlightMarker(item:Item, event?:Event, type:string = 'bounce'):void {
