@@ -581,11 +581,16 @@ loading ?
             ) {
                 event.stopPropagation()
 
-                if (this.highlightedItem.infoWindow) {
+                if (this.dispatchEvent(new CustomEvent(
+                    'change', {detail: {value: this.highlightedItem}}
+                ))) {
                     this.setPropertyValue('value', this.highlightedItem)
-                    this.openMarker(this.highlightedItem, event)
-                } else
-                    this.focusPlace(this.highlightedItem, event)
+
+                    if (this.highlightedItem.infoWindow)
+                        this.openMarker(this.highlightedItem, event)
+                    else
+                        this.focusPlace(this.highlightedItem, event)
+                }
             }
         }
     }
@@ -1463,8 +1468,12 @@ loading ?
 
                         if (item.foundWords.length === 1) {
                             item.open = (event?:Event):void => {
-                                this.setPropertyValue('value', item)
-                                this.openMarker(item, event)
+                                if (this.dispatchEvent(new CustomEvent(
+                                    'change', {detail: {value: item}}
+                                ))) {
+                                    this.setPropertyValue('value', item)
+                                    this.openMarker(item, event)
+                                }
                             }
                             item.highlight = (
                                 event?:Event, type?:string
@@ -1955,20 +1964,22 @@ loading ?
             item.infoWindow!,
             'closeclick',
             (event:Event):void => {
-                if (this.dispatchEvent(new CustomEvent(
-                    'change', {detail: {value: null}}
-                )))
-                    if (this.dispatchEvent(new CustomEvent(
+                if (
+                    this.dispatchEvent(new CustomEvent(
                         'infoWindowClose', {detail: {event, item}}
-                    ))) {
-                        item.infoWindow!.isOpen = false
+                    )) &&
+                    this.dispatchEvent(new CustomEvent(
+                        'change', {detail: {value: null}}
+                    ))
+                ) {
+                    item.infoWindow!.isOpen = false
 
-                        this.setPropertyValue('value', null)
+                    this.setPropertyValue('value', null)
 
-                        this.dispatchEvent(new CustomEvent(
-                            'infoWindowClosed', {detail: {event, item}}
-                        ))
-                    }
+                    this.dispatchEvent(new CustomEvent(
+                        'infoWindowClosed', {detail: {event, item}}
+                    ))
+                }
             }
         )
 
