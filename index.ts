@@ -23,12 +23,8 @@ import {
     Mapping,
     PlainObject,
     ProcedureFunction,
-    QueryParameters,
-    SecondParameter,
-    TemplateFunction,
     TimeoutPromise,
-    UnknownFunction,
-    ValueOf
+    UnknownFunction
 } from 'clientnode/type'
 import {any, boolean, object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
@@ -43,7 +39,6 @@ import {
     Item,
     MapAnimation,
     MapArea,
-    MapEventListener,
     MapGeocoder,
     MapGeocoderResult,
     MapGeocoderStatus,
@@ -60,8 +55,7 @@ import {
     SearchConfiguration,
     Square,
     Store as BaseStore,
-    Position,
-    PropertyTypes
+    Position
 } from './type'
 // endregion
 // region components
@@ -122,14 +116,16 @@ import {
  *
  * @property lock - Holds instance specific locks.
  */
-export class StoreLocator<Store extends BaseStore = BaseStore, TElement extends Element = HTMLElement> extends Web<TElement> {
+export class StoreLocator<
+    Store extends BaseStore = BaseStore, TElement extends Element = HTMLElement
+> extends Web<TElement> {
     static applicationInterfaceLoad:Promise<void>
-    static cloneSlots:boolean = true
+    static cloneSlots = true
     /*
         Nested quotes in code can work in IE 11 if only one type of quote is
         used according to escaping.
     */
-    static content:string = `
+    static content = `
         <slot name="loadingOverlay">
             <div class="store-locator__loading-overlay">
                 <span class="store-locator__loading-overlay__content">
@@ -268,7 +264,7 @@ loading ?
             showAnimation: [{opacity: 1}, {duration: 'fast'}]
         },
         search: 50,
-        securityResponsePrefix: ")]}',",
+        securityResponsePrefix: `)]}',`,
         showInputAfterLoadedDelayInMilliseconds: 500,
         startLocation: null,
         stores: {
@@ -345,7 +341,7 @@ loading ?
 
        NOTE: We render slots to use them as mocks for testing.
     */
-    static renderSlots:boolean = Boolean(
+    static renderSlots = Boolean(
         /*
             NOTE: "globalContext.window?.google?.maps" does not work since
             experiencing a compiler bug.
@@ -355,47 +351,47 @@ loading ?
         globalContext.window.google.maps &&
         (globalContext.window.google.maps as Maps).mockup
     )
-    static renderUnsafe:boolean = true
-    static _name:string = 'StoreLocator'
+    static renderUnsafe = true
+    static _name = 'StoreLocator'
 
-    initialized:boolean = false
-    loaded:boolean = false
+    initialized = false
+    loaded = false
 
     @property({type: object})
-    configuration:Partial<Configuration<Store>>|undefined
+        configuration:Partial<Configuration<Store>>|undefined
     resolvedConfiguration:Configuration<Store> = {} as Configuration<Store>
     urlConfiguration:null|PlainObject = null
 
-    filter = (store:Store):boolean => true
+    filter = (_store:Store):boolean => true
     items:Array<Item> = []
     searchResultsStyleProperties:Mapping<number|string> = {}
     seenLocations:Array<string> = []
 
     highlightedItem:Item|null = null
     openWindow:InfoWindow|null = null
-    searchBoxInitialized:boolean = false
+    searchBoxInitialized = false
     searchResultRange:Array<number>|null = null
     searchResults:Array<Item> = []
     searchSegments:Array<string> = []
     searchText:null|string = null
     searchWords:Array<string> = []
-    searchResultsDirty:boolean = false
+    searchResultsDirty = false
 
     @property()
-    name:string = 'storeLocator'
+        name = 'storeLocator'
 
     @property({type: any})
-    default:Item|null = null
-    dirty:boolean = false
+        default:Item|null = null
+    dirty = false
     @property({type: boolean, writeAttribute: true})
-    disabled:boolean = false
-    invalid:boolean = false
-    pristine:boolean = true
+        disabled = false
+    invalid = false
+    pristine = true
     @property({type: boolean, writeAttribute: true})
-    required:boolean = false
-    valid:boolean = true
+        required = false
+    valid = true
     @property({type: any})
-    value:Item|null = null
+        value:Item|null = null
 
     // NOTE: Will be initialized during bootstrapping.
     map:MapImpl = null as unknown as MapImpl
@@ -455,7 +451,7 @@ loading ?
             'keyup', this.updateSearchResultsHandler
         )
     }
-    /*
+    /**
      * Generic internal property setter. Forwards field writes into internal.
      * @param name - Property name to write.
      * @param value - New value to write.
@@ -463,8 +459,6 @@ loading ?
      * @returns Nothing.
      */
     setInternalPropertyValue(name:string, value:any):void {
-        const oldValue:Item|null = this.value
-
         if (!this.initialized && name === 'default') {
             this.setPropertyValue('value', value)
             return
@@ -497,7 +491,7 @@ loading ?
      *
      * @returns A promise resolving to nothing.
      */
-    async render(reason:string = 'unknown'):Promise<void> {
+    async render(reason = 'unknown'):Promise<void> {
         if (this.initialized && reason === 'propertyChanged')
             return
 
@@ -551,7 +545,7 @@ loading ?
             else
                 this.searchResultRange = [0, this.searchResults.length - 1]
 
-            let currentIndex:number = -1
+            let currentIndex = -1
             if (this.highlightedItem)
                 currentIndex = this.searchResults.indexOf(this.highlightedItem)
 
@@ -677,7 +671,7 @@ loading ?
      * @returns Promise resolving when everything is loaded and initialized.
      */
     loadMapEnvironmentIfNotAvailableAndInitializeMap():Promise<void> {
-        let loadInitialized:boolean = true
+        let loadInitialized = true
         const applicationInterfaceLoadCallbacks:{
             reject:ProcedureFunction
             resolve:ProcedureFunction

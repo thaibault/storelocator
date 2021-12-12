@@ -56,7 +56,7 @@ globalContext.fetch = nodeFetch as unknown as typeof fetch
             },
             SearchBox: Tools.noop
         }
-    },
+    }
 } as unknown as typeof google
 
 const defaultConfiguration:RecursivePartial<Configuration> = {
@@ -83,7 +83,7 @@ const defaultConfiguration:RecursivePartial<Configuration> = {
 }
 Tools.extend(true, StoreLocator.defaultConfiguration, defaultConfiguration)
 
-const name:string = 'test-store-locator'
+const name = 'test-store-locator'
 api.register(name)
 // endregion
 // region tests
@@ -120,7 +120,7 @@ describe('StoreLocator', ():void => {
             document.createElement(name) as StoreLocator
         document.body.appendChild(storeLocator)
 
-        await new Promise((resolve:ProcedureFunction):void =>
+        await new Promise((resolve:() => void):void =>
             storeLocator.addEventListener('loaded', resolve)
         )
 
