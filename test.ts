@@ -15,7 +15,7 @@
 */
 // region  imports
 import Tools, {globalContext} from 'clientnode'
-import {ProcedureFunction, RecursivePartial, $Global} from 'clientnode/type'
+import {RecursivePartial, $Global} from 'clientnode/type'
 import nodeFetch from 'node-fetch'
 
 import api, {StoreLocator} from './index'
@@ -120,7 +120,7 @@ describe('StoreLocator', ():void => {
             document.createElement(name) as StoreLocator
         document.body.appendChild(storeLocator)
 
-        await new Promise((resolve:() => void):void =>
+        await new Promise((resolve:(_value:unknown) => void):void =>
             storeLocator.addEventListener('loaded', resolve)
         )
 

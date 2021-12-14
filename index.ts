@@ -698,38 +698,40 @@ loading ?
             .then(this.bootstrap)
             .then(():void => {
                 if (this.dispatchEvent(new CustomEvent('loaded')))
-                    this.onLoaded()
+                    void this.onLoaded()
             })
 
         if (globalContext.window?.google?.maps) {
             this.self.maps = globalContext.window.google.maps
             if (!applicationInterfaceLoadCallbacks.resolved)
-                Tools.timeout(():Promise<void>|void =>
+                void Tools.timeout(():Promise<void>|void =>
                     applicationInterfaceLoadCallbacks.resolve()
                 )
         } else if (!loadInitialized) {
             const callbackName:string =
                 this.resolvedConfiguration.applicationInterface.callbackName ?
-                    this.resolvedConfiguration.applicationInterface.callbackName :
+                    this.resolvedConfiguration
+                        .applicationInterface.callbackName :
                     Tools.determineUniqueScopeName()
 
             const callback:ProcedureFunction = ():void => {
                 if (!applicationInterfaceLoadCallbacks.resolved)
                     if (globalContext.window?.google?.maps) {
                         this.self.maps = globalContext.window.google.maps
-                        applicationInterfaceLoadCallbacks.resolve()
+                        void applicationInterfaceLoadCallbacks.resolve()
                     } else
-                        applicationInterfaceLoadCallbacks.reject(
+                        void applicationInterfaceLoadCallbacks.reject(
                             new Error('No google maps environment set.')
                         )
             }
             ;(globalContext as unknown as Mapping<Function>)[callbackName] =
                 callback
 
-            $.getScript(Tools.stringFormat(
+            void $.getScript(Tools.stringFormat(
                 this.resolvedConfiguration.applicationInterface.url,
                 this.resolvedConfiguration.applicationInterface.key ?
-                    `key=${this.resolvedConfiguration.applicationInterface.key}&` :
+                    'key=' +
+                    `${this.resolvedConfiguration.applicationInterface.key}&` :
                     '',
                 (
                     window === (globalContext as unknown as Window) ?
@@ -742,9 +744,9 @@ loading ?
                 .fail((
                     response:JQuery.jqXHR<string|undefined>,
                     error:JQuery.Ajax.ErrorTextStatus
-                ):Promise<void>|void =>
-                    applicationInterfaceLoadCallbacks.reject(error)
-                )
+                ):void => {
+                    void applicationInterfaceLoadCallbacks.reject(error)
+                })
         }
 
         return result
@@ -768,10 +770,8 @@ loading ?
             request the padding function isn't set anymore so an error occurs.
             That's why we use our own timeout implementation.
         */
-        let loaded:boolean = false
-        return new Promise<void>((
-            resolve:() => void, reject:() => void
-        ):void => {
+        let loaded = false
+        return new Promise<void>((resolve:() => void):void => {
             const ipToLocationAPIConfiguration:Configuration<Store>[
                 'ipToLocationApplicationInterface'
             ] = this.resolvedConfiguration.ipToLocationApplicationInterface
@@ -784,7 +784,7 @@ loading ?
                 },
                 ipToLocationAPIConfiguration.timeoutInMilliseconds
             )
-            $.ajax({
+            void $.ajax({
                 cache: true,
                 dataType: 'jsonp',
                 url: Tools.stringFormat(
@@ -798,47 +798,46 @@ loading ?
                     ipToLocationAPIConfiguration.key,
                     this.resolvedConfiguration.ip || ''
                 )
-            }).always(async (
-                currentLocation:Position
-            ):Promise<void> => {
-                if (!loaded) {
-                    fallbackTimeout.clear()
-                    loaded = true
-                    /*
-                        Check if determined location is valid and within
-                        defined bounds.
-                    */
-                    if (
-                        typeof currentLocation.latitude === 'number' &&
-                        typeof currentLocation.longitude === 'number' &&
-                        (
-                            !ipToLocationAPIConfiguration.bounds ||
-                            (new this.self.maps.LatLngBounds(
-                                new this.self.maps.LatLng(
-                                    ipToLocationAPIConfiguration
-                                        .bounds.southWest.latitude,
-                                    ipToLocationAPIConfiguration
-                                        .bounds.southWest.longitude
-                                ),
-                                new this.self.maps.LatLng(
-                                    ipToLocationAPIConfiguration
-                                        .bounds.northEast.latitude,
-                                    ipToLocationAPIConfiguration
-                                        .bounds.northEast.longitude
-                                )
-                            ))
-                                .contains(new this.self.maps.LatLng(
-                                    currentLocation.latitude,
-                                    currentLocation.longitude
-                                ))
-                        )
-                    )
-                        this.resolvedConfiguration.startLocation =
-                            currentLocation
-                    await this.initializeMap()
-                    resolve()
-                }
             })
+                .always((currentLocation:Position):void => {
+                    if (!loaded) {
+                        fallbackTimeout.clear()
+                        loaded = true
+                        /*
+                            Check if determined location is valid and within
+                            defined bounds.
+                        */
+                        if (
+                            typeof currentLocation.latitude === 'number' &&
+                            typeof currentLocation.longitude === 'number' &&
+                            (
+                                !ipToLocationAPIConfiguration.bounds ||
+                                (new this.self.maps.LatLngBounds(
+                                    new this.self.maps.LatLng(
+                                        ipToLocationAPIConfiguration
+                                            .bounds.southWest.latitude,
+                                        ipToLocationAPIConfiguration
+                                            .bounds.southWest.longitude
+                                    ),
+                                    new this.self.maps.LatLng(
+                                        ipToLocationAPIConfiguration
+                                            .bounds.northEast.latitude,
+                                        ipToLocationAPIConfiguration
+                                            .bounds.northEast.longitude
+                                    )
+                                ))
+                                    .contains(new this.self.maps.LatLng(
+                                        currentLocation.latitude,
+                                        currentLocation.longitude
+                                    ))
+                            )
+                        )
+                            this.resolvedConfiguration.startLocation =
+                                currentLocation
+
+                        void this.initializeMap().then(resolve)
+                    }
+                })
         })
     }
     /**
@@ -883,7 +882,7 @@ loading ?
      * item representation.
      * @param value - Value to initialize.
      *
-     * @return Determined value.
+     * @returns Determined value.
      */
     mapValue(value:any):any {
         if (![null, 'undefined'].includes(value as null)) {
@@ -901,7 +900,6 @@ loading ?
                 ) :
                 value
 
-            let found:boolean = false
             for (const item of this.items)
                 if (id === (typeof id === 'object' ? item : item.data?.id)) {
                     if (item.infoWindow && !item.infoWindow.isOpen)
@@ -1087,7 +1085,7 @@ loading ?
                 this.resolvedConfiguration.stores.northEast.longitude
             )
             for (
-                let index:number = 0;
+                let index = 0;
                 index < this.resolvedConfiguration.stores.number;
                 index++
             )
@@ -1277,7 +1275,7 @@ loading ?
                             this.closeSearchResults()
                     }
 
-                    this.lock.release(`${this.self._name}Search`)
+                    void this.lock.release(`${this.self._name}Search`)
 
                     return
                 }
@@ -1301,8 +1299,8 @@ loading ?
                         this.slots.searchResults,
                         {
                             [
-                                Tools.stringLowerCase(this.self._name) ||
-                                'instance'
+                            Tools.stringLowerCase(this.self._name) ||
+                            'instance'
                             ]: this,
                             configuration: this.resolvedConfiguration,
                             limitReached: false,
@@ -1331,12 +1329,14 @@ loading ?
                         (places:Array<MapPlaceResult>|null):void => {
                             if (places)
                                 this.handleGenericSearchResults(places)
-                            this.lock.release(`${this.self._name}Search`)
+
+                            void this.lock.release(`${this.self._name}Search`)
                         }
                     )
                 else {
                     this.performLocalSearch()
-                    this.lock.release(`${this.self._name}Search`)
+
+                    void this.lock.release(`${this.self._name}Search`)
                 }
             }) as UnknownFunction,
             searchOptions.generic.searchDebounceTimeInMilliseconds
@@ -1359,12 +1359,12 @@ loading ?
             NOTE: Since google text search doesn't support sorting by distance
             we have to sort by our own.
         */
-        let index:number = 1
+        let index = 1
         for (const place of places.sort((
             firstPlace:MapPlaceResult, secondPlace:MapPlaceResult
         ):number => {
-            let firstDistance:number = 0
-            let secondDistance:number = 0
+            let firstDistance = 0
+            let secondDistance = 0
             if (center) {
                 if (firstPlace.geometry?.location)
                     firstDistance = this.self.maps.geometry.spherical
@@ -1382,7 +1382,7 @@ loading ?
         })) {
             index += 1
 
-            let distance:number = 0
+            let distance = 0
             if (center && place.geometry?.location)
                 distance = this.self.maps.geometry.spherical
                     .computeDistanceBetween(center, place.geometry.location)
@@ -1437,7 +1437,7 @@ loading ?
             this.resolvedConfiguration.search as SearchConfiguration
         const numberOfGenericSearchResults:number = results.length
         const defaultProperties:Array<string>|null =
-            searchOptions.hasOwnProperty('properties') ?
+            Object.prototype.hasOwnProperty.call(searchOptions, 'properties') ?
                 searchOptions.properties :
                 null
 
@@ -1516,8 +1516,8 @@ loading ?
 
             const center:MapPosition|undefined = this.map.getCenter()
 
-            let firstDistance:number = 0
-            let secondDistance:number = 0
+            let firstDistance = 0
+            let secondDistance = 0
             if (center) {
                 if (first.position)
                     firstDistance = this.self.maps.geometry.spherical
@@ -1532,7 +1532,7 @@ loading ?
         })
 
         // Slice additional unneeded local search results.
-        let limitReached:boolean = false
+        let limitReached = false
         if (searchOptions.maximumNumberOfResults < results.length) {
             limitReached = true
             results.splice(
@@ -1589,8 +1589,8 @@ loading ?
             ))
         ) {
             for (const propertyName in this.searchResultsStyleProperties)
-                if (this.searchResultsStyleProperties.hasOwnProperty(
-                    propertyName
+                if (Object.prototype.hasOwnProperty.call(
+                    this.searchResultsStyleProperties, propertyName
                 ))
                     this.slots.searchResults.style[
                         propertyName as 'display'
@@ -1619,8 +1619,8 @@ loading ?
             this.dispatchEvent(new CustomEvent('closeSearchResults'))
         ) {
             for (const propertyName in this.searchResultsStyleProperties)
-                if (this.searchResultsStyleProperties.hasOwnProperty(
-                    propertyName
+                if (Object.prototype.hasOwnProperty.call(
+                    this.searchResultsStyleProperties, propertyName
                 ))
                     this.slots.searchResults!.style[
                         propertyName as 'display'
@@ -1686,7 +1686,7 @@ loading ?
                     let shortestDistanceInMeter:number = Number.MAX_VALUE
                     let matchingItem:Item|undefined
                     for (const item of this.items) {
-                        let distanceInMeter:number = 0
+                        let distanceInMeter = 0
                         if (foundPlace.geometry?.location && item.position)
                             distanceInMeter = this.self.maps.geometry
                                 .spherical.computeDistanceBetween(
@@ -1710,7 +1710,7 @@ loading ?
                                 this.resolvedConfiguration
                                     .successfulSearchZoomLevel
                             )
-                        await this.openMarker(matchingItem)
+                        this.openMarker(matchingItem)
 
                         return
                     }
@@ -1748,30 +1748,35 @@ loading ?
     ensurePlaceLocations(
         places:Array<MapPlaceResult>
     ):Promise<Array<MapPlaceResult>> {
-        let runningGeocodes:number = 0
+        let runningGeocodes = 0
         const geocoder:MapGeocoder = new this.self.maps.Geocoder()
 
-        return new Promise((resolve:Function, reject:Function):void => {
+        return new Promise<Array<MapPlaceResult>>((
+            resolve:(_value:Array<MapPlaceResult>) => void
+        ):void => {
             for (const place of places)
                 if (!place.geometry?.location) {
                     console.warn(
-                        `Found place "${place.name}" doesn't have a location` +
-                        '. Full object:'
+                        `Found place "${place.name!}" doesn't have a ` +
+                        'location. Full object:'
                     )
                     console.warn(place)
                     console.info(
                         'Geocode will be determined separately. With address' +
-                        ` "${place.name}".`
+                        ` "${place.name!}".`
                     )
+
                     runningGeocodes += 1
+
                     /* eslint-disable no-loop-func */
-                    geocoder.geocode(
+                    void geocoder.geocode(
                         {address: place.name},
                         (
                             results:Array<MapGeocoderResult>|null,
                             status:MapGeocoderStatus
                         ):void => {
                             runningGeocodes -= 1
+
                             if (
                                 results &&
                                 status === this.self.maps.GeocoderStatus.OK
@@ -1779,12 +1784,14 @@ loading ?
                                 place.geometry = results[0].geometry
                             else {
                                 delete places[places.indexOf(place)]
+
                                 console.warn(
-                                    `Found place "${place.name}" couldn\'t ` +
+                                    `Found place "${place.name!}" couldn't ` +
                                     'be geocoded by google. Removing it from' +
                                     ' the places list.'
                                 )
                             }
+
                             // Resolve all after last resolved geo coding.
                             if (runningGeocodes === 0)
                                 resolve(places)
@@ -1792,6 +1799,7 @@ loading ?
                     )
                     /* eslint-enable no-loop-func */
                 }
+
             // Resolve directly if we don't have to wait for any geocoding.
             if (runningGeocodes === 0)
                 resolve(places)
@@ -1813,14 +1821,17 @@ loading ?
         if (center && candidates.length) {
             let shortestDistanceInMeter:number = Number.MAX_VALUE
             for (const candidate of candidates) {
-                let distanceInMeter:number = 0
+                let distanceInMeter = 0
+
                 if (candidate.geometry?.location)
                     distanceInMeter = this.self.maps.geometry.spherical
                         .computeDistanceBetween(
                             candidate.geometry.location, center
                         )
+
                 if (distanceInMeter < shortestDistanceInMeter) {
                     result = candidate
+
                     shortestDistanceInMeter = distanceInMeter
                 }
             }
@@ -1832,7 +1843,7 @@ loading ?
      * @returns Promise resolving when start up animation has been completed.
      */
     async onLoaded():Promise<void> {
-        $(this.slots.loadingOverlay)
+        void $(this.slots.loadingOverlay)
             .animate(...this.resolvedConfiguration.loadingHideAnimation)
             .promise()
             .then(():void => {
@@ -1856,17 +1867,19 @@ loading ?
      * @returns The created marker.
      */
     createMarker(store?:Store):MapMarker {
-        let index:number = 0
+        let index = 0
         if (store && store.latitude && store.longitude) {
             while (this.seenLocations.includes(
                 `${store.latitude}-${store.longitude}`
             )) {
                 if (index % 2)
                     store.latitude +=
-                        this.resolvedConfiguration.distanceToMoveByDuplicatedEntries
+                        this.resolvedConfiguration
+                            .distanceToMoveByDuplicatedEntries
                 else
                     store.longitude +=
-                        this.resolvedConfiguration.distanceToMoveByDuplicatedEntries
+                        this.resolvedConfiguration
+                            .distanceToMoveByDuplicatedEntries
                 index += 1
             }
             this.seenLocations.push(`${store.latitude}-${store.longitude}`)
@@ -1887,7 +1900,9 @@ loading ?
             this.resolvedConfiguration.defaultMarkerIconFileName
         ) {
             item.icon = this.resolvedConfiguration.marker.icon ?
-                Tools.copy(this.resolvedConfiguration.marker.icon as unknown as Icon) :
+                Tools.copy(
+                    this.resolvedConfiguration.marker.icon as unknown as Icon
+                ) :
                 {} as Icon
             if (item.icon.scaledSize) {
                 const square:Square = item.icon.scaledSize as Square
@@ -2094,7 +2109,7 @@ loading ?
      *
      * @returns Nothing.
      */
-    highlightMarker(item:Item, event?:Event, type:string = 'bounce'):void {
+    highlightMarker(item:Item, event?:Event, type = 'bounce'):void {
         if (event)
             event.stopPropagation()
 
@@ -2119,11 +2134,12 @@ loading ?
                     (this.map.getZoom() ?? 0) <=
                         this.resolvedConfiguration.marker.cluster.maxZoom &&
                     item.position &&
-                    (this.map.getBounds() as MapArea)
-                        .contains(item.position as MapPosition)
+                    this.map.getBounds()!.contains(item.position)
                 ) {
-                    this.map.setCenter(item.position as MapPosition)
-                    this.map.setZoom(this.resolvedConfiguration.marker.cluster.maxZoom + 1)
+                    this.map.setCenter(item.position)
+                    this.map.setZoom(
+                        this.resolvedConfiguration.marker.cluster.maxZoom + 1
+                    )
                 }
                 if (item !== this.highlightedItem && item.marker) {
                     item.marker.setAnimation(
@@ -2144,7 +2160,7 @@ loading ?
 // endregion
 export const api:WebComponentAPI<typeof StoreLocator> = {
     component: StoreLocator,
-    register: (tagName:string = 'store-locator'):void =>
+    register: (tagName = 'store-locator'):void =>
         customElements.define(tagName, StoreLocator)
 }
 export default api

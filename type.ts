@@ -29,8 +29,6 @@ import {
 /// <reference path="googlemaps/places-service" />
 /// <reference path="googlemaps/places-widget" />
 import {MarkerClustererOptions} from '@googlemaps/markerclustererplus'
-
-import StoreLocator from './index'
 // endregion
 // region exports
 // / region map implementation
@@ -58,14 +56,14 @@ export type Maps = {
     ControlPosition:typeof google.maps.ControlPosition
     event:{
         addListener:(
-            instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
-            eventName:string,
-            handler:(...args: any[]) => void
+            _instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
+            _eventName:string,
+            _handler:(..._parameters:Array<any>) => void
         ) => MapEventListener
         addListenerOnce:(
-            instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
-            eventName:string,
-            handler:(...args: any[]) => void
+            _instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
+            _eventName:string,
+            _handler:(..._parameters:Array<any>) => void
         ) => MapEventListener
     }
     Geocoder:typeof google.maps.Geocoder
@@ -73,7 +71,7 @@ export type Maps = {
     geometry:{
         spherical:{
             computeDistanceBetween:(
-                from:MapPosition, to:MapPosition, radius?:number
+                _from:MapPosition, _to:MapPosition, _radius?:number
             ) => number
         }
     }
@@ -123,14 +121,14 @@ export type Icon = {
 export type InfoWindow = MapInfoWindow & {isOpen:boolean}
 export type Item<StoreType extends Store = Store> = {
     close?:Function
-    data:null|Store
+    data:null|StoreType
     foundWords:Array<string>
-    highlight:(event?:Event, type?:string) => void
+    highlight:(_event?:Event, _type?:string) => void
     icon?:Icon
     infoWindow?:InfoWindow
     isHighlighted:boolean
     marker?:MapMarker
-    open:(event?:Event) => void
+    open:(_event?:Event) => void
     position:MapPosition|null
     refreshSize?:ProcedureFunction
     title?:string
@@ -141,7 +139,7 @@ export type Position = {
 }
 export type SearchConfiguration = {
     generic:{
-        filter:(place:MapPlaceResult) => boolean
+        filter:(_place:MapPlaceResult) => boolean
         maximalDistanceInMeter:number
         minimumNumberOfSymbols:number
         number:Array<number>
@@ -150,7 +148,7 @@ export type SearchConfiguration = {
         searchDebounceTimeInMilliseconds:number
     },
     maximumNumberOfResults:number
-    normalizer:(value:string) => string
+    normalizer:(_value:string) => string
     properties:Array<string>
     resultAggregation:'cut'|'union'
     stylePropertiesToDeriveFromInputField:Array<string>
@@ -205,7 +203,7 @@ export type Configuration<StoreItem = Store> = {
     showInputAfterLoadedDelayInMilliseconds:number
     startLocation?:null|Position
     stores:Array<StoreItem>|string|{
-        generateProperties:(store:object) => object
+        generateProperties:(_store:object) => object
         northEast:Position
         number:number
         southWest:Position
