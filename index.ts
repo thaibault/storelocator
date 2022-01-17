@@ -117,8 +117,11 @@ import {
  * @property lock - Holds instance specific locks.
  */
 export class StoreLocator<
-    Store extends BaseStore = BaseStore, TElement extends Element = HTMLElement
-> extends Web<TElement> {
+    TElement extends Element = HTMLElement,
+    ExternalProperties extends Mapping<unknown> = Mapping<unknown>,
+    InternalProperties extends Mapping<unknown> = Mapping<unknown>,
+    Store extends BaseStore = BaseStore
+> extends Web<TElement, ExternalProperties, InternalProperties> {
     static applicationInterfaceLoad:Promise<void>
     static cloneSlots = true
     /*
