@@ -149,7 +149,12 @@ export class StoreLocator<
             <textarea style="display:none">\\\${
 
 loading ?
-    "<div class=\\\\"store-locator__search-results store-locator__search-results--loading\\\\">loading...</div>" :
+    (
+        "<div class=\\\\"" +
+        "store-locator__search-results store-locator__search-results" +
+        "--loading" +
+        "\\\\">loading...</div>"
+    ) :
     results.length ?
         results.map(function(result) {
             return ("<ul>" +
@@ -175,8 +180,12 @@ loading ?
             "</ul>")
         })
         .join("") :
-        "<div class=\\\\"store-locator__search-results store-locator__search-results--no-results\\\\">No results found</div>"
-
+        (
+            "<div class=\\\\"" +
+            "store-locator__search-results store-locator__search-results" +
+            "--no-results" +
+            "\\\\">No results found</div>"
+        )
             }</textarea>
         </div></slot>
 
