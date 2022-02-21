@@ -1436,6 +1436,7 @@ loading ?
                     break
             }
         }
+
         this.performLocalSearch(results)
     }
     /**
