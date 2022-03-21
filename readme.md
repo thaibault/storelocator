@@ -13,14 +13,23 @@ endregion -->
 Project status
 --------------
 
-[![npm version](https://badge.fury.io/js/storelocator.svg)](https://www.npmjs.com/package/storelocator)
-[![downloads](https://img.shields.io/npm/dy/storelocator.svg)](https://www.npmjs.com/package/storelocator)
-[![build status](https://travis-ci.org/thaibault/storeLocator.svg?branch=master)](https://travis-ci.org/thaibault/storeLocator)
-[![code coverage](https://coveralls.io/repos/github/thaibault/storeLocator/badge.svg)](https://coveralls.io/github/thaibault/storeLocator)
+[![npm](https://img.shields.io/npm/v/storelocator?color=%23d55e5d&label=npm%20package%20version&logoColor=%23d55e5d)](https://www.npmjs.com/package/storelocator)
+[![npm downloads](https://img.shields.io/npm/dy/storelocator.svg)](https://www.npmjs.com/package/storelocator)
+
+[![<LABEL>](https://github.com/thaibault/storelocator/actions/workflows/build.yaml/badge.svg)](https://github.com/thaibault/storelocator/actions/workflows/build.yaml)
+[![<LABEL>](https://github.com/thaibault/storelocator/actions/workflows/test.yaml/badge.svg)](https://github.com/thaibault/storelocator/actions/workflows/test.yaml)
+[![<LABEL>](https://github.com/thaibault/storelocator/actions/workflows/test:coverage:report.yaml/badge.svg)](https://github.com/thaibault/storelocator/actions/workflows/test:coverage:report.yaml)
+[![<LABEL>](https://github.com/thaibault/storelocator/actions/workflows/check:types.yaml/badge.svg)](https://github.com/thaibault/storelocator/actions/workflows/check:types.yaml)
+[![<LABEL>](https://github.com/thaibault/storelocator/actions/workflows/lint.yaml/badge.svg)](https://github.com/thaibault/storelocator/actions/workflows/lint.yaml)
+
+[![code coverage](https://coveralls.io/repos/github/thaibault/storelocator/badge.svg)](https://coveralls.io/github/thaibault/storelocator)
+
+<!-- Too unstable yet
 [![dependencies](https://img.shields.io/david/thaibault/storelocator.svg)](https://david-dm.org/thaibault/storelocator)
 [![development dependencies](https://img.shields.io/david/dev/thaibault/storelocator.svg)](https://david-dm.org/thaibault/storelocator?type=dev)
 [![peer dependencies](https://img.shields.io/david/peer/thaibault/storelocator.svg)](https://david-dm.org/thaibault/storelocator?type=peer)
-[![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/storeLocator.svg?label=documentation-website)](https://torben.website/storeLocator)
+-->
+[![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/storelocator.svg?label=documentation-website)](https://torben.website/storelocator)
 
 <!--|deDE:Einsatz-->
 Use case

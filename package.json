@@ -1,18 +1,7 @@
 {
   "name": "storelocator",
   "version": "1.0.396",
-  "license": "CC-BY-3.0",
   "description": "serves a google maps store locator",
-  "homepage": "https://torben.website/storelocator",
-  "documentationWebsite": {
-    "languages": [
-      "deDE",
-      "enUS"
-    ],
-    "name": "storelocator",
-    "tagline": "Serves a google maps store locator<!--deDE:Bietet einen Google-Maps-Storelocator-->",
-    "trackingCode": "UA-40192634-10"
-  },
   "keywords": [
     "storeLocator",
     "store",
@@ -23,6 +12,17 @@
     "webcomponent",
     "web-component"
   ],
+  "homepage": "https://torben.website/storelocator",
+  "bugs": {
+    "email": "info@torben.website",
+    "url": "https://github.com/thaibault/storelocator/issues"
+  },
+  "license": "CC-BY-3.0",
+  "author": {
+    "name": "Torben Sickert",
+    "email": "info@torben.website",
+    "url": "https://torben.website"
+  },
   "files": [
     "index.d.ts",
     "index.js",
@@ -105,6 +105,15 @@
     "colors": "1.4.0"
   },
   "sideEffects": false,
+  "documentationWebsite": {
+    "languages": [
+      "deDE",
+      "enUS"
+    ],
+    "name": "storelocator",
+    "tagline": "Serves a google maps store locator<!--deDE:Bietet einen Google-Maps-Storelocator-->",
+    "trackingCode": "UA-40192634-10"
+  },
   "webOptimizer": {
     "commandLine": {
       "test": {
