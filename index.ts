@@ -208,6 +208,18 @@ loading ?
     `
     static defaultConfiguration:Configuration<BaseStore> = {
         additionalStoreProperties: {},
+        defaultMarkerIconFileName: null,
+        filter: null,
+        iconPath: '',
+        infoWindow: {additionalMoveToBottomInPixel: 80},
+        transform: null,
+        stores: {
+            generateProperties: (store:object):object => store,
+            northEast: {latitude: 85, longitude: 180},
+            number: 100,
+            southWest: {latitude: -85, longitude: -180}
+        },
+
         applicationInterface: {
             callbackName: null,
             key: null,
@@ -221,16 +233,10 @@ loading ?
             `.replace(/[ \n]+/g, '')
         },
         debug: false,
-        defaultMarkerIconFileName: null,
+
         distanceToMoveByDuplicatedEntries: 0.0001,
+
         fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
-        filter: null,
-        iconPath: '',
-        infoWindow: {additionalMoveToBottomInPixel: 80},
-        input: {
-            hide: {display: 'block', opacity: 0},
-            showAnimation: [{opacity: 1}, {duration: 'fast'}]
-        },
         ip: 'check',
         ipToLocationApplicationInterface: {
             bounds: {
@@ -244,11 +250,24 @@ loading ?
                 '{1}//api.ipstack.com/{3}?access_key={2}&' +
                 'fields=latitude,longitude'
         },
+        startLocation: null,
+
+        input: {
+            hide: {display: 'block', opacity: 0},
+            showAnimation: [{opacity: 1}, {duration: 'fast'}]
+        },
+        loadingHideAnimation: [{opacity: 0}, {duration: 'fast'}],
+        showInputAfterLoadedDelayInMilliseconds: 500,
+        root: {
+            hide: {display: 'block', opacity: 0},
+            showAnimation: [{opacity: 1}, {duration: 'fast'}]
+        },
+
         limit: {
             northEast: {latitude: 85, longitude: 180},
             southWest: {latitude: -85, longitude: -180}
         },
-        loadingHideAnimation: [{opacity: 0}, {duration: 'fast'}],
+
         map: {
             disableDefaultUI: true,
             maxZoom: 9999,
@@ -270,22 +289,13 @@ loading ?
                 size: {height: 49, unit: 'px', width: 44}
             }
         },
+
         name: 'storeLocator',
-        root: {
-            hide: {display: 'block', opacity: 0},
-            showAnimation: [{opacity: 1}, {duration: 'fast'}]
-        },
+
         search: 50,
-        securityResponsePrefix: `)]}',`,
-        showInputAfterLoadedDelayInMilliseconds: 500,
-        startLocation: null,
-        stores: {
-            generateProperties: (store:object):object => store,
-            northEast: {latitude: 85, longitude: 180},
-            number: 100,
-            southWest: {latitude: -85, longitude: -180}
-        },
         successfulSearchZoomLevel: 12,
+
+        securityResponsePrefix: `)]}',`,
         urlModelMask: {
             exclude: false,
             include: {
@@ -378,6 +388,7 @@ loading ?
     items:Array<Item> = []
     searchResultsStyleProperties:Mapping<number|string> = {}
     seenLocations:Array<string> = []
+    transform:(_store:Store) => Store = Tools.identity
 
     highlightedItem:Item|null = null
     openWindow:InfoWindow|null = null
@@ -473,6 +484,7 @@ loading ?
     setInternalPropertyValue(name:string, value:any):void {
         if (!this.initialized && name === 'default') {
             this.setPropertyValue('value', value)
+
             return
         }
 
@@ -481,6 +493,7 @@ loading ?
             value = this.mapValue(value)
             if (givenValue !== value) {
                 this.setPropertyValue(name, value)
+
                 return
             }
         }
@@ -626,7 +639,26 @@ loading ?
         if (this.resolvedConfiguration.debug)
             console.debug('Got configuration:', this.resolvedConfiguration)
 
-        if (this.resolvedConfiguration.filter) {
+        if (typeof this.resolvedConfiguration.transform === 'function')
+            this.transform = this.resolvedConfiguration.transform
+        else if (this.resolvedConfiguration.transform) {
+            const {error, templateFunction} = Tools.stringCompile<Store>(
+                this.resolvedConfiguration.transform, ['store']
+            )
+
+            if (error)
+                console.warn(
+                    `Given store transformer "` +
+                    `${this.resolvedConfiguration.transform}" does not ` +
+                    `compile: ${error}`
+                )
+            else
+                this.transform = templateFunction
+        }
+
+        if (typeof this.resolvedConfiguration.filter === 'function')
+            this.filter = this.resolvedConfiguration.filter
+        else if (this.resolvedConfiguration.filter) {
             const {error, templateFunction} = Tools.stringCompile<boolean>(
                 this.resolvedConfiguration.filter, ['store']
             )
@@ -878,10 +910,6 @@ loading ?
                 store.address =
                     (store.streetAndStreetnumber || '') +
                     (store.zipCodeAndCity ? `, ${store.zipCodeAndCity}` : '')
-            if (store.premium || store.premiumPlus || store['4.0'])
-                store.markerIconFileName = 'jobRadMarkerPremium.png'
-            if (['off_online', 'online'].includes(store.shopType))
-                store.markerIconFileName = 'jobRadMarkerPremiumShipping.png'
 
             const marker:MapMarker = this.createMarker(store)
             if (this.markerClusterer)
@@ -1074,7 +1102,7 @@ loading ?
 
         if (Array.isArray(this.resolvedConfiguration.stores))
             for (const store of this.resolvedConfiguration.stores)
-                this.addMarker(store)
+                this.addMarker(this.transform(store))
         else if (typeof this.resolvedConfiguration.stores === 'string') {
             const result:Response =
                 await globalContext.fetch(this.resolvedConfiguration.stores)
@@ -1086,7 +1114,7 @@ loading ?
                     this.resolvedConfiguration.securityResponsePrefix.length
                 )
             for (const store of JSON.parse(responseString))
-                this.addMarker(store)
+                this.addMarker(this.transform(store))
         } else {
             const southWest:MapPosition = new this.self.maps.LatLng(
                 this.resolvedConfiguration.stores.southWest.latitude,
@@ -1101,7 +1129,7 @@ loading ?
                 index < this.resolvedConfiguration.stores.number;
                 index++
             )
-                this.addMarker({
+                this.addMarker(this.transform({
                     latitude:
                         southWest.lat() +
                         (northEast.lat() - southWest.lat()) *
@@ -1111,7 +1139,7 @@ loading ?
                         (northEast.lng() - southWest.lng()) *
                         Math.random(),
                     ...this.resolvedConfiguration.additionalStoreProperties
-                } as Store)
+                } as Store))
         }
 
         this.loaded = true
@@ -1895,6 +1923,7 @@ loading ?
                             .distanceToMoveByDuplicatedEntries
                 index += 1
             }
+
             this.seenLocations.push(`${store.latitude}-${store.longitude}`)
         }
 
@@ -1936,13 +1965,17 @@ loading ?
                 item.icon.url +=
                     this.resolvedConfiguration.defaultMarkerIconFileName
         }
+
         if (store?.title)
             item.title = store.title
+
         item.infoWindow = new this.self.maps.InfoWindow({content: ''}) as
             InfoWindow
         item.infoWindow.isOpen = false
+
         item.marker =
             new this.self.maps.Marker(this.createMarkerConfiguration(item))
+
         this.attachMarkerEventListener(item)
         this.items.push(item)
 

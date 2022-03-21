@@ -59,12 +59,12 @@ export type Maps = {
         addListener:(
             _instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
             _eventName:string,
-            _handler:(..._parameters:Array<any>) => void
+            _handler:(event:Event) => void
         ) => MapEventListener
         addListenerOnce:(
             _instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
             _eventName:string,
-            _handler:(..._parameters:Array<any>) => void
+            _handler:(event:Event) => void
         ) => MapEventListener
     }
     Geocoder:typeof google.maps.Geocoder
@@ -95,7 +95,7 @@ export type PropertyTypes = {
     configuration:ValueOf<typeof PropertyTypes>
     dynamicConfiguration:ValueOf<typeof PropertyTypes>
 }
-export type Store = Mapping<any> & {
+export type Store = Mapping<unknown> & {
     address?:string
     city?:string
     id?:number|string
@@ -121,7 +121,7 @@ export type Icon = {
 }
 export type InfoWindow = MapInfoWindow & {isOpen:boolean}
 export type Item<StoreType extends Store = Store> = {
-    close?:Function
+    close?:() => void
     data:null|StoreType
     foundWords:Array<string>
     highlight:(_event?:Event, _type?:string) => void
@@ -160,19 +160,27 @@ export type AppearanceConfiguration = {
 }
 export type Configuration<StoreItem = Store> = {
     additionalStoreProperties:object
+    defaultMarkerIconFileName?:null|string
+    filter:null|string|((_store:StoreItem) => boolean)
+    stores:Array<StoreItem>|string|{
+        generateProperties:(_store:object) => object
+        northEast:Position
+        number:number
+        southWest:Position
+    }
+    transform:null|string|((_store:StoreItem) => StoreItem)
+
     applicationInterface:{
         callbackName?:null|string
         key?:null|string
         url:string
     }
+
     debug:boolean
-    defaultMarkerIconFileName?:null|string
+
     distanceToMoveByDuplicatedEntries:number
+
     fallbackLocation:Position
-    filter:null|string
-    iconPath:string
-    infoWindow:{additionalMoveToBottomInPixel:number}
-    input:AppearanceConfiguration
     ip:string
     ipToLocationApplicationInterface:{
         bounds:{
@@ -184,12 +192,22 @@ export type Configuration<StoreItem = Store> = {
         timeoutInMilliseconds:number
         url:string
     }
+    startLocation?:null|Position
+
+    iconPath:string
+    infoWindow:{additionalMoveToBottomInPixel:number}
+    input:AppearanceConfiguration
+    root:AppearanceConfiguration
+    loadingHideAnimation:[Mapping<number|string>, Mapping<number|string>]
+    showInputAfterLoadedDelayInMilliseconds:number
+
     limit:{
         northEast:Position
         southWest:Position
     }
-    loadingHideAnimation:[Mapping<number|string>, Mapping<number|string>]
+
     map:MapOptions
+
     marker:{
         cluster?:MapMarkerClustererOptions|null
         icon:{
@@ -197,19 +215,14 @@ export type Configuration<StoreItem = Store> = {
             size:Square
         }
     }
+
     name:string
-    root:AppearanceConfiguration
+
     search:number|SearchConfiguration
-    securityResponsePrefix:string
-    showInputAfterLoadedDelayInMilliseconds:number
-    startLocation?:null|Position
-    stores:Array<StoreItem>|string|{
-        generateProperties:(_store:object) => object
-        northEast:Position
-        number:number
-        southWest:Position
-    }
     successfulSearchZoomLevel:number
+
+    securityResponsePrefix:string
+
     urlModelMask:ObjectMaskConfiguration
 }
 // endregion
