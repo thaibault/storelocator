@@ -419,7 +419,7 @@ loading ?
     // NOTE: Will be initialized during bootstrapping.
     map:MapImpl = null as unknown as MapImpl
     markerClusterer:MarkerClusterer|null = null
-    resetMarkerCluster:Function|null = null
+    resetMarkerCluster:null|(() => void) = null
 
     readonly self:typeof StoreLocator = StoreLocator
 
@@ -481,7 +481,7 @@ loading ?
      *
      * @returns Nothing.
      */
-    setInternalPropertyValue(name:string, value:any):void {
+    setInternalPropertyValue(name:string, value:unknown):void {
         if (!this.initialized && name === 'default') {
             this.setPropertyValue('value', value)
 
@@ -489,8 +489,8 @@ loading ?
         }
 
         if (this.loaded && name === 'value') {
-            const givenValue:any = value
-            value = this.mapValue(value)
+            const givenValue:unknown = value
+            value = this.mapValue(value as Item|null|number|string|Store)
             if (givenValue !== value) {
                 this.setPropertyValue(name, value)
 
@@ -768,7 +768,7 @@ loading ?
                             new Error('No google maps environment set.')
                         )
             }
-            ;(globalContext as unknown as Mapping<Function>)[callbackName] =
+            ;(globalContext as unknown as Mapping<() => void>)[callbackName] =
                 callback
 
             void $.getScript(Tools.stringFormat(
@@ -924,20 +924,17 @@ loading ?
      *
      * @returns Determined value.
      */
-    mapValue(value:any):any {
-        if (![null, 'undefined'].includes(value as null)) {
+    mapValue(value?:Item|null|number|Store|string):Item|null {
+        if (![null, undefined].includes(value as null)) {
             const hasID:boolean =
                 typeof value === 'object' &&
                 (
-                    'id' in (value as unknown as Store) ||
-                    'data' in (value as unknown as Item) &&
-                    'id' in (value.data as unknown as Store)
+                    'id' in (value as Store) ||
+                    'data' in (value as Item) &&
+                    'id' in ((value as Item).data as Store)
                 )
             const id:unknown = hasID ?
-                (
-                    (value as unknown as Store).id ||
-                    (value as unknown as Item).data?.id
-                ) :
+                (value as Store).id || (value as Item).data?.id :
                 value
 
             for (const item of this.items)
@@ -1008,6 +1005,7 @@ loading ?
         if (this.resolvedConfiguration.marker.cluster) {
             this.resetMarkerCluster = ():void => {
                 const markers:Array<MapMarker> = []
+
                 for (const item of this.items) {
                     if (item.marker) {
                         item.marker.setMap(null)
@@ -1016,11 +1014,15 @@ loading ?
                     item.marker = new this.self.maps.Marker(
                         this.createMarkerConfiguration(item)
                     )
+
                     this.attachMarkerEventListener(item)
+
                     markers.push(item.marker)
                 }
+
                 if (this.markerClusterer)
                     this.markerClusterer.clearMarkers()
+
                 this.markerClusterer = new MarkerClusterer(
                     this.map,
                     markers,
@@ -1028,6 +1030,7 @@ loading ?
                         MapMarkerClustererOptions
                 )
             }
+
             this.resetMarkerCluster()
         }
 
@@ -1094,11 +1097,11 @@ loading ?
             )
 
         if (!this.self.maps.mockup)
-            await new Promise((resolve:Function) =>
+            await new Promise<void>((resolve:() => void):void => {
                 this.self.maps.event.addListenerOnce(
                     this.map, 'idle', ():void => resolve()
                 )
-            )
+            })
 
         if (Array.isArray(this.resolvedConfiguration.stores))
             for (const store of this.resolvedConfiguration.stores)
@@ -1113,7 +1116,7 @@ loading ?
                 responseString = responseString.substring(
                     this.resolvedConfiguration.securityResponsePrefix.length
                 )
-            for (const store of JSON.parse(responseString))
+            for (const store of JSON.parse(responseString) as Array<Store>)
                 this.addMarker(this.transform(store))
         } else {
             const southWest:MapPosition = new this.self.maps.LatLng(
@@ -1380,7 +1383,7 @@ loading ?
                 }
             }) as UnknownFunction,
             searchOptions.generic.searchDebounceTimeInMilliseconds
-        )
+        ) as UnknownFunction
     }
     /**
      * Sorts and filters search results given by google's application
@@ -1495,9 +1498,9 @@ loading ?
                         item.data &&
                         item.data[key] &&
                         typeof item.data[key] === 'string' &&
-                        searchOptions.normalizer(
-                            item.data[key] as unknown as string
-                        ).includes(searchWord)
+                        searchOptions
+                            .normalizer(item.data[key] as string)
+                            .includes(searchWord)
                     ) {
                         item.foundWords.push(searchWord)
 
@@ -1711,61 +1714,75 @@ loading ?
         this.self.maps.event.addListener(
             searchBox,
             'places_changed',
-            async ():Promise<void> => {
+            ():void => {
                 const givenPlaces:Array<MapPlaceResult>|undefined =
                     searchBox.getPlaces()
 
                 if (!Array.isArray(givenPlaces))
                     return
 
-                const places:Array<MapPlaceResult> =
-                    await this.ensurePlaceLocations(givenPlaces)
-                const foundPlace:MapPlaceResult|null =
-                    this.determineBestSearchResult(places)
+                this.ensurePlaceLocations(givenPlaces)
+                    .then((places:Array<MapPlaceResult>):void => {
+                        const foundPlace:MapPlaceResult|null =
+                            this.determineBestSearchResult(places)
 
-                if (foundPlace) {
-                    let shortestDistanceInMeter:number = Number.MAX_VALUE
-                    let matchingItem:Item|undefined
-                    for (const item of this.items) {
-                        let distanceInMeter = 0
-                        if (foundPlace.geometry?.location && item.position)
-                            distanceInMeter = this.self.maps.geometry
-                                .spherical.computeDistanceBetween(
-                                    foundPlace.geometry.location, item.position
+                        if (foundPlace) {
+                            let shortestDistanceInMeter:number =
+                                Number.MAX_VALUE
+                            let matchingItem:Item|undefined
+                            for (const item of this.items) {
+                                let distanceInMeter = 0
+                                if (
+                                    foundPlace.geometry?.location &&
+                                    item.position
                                 )
-                        if (distanceInMeter < shortestDistanceInMeter) {
-                            shortestDistanceInMeter = distanceInMeter
-                            matchingItem = item
-                        }
-                    }
-                    if (
-                        matchingItem &&
-                        shortestDistanceInMeter <=
-                            this.resolvedConfiguration.search
-                    ) {
-                        if (
-                            this.resolvedConfiguration
-                                .successfulSearchZoomLevel
-                        )
-                            this.map.setZoom(
+                                    distanceInMeter = this.self.maps.geometry
+                                        .spherical.computeDistanceBetween(
+                                            foundPlace.geometry.location,
+                                            item.position
+                                        )
+                                if (
+                                    distanceInMeter < shortestDistanceInMeter
+                                ) {
+                                    shortestDistanceInMeter = distanceInMeter
+                                    matchingItem = item
+                                }
+                            }
+                            if (
+                                matchingItem &&
+                                shortestDistanceInMeter <=
+                                    this.resolvedConfiguration.search
+                            ) {
+                                if (
+                                    this.resolvedConfiguration
+                                        .successfulSearchZoomLevel
+                                )
+                                    this.map.setZoom(
+                                        this.resolvedConfiguration
+                                            .successfulSearchZoomLevel
+                                    )
+                                this.openMarker(matchingItem)
+
+                                return
+                            }
+
+                            this.closeCurrentWindow()
+
+                            if (foundPlace.geometry?.location)
+                                this.map.setCenter(
+                                    foundPlace.geometry.location
+                                )
+                            if (
                                 this.resolvedConfiguration
                                     .successfulSearchZoomLevel
                             )
-                        this.openMarker(matchingItem)
-
-                        return
-                    }
-
-                    this.closeCurrentWindow()
-
-                    if (foundPlace.geometry?.location)
-                        this.map.setCenter(foundPlace.geometry.location)
-                    if (this.resolvedConfiguration.successfulSearchZoomLevel)
-                        this.map.setZoom(
-                            this.resolvedConfiguration
-                                .successfulSearchZoomLevel
-                        )
-                }
+                                this.map.setZoom(
+                                    this.resolvedConfiguration
+                                        .successfulSearchZoomLevel
+                                )
+                        }
+                    })
+                    .catch(console.warn)
             }
         )
     }

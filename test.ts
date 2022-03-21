@@ -28,31 +28,32 @@ globalContext.fetch = nodeFetch as unknown as typeof fetch
         ControlPosition: {TOP_LEFT: 0},
         event: {addListener: Tools.noop},
         InfoWindow: class {
-            open:Function = Tools.noop
-            setContent:Function = Tools.noop
+            open:() => void = Tools.noop
+            setContent:() => void = Tools.noop
         },
         LatLng: class {
             lat = ():number => 1
             lng = ():number => 1
         },
         LatLngBounds: class {
-            contains:Function = ():true => true
+            contains:() => true = ():true => true
         },
         Map: class {
             controls:Array<Array<number>> = [[]]
-            getCenter:Function = ():{} => ({})
-            panBy:Function = Tools.noop
-            panTo:Function = Tools.noop
+            getCenter = ():Record<string, never> => ({})
+            panBy:() => void = Tools.noop
+            panTo:() => void = Tools.noop
         },
         Marker: class {
-            setAnimation:Function = Tools.noop
+            setAnimation:() => void = Tools.noop
         },
         mockup: true,
         places: {
             PlacesService: class {
-                textSearch:Function = (
-                    options:object, callback:Function
-                ):void => callback([])
+                textSearch = (
+                    options:object, callback:(_words:Array<string>) => void
+                ):void =>
+                    callback([])
             },
             SearchBox: Tools.noop
         }
