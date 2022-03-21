@@ -41,7 +41,7 @@
     "check:types": "weboptimizer check:types",
     "clear": "weboptimizer clear",
     "document": "weboptimizer document",
-    "lint": "weboptimizer lint",
+    "lint": "yarn clear && weboptimizer lint",
     "prepare": "yarn build",
     "serve": "weboptimizer serve",
     "start": "yarn serve",
