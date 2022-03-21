@@ -48,7 +48,7 @@
     "test": "yarn clear && weboptimizer test",
     "test:browser": "yarn clear && weboptimizer test:browser",
     "test:coverage": "yarn clear && weboptimizer test:coverage",
-    "test:coverage:report": "weboptimizer test:coverage:report",
+    "test:coverage:report": "yarn clear && weboptimizer test:coverage:report",
     "update": "yarn version --patch && yarn publish",
     "update:documentation": "documentationWebsite --log-level info",
     "watch": "weboptimizer build --watch"
