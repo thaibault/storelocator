@@ -3151,9 +3151,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.883"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.883.tgz#c19b7f30ce90463a5db8a7c164cb533151bb3b06"
-  integrity sha512-t4LUTTc69g5J2EkhIkobtEca/ZFy4NPGtCymXGH7PqYgZHnmtzzPKX9xsS1ai+irAmXdniFnzovOHK2jkEabiA==
+  version "3.0.885"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.885.tgz#b6aaa64ce1cfcdaa9ac3ab33664ff2395bb31000"
+  integrity sha512-EXO0O6s4UalRjQy4Q4AIj5Cfe511wSwf3zfzksBlpl/zUGaagNW4qMrwpxbM8nNrFhFuYuFPJvmZp7kVzuwEQA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -7174,9 +7174,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.360"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.360.tgz#83a1b607c917f485c786099eb54ae1c04b4eee14"
-  integrity sha512-ODL2ah0PQUkfkthe/YbA5pgU8hjJ2A8vtYyJGOgbIAgpagywitO2VAzzq8xdtoEGEvtjsyOfTML0XI1N3M2bqA==
+  version "0.0.362"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.362.tgz#01b019ba88ca4f6c2d8e0bd57193bd6f633c6bcb"
+  integrity sha512-Hq9/6DiVsDghtfB9luh2L6Cugmtl9YntG2axiDf5z/0FF4hBLNs8xkDjY39TMqgA65fKX2s096liHcCSYD6Ojg==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -7196,9 +7196,9 @@ webidl-conversions@^6.1.0:
   integrity sha512-qBIvFLGiBpLjfwmYAaHPXsn+ho5xZnGvyGvsarywGNc8VyQJUMHJ8OBKGGrPER0okBeMDaan4mNBlgBROxuI8w==
 
 weboptimizer@*:
-  version "2.0.1137"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1137.tgz#5a47353a7a60cb1585c498bf28810c87c8ef2676"
-  integrity sha512-bLOA7EqPshpSwfLboGP1m4/wrIKxed6tuUgAZvYtJGFpSXm+o2oH0LiOL53dwDfue0YRzFtb7Afvu3Vra6SubA==
+  version "2.0.1140"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1140.tgz#85aba124233d90346c4350192cdf0bf78de6d157"
+  integrity sha512-IDzZ7gXsCED1LAtV6yupn0WbyH5UrpCmkCA92K675l+UODH7fhDZKFPDzA0o8MZy8rttIdALkEKgpQGx2+6SYA==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"

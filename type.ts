@@ -16,10 +16,6 @@
     endregion
 */
 // region imports
-import PropertyTypes from 'clientnode/property-types'
-import {
-    Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf
-} from 'clientnode/type'
 /// <reference path="googlemaps" />
 /// <reference path="googlemaps/coordinates" />
 /// <reference path="googlemaps/event" />
@@ -28,6 +24,11 @@ import {
 /// <reference path="googlemaps/marker" />
 /// <reference path="googlemaps/places-service" />
 /// <reference path="googlemaps/places-widget" />
+
+import PropertyTypes from 'clientnode/property-types'
+import {
+    Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf
+} from 'clientnode/type'
 import {MarkerClustererOptions} from '@googlemaps/markerclustererplus'
 // endregion
 // region exports
