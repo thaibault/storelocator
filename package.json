@@ -50,7 +50,7 @@
     "test:coverage": "yarn clear && weboptimizer test:coverage",
     "test:coverage:report": "yarn clear && weboptimizer test:coverage:report",
     "update": "yarn version --patch && yarn publish",
-    "update:documentation": "documentationWebsite --log-level info",
+    "update:documentation": "documentation-website",
     "watch": "weboptimizer build --watch"
   },
   "dependencies": {
