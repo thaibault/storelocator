@@ -129,18 +129,36 @@
 
                 const markSearchResults = function(event) {
                     let changed = false
-                    for (var index = 0; index < event.target.items.length; index++) {
+                    for (
+                        var index = 0;
+                        index < event.target.items.length;
+                        index++
+                    ) {
                         const item = event.target.items[index]
                         if (
-                            item.hasOwnProperty('storeLocatorFoundWords') ||
+                            Object.prototype.hasOwnProperty.call(
+                                item, 'storeLocatorFoundWords'
+                            )) ||
                             this.currentSearchText === ''
                         ) {
-                            if (item.data.iconURL !== 'https://via.placeholder.com/50/0099ff/ffffff.png?text=match') {
-                                item.data.iconURL = 'https://via.placeholder.com/50/0099ff/ffffff.png?text=match'
+                            if (
+                                item.data.iconURL !==
+                                'https://via.placeholder.com/50/0099ff/ffffff.png?text=match'
+                            ) {
+                                item.data.iconURL =
+                                    'https://via.placeholder.com/50/0099ff/' +
+                                    'ffffff.png?text=match'
+
                                 changed = true
                             }
-                        } else if (item.data.iconURL !== 'https://via.placeholder.com/50/0099ff/ffffff.png') {
-                            item.data.iconURL = 'https://via.placeholder.com/50/0099ff/ffffff.png'
+                        } else if (
+                            item.data.iconURL !==
+                            'https://via.placeholder.com/50/0099ff/ffffff.png'
+                        ) {
+                            item.data.iconURL =
+                                'https://via.placeholder.com/50/0099ff/' +
+                                'ffffff.png'
+
                             changed = true
                         }
                     }
@@ -174,11 +192,13 @@
                     key: '11a62990a1424e894da6eec464a747e6'
                 },
 
-                defaultMarkerIconFileName: 'https://via.placeholder.com/50/0099ff/ffffff.png',
+                defaultMarkerIconFileName:
+                    'https://via.placeholder.com/50/0099ff/ffffff.png',
                 // Automatically generated stores with option: {stores: bounds}
                 stores: [
                     {
-                        address: 'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
+                        address:
+                            'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
                         eMailAddress: 'info@fake-1.de',
                         id: 1,
                         latitude: 50.4356,
@@ -187,7 +207,8 @@
                         phoneNumber: '+49 721 9600'
                     },
                     {
-                        address: 'Freiheitsstr.1a, 53842 Troisdorf, Deutschland',
+                        address:
+                            'Freiheitsstr.1a, 53842 Troisdorf, Deutschland',
                         eMailAddress: '1a@demo.de',
                         id: 2,
                         latitude: 50.82791,
@@ -197,7 +218,8 @@
                         websiteURL: 'http://www.1a-bike.bike'
                     },
                     {
-                        address: 'Niederrheinische Str. 27, 34626 Neukirchen, Deutschland',
+                        address:
+                            'Niederrheinische Str. 27, 34626 Neukirchen, Deutschland',
                         eMailAddress: 'tfddfa@de.de',
                         id: 3,
                         latitude: 50.871640000000006,
@@ -207,7 +229,8 @@
                         websiteURL: 'http://www.1a-fahrradservice-diegelmann.de'
                     },
                     {
-                        address: 'Dener Strasse 73, 48653 Coesfeld, Deutschland',
+                        address:
+                            'Dener Strasse 73, 48653 Coesfeld, Deutschland',
                         eMailAddress: '12345@example.org',
                         id: 4,
                         latitude: 51.93271000000001,
@@ -217,7 +240,8 @@
                         websiteURL: 'www.2rad-baumeister.de'
                     },
                     {
-                        address: 'Friedrichstr. 100, 47475 Kamp - Lintfort, Deutschland',
+                        address:
+                            'Friedrichstr. 100, 47475 Kamp - Lintfort, Deutschland',
                         eMailAddress: 'test@example.org',
                         id: 5,
                         latitude: 51.508750000000006,
@@ -227,12 +251,14 @@
                         websiteURL: 'www.zweirad-behringer.de'
                     },
                     {
-                        address: 'Werster Str. 86, 32549 Bad Oeynhausen, Deutschland',
+                        address:
+                            'Werster Str. 86, 32549 Bad Oeynhausen, Deutschland',
                         eMailAddress: 'test@example.org',
                         id: 6,
                         latitude: 52.215630000000004,
                         longitude: 8.785,
-                        name: '2Rad Berger Fahrradhandel & Tankstelle Marcus Berger',
+                        name:
+                            '2Rad Berger Fahrradhandel & Tankstelle Marcus Berger',
                         phoneNumber: '+49 (5731) 28930',
                         websiteURL: 'www.2radberger.de'
                     },
@@ -266,7 +292,8 @@
                         websiteURL: 'www.2rad-busch.de '
                     },
                     {
-                        address: 'Herzebrockerstrasse 12, 33378 Rheda-Wiedenbrück, Deutschland',
+                        address:
+                            'Herzebrockerstrasse 12, 33378 Rheda-Wiedenbrück, Deutschland',
                         eMailAddress: 'test@example.org',
                         id: 10,
                         latitude: 51.85799,
