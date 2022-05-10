@@ -40,12 +40,11 @@ A webcomponent to serve a store locator via google maps.
     Eine Web-Komponente zum Bereitstellen eines Google-Maps-Storelocators.
 -->
 
-<!--|deDE:Inhalt-->
-Content
-------
-
 <!--Place for automatic generated table of contents.-->
-[TOC]
+<div class="doc-toc" style="display:none">
+    <!--|deDE:Inhalt-->
+    <h2 id="content">Content</h2>
+</div>
 
 <!--|deDE:Installation-->
 Installation

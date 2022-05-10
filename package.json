@@ -62,7 +62,6 @@
     "@types/ejs": "*",
     "@types/google-maps": "*",
     "@types/html-minifier": "*",
-    "@types/jest": "*",
     "@types/jquery": "*",
     "@types/jsdom": "*",
     "@types/node": "*",
