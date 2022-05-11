@@ -61,14 +61,24 @@ after needed dependencies:
 -->
 
 ```HTML
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script src="https://goo.gl/HEL97d"></script>
-<script src="https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js"></script>
-<!--Inject downloaded file:-->
-<script src="index.compiled.js"></script>
-<!--Or integrate via cdn:
-<script src="https://goo.gl/s6wRPb"></script>
+<script
+    src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"
+></script>
+<script
+    src="https://torben.website/clientnode/data/distributionBundle/index.js"
+></script>
+<script
+    src="https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js"
+></script>
+<!--Inject downloaded file:
+<script src="index.js"></script>
 -->
+<!--Or integrate via cdn:-->
+<script
+    src="https://torben.website/storelocator/data/distributionBundle/index.js"
+></script>
 ```
 
 The compiled bundle supports AMD, commonjs, commonjs2 and variable injection
@@ -171,11 +181,21 @@ body.documentation div.store-locator-with-bounds div.gm-style-iw > div {
 
 ```JavaScript
 const dependenciesLoadPromise = $documentationWebsite.getScript(
-    'https://code.jquery.com/jquery-3.1.1.min.js'
-).then(() => $.getScript('https://goo.gl/HEL97d')).then(() => $.getScript(
-    'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/' +
-    'markerclusterer.js'
-)).then(() => $.getScript('https://goo.gl/s6wRPb'))
+    'https://code.jquery.com/jquery-3.6.0.min.js'
+).then(() =>
+    $.getScript(
+        'https://torben.website/clientnode/data/distributionBundle/index.js'
+    )
+).then(() =>
+    $.getScript(
+        'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/' +
+        'markerclusterer.js'
+    )
+).then(() =>
+    $.getScript(
+        'https://torben.website/storelocator/data/distributionBundle/index.js'
+    )
+)
 ```
 
 <!--|deDE:Einfaches Beispiel-->
