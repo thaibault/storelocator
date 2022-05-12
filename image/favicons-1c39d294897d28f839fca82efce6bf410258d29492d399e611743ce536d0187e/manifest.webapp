@@ -1,0 +1,14 @@
+{
+  "version": "1.0.272",
+  "name": "documentation-website",
+  "description": "Declarative multilanguage documentation website generator",
+  "icons": {
+    "60": "firefox_app_60x60.png",
+    "128": "firefox_app_128x128.png",
+    "512": "firefox_app_512x512.png"
+  },
+  "developer": {
+    "name": "Torben Sickert",
+    "url": "https://torben.website"
+  }
+}
