@@ -145,29 +145,32 @@ Examples
 <!--showExample:cascadingStyleSheet-->
 
 ```CSS
-body.documentation simple-store-locator,
-body.documentation advanced-store-locator,
-body.documentation div.store-locator-with-bounds {
+simple-store-locator,
+advanced-store-locator,
+.store-locator-with-bounds {
     width: 100%;
     height: 400px;
     margin: 0px;
     padding: 0px
 }
-body.documentation simple-store-locator > div,
-body.documentation advanced-store-locator > div,
-body.documentation div.store-locator-with-bounds > div {
+
+simple-store-locator > div,
+advanced-store-locator > div,
+.store-locator-with-bounds > div {
     height: 100%;
 }
-body.documentation simple-store-locator input.form-control,
-body.documentation advanced-store-locator input.form-control,
-body.documentation div.store-locator-with-bounds input.form-control {
+
+simple-store-locator input,
+advanced-store-locator input,
+.store-locator-with-bounds input {
     margin-top: 9px;
     margin-left: 9px;
     width: 230px;
 }
-body.documentation simple-store-locator div.gm-style-iw > div,
-body.documentation advanced-store-locator div.gm-style-iw > div,
-body.documentation div.store-locator-with-bounds div.gm-style-iw > div {
+
+simple-store-locator .gm-style-iw > div,
+advanced-store-locator .gm-style-iw > div,
+.store-locator-with-bounds .gm-style-iw > div {
     width: 225px;
     height: 60px;
     padding: 5px;
@@ -206,13 +209,13 @@ const dependenciesLoadPromise = $documentationWebsite.getScript(
 ```HTML
 <script>
     dependenciesLoadPromise.always(() => $(
-        'body simple-store-locator'
+        'simple-store-locator'
     ).StoreLocator({applicationInterface: {
         // NOTE: You should use your own google maps application interface key.
         key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
     }}))
 </script>
-<simple-store-locator><input class="form-control"></simple-store-locator>
+<simple-store-locator><input></simple-store-locator>
 ```
 
 <!--|deDE:Erweitertes Beispiel mit allen verfügbaren (standart) Optionen-->
@@ -223,7 +226,7 @@ const dependenciesLoadPromise = $documentationWebsite.getScript(
 ```HTML
 <script>
     dependenciesLoadPromise.always(() => $(
-        'body advanced-store-locator'
+        'advanced-store-locator'
     ).StoreLocator({
         applicationInterface: {
             url:
@@ -289,9 +292,7 @@ const dependenciesLoadPromise = $documentationWebsite.getScript(
         onMarkerHighlighted: $.noop
     }))
 </script>
-<advanced-store-locator>
-    <input class="form-control">
-</advanced-store-locator>
+<advanced-store-locator><input></advanced-store-locator>
 ```
 
 <!--|deDE:Beispiel mit limitiertem traversierbarem Bereich (Deutschland)-->
@@ -306,7 +307,7 @@ const dependenciesLoadPromise = $documentationWebsite.getScript(
             northEast: {latitude: 55.12, longitude: 14.89},
             southWest: {latitude: 47.32, longitude: 5.50}
         }
-        $('body div.store-locator-with-bounds').StoreLocator({
+        $('.store-locator-with-bounds').StoreLocator({
             applicationInterface: {
                 // NOTE: You should use your own google maps applciation
                 // interface key.
@@ -319,7 +320,7 @@ const dependenciesLoadPromise = $documentationWebsite.getScript(
         })
     })
 </script>
-<div class="store-locator-with-bounds"><input class="form-control"></div>
+<div class="store-locator-with-bounds"><input></div>
 ```
 
 # TODO
