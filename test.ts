@@ -13,7 +13,8 @@
     See https://creativecommons.org/licenses/by/3.0/deed.de
     endregion
 */
-// region  imports
+// region imports
+import {beforeAll, describe, expect, test} from '@jest/globals'
 import Tools, {globalContext} from 'clientnode'
 import {RecursivePartial, $Global} from 'clientnode/type'
 import nodeFetch from 'node-fetch'
