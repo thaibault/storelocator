@@ -1381,9 +1381,9 @@
     "@types/node" "*"
 
 "@types/ejs@*":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@types/ejs/-/ejs-3.1.0.tgz#ab8109208106b5e764e5a6c92b2ba1c625b73020"
-  integrity sha512-DCg+Ka+uDQ31lJ/UtEXVlaeV3d6t81gifaVWKJy4MYVVgvJttyX/viREy+If7fz+tK/gVxTGMtyrFPnm4gjrVA==
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@types/ejs/-/ejs-3.1.1.tgz#29c539826376a65e7f7d672d51301f37ed718f6d"
+  integrity sha512-RQul5wEfY7BjWm0sYY86cmUN/pcXWGyVxWX93DFFJvcrxax5zKlieLwA3T77xJGwNcZW0YW6CYG70p1m8xPFmA==
 
 "@types/eslint-scope@^3.7.3":
   version "3.7.3"
@@ -1539,9 +1539,9 @@
   integrity sha512-SuT16Q1K51EAVPz1K29DJ/sXjhSQ0zjvsypYJ6tlwVsRV9jwW5Adq2ch8Dq8kDBCkYnELS7N7VNCSB5nC56t/g==
 
 "@types/prettier@^2.1.5":
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.6.0.tgz#efcbd41937f9ae7434c714ab698604822d890759"
-  integrity sha512-G/AdOadiZhnJp0jXCaBQU449W2h716OW/EoXeYkCytxKL06X1WCXB4DZpp8TpZ8eyIJVS1cw4lrlkkSYU21cDw==
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.6.1.tgz#76e72d8a775eef7ce649c63c8acae1a0824bbaed"
+  integrity sha512-XFjFHmaLVifrAKaZ+EKghFHtHSUonyw8P2Qmy2/+osBnrKbH9UYtlK10zg8/kCt47MFilll/DEDKy3DHfJ0URw==
 
 "@types/prop-types@*":
   version "15.7.5"
@@ -3159,9 +3159,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.913"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.913.tgz#202811024291f818bf1e940f0affd588a0a2f4ab"
-  integrity sha512-8rhCU/9/U0+T2nHkGn2ywXtoAjS6tvLfSP0CIC9sFRMwgSDMY+8lqFyhrGB88o/GFqxky3rQc8s0doSJQdDpDQ==
+  version "3.0.914"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.914.tgz#17b7cb48d618eada5c459800174c533d6c43a761"
+  integrity sha512-zZT4pbZut+Ql+idQwPJqHT84yrbjbbCKp+rKdsNlNvA8+SW85V0QtD3HRa63NdPY0L3NbrOYE6UyJaojAyvSDQ==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3541,9 +3541,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 documentation-website@*:
-  version "1.0.269"
-  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.269.tgz#239e8eb109686c8e6e668127a8af6683ccd4a34f"
-  integrity sha512-C2HqhajolxeCKR/JEXB2X31wec6uOipBSu/FSC5mBOYei1fVXcHvkNqDOM0eucvfRKtDRz79lhAxnnDK6Vvm6Q==
+  version "1.0.272"
+  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.272.tgz#d235813dad611b0c50eb720ffe03f2fc97727717"
+  integrity sha512-mWp1ksg/FzeJ52xu1IHOXUoOZ/3apEPWxdw9LMFIpgACI5fUw6Ppj9YkxQCC5JEKPOQ4Wovm9gJfdZL+XzAanA==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -7100,9 +7100,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1179"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1179.tgz#bccc5cea34f631a3f1df0dcc402b30fe6a4cd9aa"
-  integrity sha512-m2oRDwZBaKS5VzpIDZ7KsxvZ0QvMaVh88i7LS2YGove+DnLNKY00XsbXXTbEd4/Uy/ecEXwkQjxOEt7RXR0ejQ==
+  version "2.0.1180"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1180.tgz#296785c9516252486870904457fe1e5d9f0b8e68"
+  integrity sha512-smb4Q6QERDUUJdaXdg1hhGjKOQGKd1fJVG9JyIIhMUk/Lkb5S+/h6/qZZHDsda+EHs3VjWxPHKJHoDLTDLntSA==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"
