@@ -117,6 +117,8 @@ storelocatorAPI.register(/*'my-store-locator-tag-name'*/)
 ...
 ```
 
+Then inject component in html:
+
 ```HTML
 <store-locator></store-locator>
 ```
@@ -134,8 +136,11 @@ Examples
 store-locator {
     font-family: Roboto, Arial, sans-serif;
 
+    display: block;
+
     width: 100%;
     height: 400px;
+
     margin: 0px;
     padding: 0px
 }
@@ -168,6 +173,12 @@ store-locator .gm-style-iw > div {
 <!--showExample-->
 
 ```HTML
+<script>
+    window.onload = function() {
+        storelocator.index.api.register()
+    }
+</script>
+
 <store-locator
     configuration="{
         applicationInterface: {
