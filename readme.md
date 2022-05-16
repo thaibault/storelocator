@@ -169,14 +169,6 @@ advanced-store-locator .gm-style-iw > div,
 <!--showExample-->
 
 ```HTML
-<script>
-    dependenciesLoadPromise.always(() => $(
-        'simple-store-locator'
-    ).StoreLocator({applicationInterface: {
-        // NOTE: You should use your own google maps application interface key.
-        key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
-    }}))
-</script>
 <store-locator
     configuration="{
         applicationInterface: {
