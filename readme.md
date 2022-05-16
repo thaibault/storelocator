@@ -131,32 +131,31 @@ Examples
 <!--showExample:cascadingStyleSheet-->
 
 ```CSS
-simple-store-locator,
-advanced-store-locator,
-.store-locator-with-bounds {
+store-locator {
+    font-family: Roboto, Arial, sans-serif;
+
     width: 100%;
     height: 400px;
     margin: 0px;
     padding: 0px
 }
 
-simple-store-locator > div,
-advanced-store-locator > div,
-.store-locator-with-bounds > div {
+.web-component-template {
+    display: none;
+}
+
+store-locator > div {
     height: 100%;
 }
 
-simple-store-locator input,
-advanced-store-locator input,
-.store-locator-with-bounds input {
+.store-locator__input {
     margin-top: 9px;
     margin-left: 9px;
+
     width: 230px;
 }
 
-simple-store-locator .gm-style-iw > div,
-advanced-store-locator .gm-style-iw > div,
-.store-locator-with-bounds .gm-style-iw > div {
+store-locator .gm-style-iw > div {
     width: 225px;
     height: 60px;
     padding: 5px;
