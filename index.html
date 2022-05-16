@@ -35,32 +35,31 @@
 storelocatorAPI.<span class="function_ hljs-title">register</span>(<span class="hljs-comment">/*'my-store-locator-tag-name'*/</span>)
 ...
 </code></pre><pre><code class="language-HTML"><span class="hljs-tag">&lt;<span class="hljs-name">store-locator</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">store-locator</span>&gt;</span>
-</code></pre><!--|deDE:Beispiele--><h2 id="doc-examples">Examples</h2><!--|deDE:Designvorgaben für die Store-Locator Beispiele--><h3 id="doc-adding-some-style-to-our-store-locator-examples">Adding some style to our store locator examples</h3><!--showExample:cascadingStyleSheet--><pre><code class="language-CSS">simple-store-locator,
-advanced-store-locator,
-<span class="hljs-selector-class">.store-locator-with-bounds</span> {
+</code></pre><!--|deDE:Beispiele--><h2 id="doc-examples">Examples</h2><!--|deDE:Designvorgaben für die Store-Locator Beispiele--><h3 id="doc-adding-some-style-to-our-store-locator-examples">Adding some style to our store locator examples</h3><!--showExample:cascadingStyleSheet--><pre><code class="language-CSS">store-locator {
+    <span class="hljs-attribute">font-family</span>: Roboto, Arial, sans-serif;
+
     <span class="hljs-attribute">width</span>: <span class="hljs-number">100%</span>;
     <span class="hljs-attribute">height</span>: <span class="hljs-number">400px</span>;
     <span class="hljs-attribute">margin</span>: <span class="hljs-number">0px</span>;
     <span class="hljs-attribute">padding</span>: <span class="hljs-number">0px</span>
 }
 
-simple-store-locator &gt; <span class="hljs-selector-tag">div</span>,
-advanced-store-locator &gt; <span class="hljs-selector-tag">div</span>,
-<span class="hljs-selector-class">.store-locator-with-bounds</span> &gt; <span class="hljs-selector-tag">div</span> {
+<span class="hljs-selector-class">.web-component-template</span> {
+    <span class="hljs-attribute">display</span>: none;
+}
+
+store-locator &gt; <span class="hljs-selector-tag">div</span> {
     <span class="hljs-attribute">height</span>: <span class="hljs-number">100%</span>;
 }
 
-simple-store-locator <span class="hljs-selector-tag">input</span>,
-advanced-store-locator <span class="hljs-selector-tag">input</span>,
-<span class="hljs-selector-class">.store-locator-with-bounds</span> <span class="hljs-selector-tag">input</span> {
+<span class="hljs-selector-class">.store-locator__input</span> {
     <span class="hljs-attribute">margin-top</span>: <span class="hljs-number">9px</span>;
     <span class="hljs-attribute">margin-left</span>: <span class="hljs-number">9px</span>;
+
     <span class="hljs-attribute">width</span>: <span class="hljs-number">230px</span>;
 }
 
-simple-store-locator <span class="hljs-selector-class">.gm-style-iw</span> &gt; <span class="hljs-selector-tag">div</span>,
-advanced-store-locator <span class="hljs-selector-class">.gm-style-iw</span> &gt; <span class="hljs-selector-tag">div</span>,
-<span class="hljs-selector-class">.store-locator-with-bounds</span> <span class="hljs-selector-class">.gm-style-iw</span> &gt; <span class="hljs-selector-tag">div</span> {
+store-locator <span class="hljs-selector-class">.gm-style-iw</span> &gt; <span class="hljs-selector-tag">div</span> {
     <span class="hljs-attribute">width</span>: <span class="hljs-number">225px</span>;
     <span class="hljs-attribute">height</span>: <span class="hljs-number">60px</span>;
     <span class="hljs-attribute">padding</span>: <span class="hljs-number">5px</span>;
