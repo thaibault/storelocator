@@ -32,7 +32,7 @@
 <span class="hljs-keyword">import</span> storeLocatorAPI <span class="hljs-keyword">from</span> <span class="hljs-string">'storelocator'</span>
 
 <span class="hljs-comment">// Default tag name is "store-locator".</span>
-storelocatorAPI.<span class="hljs-title function_">register</span>(<span class="hljs-comment">/*'my-store-locator-tag-name'*/</span>)
+storelocatorAPI.<span class="function_ hljs-title">register</span>(<span class="hljs-comment">/*'my-store-locator-tag-name'*/</span>)
 ...
 </code></pre><pre><code class="language-HTML"><span class="hljs-tag">&lt;<span class="hljs-name">store-locator</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">store-locator</span>&gt;</span>
 </code></pre><!--|deDE:Beispiele--><h2 id="doc-examples">Examples</h2><!--|deDE:Designvorgaben für die Store-Locator Beispiele--><h3 id="doc-adding-some-style-to-our-store-locator-examples">Adding some style to our store locator examples</h3><!--showExample:cascadingStyleSheet--><pre><code class="language-CSS">simple-store-locator,
@@ -65,15 +65,7 @@ advanced-store-locator <span class="hljs-selector-class">.gm-style-iw</span> &gt
     <span class="hljs-attribute">height</span>: <span class="hljs-number">60px</span>;
     <span class="hljs-attribute">padding</span>: <span class="hljs-number">5px</span>;
 }
-</code></pre><!--|deDE:Einfaches Beispiel--><h3 id="doc-simple-example">Simple example</h3><!--showExample--><pre><code class="language-HTML"><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript">
-    dependenciesLoadPromise.<span class="hljs-title function_">always</span>(<span class="hljs-function">() =&gt;</span> $(
-        <span class="hljs-string">'simple-store-locator'</span>
-    ).<span class="hljs-title class_">StoreLocator</span>({<span class="hljs-attr">applicationInterface</span>: {
-        <span class="hljs-comment">// <span class="hljs-doctag">NOTE:</span> You should use your own google maps application interface key.</span>
-        <span class="hljs-attr">key</span>: <span class="hljs-string">'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'</span>
-    }}))
-</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">store-locator</span>
+</code></pre><!--|deDE:Einfaches Beispiel--><h3 id="doc-simple-example">Simple example</h3><!--showExample--><pre><code class="language-HTML"><span class="hljs-tag">&lt;<span class="hljs-name">store-locator</span>
     <span class="hljs-attr">configuration</span>=<span class="hljs-string">"{
         applicationInterface: {
             // NOTE: You should use your own google maps application interface
