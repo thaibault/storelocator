@@ -61,17 +61,6 @@ after needed dependencies:
 -->
 
 ```HTML
-<script
-    src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-    crossorigin="anonymous"
-></script>
-<script
-    src="https://torben.website/clientnode/data/distributionBundle/index.js"
-></script>
-<script
-    src="https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/markerclusterer.js"
-></script>
 <!--Inject downloaded file:
 <script src="index.js"></script>
 -->
@@ -121,18 +110,15 @@ in given context.
 
 ```JavaScript
 ...
-import StoreLocator from 'storelocator'
-class SpecialStoreLocator extends StoreLocator...
-// or
-import {$} from 'storelocator'
-class SpecialStoreLocator extends $.StoreLocator.class ...
-// or
-StoreLocator = require('storelocator').default
-value instanceof StoreLocator
-// or
-$ = require('storelocator').$
-$('[store-locator]').StoreLocator()
+import storeLocatorAPI from 'storelocator'
+
+// Default tag name is "store-locator".
+storelocatorAPI.register(/*'my-store-locator-tag-name'*/)
 ...
+```
+
+```HTML
+<store-locator></store-locator>
 ```
 
 <!--|deDE:Beispiele-->
@@ -177,30 +163,6 @@ advanced-store-locator .gm-style-iw > div,
 }
 ```
 
-<!--|deDE:Laden einiger benötigter Ressourcen-->
-### Load needed dependencies
-
-<!--showExample:javaScript-->
-
-```JavaScript
-const dependenciesLoadPromise = $documentationWebsite.getScript(
-    'https://code.jquery.com/jquery-3.6.0.min.js'
-).then(() =>
-    $.getScript(
-        'https://torben.website/clientnode/data/distributionBundle/index.js'
-    )
-).then(() =>
-    $.getScript(
-        'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/src/' +
-        'markerclusterer.js'
-    )
-).then(() =>
-    $.getScript(
-        'https://torben.website/storelocator/data/distributionBundle/index.js'
-    )
-)
-```
-
 <!--|deDE:Einfaches Beispiel-->
 ### Simple example
 
@@ -215,7 +177,17 @@ const dependenciesLoadPromise = $documentationWebsite.getScript(
         key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
     }}))
 </script>
-<simple-store-locator><input></simple-store-locator>
+<store-locator
+    configuration="{
+        applicationInterface: {
+            // NOTE: You should use your own google maps application interface
+            // key.
+            key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
+        }
+    }"
+>
+    <input>
+</store-locator>
 ```
 
 <!--|deDE:Erweitertes Beispiel mit allen verfügbaren (standart) Optionen-->
@@ -224,239 +196,156 @@ const dependenciesLoadPromise = $documentationWebsite.getScript(
 <!--showExample-->
 
 ```HTML
-<script>
-    dependenciesLoadPromise.always(() => $(
-        'advanced-store-locator'
-    ).StoreLocator({
+<store-locator
+    configuration="{
         applicationInterface: {
-            url:
-                'https://maps.googleapis.com/maps/api/js' +
-                '?{1}v=3&sensor=false&libraries=places,geometry&' +
-                'callback={2}',
-            callbackName: null,
-            // NOTE: You should use your own google maps application
-            // interface key.
+            // NOTE: You should use your own google maps application interface
+            // key.
             key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
         },
-        stores: {
-            northEast: {latitude: 85, longitude: 180},
-            southWest: {latitude: -85, longitude: -180},
-            number: 100,
-            generateProperties: (store) => store
-        },
-        addtionalStoreProperties: {},
-        iconPath: '/webAsset/image/storeLocator/',
-        defaultMarkerIconFileName: null,
-        startLocation: null,
-        fallbackLocation: {latitude: 51.124213, longitude: 10.147705},
-        ip: null,
-        ipToLocation: {
-            applicationInterfaceURL: '{1}://freegeoip.net/json/{2}',
-            timeoutInMilliseconds: 5000,
+        ipToLocationApplicationInterface: {
             bounds: {
-                northEast: {latitude: 85, longitude: 180},
-                southWest: {latitude: -85, longitude: -180}
-            }
-        },
-        map: {zoom: 3},
-        showInputAfterLoadedDelayInMilliseconds: 500,
-        input: {
-            hide: {opacity: 0},
-            showAnimation: [{opacity: 1}, {duration: 'fast'}]
-        },
-        distanceToMoveByDuplicatedEntries: 0.0001,
-        marker: {
-            cluster: {
-                gridSize: 100, maxZoom: 11, imagePath:
-                    'https://cdn.rawgit.com/googlemaps/' +
-                    'js-marker-clusterer/gh-pages/images/m'
+                northEast: {latitude: 55.12, longitude: 14.89},
+                southWest: {latitude: 47.32, longitude: 5.50}
             },
-            icon: {
-                size: {width: 44, height: 49, unit: 'px'},
-                scaledSize: {width: 44, height: 49, unit: 'px'}
+            key: '11a62990a1424e894da6eec464a747e6'
+        },
+
+        defaultMarkerIconFileName:
+            'https://via.placeholder.com/50/0099ff/ffffff.png',
+        // Automatically generated stores with option: {stores: bounds}
+        stores: [
+            {
+                address:
+                    'Elgendorfer Str. 57, 56410 Montabaur, Deutschland',
+                eMailAddress: 'info@fake-1.de',
+                id: 1,
+                latitude: 50.4356,
+                longitude: 7.81226,
+                name: '1 & 1 Telecom GmbH',
+                phoneNumber: '+49 721 9600'
+            },
+            {
+                address:
+                    'Freiheitsstr.1a, 53842 Troisdorf, Deutschland',
+                eMailAddress: '1a@demo.de',
+                id: 2,
+                latitude: 50.82791,
+                longitude: 7.1219600000000005,
+                name: '1A-Bike&Parts GmbH',
+                phoneNumber: '02241 / 91 18 09 3',
+                websiteURL: 'http://www.1a-bike.bike'
+            },
+            {
+                address:
+                    'Niederrheinische Str. 27, 34626 Neukirchen, Deutschland',
+                eMailAddress: 'tfddfa@de.de',
+                id: 3,
+                latitude: 50.871640000000006,
+                longitude: 9.337940000000001,
+                name: '1a Fahrradservice',
+                phoneNumber: '+49 (6694) 7878',
+                websiteURL: 'http://www.1a-fahrradservice-diegelmann.de'
+            },
+            {
+                address:
+                    'Dener Strasse 73, 48653 Coesfeld, Deutschland',
+                eMailAddress: '12345@example.org',
+                id: 4,
+                latitude: 51.93271000000001,
+                longitude: 9.337940000000001,
+                name: '2-Rad-Baumeister',
+                phoneNumber: '+49 (2541) 2509',
+                websiteURL: 'www.2rad-baumeister.de'
+            },
+            {
+                address:
+                    'Friedrichstr. 100, 47475 Kamp - Lintfort, Deutschland',
+                eMailAddress: 'test@example.org',
+                id: 5,
+                latitude: 51.508750000000006,
+                longitude: 6.553020000000001,
+                name: '2 - Rad Behringer',
+                phoneNumber: '02842 / 42 471',
+                websiteURL: 'www.zweirad-behringer.de'
+            },
+            {
+                address:
+                    'Werster Str. 86, 32549 Bad Oeynhausen, Deutschland',
+                eMailAddress: 'test@example.org',
+                id: 6,
+                latitude: 52.215630000000004,
+                longitude: 8.785,
+                name:
+                    '2Rad Berger Fahrradhandel & Tankstelle Marcus Berger',
+                phoneNumber: '+49 (5731) 28930',
+                websiteURL: 'www.2radberger.de'
+            },
+            {
+                address: 'Rauchstr. 16, 34454 Bad Arolsen, Deutschland',
+                eMailAddress: 'test@example.org',
+                id: 7,
+                latitude: 51.38242,
+                longitude: 9.01524,
+                name: '2Rad Br\u00fcne',
+                phoneNumber: '05691 / 2220',
+                websiteURL: 'http://2rad-bruene.de'
+            },
+            {
+                address: 'Schneiderstr.40, 46244 Bottrop, Deutschland',
+                id: 8,
+                latitude: 51.57477,
+                longitude: 6.90406,
+                name: '2 - Rad B\u00fcning',
+                phoneNumber: '02045 / 57 38',
+                websiteURL: 'http://www.2-rad-buening.de'
+            },
+            {
+                address: 'Butenwall 63, 46325 Borken, Deutschland',
+                eMailAddress: 'test@example.org',
+                id: 9,
+                latitude: 51.846050000000005,
+                longitude: 6.8543,
+                name: '2Rad Busch',
+                phoneNumber: '+49 (2861) 2692',
+                websiteURL: 'www.2rad-busch.de '
+            },
+            {
+                address:
+                    'Herzebrockerstrasse 12, 33378 Rheda-Wiedenbrück, Deutschland',
+                eMailAddress: 'test@example.org',
+                id: 10,
+                latitude: 51.85799,
+                longitude: 8.28283,
+                name: '2-rad Butschko',
+                phoneNumber: '05242 / 4 31 61',
+                websiteURL: 'http://www.zweirad-butschko.de'
             }
-        },
-        successfulSearchZoom: 12,
-        infoWindow: {
-            content: null,
-            additionalMoveToBottomInPixel: 120,
-            loadingContent: '<div class="idle">loading...</div>'
-        },
-        searchBox: 50,
-        onInfoWindowOpen: $.noop,
-        onInfoWindowOpened: $.noop,
-        onAddSearchResults: $.noop,
-        onRemoveSearchResults: $.noop,
-        onOpenSearchResults: $.noop,
-        onCloseSearchResults: $.noop,
-        onMarkerHighlighted: $.noop
-    }))
-</script>
-<advanced-store-locator><input></advanced-store-locator>
-```
+        ],
 
-<!--|deDE:Beispiel mit limitiertem traversierbarem Bereich (Deutschland)-->
-### Example with limited traversable area (Germany)
-
-<!--showExample-->
-
-```HTML
-<script>
-    dependenciesLoadPromise.always(() => {
-        const bounds = {
+        limit: {
             northEast: {latitude: 55.12, longitude: 14.89},
             southWest: {latitude: 47.32, longitude: 5.50}
-        }
-        $('.store-locator-with-bounds').StoreLocator({
-            applicationInterface: {
-                // NOTE: You should use your own google maps applciation
-                // interface key.
-                key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
-            },
-            ipToLocation: {bounds},
-            limit: {zoom: {minimum: 5}, bounds},
-            map: {zoom: 5},
-            stores: bounds
-        })
-    })
-</script>
-<div class="store-locator-with-bounds"><input></div>
+        },
+        map: {minZoom: 5, zoom: 9},
+
+        search: {}
+    }"
+>
+    <input
+        bind-property-title="configuration.name"
+        class="store-locator__input"
+        placeholder="Please provide some search words"
+        slot="input"
+    />
+
+    <a
+        class="store-locator__link"
+        href="https://www.google.com"
+        slot="link"
+    >Legal notes example</a>
+</store-locator>
 ```
-
-# TODO
-
- * @property _options.applicationInterface - To store application interface
- * options in.
- * @property _options.applicationInterface.url - URL tor retrieve google maps
- * application interface.
- * @property _options.applicationInterface.callbackName - Global resource path
- * to callback function to trigger when google has finished loading the
- * application interface.
- * @property _options.applicationInterface.key - Application interface key to
- * authenticate against google maps application interface.
- * @property _options.stores - URL to retrieve stores, list of stores or object
- * describing bounds to create random stores within. If a "generateProperties"
- * function is given it will be called to retrieve additional properties for
- * each store. The specified store will be given to the function.
- * @property _options.additionalStoreProperties - Additional static store
- * properties which will be available to each store.
- * @property _options.iconPath - Path prefix to search for marker icons.
- * @property _options.defaultMarkerIconFileName - Specifies a fallback marker
- * icon (if no store specific icon was set). If set to "null" google will place
- * a fallback icon.
- * @property _options.startLocation - If not provided we initialize the map
- * with center in current location determined by internet protocol address. If
- * an object is given a "latitude" and "longitude" with a saved float are
- * assumed.
- * @property _options.fallbackLocation - Fallback location if automatic
- * location determination has failed.
- * @property _options.fallbackLocation.latitude - Latitude value.
- * @property _options.fallbackLocation.longitude - Longitude value.
- * @property _options.ip - If provided given ip will be used to determine
- * current location instead of automatically determined one.
- * @property _options.ipToLocationApplicationInterface - Configuration for ip
- * to location conversion.
- * @property _options.ipToLocationApplicationInterface.bounds - Defines bounds
- * within determined locations should be. If resolved location isn't within
- * this location it will be ignored.
- * @property _options.ipToLocationApplicationInterface.bounds.northEast -
- * Defines north east bound.
- * @property _options.ipToLocationApplicationInterface.bounds.northEast
- * .latitude - North east latitude bond.
- * @property _options.ipToLocationApplicationInterface.bounds.northEast
- * .longitude - North east longitude bond.
- * @property _options.ipToLocationApplicationInterface.bounds.southWest -
- * Defined south west bound.
- * @property _options.ipToLocationApplicationInterface.bounds.southWest
- * .latitude - South east latitude bound.
- * @property _options.ipToLocationApplicationInterface.bounds.southWest
- * .longitude - South west longitude bound.
- * @property _options.ipToLocationApplicationInterface.key - Key to let the api
- * identify your service plan.
- * @property _options.ipToLocationApplicationInterface.protocol - Protocol to
- * use for api requests.
- * @property _options.ipToLocationApplicationInterface.timeoutInMilliseconds -
- * Time to wait for ip resolve. If time is up initialize on given fallback
- * location.
- * @property _options.ipToLocationApplicationInterface.url - IP to location
- * determination application interface url. {1}, {2} and {3} represents
- * currently used protocol, key and potentially given ip.
- * @property _options.map - Initial view properties.
- * @property _options.showInputAfterLoadedDelayInMilliseconds - Delay before we
- * show search input field.
- * @property _options.inputFadeInOption - Transition options to show search
- * input field.
- * @property _options.distanceToMoveByDuplicatedEntries - Distance to move if
- * stores are determined with same latitude and longitude.
- * @property _options.marker - Options passed to the marker cluster. If set to
- * "null" no marker cluster will appear.
- * @property _options.icon - Options passed to the icon.
- * @property _options.successfulSearchZoomLevel - Specifies a zoom value wich
- * will be adjusted after successfully picked a search result. If set to "null"
- * no zoom change happens.
- * @property _options.infoWindow - Info window options.
- * @property _options.infoWindow.content - Function or string returning or
- * representing the info box. If a function is given and a promise is returned
- * the info box will be filled with the given loading content and updated with
- * the resolved data. The function becomes the corresponding marker as first
- * argument and the store locator instance as second argument. If nothing is
- * provided all available data will be listed in a generic info window.
- * @property _options.infoWindow.additionalMoveToBottomInPixel - Additional
- * move to bottom relative to the marker if an info window has been opened.
- * @property _options.infoWindow.loadingContent - Content to show in the info
- * window during info window load.
- * @property _options.search - If a number is given a generic search will be
- * provided and given number will be interpret as search result precision
- * tolerance to identify a marker as search result.
- * @property _options.search.stylePropertiesToDeriveFromInputField - List of
- * cascading style properties to derive from input field and use for search
- * box.
- * @property _options.search.properties - Specify which store data should
- * contain given search text.
- * @property _options.search.maximumNumberOfResults - Limits the auto complete
- * result list.
- * @property _options.search.loadingContent - Markup to display while the
- * results are loading.
- * @property _options.search.generic - Specifies options for the additional
- * generic search to add to specific search results.
- * @property _options.search.generic.number - A tuple describing a range of
- * minimal to maximal limits of additional generic google suggestions depending
- * on number of local search results.
- * @property _options.search.generic.maximalDistanceInMeter - Range to specify
- * maximal distance from current position to search suggestions.
- * @property _options.search.generic.filter - Specifies a callback which gets a
- * relevant place to decide if the place should be included (returns a boolean
- * value).
- * @property _options.search.generic.prefer - Specifies a boolean value
- * indicating if generic search results should be the first results.
- * @property _options.search.generic.retrieveOptions - Specifies how a generic
- * place search should be done (google maps request object specification).
- * @property _options.search.content - Defines how to render the search
- * results. This can be a callback or a string returning or representing the
- * search results. If a function is given and a promise is returned the info
- * box will be filled with the given loading content and updated with the
- * resolved data. The function becomes search results as first argument, a
- * boolean value as second argument indicating if the maximum number of search
- * results was reached and the store locator instance itself as third argument.
- * If nothing is provided all available data will be listed in a generic info
- * window.
- * @property _options.search.resultAggregation - "Union" or "cut".
- * @property _options.search.normalizer - Pure function to normalize strings
- * before searching against them.
- * @property _options.onInfoWindowOpen - Triggers if a marker info window will
- * be opened.
- * @property _options.onInfoWindowOpened - Triggers if a marker info window has
- * finished opening.
- * @property _options.onAddSearchResults - Triggers before new search results
- * appears.
- * @property _options.onRemoveSearchResults - Triggers before old search
- * results will be removed.
- * @property _options.onOpenSearchResults - Triggers before search result box
- * appears.
- * @property _options.onCloseSearchResults - Triggers before search result box
- * will be hidden.
- * @property _options.onMarkerHighlighted - Triggers after a marker starts to
- * highlight.
 
 <!-- region modline
 vim: set tabstop=4 shiftwidth=4 expandtab:

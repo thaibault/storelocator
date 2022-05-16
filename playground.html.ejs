@@ -32,13 +32,13 @@
                 bottom: 0;
             }
 
-            store-locator .store-locator__disabled-overlay {
+            .store-locator__disabled-overlay {
                 background-color: black;
                 height: 100%;
                 opacity: .2;
             }
 
-            store-locator .store-locator__loading-overlay {
+            .store-locator__loading-overlay {
                 display: flex;
                 font-size: 50px;
                 justify-content: center;
@@ -46,36 +46,36 @@
                 height: 100%;
             }
 
-            store-locator .store-locator__input {
+            .store-locator__input {
                 display: none;
                 height: 25px;
                 margin-top: 10px;
                 width: 230px;
             }
 
-            store-locator .store-locator__input,
-            store-locator .store-locator__search-results {
+            .store-locator__input,
+            .store-locator__search-results {
                 border: 1px solid grey;
                 margin-left: 10px;
             }
 
-            store-locator .store-locator__search-results {
+            .store-locator__search-results {
                 border-top: 0;
             }
 
-            store-locator .store-locator__search-results ul {
+            .store-locator__search-results ul {
                 padding-inline-start: 12px;
             }
 
-            store-locator .store-locator__search-results ul:hover {
+            .store-locator__search-results ul:hover {
                 background-color: #f3f2ef;
             }
 
-            store-locator .store-locator__search-results .tools-mark {
+            .store-locator__search-results .tools-mark {
                 color: blue;
             }
 
-            store-locator .store-locator__link {
+            .store-locator__link {
                 bottom: 0;
                 left: 0;
                 position: absolute;
@@ -94,7 +94,7 @@
                 opacity: .7;
             }
 
-            store-locator .web-component-template {
+            .web-component-template {
                 display: none;
             }
         </style>
@@ -138,7 +138,7 @@
                         if (
                             Object.prototype.hasOwnProperty.call(
                                 item, 'storeLocatorFoundWords'
-                            )) ||
+                            ) ||
                             this.currentSearchText === ''
                         ) {
                             if (
@@ -162,8 +162,10 @@
                             changed = true
                         }
                     }
+
                     if (changed)
                         event.target.resetMarkerCluster()
+
                     return true
                 }
 
