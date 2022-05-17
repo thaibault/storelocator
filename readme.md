@@ -170,11 +170,15 @@ store-locator .gm-style-iw > div {
 <!--|deDE:Einfaches Beispiel-->
 ### Simple example
 
-Register new component and use.
+Download, register component and use new component.
 
 <!--showExample-->
 
 ```HTML
+<script
+    src="https://torben.website/storelocator/data/distributionBundle/index.js"
+></script>
+
 <script>
     console.info('Register "store-locator" tag name.')
 
