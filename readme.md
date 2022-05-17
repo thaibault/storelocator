@@ -175,6 +175,8 @@ store-locator .gm-style-iw > div {
 ```HTML
 <script>
     window.onload = function() {
+        console.info('Register "store-locator" tag name.')
+
         storelocator.index.api.register()
     }
 </script>
