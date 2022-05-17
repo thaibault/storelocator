@@ -170,21 +170,17 @@ store-locator .gm-style-iw > div {
 <!--|deDE:Einfaches Beispiel-->
 ### Simple example
 
-Register new component.
-
-<!--showExample-->
-
-```JavaScript
-console.info('Register "store-locator" tag name.')
-
-storelocator.index.api.register()
-```
-
-Use newly registered component.
+Register new component and use.
 
 <!--showExample-->
 
 ```HTML
+<script>
+    console.info('Register "store-locator" tag name.')
+
+    storelocator.index.api.register()
+</script>
+
 <store-locator
     configuration="{
         applicationInterface: {
