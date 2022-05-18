@@ -136,8 +136,6 @@ describe('StoreLocator', ():void => {
         inputDomNode.value = 'a'
         inputDomNode.dispatchEvent(new KeyboardEvent('keyup', {key: 'a'}))
 
-        await Tools.timeout()
-
         expect(storeLocator.querySelector('.store-locator-search-results'))
             .toBeDefined()
     })
