@@ -135,7 +135,10 @@
       }
     },
     "target:export": {
-      "libraryName": "storeLocator",
+      "libraryName": [
+        "storeLocator",
+        "[name]"
+      ],
       "module": {
         "preprocessor": {
           "javaScript": {
