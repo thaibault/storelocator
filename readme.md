@@ -182,7 +182,7 @@ Download, register component and use new component.
 <script>
     console.info('Register "store-locator" tag name.')
 
-    storelocator.index.api.register()
+    storeLocator.register()
 </script>
 
 <store-locator
