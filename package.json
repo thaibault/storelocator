@@ -34,7 +34,8 @@
   },
   "scripts": {
     "build": "yarn build:types; yarn build:plain",
-    "build:export": "weboptimizer build '{__reference__: \"target:export\"}'",
+    "build:bundle": "yarn build:types; yarn build:bundle:plain",
+    "build:bundle:plain": "weboptimizer build '{__reference__: \"target:bundle\"}'",
     "build:plain": "weboptimizer build",
     "build:types": "weboptimizer build:types",
     "check": "yarn check:types; yarn lint",
@@ -134,7 +135,13 @@
         "formdata-polyfill/esm.min.js$": "formdata-polyfill"
       }
     },
-    "target:export": {
+    "target:bundle": {
+      "inPlace": {
+        "externalLibrary": {
+          "dynamic": true,
+          "normal": true
+        }
+      },
       "libraryName": [
         "storelocator",
         "[name]"
