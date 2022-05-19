@@ -3169,9 +3169,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.915"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.915.tgz#e3f8d9acd2f6dbbcaff0c7dca3705407c99e4bb0"
-  integrity sha512-hsM/Og9CpgXyxcgisKsMobFph4Bz2l2rtvpEaEWZYd40O/99jFaqBRmP0p1PKHVlNp7BJnhrjj3o1TvXjLGHKg==
+  version "3.0.917"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.917.tgz#59781d165e2737bda2243d135f31b993da043224"
+  integrity sha512-0tbTcDtwJ+9qfmKPaJCgH4P5TqG7xf9dgjtlNtHB61eXn/aDxSmfzbfzN3O5U3L0RDCIqAkUjJdBCIDrV+Fk6g==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3551,9 +3551,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 documentation-website@*:
-  version "1.0.273"
-  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.273.tgz#d48f0062c3bcd1cf1c8ff35b52e3a036f66cde96"
-  integrity sha512-+oK0RcY3VZMLjUcdyYy52BFlMaAMRaP2tw049aVRvgFpGZ2fDzzi6mn/BMEsDFU7vb6gx2xKKnmGVled8zB/uA==
+  version "1.0.274"
+  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.274.tgz#74b8d81fee0a80cd819806f84cca5e0ca406439d"
+  integrity sha512-9yHwXLb4oeb+SZEqGneln5hHPWw5SqRSmCo5KcwnrBPJDQ8QOwnnt2CxUrL76J68Vcu/LeRL4lO5NXw3lWeA2A==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -7088,9 +7088,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.373"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.373.tgz#b58f72424ea7511ad20e4a68b751369b40faf3ea"
-  integrity sha512-rA086Oh4QE1a+RFxHYRGGMau3dkx349v8NZiAOYh5vfmvkprE/U+2Cp9OWBb+wRC34uh7HnnSfoNJzsqE8ljPA==
+  version "0.0.374"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.374.tgz#93f3e6c6b1663c0db7fffb0bd8e1e35cf3215e5c"
+  integrity sha512-hTeeCi7gK9m4S7bD0zbyasCOqMGjdU4ApSb+VkLU+Q2wm99TYB8sLHoj13AudPT7JSLWsRSS/TROoLJMm4+Opg==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
