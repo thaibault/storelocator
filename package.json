@@ -136,7 +136,7 @@
     },
     "target:export": {
       "libraryName": [
-        "storeLocator",
+        "storelocator",
         "[name]"
       ],
       "module": {
