@@ -645,9 +645,9 @@
     "@babel/helper-plugin-utils" "^7.16.7"
 
 "@babel/plugin-transform-for-of@^7.17.12":
-  version "7.17.12"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-for-of/-/plugin-transform-for-of-7.17.12.tgz#5397c22554ec737a27918e7e7e0e7b679b05f5ec"
-  integrity sha512-76lTwYaCxw8ldT7tNmye4LLwSoKDbRCBzu6n/DcK/P3FOR29+38CIIaVIZfwol9By8W/QHORYEnYSLuvcQKrsg==
+  version "7.18.1"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-for-of/-/plugin-transform-for-of-7.18.1.tgz#ed14b657e162b72afbbb2b4cdad277bf2bb32036"
+  integrity sha512-+TTB5XwvJ5hZbO8xvl2H4XaMDOAK57zF4miuC9qQJgysPNEAZZ9Z69rdF5LJkozGdZrjBIUAIyKUWRMmebI7vg==
   dependencies:
     "@babel/helper-plugin-utils" "^7.17.12"
 
@@ -813,9 +813,9 @@
     "@babel/helper-plugin-utils" "^7.17.12"
 
 "@babel/plugin-transform-typescript@^7.17.12":
-  version "7.18.0"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-typescript/-/plugin-transform-typescript-7.18.0.tgz#af4ee9fd68db4ca9c7fe3b8ac4ac4eebcf662a8f"
-  integrity sha512-x0DUMnDsoRNnaeWlD1JFviIpbTJUNSDRSctEvF/LIeLMsroJ5+Qa11RnAbZX9dEhnhHOJOle4S15o+/xvM7lKQ==
+  version "7.18.1"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-typescript/-/plugin-transform-typescript-7.18.1.tgz#5fd8b86130bad95c4a24377b41ab989a9ccad22d"
+  integrity sha512-F+RJmL479HJmC0KeqqwEGZMg1P7kWArLGbAKfEi9yPthJyMNjF+DjxFF/halfQvq1Q9GFM4TUbYDNV8xe4Ctqg==
   dependencies:
     "@babel/helper-create-class-features-plugin" "^7.18.0"
     "@babel/helper-plugin-utils" "^7.17.12"
@@ -3178,9 +3178,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.917"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.917.tgz#59781d165e2737bda2243d135f31b993da043224"
-  integrity sha512-0tbTcDtwJ+9qfmKPaJCgH4P5TqG7xf9dgjtlNtHB61eXn/aDxSmfzbfzN3O5U3L0RDCIqAkUjJdBCIDrV+Fk6g==
+  version "3.0.918"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.918.tgz#dfe88502f24c019f52a7571b0b6c7d8c7e1b0614"
+  integrity sha512-CGnxZBvLVGrIrV6N+Hsi4EE6CaMqqtyblcmp1c+Xm9SC0jKcvBNcIQSpnSy0lsezUkP4mn+s04CoQz2XuCXnew==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3560,9 +3560,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 documentation-website@*:
-  version "1.0.274"
-  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.274.tgz#74b8d81fee0a80cd819806f84cca5e0ca406439d"
-  integrity sha512-9yHwXLb4oeb+SZEqGneln5hHPWw5SqRSmCo5KcwnrBPJDQ8QOwnnt2CxUrL76J68Vcu/LeRL4lO5NXw3lWeA2A==
+  version "1.0.275"
+  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.275.tgz#d92e7e56262bc25191f3b121cff58359b383bd24"
+  integrity sha512-5tg7am5a2CuYqHBF5/ZJrdAm988R+qakz0Y28SOIDj9GAiASEbB+956j2aU8zjyEc1hesHlJlmgsx8yjEL5E2Q==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -7097,9 +7097,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.375"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.375.tgz#0f17c2680e3a5308dd3a4bc92f5631619b30b463"
-  integrity sha512-XFR4uQpLN8McLWtDgpn7lbz5FxB6kMFvmJKzcEmOiJa1Z0Vj9gXJuYVtZW2QiTnwNaOVl2yWrsLoBJtFOC+leA==
+  version "0.0.376"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.376.tgz#c887bb4662f67d491c5a5142f8bb2ac91f88d093"
+  integrity sha512-IkqCOqlKeUAkYbgR8lBPLUKE/TWjvGQJd+kWxwe5Ax6yhn2Kv2/CJicX9cHx2uCvv7VYUrlPD3sx7bQo1JyZMQ==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
@@ -7119,9 +7119,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1181"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1181.tgz#01b42c4f939abc7d8cfe56a7ba3a74d7ec3006eb"
-  integrity sha512-3Gat7Na4FphnRV/ZrjqyLE1BVnydA8S8QKgCRaFfJK2XZHPhA8LU50pJgYu89A5PoWQExp6EIwGsLVAIsLwPkw==
+  version "2.0.1182"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1182.tgz#d69cb9fc08b1269fab566d662d545584de55a191"
+  integrity sha512-4AUFwilwjWMycl5sWpbgc6U4UhHKCrTw13NzZAtfAMQLLPP/80WHeYcPe3+D+cY6NUJaPxHcVy7vvA2qiZIs3w==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"
