@@ -171,7 +171,8 @@ loading ?
                                 Tools.stringMark(
                                     result.data[name],
                                     searchWords,
-                                    configuration.search.normalizer
+                                    configuration.search.normalizer,
+                                    null
                                 )
                             )
                         })
