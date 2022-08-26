@@ -26,8 +26,10 @@ import {
     TimeoutPromise,
     UnknownFunction
 } from 'clientnode/type'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import {any, boolean, object} from 'clientnode/property-types'
 import MarkerClusterer from '@googlemaps/markerclustererplus'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import property from 'web-component-wrapper/decorator'
 import Web from 'web-component-wrapper/Web'
 import {WebComponentAPI} from 'web-component-wrapper/type'
