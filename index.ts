@@ -28,7 +28,7 @@ import {
 } from 'clientnode/type'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import {any, boolean, object} from 'clientnode/property-types'
-import MarkerClusterer from '@googlemaps/markerclustererplus'
+import MarkerClusterer from '@googlemaps/markerclusterer'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import property from 'web-component-wrapper/decorator'
 import Web from 'web-component-wrapper/Web'
@@ -281,11 +281,8 @@ loading ?
         },
         marker: {
             cluster: {
-                gridSize: 100,
-                imagePath:
-                    'https://raw.githubusercontent.com/googlemaps/' +
-                    'js-markerclustererplus/main/images/m',
-                maxZoom: 11
+                maxZoom: 11,
+                nodeSize: 100
             },
             icon: {
                 scaledSize: {height: 49, unit: 'px', width: 44},
@@ -1026,11 +1023,11 @@ loading ?
                 if (this.markerClusterer)
                     this.markerClusterer.clearMarkers()
 
-                this.markerClusterer = new MarkerClusterer(
-                    this.map,
-                    markers,
-                    this.resolvedConfiguration.marker.cluster as
-                        MapMarkerClustererOptions
+                this.markerClusterer = new MarkerClusterer({
+                    algorithm: this.resolvedConfiguration.marker.cluster as
+                        MapMarkerClustererOptions,
+                    map: this.map,
+                    markers
                 )
             }
 
