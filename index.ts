@@ -28,7 +28,7 @@ import {
 } from 'clientnode/type'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import {any, boolean, object} from 'clientnode/property-types'
-import MarkerClusterer from '@googlemaps/markerclusterer'
+import {SuperClusterAlgorithm} from '@googlemaps/markerclusterer'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import property from 'web-component-wrapper/decorator'
 import Web from 'web-component-wrapper/Web'
@@ -215,7 +215,7 @@ loading ?
         filter: null,
         iconPath: '',
         infoWindow: {additionalMoveToBottomInPixel: 80},
-        transform: null,
+        transformStore: null,
         stores: {
             generateProperties: (store:object):object => store,
             northEast: {latitude: 85, longitude: 180},
@@ -384,11 +384,11 @@ loading ?
     resolvedConfiguration:Configuration<Store> = {} as Configuration<Store>
     urlConfiguration:null|PlainObject = null
 
-    filter = (_store:Store):boolean => true
+    filter = (store:Store):boolean => true
     items:Array<Item> = []
     searchResultsStyleProperties:Mapping<number|string> = {}
     seenLocations:Array<string> = []
-    transform:(_store:Store) => Store = Tools.identity
+    transformStore:(store:Store) => Store = Tools.identity
 
     highlightedItem:Item|null = null
     openWindow:InfoWindow|null = null
@@ -418,7 +418,7 @@ loading ?
 
     // NOTE: Will be initialized during bootstrapping.
     map:MapImpl = null as unknown as MapImpl
-    markerClusterer:MarkerClusterer|null = null
+    markerClusterer:null|SuperClusterAlgorithm = null
     resetMarkerCluster:null|(() => void) = null
 
     readonly self:typeof StoreLocator = StoreLocator
@@ -639,21 +639,21 @@ loading ?
         if (this.resolvedConfiguration.debug)
             console.debug('Got configuration:', this.resolvedConfiguration)
 
-        if (typeof this.resolvedConfiguration.transform === 'function')
-            this.transform = this.resolvedConfiguration.transform
-        else if (this.resolvedConfiguration.transform) {
+        if (typeof this.resolvedConfiguration.transformStore === 'function')
+            this.transformStore = this.resolvedConfiguration.transformStore
+        else if (this.resolvedConfiguration.transformStore) {
             const {error, templateFunction} = Tools.stringCompile<Store>(
-                this.resolvedConfiguration.transform, ['store']
+                this.resolvedConfiguration.transformStore, ['store']
             )
 
             if (error)
                 console.warn(
                     `Given store transformer "` +
-                    `${this.resolvedConfiguration.transform}" does not ` +
+                    `${this.resolvedConfiguration.transformStore}" does not ` +
                     `compile: ${error}`
                 )
             else
-                this.transform = templateFunction
+                this.transformStore = templateFunction
         }
 
         if (typeof this.resolvedConfiguration.filter === 'function')
@@ -890,31 +890,27 @@ loading ?
      *
      * @returns Nothing.
      */
-    addMarker(store:Store):void {
-        if (this.filter(store)) {
-            Tools.extend(
-                true,
-                store,
-                this.resolvedConfiguration.additionalStoreProperties
-            )
+    transformMarker(store:Store):Store {
+        Tools.extend(
+            true,
+            store,
+            this.resolvedConfiguration.additionalStoreProperties
+        )
 
-            if (!store.streetAndStreetnumber)
-                store.streetAndStreetnumber =
-                    (store.street || '') +
-                    (store.streetnumber ? `, ${store.streetnumber}` : '')
-            if (!store.zipCodeAndCity)
-                store.zipCodeAndCity =
-                (store.zipCode || '') +
-                (store.city ? ` ${store.city}` : '')
-            if (!store.address)
-                store.address =
-                    (store.streetAndStreetnumber || '') +
-                    (store.zipCodeAndCity ? `, ${store.zipCodeAndCity}` : '')
+        if (!store.streetAndStreetnumber)
+            store.streetAndStreetnumber =
+                (store.street || '') +
+                (store.streetnumber ? `, ${store.streetnumber}` : '')
+        if (!store.zipCodeAndCity)
+            store.zipCodeAndCity =
+            (store.zipCode || '') +
+            (store.city ? ` ${store.city}` : '')
+        if (!store.address)
+            store.address =
+                (store.streetAndStreetnumber || '') +
+                (store.zipCodeAndCity ? `, ${store.zipCodeAndCity}` : '')
 
-            const marker:MapMarker = this.createMarker(store)
-            if (this.markerClusterer)
-                this.markerClusterer.addMarker(marker)
-        }
+        return store
     }
     /**
      * Initializes given value. Maps to internally determined item and opens
@@ -1002,37 +998,6 @@ loading ?
                     }
                 }
             )
-        if (this.resolvedConfiguration.marker.cluster) {
-            this.resetMarkerCluster = ():void => {
-                const markers:Array<MapMarker> = []
-
-                for (const item of this.items) {
-                    if (item.marker) {
-                        item.marker.setMap(null)
-                        delete item.marker
-                    }
-                    item.marker = new this.self.maps.Marker(
-                        this.createMarkerConfiguration(item)
-                    )
-
-                    this.attachMarkerEventListener(item)
-
-                    markers.push(item.marker)
-                }
-
-                if (this.markerClusterer)
-                    this.markerClusterer.clearMarkers()
-
-                this.markerClusterer = new MarkerClusterer({
-                    algorithm: this.resolvedConfiguration.marker.cluster as
-                        MapMarkerClustererOptions,
-                    map: this.map,
-                    markers
-                )
-            }
-
-            this.resetMarkerCluster()
-        }
 
         // Create the search box and link it to the UI element.
         this.applyBindings(
@@ -1105,7 +1070,10 @@ loading ?
 
         if (Array.isArray(this.resolvedConfiguration.stores))
             for (const store of this.resolvedConfiguration.stores)
-                this.addMarker(this.transform(store))
+                if (this.filter(store))
+                    this.createMarker(
+                        this.transformMarker(this.transformStore(store))
+                    )
         else if (typeof this.resolvedConfiguration.stores === 'string') {
             const result:Response =
                 await globalContext.fetch(this.resolvedConfiguration.stores)
@@ -1117,7 +1085,10 @@ loading ?
                     this.resolvedConfiguration.securityResponsePrefix.length
                 )
             for (const store of JSON.parse(responseString) as Array<Store>)
-                this.addMarker(this.transform(store))
+                if (this.filter(store))
+                    this.createMarker(
+                        this.transformMarker(this.transformStore(store))
+                    )
         } else {
             const southWest:MapPosition = new this.self.maps.LatLng(
                 this.resolvedConfiguration.stores.southWest.latitude,
@@ -1132,7 +1103,7 @@ loading ?
                 index < this.resolvedConfiguration.stores.number;
                 index++
             )
-                this.addMarker(this.transform({
+                this.createMarker(this.transformMarker(this.transformStore({
                     latitude:
                         southWest.lat() +
                         (northEast.lat() - southWest.lat()) *
@@ -1142,7 +1113,39 @@ loading ?
                         (northEast.lng() - southWest.lng()) *
                         Math.random(),
                     ...this.resolvedConfiguration.additionalStoreProperties
-                } as Store))
+                } as Store)))
+        }
+
+        if (this.resolvedConfiguration.marker.cluster) {
+            this.resetMarkerCluster = ():void => {
+                const markers:Array<MapMarker> = []
+
+                for (const item of this.items) {
+                    if (item.marker) {
+                        item.marker.setMap(null)
+                        delete item.marker
+                    }
+                    item.marker = new this.self.maps.Marker(
+                        this.createMarkerConfiguration(item)
+                    )
+
+                    this.attachMarkerEventListener(item)
+
+                    markers.push(item.marker)
+                }
+
+                this.resolvedConfiguration.marker.cluster.load(markers)
+
+                this.markerClusterer = new SuperClusterAlgorithm({
+                    algorithm:
+                        this.resolvedConfiguration.marker.cluster as
+                            MapMarkerClustererOptions,
+                    map: this.map,
+                    markers
+                })
+            }
+
+            this.resetMarkerCluster()
         }
 
         this.loaded = true

@@ -29,7 +29,7 @@ import PropertyTypes from 'clientnode/property-types'
 import {
     Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf
 } from 'clientnode/type'
-import {MarkerClustererOptions} from '@googlemaps/markerclustererplus'
+import {SuperClusterOptions} from '@googlemaps/markerclusterer'
 // endregion
 // region exports
 // / region map implementation
@@ -43,7 +43,7 @@ export type MapIcon = google.maps.Icon
 export type MapImpl = google.maps.Map
 export type MapInfoWindow = google.maps.InfoWindow
 export type MapMarker = google.maps.Marker
-export type MapMarkerClustererOptions = MarkerClustererOptions
+export type MapMarkerClustererOptions = SuperClusterOptions
 export type MapMarkerOptions = google.maps.MarkerOptions
 export type MapOptions = google.maps.MapOptions
 export type MapPosition = google.maps.LatLng
@@ -57,14 +57,14 @@ export type Maps = {
     ControlPosition:typeof google.maps.ControlPosition
     event:{
         addListener:(
-            _instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
-            _eventName:string,
-            _handler:(event:Event) => void
+            instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
+            eventName:string,
+            handler:(event:Event) => void
         ) => MapEventListener
         addListenerOnce:(
-            _instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
-            _eventName:string,
-            _handler:(event:Event) => void
+            instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
+            eventName:string,
+            handler:(event:Event) => void
         ) => MapEventListener
     }
     Geocoder:typeof google.maps.Geocoder
@@ -72,7 +72,7 @@ export type Maps = {
     geometry:{
         spherical:{
             computeDistanceBetween:(
-                _from:MapPosition, _to:MapPosition, _radius?:number
+                from:MapPosition, to:MapPosition, radius?:number
             ) => number
         }
     }
@@ -124,12 +124,12 @@ export type Item<StoreType extends Store = Store> = {
     close?:() => void
     data:null|StoreType
     foundWords:Array<string>
-    highlight:(_event?:Event, _type?:string) => void
+    highlight:(event?:Event, type?:string) => void
     icon?:Icon
     infoWindow?:InfoWindow
     isHighlighted:boolean
     marker?:MapMarker
-    open:(_event?:Event) => void
+    open:(event?:Event) => void
     position:MapPosition|null
     refreshSize?:ProcedureFunction
     title?:string
@@ -140,7 +140,7 @@ export type Position = {
 }
 export type SearchConfiguration = {
     generic:{
-        filter:(_place:MapPlaceResult) => boolean
+        filter:(place:MapPlaceResult) => boolean
         maximalDistanceInMeter:number
         minimumNumberOfSymbols:number
         number:Array<number>
@@ -149,7 +149,7 @@ export type SearchConfiguration = {
         searchDebounceTimeInMilliseconds:number
     },
     maximumNumberOfResults:number
-    normalizer:(_value:string) => string
+    normalizer:(value:string) => string
     properties:Array<string>
     resultAggregation:'cut'|'union'
     stylePropertiesToDeriveFromInputField:Array<string>
@@ -161,14 +161,14 @@ export type AppearanceConfiguration = {
 export type Configuration<StoreItem = Store> = {
     additionalStoreProperties:object
     defaultMarkerIconFileName?:null|string
-    filter:null|string|((_store:StoreItem) => boolean)
+    filter:null|string|((store:StoreItem) => boolean)
     stores:Array<StoreItem>|string|{
-        generateProperties:(_store:object) => object
+        generateProperties:(store:object) => object
         northEast:Position
         number:number
         southWest:Position
     }
-    transform:null|string|((_store:StoreItem) => StoreItem)
+    transformStore:null|string|((store:StoreItem) => StoreItem)
 
     applicationInterface:{
         callbackName?:null|string
