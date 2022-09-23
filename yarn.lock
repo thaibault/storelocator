@@ -7215,9 +7215,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.396"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.396.tgz#a8209ac2068ff59c4e45007b5b5246246bc755b2"
-  integrity sha512-Gs+HuQP+q/FoAHN20JlQ4GG2iAW5unHQzxPnVc0bGC4iabP8k+OpuDo4moSHh4TInbWqlhTtgTIkhUNmhCkC9Q==
+  version "0.0.397"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.397.tgz#c0d1a4b12540b9460583f6b71e5439ec3a4d8a42"
+  integrity sha512-OWauqDhYy0uKQ3cs3zewLQbvKyTw8rn+F7c8ocYdwelW3bZhO023J1ernq4z6u0IHOP86UYKYSRmAOiWcmNyfg==
   dependencies:
     "@types/webpack" "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
 
