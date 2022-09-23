@@ -28,7 +28,8 @@ import {
 } from 'clientnode/type'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import {any, boolean, object} from 'clientnode/property-types'
-import {SuperClusterAlgorithm} from '@googlemaps/markerclusterer'
+import {MarkerClusterer} from '@googlemaps/markerclusterer'
+import Supercluster from 'supercluster'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import property from 'web-component-wrapper/decorator'
 import Web from 'web-component-wrapper/Web'
@@ -47,7 +48,6 @@ import {
     MapIcon,
     MapImpl,
     MapMarker,
-    MapMarkerClustererOptions,
     MapMarkerOptions,
     MapPlaceResult,
     MapPlacesService,
@@ -216,12 +216,13 @@ loading ?
         iconPath: '',
         infoWindow: {additionalMoveToBottomInPixel: 80},
         transformStore: null,
-        stores: {
-            generateProperties: (store:object):object => store,
+        boundaries: {
             northEast: {latitude: 85, longitude: 180},
-            number: 100,
             southWest: {latitude: -85, longitude: -180}
         },
+        numberOfStoresToGenerate: 100,
+        stores: [],
+        storesAPIURL: '',
 
         applicationInterface: {
             callbackName: null,
@@ -384,7 +385,7 @@ loading ?
     resolvedConfiguration:Configuration<Store> = {} as Configuration<Store>
     urlConfiguration:null|PlainObject = null
 
-    filter = (store:Store):boolean => true
+    filter = (_store:Store):boolean => true
     items:Array<Item> = []
     searchResultsStyleProperties:Mapping<number|string> = {}
     seenLocations:Array<string> = []
@@ -418,7 +419,7 @@ loading ?
 
     // NOTE: Will be initialized during bootstrapping.
     map:MapImpl = null as unknown as MapImpl
-    markerClusterer:null|SuperClusterAlgorithm = null
+    markerClusterer:MarkerClusterer|null = null
     resetMarkerCluster:null|(() => void) = null
 
     readonly self:typeof StoreLocator = StoreLocator
@@ -1042,10 +1043,7 @@ loading ?
         }
         const markerClusterZoomLevel:number =
             this.markerClusterer &&
-            (
-                this.resolvedConfiguration.marker.cluster as
-                    MapMarkerClustererOptions
-            ).maxZoom ||
+            this.resolvedConfiguration.marker.cluster!.maxZoom ||
             0
         if (markerClusterZoomLevel > 0)
             // Close marker if zoom level is bigger than the aggregation.
@@ -1068,15 +1066,16 @@ loading ?
                 )
             })
 
-        if (Array.isArray(this.resolvedConfiguration.stores))
+        if (this.resolvedConfiguration.stores.length) {
             for (const store of this.resolvedConfiguration.stores)
                 if (this.filter(store))
                     this.createMarker(
                         this.transformMarker(this.transformStore(store))
                     )
-        else if (typeof this.resolvedConfiguration.stores === 'string') {
-            const result:Response =
-                await globalContext.fetch(this.resolvedConfiguration.stores)
+        } else if (this.resolvedConfiguration.storesAPIURL.length > 7) {
+            const result:Response = await globalContext.fetch(
+                this.resolvedConfiguration.storesAPIURL
+            )
             let responseString:string = await result.text()
             if (responseString.startsWith(
                 this.resolvedConfiguration.securityResponsePrefix
@@ -1091,16 +1090,16 @@ loading ?
                     )
         } else {
             const southWest:MapPosition = new this.self.maps.LatLng(
-                this.resolvedConfiguration.stores.southWest.latitude,
-                this.resolvedConfiguration.stores.southWest.longitude
+                this.resolvedConfiguration.boundaries.southWest.latitude,
+                this.resolvedConfiguration.boundaries.southWest.longitude
             )
             const northEast:MapPosition = new this.self.maps.LatLng(
-                this.resolvedConfiguration.stores.northEast.latitude,
-                this.resolvedConfiguration.stores.northEast.longitude
+                this.resolvedConfiguration.boundaries.northEast.latitude,
+                this.resolvedConfiguration.boundaries.northEast.longitude
             )
             for (
                 let index = 0;
-                index < this.resolvedConfiguration.stores.number;
+                index < this.resolvedConfiguration.numberOfStoresToGenerate;
                 index++
             )
                 this.createMarker(this.transformMarker(this.transformStore({
@@ -1134,12 +1133,13 @@ loading ?
                     markers.push(item.marker)
                 }
 
-                this.resolvedConfiguration.marker.cluster.load(markers)
+                const algorithm = new Supercluster(
+                    this.resolvedConfiguration.marker.cluster!
+                )
+                algorithm.load(markers)
 
-                this.markerClusterer = new SuperClusterAlgorithm({
-                    algorithm:
-                        this.resolvedConfiguration.marker.cluster as
-                            MapMarkerClustererOptions,
+                this.markerClusterer = new MarkerClusterer({
+                    algorithm,
                     map: this.map,
                     markers
                 })

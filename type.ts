@@ -32,7 +32,7 @@ import {
 import {SuperClusterOptions} from '@googlemaps/markerclusterer'
 // endregion
 // region exports
-// / region map implementation
+/// region map implementation
 export type MapAnimation = typeof google.maps.Animation
 export type MapArea = google.maps.LatLngBounds
 export type MapEventListener = google.maps.MapsEventListener
@@ -89,7 +89,7 @@ export type Maps = {
     Size:typeof google.maps.Size
 }
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
-// / endregion
+/// endregion
 export type PropertyTypes = {
     baseConfiguration:ValueOf<typeof PropertyTypes>
     configuration:ValueOf<typeof PropertyTypes>
@@ -162,12 +162,13 @@ export type Configuration<StoreItem = Store> = {
     additionalStoreProperties:object
     defaultMarkerIconFileName?:null|string
     filter:null|string|((store:StoreItem) => boolean)
-    stores:Array<StoreItem>|string|{
-        generateProperties:(store:object) => object
+    boundaries:{
         northEast:Position
-        number:number
         southWest:Position
     }
+    numberOfStoresToGenerate:number
+    stores:Array<StoreItem>
+    storesAPIURL:string
     transformStore:null|string|((store:StoreItem) => StoreItem)
 
     applicationInterface:{
