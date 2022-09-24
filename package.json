@@ -67,6 +67,7 @@
     "@types/jsdom": "*",
     "@types/node": "*",
     "@types/prop-types": "*",
+    "@types/supercluster": "*",
     "@typescript-eslint/eslint-plugin": "*",
     "@typescript-eslint/parser": "*",
     "@webcomponents/webcomponentsjs": "*",
