@@ -28,8 +28,9 @@ import {
 } from 'clientnode/type'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import {any, boolean, object} from 'clientnode/property-types'
-import {MarkerClusterer} from '@googlemaps/markerclusterer'
-import Supercluster from 'supercluster'
+import {
+    MarkerClusterer, SuperClusterAlgorithm
+} from '@googlemaps/markerclusterer'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import property from 'web-component-wrapper/decorator'
 import Web from 'web-component-wrapper/Web'
@@ -283,7 +284,7 @@ loading ?
         marker: {
             cluster: {
                 maxZoom: 11,
-                nodeSize: 100
+                radius: 100
             },
             icon: {
                 scaledSize: {height: 49, unit: 'px', width: 44},
@@ -1133,10 +1134,10 @@ loading ?
                     markers.push(item.marker)
                 }
 
-                const algorithm = new Supercluster(
+                const algorithm = new SuperClusterAlgorithm(
                     this.resolvedConfiguration.marker.cluster!
                 )
-                algorithm.load(markers)
+                // algorithm.load(markers)
 
                 this.markerClusterer = new MarkerClusterer({
                     algorithm,

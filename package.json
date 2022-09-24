@@ -67,7 +67,6 @@
     "@types/jsdom": "*",
     "@types/node": "*",
     "@types/prop-types": "*",
-    "@types/supercluster": "*",
     "@typescript-eslint/eslint-plugin": "*",
     "@typescript-eslint/parser": "*",
     "@webcomponents/webcomponentsjs": "*",
@@ -81,23 +80,18 @@
     "jsdoc": "*",
     "node-fetch": "*",
     "prop-types": "*",
-    "supercluster": "*",
     "web-component-wrapper": "*",
     "weboptimizer": "*",
     "webpack-dev-server": "*"
   },
   "peerDependencies": {
     "@babel/runtime": "*",
-    "@types/supercluster": "*",
     "clientnode": "*",
     "jquery": "*",
     "node-fetch": "*"
   },
   "peerDependenciesMeta": {
     "@babel/runtime": {
-      "optional": true
-    },
-    "@types/supercluster": {
       "optional": true
     },
     "jquery": {
