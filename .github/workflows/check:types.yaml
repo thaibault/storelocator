@@ -1,8 +1,7 @@
 name: Check types
 on:
-  push:
-    branches: [ master ]
-  pull_request:
+  # NOTE: Runs on branch to tag creation.
+  create:
     branches: [ master ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
