@@ -43,6 +43,7 @@
     "clear": "weboptimizer clear",
     "document": "weboptimizer document",
     "lint": "yarn clear && weboptimizer lint",
+    "postversion": "git push --tags && yarn publish . --tag $npm_package_version && git push",
     "prepare": "yarn build",
     "serve": "weboptimizer serve",
     "start": "yarn serve",
@@ -50,7 +51,7 @@
     "test:browser": "yarn clear && weboptimizer test:browser",
     "test:coverage": "yarn clear && weboptimizer test:coverage",
     "test:coverage:report": "yarn clear && weboptimizer test:coverage:report",
-    "update": "yarn version --patch && yarn publish",
+    "update": "yarn version --patch",
     "update:documentation": "documentation-website",
     "watch": "weboptimizer build --watch"
   },
