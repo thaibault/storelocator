@@ -1137,12 +1137,31 @@ loading ?
                 const algorithm = new SuperClusterAlgorithm(
                     this.resolvedConfiguration.marker.cluster!
                 )
-                // algorithm.load(markers)
 
                 this.markerClusterer = new MarkerClusterer({
                     algorithm,
                     map: this.map,
-                    markers
+                    markers,
+                    renderer: {
+                        render: ({count, position}) =>
+                            // TODO make configurable
+                            new this.self.maps.Marker({
+                                icon: {
+                                    url: `https://via.placeholder.com/468x60?text=Cluster:%20${count}`,
+                                    scaledSize: new google.maps.Size(
+                                        35, 35
+                                    )
+                                },
+                                label: {
+                                    color: "white",
+                                    fontSize: "10px",
+                                    text: String(count)
+                                },
+                                position,
+                                // Adjust "zIndex" to be above other markers.
+                                zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+                            })
+                    }
                 })
             }
 
