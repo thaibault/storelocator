@@ -29,7 +29,10 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import {any, boolean, object} from 'clientnode/property-types'
 import {
-    MarkerClusterer, SuperClusterAlgorithm
+    Cluster as MapMarkerCluster,
+    ClusterStats as MapMarkerClusterStats,
+    MarkerClusterer,
+    SuperClusterAlgorithm
 } from '@googlemaps/markerclusterer'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import property from 'web-component-wrapper/decorator'
@@ -55,6 +58,7 @@ import {
     MapPosition,
     Maps,
     MapSearchBox,
+    RendererConfiguration,
     SearchConfiguration,
     Square,
     Store as BaseStore,
@@ -1142,26 +1146,39 @@ loading ?
                     algorithm,
                     map: this.map,
                     markers,
-                    renderer: {
-                        render: ({count, position}) =>
-                            // TODO make configurable
-                            new this.self.maps.Marker({
-                                icon: {
-                                    url: `https://via.placeholder.com/468x60?text=Cluster:%20${count}`,
-                                    scaledSize: new google.maps.Size(
-                                        35, 35
+                    renderer: this.resolvedConfiguration.marker.renderer ?
+                        {
+                            render: (
+                                cluster:MapMarkerCluster,
+                                stats:MapMarkerClusterStats
+                            ):MapMarker => {
+                                const givenOptions:RendererConfiguration =
+                                    this.resolvedConfiguration.marker.renderer!
+
+                                if (typeof givenOptions === 'function')
+                                    return new this.self.maps.Marker(
+                                        givenOptions(cluster, stats)
                                     )
-                                },
-                                label: {
-                                    color: "white",
-                                    fontSize: "10px",
-                                    text: String(count)
-                                },
-                                position,
-                                // Adjust "zIndex" to be above other markers.
-                                zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
-                            })
-                    }
+
+                                return new this.self.maps.Marker({
+                                    position: cluster.position,
+                                    /*
+                                        Adjust "zIndex" to be above other
+                                        markers.
+                                    */
+                                    zIndex:
+                                        Number(
+                                            this.self.maps.Marker.MAX_ZINDEX
+                                        ) +
+                                        cluster.count,
+                                    ...(
+                                        this.resolvedConfiguration.marker
+                                            .renderer!
+                                    )
+                                })
+                            }
+                        } :
+                        undefined
                 })
             }
 

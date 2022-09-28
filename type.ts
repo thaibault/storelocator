@@ -29,7 +29,11 @@ import PropertyTypes from 'clientnode/property-types'
 import {
     Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf
 } from 'clientnode/type'
-import {SuperClusterOptions} from '@googlemaps/markerclusterer'
+import {
+    Cluster as MapMarkerCluster,
+    ClusterStats as MapMarkerClusterStats,
+    SuperClusterOptions
+} from '@googlemaps/markerclusterer'
 // endregion
 // region exports
 /// region map implementation
@@ -158,6 +162,12 @@ export type AppearanceConfiguration = {
     hide:Mapping<number|string>
     showAnimation:[Mapping<number|string>, Mapping<number|string>]
 }
+export type RendererConfiguration =
+    MapMarkerOptions |
+    null |
+    ((cluster:MapMarkerCluster, stats:MapMarkerClusterStats) =>
+        MapMarkerOptions
+    )
 export type Configuration<StoreItem = Store> = {
     additionalStoreProperties:object
     defaultMarkerIconFileName?:null|string
@@ -215,6 +225,7 @@ export type Configuration<StoreItem = Store> = {
             scaledSize:Square
             size:Square
         }
+        renderer?:RendererConfiguration
     }
 
     name:string
