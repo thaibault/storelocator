@@ -167,9 +167,11 @@ export type RendererConfiguration =
     Array<ClusterOptions> |
     MapMarkerOptions |
     null |
-    ((cluster:MapMarkerCluster, stats:MapMarkerClusterStats) =>
-        MapMarkerOptions
-    )
+    ((
+        defaultOptions:MapMarkerOptions,
+        cluster:MapMarkerCluster,
+        stats:MapMarkerClusterStats
+    ) => MapMarkerOptions)
 export type Configuration<StoreItem = Store> = {
     additionalStoreProperties:object
     defaultMarkerIconFileName?:null|string

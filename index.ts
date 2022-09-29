@@ -448,6 +448,29 @@ loading ?
         this.resolveConfiguration()
     }
     /**
+     * Converts given declarative icon configuration to marker needed format.
+     * @param options - Icon configuration.
+     *
+     * @returns Icon configuration.
+     */
+    transformIconConfiguration(options:Icon):Icon {
+        if (options.scaledSize) {
+            const square:Square = options.scaledSize as Square
+            options.scaledSize = new this.self.maps.Size(
+                square.width, square.height, square.unit, square.unit
+            )
+        }
+
+        if (options.size) {
+            const square:Square = options.size as Square
+            options.size = new this.self.maps.Size(
+                square.width, square.height, square.unit, square.unit
+            )
+        }
+
+        return options
+    }
+    /**
      * Parses given configuration object and (re-)renders map.
      * @param name - Attribute name which was updates.
      * @param oldValue - Old attribute value.
@@ -1172,8 +1195,13 @@ loading ?
 
                                 if (typeof givenOptions === 'function')
                                     return new this.self.maps.Marker(
-                                        givenOptions(cluster, stats)
+                                        givenOptions(
+                                            defaultOptions, cluster, stats
+                                        )
                                     )
+
+                                let selectedOptions:MapMarkerOptions =
+                                    givenOptions as MapMarkerOptions
 
                                 if (Array.isArray(givenOptions)) {
                                     if (givenOptions.length === 0)
@@ -1181,27 +1209,28 @@ loading ?
                                             defaultOptions
                                         )
 
-                                    let selectedOptions:ClusterOptions =
+                                    let currentOptions:ClusterOptions =
                                         givenOptions[0]
 
                                     for (const options of givenOptions)
                                         if (cluster.count >= options.count)
-                                            selectedOptions = options
+                                            currentOptions = options
 
-                                    return new this.self.maps.Marker(
-                                        Tools.extend(
-                                            true,
-                                            defaultOptions,
-                                            selectedOptions
-                                        )
-                                    )
+                                    selectedOptions =
+                                        {...currentOptions} as MapMarkerOptions
+                                    delete (
+                                        selectedOptions as
+                                            MapMarkerOptions & {count?:number}
+                                    ).count
                                 }
 
+                                if (selectedOptions.icon)
+                                    this.transformIconConfiguration(
+                                        selectedOptions.icon as Icon
+                                    )
+
                                 return new this.self.maps.Marker(Tools.extend(
-                                    true,
-                                    defaultOptions,
-                                    this.resolvedConfiguration.marker
-                                        .renderer as MapMarkerOptions
+                                    true, defaultOptions, selectedOptions
                                 ))
                             }
                         } :
@@ -2025,18 +2054,9 @@ loading ?
                     this.resolvedConfiguration.marker.icon as unknown as Icon
                 ) :
                 {} as Icon
-            if (item.icon.scaledSize) {
-                const square:Square = item.icon.scaledSize as Square
-                item.icon.scaledSize = new this.self.maps.Size(
-                    square.width, square.height, square.unit, square.unit
-                )
-            }
-            if (item.icon.size) {
-                const square:Square = item.icon.size as Square
-                item.icon.size = new this.self.maps.Size(
-                    square.width, square.height, square.unit, square.unit
-                )
-            }
+
+            this.transformIconConfiguration(item.icon)
+
             item.icon.url = this.resolvedConfiguration.iconPath
             if (store?.markerIconFileName)
                 item.icon.url += store.markerIconFileName
