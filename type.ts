@@ -162,7 +162,9 @@ export type AppearanceConfiguration = {
     hide:Mapping<number|string>
     showAnimation:[Mapping<number|string>, Mapping<number|string>]
 }
+export type ClusterOptions = MapMarkerOptions & {count:number}
 export type RendererConfiguration =
+    Array<ClusterOptions> |
     MapMarkerOptions |
     null |
     ((cluster:MapMarkerCluster, stats:MapMarkerClusterStats) =>

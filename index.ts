@@ -41,6 +41,7 @@ import {WebComponentAPI} from 'web-component-wrapper/type'
 
 import {
     Configuration,
+    ClusterOptions,
     Icon,
     InfoWindow,
     Item,
@@ -1152,15 +1153,8 @@ loading ?
                                 cluster:MapMarkerCluster,
                                 stats:MapMarkerClusterStats
                             ):MapMarker => {
-                                const givenOptions:RendererConfiguration =
-                                    this.resolvedConfiguration.marker.renderer!
-
-                                if (typeof givenOptions === 'function')
-                                    return new this.self.maps.Marker(
-                                        givenOptions(cluster, stats)
-                                    )
-
-                                return new this.self.maps.Marker({
+                                const defaultOptions:MapMarkerOptions = {
+                                    label: {text: String(cluster.count)},
                                     position: cluster.position,
                                     /*
                                         Adjust "zIndex" to be above other
@@ -1170,12 +1164,45 @@ loading ?
                                         Number(
                                             this.self.maps.Marker.MAX_ZINDEX
                                         ) +
-                                        cluster.count,
-                                    ...(
-                                        this.resolvedConfiguration.marker
-                                            .renderer!
+                                        cluster.count
+                                }
+
+                                const givenOptions:RendererConfiguration =
+                                    this.resolvedConfiguration.marker.renderer!
+
+                                if (typeof givenOptions === 'function')
+                                    return new this.self.maps.Marker(
+                                        givenOptions(cluster, stats)
                                     )
-                                })
+
+                                if (Array.isArray(givenOptions)) {
+                                    if (givenOptions.length === 0)
+                                        return new this.self.maps.Marker(
+                                            defaultOptions
+                                        )
+
+                                    let selectedOptions:ClusterOptions =
+                                        givenOptions[0]
+
+                                    for (const options of givenOptions)
+                                        if (cluster.count >= options.count)
+                                            selectedOptions = options
+
+                                    return new this.self.maps.Marker(
+                                        Tools.extend(
+                                            true,
+                                            defaultOptions,
+                                            selectedOptions
+                                        )
+                                    )
+                                }
+
+                                return new this.self.maps.Marker(Tools.extend(
+                                    true,
+                                    defaultOptions,
+                                    this.resolvedConfiguration.marker
+                                        .renderer as MapMarkerOptions
+                                ))
                             }
                         } :
                         undefined

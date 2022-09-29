@@ -311,16 +311,32 @@
                     southWest: {latitude: 47.32, longitude: 5.50}
                 },
                 marker: {
-                    renderer: {
-                        icon: {
-                            url: 'https://via.placeholder.com/100x100'
+                    renderer: [
+                        {
+                            count: 2,
+                            icon: {
+                                url: 'https://via.placeholder.com/70x70?text=2',
+                            },
+                            label: {
+                                color: 'white',
+                                fontSize: '20 px',
+                                fontWeight: 'normal',
+                                textDecoration: 'none'
+                            }
                         },
-                        label: {
-                            color: 'white',
-                            fontSize: '10px',
-                            text: 'Cluster'
+                        {
+                            count: 3,
+                            icon: {
+                                url: 'https://via.placeholder.com/110x110?text=3%2B',
+                            },
+                            label: {
+                                color: 'white',
+                                fontSize: '30 px',
+                                fontWeight: 'normal',
+                                textDecoration: 'none'
+                            }
                         }
-                    }
+                    ]
                 },
                 map: {minZoom: 5, zoom: 9},
 
