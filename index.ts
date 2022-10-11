@@ -179,8 +179,11 @@ loading ?
                                 Tools.stringMark(
                                     result.data[name],
                                     searchWords,
-                                    configuration.search.normalizer,
-                                    null
+                                    {
+                                        normalizer:
+                                            configuration.search.normalizer,
+                                        skipTagDelimitedParts: null
+                                    }
                                 )
                             )
                         })
