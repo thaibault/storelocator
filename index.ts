@@ -780,6 +780,7 @@ loading ?
 
         if (globalContext.window?.google?.maps) {
             this.self.maps = globalContext.window.google.maps
+
             if (!applicationInterfaceLoadCallbacks.resolved)
                 void Tools.timeout(():Promise<void>|void =>
                     applicationInterfaceLoadCallbacks.resolve()
@@ -795,6 +796,7 @@ loading ?
                 if (!applicationInterfaceLoadCallbacks.resolved)
                     if (globalContext.window?.google?.maps) {
                         this.self.maps = globalContext.window.google.maps
+
                         void applicationInterfaceLoadCallbacks.resolve()
                     } else
                         void applicationInterfaceLoadCallbacks.reject(
@@ -835,6 +837,7 @@ loading ?
     bootstrap = ():Promise<void> => {
         if (this.resolvedConfiguration.startLocation)
             return this.initializeMap()
+
         this.resolvedConfiguration.startLocation =
             this.resolvedConfiguration.fallbackLocation
         if ([null, undefined].includes(
@@ -848,6 +851,7 @@ loading ?
             That's why we use our own timeout implementation.
         */
         let loaded = false
+
         return new Promise<void>((resolve:() => void):void => {
             const ipToLocationAPIConfiguration:Configuration<Store>[
                 'ipToLocationApplicationInterface'
@@ -861,6 +865,7 @@ loading ?
                 },
                 ipToLocationAPIConfiguration.timeoutInMilliseconds
             )
+
             void $.ajax({
                 cache: true,
                 dataType: 'jsonp',
@@ -994,6 +999,18 @@ loading ?
         )
         $(this.root.firstElementChild!)
             .css(this.resolvedConfiguration.root.hide)
+
+        this.self.maps.event.addListener(this.map, 'tilesloaded', () => {
+            const wrapper:HTMLDivElement|null =
+                this.root.querySelector('div[tabindex]')
+            if (wrapper)
+                wrapper.removeAttribute('tabindex')
+
+            const shortcutsButton:HTMLButtonElement =
+                this.root.querySelector('button[aria-label="Kurzbefehle"]')
+            if (shortcutsButton)
+                shortcutsButton.setAttribute('tabindex', '-1')
+        })
 
         if (this.resolvedConfiguration.limit)
             this.self.maps.event.addListener(
