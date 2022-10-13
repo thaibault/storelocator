@@ -334,7 +334,10 @@ loading ?
             retrieveOptions: {radius: 50000, query: ''},
             searchDebounceTimeInMilliseconds: 1000
         },
-        maximumNumberOfResults: 50,
+        maximumNumberOfResults: {
+            location: 5,
+            query: 50
+        },
         normalizer: (value:string):string =>
             `${value}`
                 .toLowerCase()
@@ -350,6 +353,7 @@ loading ?
             'zip', 'zipCode', 'postalCode'
         ],
         resultAggregation: 'cut',
+        resultsBarAlwaysVisible: false,
         stylePropertiesToDeriveFromInputField: [
             'backgroundColor',
             'left',
@@ -1103,12 +1107,15 @@ loading ?
         if (typeof this.resolvedConfiguration.search === 'number')
             this.initializeGenericSearch()
         else {
-            this.self.maps.event.addListener(
-                this.map, 'click', ():void => this.closeSearchResults()
-            )
-            this.self.maps.event.addListener(
-                this.map, 'dragstart', ():void => this.closeSearchResults()
-            )
+            if (!this.resolvedConfiguration.search.resultsBarAlwaysVisible) {
+                this.self.maps.event.addListener(
+                    this.map, 'click', ():void => this.closeSearchResults()
+                )
+                this.self.maps.event.addListener(
+                    this.map, 'dragstart', ():void => this.closeSearchResults()
+                )
+            }
+
             this.initializeDataSourceSearch()
         }
         const markerClusterZoomLevel:number =
@@ -1446,9 +1453,15 @@ loading ?
                     searchText.length <
                         searchOptions.generic.minimumNumberOfSymbols
                 ) {
-                    if (this.searchResults.length) {
+                    if (
+                        this.resolvedConfiguration.search
+                            .resultsBarAlwaysVisible
+                    )
+                        this.performLocalSearch()
+                    else if (this.searchResults.length) {
                         this.searchResults = []
                         this.searchText = ''
+
                         if (this.dispatchEvent(new CustomEvent(
                             'removeSearchResults'
                         )))
@@ -1622,49 +1635,56 @@ loading ?
                 searchOptions.properties :
                 null
 
-        for (const item of this.items) {
-            const properties:Array<string> = defaultProperties ?
-                defaultProperties :
-                item.data ? Object.keys(item.data) : []
+        const maximumNumberOfResults:number = this.searchSegments.length ?
+            searchOptions.maximumNumberOfResults.query :
+            searchOptions.maximumNumberOfResults.location
 
-            item.foundWords = []
-            for (const key of properties)
-                for (const searchWord of this.searchSegments)
-                    if (
-                        !item.foundWords.includes(searchWord) &&
-                        item.data &&
-                        item.data[key] &&
-                        typeof item.data[key] === 'string' &&
-                        searchOptions
-                            .normalizer(item.data[key] as string)
-                            .includes(searchWord)
-                    ) {
-                        item.foundWords.push(searchWord)
+        if (this.searchSegments.length)
+            for (const item of this.items) {
+                const properties:Array<string> = defaultProperties ?
+                    defaultProperties :
+                    item.data ? Object.keys(item.data) : []
 
-                        if (item.foundWords.length === 1) {
-                            item.open = (event?:Event):void => {
-                                if (this.dispatchEvent(new CustomEvent(
-                                    'change', {detail: {value: item}}
-                                ))) {
-                                    this.setPropertyValue('value', item)
-                                    this.openMarker(item, event)
+                item.foundWords = []
+                for (const key of properties)
+                    for (const searchWord of this.searchSegments)
+                        if (
+                            !item.foundWords.includes(searchWord) &&
+                            item.data &&
+                            item.data[key] &&
+                            typeof item.data[key] === 'string' &&
+                            searchOptions
+                                .normalizer(item.data[key] as string)
+                                .includes(searchWord)
+                        ) {
+                            item.foundWords.push(searchWord)
+
+                            if (item.foundWords.length === 1) {
+                                item.open = (event?:Event):void => {
+                                    if (this.dispatchEvent(new CustomEvent(
+                                        'change', {detail: {value: item}}
+                                    ))) {
+                                        this.setPropertyValue('value', item)
+                                        this.openMarker(item, event)
+                                    }
                                 }
+                                item.highlight = (
+                                    event?:Event, type?:string
+                                ):void => this.highlightMarker(item, event, type)
+                                if (searchOptions.resultAggregation === 'union')
+                                    results.push(item)
                             }
-                            item.highlight = (
-                                event?:Event, type?:string
-                            ):void => this.highlightMarker(item, event, type)
-                            if (searchOptions.resultAggregation === 'union')
+
+                            if (
+                                item.foundWords.length >=
+                                    this.searchWords.length &&
+                                searchOptions.resultAggregation === 'cut'
+                            )
                                 results.push(item)
                         }
-
-                        if (
-                            item.foundWords.length >=
-                                this.searchWords.length &&
-                            searchOptions.resultAggregation === 'cut'
-                        )
-                            results.push(item)
-                    }
-        }
+            }
+        else
+            results = [...this.items]
         /*
             Remove generic place results if there are enough local search
             results.
@@ -1714,11 +1734,9 @@ loading ?
 
         // Slice additional unneeded local search results.
         let limitReached = false
-        if (searchOptions.maximumNumberOfResults < results.length) {
+        if (maximumNumberOfResults < results.length) {
             limitReached = true
-            results.splice(
-                searchOptions.maximumNumberOfResults, results.length
-            )
+            results.splice(maximumNumberOfResults, results.length)
         }
 
         this.searchResults = results.slice()

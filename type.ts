@@ -151,11 +151,15 @@ export type SearchConfiguration = {
         prefer:boolean
         retrieveOptions:MapTextSearchRequest
         searchDebounceTimeInMilliseconds:number
-    },
-    maximumNumberOfResults:number
+    }
+    maximumNumberOfResults:{
+        location:number
+        query:number
+    }
     normalizer:(value:string) => string
     properties:Array<string>
     resultAggregation:'cut'|'union'
+    resultsBarAlwaysVisible:boolean
     stylePropertiesToDeriveFromInputField:Array<string>
 }
 export type AppearanceConfiguration = {
