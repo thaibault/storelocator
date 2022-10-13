@@ -1001,15 +1001,36 @@ loading ?
             .css(this.resolvedConfiguration.root.hide)
 
         this.self.maps.event.addListener(this.map, 'tilesloaded', () => {
-            const wrapper:HTMLDivElement|null =
-                this.root.querySelector('div[tabindex]')
-            if (wrapper)
-                wrapper.removeAttribute('tabindex')
+            // Adapt rendered html in map.
+            if (this.slots.input) {
+                // Focus input instead of whole locator.
+                const wrapper:HTMLDivElement|null =
+                    this.root.querySelector('div[tabindex]')
+                if (wrapper)
+                    wrapper.removeAttribute('tabindex')
+            }
 
-            const shortcutsButton:HTMLButtonElement =
-                this.root.querySelector('button[aria-label="Kurzbefehle"]')
-            if (shortcutsButton)
-                shortcutsButton.setAttribute('tabindex', '-1')
+            const shortcutsButtons:Array<HTMLButtonElement> = Array.from(
+                this.root.querySelectorAll('button[aria-label="Kurzbefehle"]')
+            )
+            if (shortcutsButtons.length) {
+                if (shortcutsButtons.length > 1)
+                    shortcutsButtons[0].setAttribute('tabindex', '-1')
+
+                if (this.slots.link) {
+                    const wrapper:HTMLDivElement =
+                        shortcutsButtons[shortcutsButtons.length - 1]
+                            .closest('.gmnoprint')
+                    if (wrapper) {
+                        const sibling:HTMLDivElement = wrapper.cloneNode(true)
+                        const button:HTMLButtonElement =
+                            sibling.querySelector('button')
+                        button.before(this.slots.link)
+                        button.remove()
+                        wrapper.before(sibling)
+                    }
+                }
+            }
         })
 
         if (this.resolvedConfiguration.limit)
