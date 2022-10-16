@@ -14,4 +14,3 @@ jobs:
 
       - name: Check-types
         run: yarn check:types
-        shell: bash
