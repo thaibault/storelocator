@@ -11,3 +11,5 @@ jobs:
     container: node:latest
     steps:
       - uses: thaibault/test-send-coveralls-npm-package-action@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
