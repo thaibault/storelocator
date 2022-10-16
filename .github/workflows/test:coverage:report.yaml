@@ -10,21 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     container: node:latest
     steps:
-      - uses: actions/checkout@v2
-
-      # Runs a set of commands using the runners shell
-
-      - name: Disable node version check
-        run: yarn config set ignore-engines true
-
-      - name: Install packages marked as dependencies
-        run: yarn
-
-      - name: Run tests
-        run: yarn test:coverage:report
-
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: .coverage/lcov.info
+      - uses: thaibault/test-send-coveralls-npm-package-action@main

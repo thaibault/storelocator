@@ -10,18 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     container: node:latest
     steps:
-      - uses: actions/checkout@v2
-
-      # Runs a set of commands using the runners shell
-
-      #- name: Install yarn
-      #  run: npm install --global yarn
-
-      - name: Disable node version check
-        run: yarn config set ignore-engines true
-
-      - name: Install packages marked as dependencies
-        run: yarn
+      - uses: thaibault/install-npm-package-dependencies-action@main
 
       - name: Build package contents
         run: yarn build
