@@ -1024,11 +1024,12 @@ loading ?
                 if (this.slots.link) {
                     const wrapper:HTMLDivElement =
                         shortcutsButtons[shortcutsButtons.length - 1]
-                            .closest('.gmnoprint')
+                            .closest('.gmnoprint')!
                     if (wrapper) {
-                        const sibling:HTMLDivElement = wrapper.cloneNode(true)
+                        const sibling:HTMLDivElement =
+                            wrapper.cloneNode(true) as HTMLDivElement
                         const button:HTMLButtonElement =
-                            sibling.querySelector('button')
+                            sibling.querySelector('button')!
                         button.before(this.slots.link)
                         button.remove()
                         wrapper.before(sibling)
@@ -1453,10 +1454,10 @@ loading ?
                     searchText.length <
                         searchOptions.generic.minimumNumberOfSymbols
                 ) {
-                    if (
-                        this.resolvedConfiguration.search
-                            .resultsBarAlwaysVisible
-                    )
+                    if ((
+                        this.resolvedConfiguration.search as
+                            SearchConfiguration
+                    ).resultsBarAlwaysVisible)
                         this.performLocalSearch()
                     else if (this.searchResults.length) {
                         this.searchResults = []
@@ -1670,8 +1671,11 @@ loading ?
                                 }
                                 item.highlight = (
                                     event?:Event, type?:string
-                                ):void => this.highlightMarker(item, event, type)
-                                if (searchOptions.resultAggregation === 'union')
+                                ):void =>
+                                    this.highlightMarker(item, event, type)
+                                if (
+                                    searchOptions.resultAggregation === 'union'
+                                )
                                     results.push(item)
                             }
 
