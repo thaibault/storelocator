@@ -3215,9 +3215,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.1000"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1000.tgz#0f7c17c0d2ccdb78b1559566871cc82768e042ba"
-  integrity sha512-LIXiOyGRau27nJfkBIRsvW3OVBS8XSnmKXIt3N1VSCyj1f6xyanhWVuT3uw1qXK0qmFbfmSaUtO/NHhkoG5QwA==
+  version "3.0.1002"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1002.tgz#723406ef193a0d20aeeb058c048c1ac28bc90c12"
+  integrity sha512-Tiv3iFFpegqQWec7IUriBkCeoxIvFOtPXvLZ3HH76bNqFDpofNtp6lBZOscqrEECodNgmZ17JEHfQ/XD0QbO7w==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -7137,9 +7137,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.426"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.426.tgz#fb6a828ba1df7773a5a8b4b780e893834d47437e"
-  integrity sha512-XHX44Lgz3nfr/0h6moh6IWo/NP2oJRBMnNdARuCYMCIXputx0kMlyL4GbckQlUNLp6OO4nieZLrrbL6/GtggRg==
+  version "0.0.427"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.427.tgz#e40d9f22214f93ac62da82453b16271ecf8f5533"
+  integrity sha512-ptaKl6/agwF5t3bFx4hUPYQEazPYpIHwbsdQr2N0kQCpEsZQwky/707R8rqda+kPMgHmBBB54NQvIHYLGhh7Vw==
 
 web-streams-polyfill@^3.0.3:
   version "3.2.1"
@@ -7152,9 +7152,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1264"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1264.tgz#29e30700118e7f06aa57d7bb5203c8b79ce13806"
-  integrity sha512-QfWbIr9OIDaQNoNQNSiBN4IJs6YR8ULsdWYLyJ9jlSt1R+SB6lyuFz4URBq7hbwSptlQi9LRILoto6Mhu9uwDA==
+  version "2.0.1266"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1266.tgz#97283ae2c93866f68826c6daf65ec96fc001919d"
+  integrity sha512-4KeMhL3CLh2bPS5MHPSFd8oiHRlqFhNwwIt7b+xD4oMPtbk7IGPfcxJIAYrNxVzynx/25CcgL3P7J3dy8Zgw9A==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"
