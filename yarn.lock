@@ -1509,9 +1509,9 @@
   integrity sha512-44/oQYjc5D6kxBcI3Qk9rk3IIOMwnlEMWDV7pwPJ2YI89s5Q1OzDrFvR7QJ3LFrpVXEhig+gyagFg54+foinFg==
 
 "@types/graceful-fs@^4.1.3":
-  version "4.1.5"
-  resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"
-  integrity sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==
+  version "4.1.6"
+  resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.6.tgz#e14b2576a1c25026b7f02ede1de3b84c3a1efeae"
+  integrity sha512-Sig0SNORX9fdW+bQuTEovKj3uHcUL6LQKbCrrqb1X7J6/ReAbhCXRAhc+SMejhLELFj2QcyuxmUooZ4bt5ReSw==
   dependencies:
     "@types/node" "*"
 
@@ -3216,9 +3216,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.1004"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1004.tgz#e4118b8b2ec79bc1c6d2e196d3b45eef10c1c9d9"
-  integrity sha512-hW612FK9b+zEONmfUszDRa4W9256wiPuzMLSiglvFaW+aQpCHAAf8qB3YJTAKXGZ7sMVI7R7e6wihy4WVjg5Tg==
+  version "3.0.1008"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1008.tgz#b19c2c8333a7959b77ab7b3754335e03eda8765f"
+  integrity sha512-ISvBDNuv3YwhEMrA3AjfXqRd6ieWJwA9xx1LvcQeKGfgvZ9uISaEsHKd/4PWJUwOxZotU//I4NC70pIpfCrTEA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -5541,9 +5541,9 @@ mem@^1.1.0:
     mimic-fn "^1.0.0"
 
 memfs@^3.4.3:
-  version "3.4.12"
-  resolved "https://registry.yarnpkg.com/memfs/-/memfs-3.4.12.tgz#d00f8ad8dab132dc277c659dc85bfd14b07d03bd"
-  integrity sha512-BcjuQn6vfqP+k100e0E9m61Hyqa//Brp+I3f0OBmN0ATHlFA8vx3Lt8z57R3u2bPqe3WGDBC+nF72fTH7isyEw==
+  version "3.4.13"
+  resolved "https://registry.yarnpkg.com/memfs/-/memfs-3.4.13.tgz#248a8bd239b3c240175cd5ec548de5227fc4f345"
+  integrity sha512-omTM41g3Skpvx5dSYeZIbXKcXoAVc/AoMNwn9TKx++L/gaen/+4TTttmu8ZSch5vfVJ8uJvGbroTsIlslRg6lg==
   dependencies:
     fs-monkey "^1.0.3"
 
@@ -7138,9 +7138,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.428"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.428.tgz#d694d96f37c53e5126aef2be90424d452818534e"
-  integrity sha512-/K6KPSAok7zApvp/Nzfth8ftK5tR0BC7MmCIYAfmO86+hHPNz/sadd6Bg4gEaFhqTlHyf2/aLwKRrdiwq4bM2A==
+  version "0.0.429"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.429.tgz#059c9bccd3cc0c0030a5be4d9eaf35bbbf54d9a5"
+  integrity sha512-4fkZRLdABCzLhs8KfRtKjkXsUx21Yy3H1WVvW/gxS1O8rLlciVX7/GbFTOuzXvFP4enPgMPBmz64d8hgLKdBDA==
 
 web-streams-polyfill@^3.0.3:
   version "3.2.1"
@@ -7153,9 +7153,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1268"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1268.tgz#bfeb8fafb58dfac41983bac956fea1e3db7a553f"
-  integrity sha512-UhxZEEG4dUzhk8i5ldwKp+LBMl6sVfc1bnRoIW5m8ywrmH8UR2PEoYCGi8Vyij0mFZrRBA731mLEy/XEDO4MFA==
+  version "2.0.1270"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1270.tgz#37dc54cdf3b52d8a6afaaa4bea577bf31501e839"
+  integrity sha512-2h+DbiQDpDOZou6g5vCzc8GbB7y7e1UGuw6HnPq6ybDmwDJg6kkAPLgdCSldDjCYh4H/qu+mp8pIYqg1r889aA==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-decorators" "*"
