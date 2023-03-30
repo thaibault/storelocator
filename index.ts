@@ -1904,8 +1904,10 @@ loading ?
                             }
                             if (
                                 matchingItem &&
-                                shortestDistanceInMeter <=
-                                    this.resolvedConfiguration.search
+                                shortestDistanceInMeter <= (
+                                    this.resolvedConfiguration.search as
+                                        number
+                                )
                             ) {
                                 if (
                                     this.resolvedConfiguration
