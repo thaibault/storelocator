@@ -13,18 +13,18 @@ endregion -->
 Project status
 --------------
 
-[![npm](https://img.shields.io/npm/v/storelocator?color=%23d55e5d&label=npm%20package%20version&logoColor=%23d55e5d)](https://www.npmjs.com/package/storelocator)
-[![npm downloads](https://img.shields.io/npm/dy/storelocator.svg)](https://www.npmjs.com/package/storelocator)
+[![npm](https://img.shields.io/npm/v/storelocator?color=%23d55e5d&label=npm%20package%20version&logoColor=%23d55e5d&style=for-the-badge)](https://www.npmjs.com/package/storelocator)
+[![npm downloads](https://img.shields.io/npm/dy/storelocator.svg?style=for-the-badge)](https://www.npmjs.com/package/storelocator)
 
-[![<LABEL>](https://github.com/thaibault/storelocator/actions/workflows/build.yaml/badge.svg)](https://github.com/thaibault/storelocator/actions/workflows/build.yaml)
-[![<LABEL>](https://github.com/thaibault/storelocator/actions/workflows/test.yaml/badge.svg)](https://github.com/thaibault/storelocator/actions/workflows/test.yaml)
-[![<LABEL>](https://github.com/thaibault/storelocator/actions/workflows/test-coverage-report.yaml/badge.svg)](https://github.com/thaibault/storelocator/actions/workflows/test-coverage-report.yaml)
-[![<LABEL>](https://github.com/thaibault/storelocator/actions/workflows/check-types.yaml/badge.svg)](https://github.com/thaibault/storelocator/actions/workflows/check-types.yaml)
-[![<LABEL>](https://github.com/thaibault/storelocator/actions/workflows/lint.yaml/badge.svg)](https://github.com/thaibault/storelocator/actions/workflows/lint.yaml)
+[![build](https://img.shields.io/github/actions/workflow/status/thaibault/storelocator/build.yaml?style=for-the-badge)](https://github.com/thaibault/storelocator/actions/workflows/build.yaml)
 
-[![code coverage](https://coveralls.io/repos/github/thaibault/storelocator/badge.svg)](https://coveralls.io/github/thaibault/storelocator)
+[![check types](https://img.shields.io/github/actions/workflow/status/thaibault/storelocator/check-types.yaml?label=check%20types&style=for-the-badge)](https://github.com/thaibault/storelocator/actions/workflows/check-types.yaml)
+[![lint](https://img.shields.io/github/actions/workflow/status/thaibault/storelocator/lint.yaml?label=lint&style=for-the-badge)](https://github.com/thaibault/storelocator/actions/workflows/lint.yaml)
+[![test](https://img.shields.io/github/actions/workflow/status/thaibault/storelocator/test-coverage-report.yaml?label=test&style=for-the-badge)](https://github.com/thaibault/storelocator/actions/workflows/test-coverage-report.yaml)
 
-[![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/storelocator.svg?label=documentation-website)](https://torben.website/storelocator)
+[![code coverage](https://img.shields.io/coverallsCoverage/github/thaibault/storelocator?label=code%20coverage&style=for-the-badge)](https://coveralls.io/github/thaibault/storelocator)
+
+[![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/storelocator.svg?label=documentation-website&style=for-the-badge)](https://torben.website/storelocator)
 
 <!--|deDE:Einsatz-->
 Use case
