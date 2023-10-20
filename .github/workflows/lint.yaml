@@ -16,7 +16,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    container: node:latest
+    container: node:lts
     steps:
       - uses: thaibault/install-npm-package-dependencies-action@main
         with:

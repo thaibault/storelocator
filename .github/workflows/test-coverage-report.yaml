@@ -16,7 +16,7 @@ on:
 jobs:
   test-coverage-report:
     runs-on: ubuntu-latest
-    container: node:latest
+    container: node:lts
     steps:
       - uses: thaibault/test-send-coveralls-npm-package-action@main
         with:
