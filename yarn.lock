@@ -7456,9 +7456,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.465"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.465.tgz#aa2991a743330c6a235af06f1d033759aa17147b"
-  integrity sha512-kvUfbYeutPJ4k6p2Ypus7pPIGLv+csYuaPy/1w6HwMKFc8Zl2EIAxZzx1IbAtpPd17f/RcK3oxepcJnS0NbW4w==
+  version "0.0.466"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.466.tgz#b224a8fb74948c51f9a3061c8e8d2f463723a7b7"
+  integrity sha512-J9XJ74P+WEp4tjK4pRvnvKAVnN4LKWWgSZ8B/jjDel3Gcd2e1IXx3QyIrv7ZHhvlO6L3DQyz7VfOOJ69t1btug==
 
 web-streams-polyfill@^3.0.3:
   version "3.2.1"
