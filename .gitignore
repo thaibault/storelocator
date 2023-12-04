@@ -47,8 +47,11 @@ source/image/sprite.png
 *.cache
 *.log
 
-# Certification
+# Certificates
 .pki
+*.crt
+*.cer
+*.pem
 
 # Temporary compile files
 .dynamicConfiguration-*.json
