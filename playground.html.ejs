@@ -31,58 +31,58 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-            }
 
-            .store-locator__disabled-overlay {
-                background-color: black;
-                height: 100%;
-                opacity: .2;
-            }
+                .store-locator__disabled-overlay {
+                    background-color: black;
+                    height: 100%;
+                    opacity: .2;
+                }
 
-            .store-locator__loading-overlay {
-                display: flex;
-                font-size: 50px;
-                justify-content: center;
-                align-items: center;
-                height: 100%;
-            }
+                .store-locator__loading-overlay {
+                    display: flex;
+                    font-size: 50px;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100%;
+                }
 
-            .store-locator__input {
-                display: none;
-                height: 25px;
-                width: 230px;
-            }
+                .store-locator__input {
+                    display: none;
+                    height: 25px;
+                    width: 230px;
+                }
 
-            .store-locator__input .mdc-text-field--upgraded {
-                border-radius: 0;
-            }
+                .store-locator__input .mdc-text-field--upgraded {
+                    border-radius: 0;
+                }
 
-            .store-locator__search-results {
-                background-color: #f5f5f5 !important;
-                margin-top: 56px !important;
+                .store-locator__search-results {
+                    background-color: #f5f5f5 !important;
+                    margin-top: 56px !important;
 
-                overflow: hidden;
-            }
+                    overflow: hidden;
+                }
 
-            .store-locator__search-results ul {
-                padding-inline-start: 12px;
-            }
+                .store-locator__search-results ul {
+                    padding-inline-start: 12px;
+                }
 
-            .store-locator__search-results ul:hover {
-                background-color: #f3f2ef;
-            }
+                .store-locator__search-results ul:hover {
+                    background-color: #f3f2ef;
+                }
 
-            .store-locator__search-results .tools-mark {
-                color: blue;
-            }
+                .store-locator__search-results .tools-mark {
+                    color: blue;
+                }
 
-            .store-locator__link {
-                color: black;
-                text-decoration: none;
-            }
+                .store-locator__link {
+                    color: black;
+                    text-decoration: none;
+                }
 
-            .store-locator__link:focus {
-                background-color: white;
+                .store-locator__link:focus {
+                    background-color: white;
+                }
             }
 
             .web-component-template {
@@ -115,11 +115,11 @@
         <!--endregion-->
         <!--region script-->
         <script
-            src="https://torben.website/web-input-material/data/distributionBundle/components/GenericInput.bundle.js"
+            src="https://torben.website/web-input-material/data/distributionBundle/components/TextInput.bundle.js"
         ></script>
         <script>
             window.onload = function() {
-                GenericInput.register()
+                TextInput.register()
                 storelocator.index.api.register()
 
                 const markSearchResults = function(event) {

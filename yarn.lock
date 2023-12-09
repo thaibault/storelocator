@@ -3346,9 +3346,9 @@ cli-table3@^0.5.0:
     colors "^1.1.2"
 
 clientnode@*:
-  version "3.0.1097"
-  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1097.tgz#0b0a751cd002f851b3bb75ae4918b2f9f7c2409b"
-  integrity sha512-aUDmmsMQ6gFzMl4a3myit0Q+rYfdQmTww5dSzzcrLXjw+NLGjViWOdeJLHH1csb6DVWwM5PKeK1wIDPQXpeisw==
+  version "3.0.1098"
+  resolved "https://registry.yarnpkg.com/clientnode/-/clientnode-3.0.1098.tgz#b9165951b91422cf0f101a30c315c465f50bce1a"
+  integrity sha512-TYxjdO3VuoOVSWjF9nIf7cEa8lWwEGA7xKoEibbwdZjWbYWI6jQHNIfOsOpernvZZsTmk36aQyZxRL5txLEAcA==
 
 cliui@^4.0.0:
   version "4.1.0"
@@ -3753,9 +3753,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 documentation-website@*:
-  version "1.0.315"
-  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.315.tgz#a4350e6b119e01547a12ead2775a40fc335ac07b"
-  integrity sha512-IEiXSgtJXvVl5NsYnYBZNWqBWCgcQvAP64hhbyEMGN6T1iiBn6+Chm8KZH3UGb5KzgVy5HyUpVF8UGr1haZQbw==
+  version "1.0.317"
+  resolved "https://registry.yarnpkg.com/documentation-website/-/documentation-website-1.0.317.tgz#7d347ec705a6bca19fc63fa7c0799b23a4d5dda8"
+  integrity sha512-qPOwZUXc4d3SdNxbU6TwtEcL2sw/AFaBlaTlX3Btn1+XQwXfAQS9jIm426UQDMxGvZACz2cClPpDACZmlWs26Q==
 
 dom-converter@^0.2.0:
   version "0.2.0"
@@ -3827,9 +3827,9 @@ ejs@*:
     jake "^10.8.5"
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.4.601:
-  version "1.4.608"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.608.tgz#ff567c51dde4892ae330860c7d9f19571e9e1d69"
-  integrity sha512-J2f/3iIIm3Mo0npneITZ2UPe4B1bg8fTNrFjD8715F/k1BvbviRuqYGkET1PgprrczXYTHFvotbBOmUp6KE0uA==
+  version "1.4.609"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.609.tgz#5790a70aaa96de232501b56e14b64d17aff93988"
+  integrity sha512-ihiCP7PJmjoGNuLpl7TjNA8pCQWu09vGyjlPYw1Rqww4gvNuCcmvl+44G+2QyJ6S2K4o+wbTS++Xz0YN8Q9ERw==
 
 emittery@^0.13.1:
   version "0.13.1"
@@ -7464,9 +7464,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
     minimalistic-assert "^1.0.0"
 
 web-component-wrapper@*:
-  version "0.0.469"
-  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.469.tgz#a5e6bad0c33bb18fc5f5a33a490b4c9b534ee4fe"
-  integrity sha512-OmWo8yu9eXZwLIrzYgBLuhVzlgspub3WO6UJ9yfk0mq8AdxR+n0x6lFl3uoa4Z1VTIFtwC0oC/+cGOzsts4Eww==
+  version "0.0.470"
+  resolved "https://registry.yarnpkg.com/web-component-wrapper/-/web-component-wrapper-0.0.470.tgz#740a1c79bd9349ae1efca1ca9302f11eb96d61f7"
+  integrity sha512-wkN8sFVu9PqzqdyWDLBrD6w/ipIwHvj+tzy6yWGe0X4oUrhf3uEjXvftt7kGJtmDD/ng8pCBoJ6gV3hJpcOFHQ==
 
 web-streams-polyfill@^3.0.3:
   version "3.2.1"
@@ -7479,9 +7479,9 @@ webidl-conversions@^7.0.0:
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
 weboptimizer@*:
-  version "2.0.1404"
-  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1404.tgz#44bafce674ea2b967c4b222408db79ab88f538f8"
-  integrity sha512-fSl1+iJGe0y5TTSmm2B0eC3q0O96ZzQri9JDpEo9fcevJSqjmU1haHftteAm6ajJ+3TFR4u/GNGnBK42Ba78Tg==
+  version "2.0.1405"
+  resolved "https://registry.yarnpkg.com/weboptimizer/-/weboptimizer-2.0.1405.tgz#418230385ada60e8e25b84646ce7ae4667f8f791"
+  integrity sha512-iabeXE/McI/DCc4sXM+EIh8yL5WNjvFBb1IkdwZUraBCcS4Vr4trV/6IY/DwhpevKyTpKVlbxmn3t1p5aZjNBA==
   dependencies:
     "@babel/core" "*"
     "@babel/plugin-proposal-class-properties" "*"
