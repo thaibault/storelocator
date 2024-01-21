@@ -1797,7 +1797,7 @@ loading ?
                 this.slots.searchResults.style[propertyName as 'display'] =
                     `${value}`
 
-            this.slots.searchResults!.classList?.add(
+            this.slots.searchResults.classList?.add(
                 'store-locator__search-results--open'
             )
         }
@@ -1822,9 +1822,9 @@ loading ?
             for (const propertyName of Object.keys(
                 this.searchResultsStyleProperties
             ))
-                this.slots.searchResults!.style[propertyName as 'display'] = ''
+                this.slots.searchResults.style[propertyName as 'display'] = ''
 
-            this.slots.searchResults!.classList?.remove(
+            this.slots.searchResults.classList?.remove(
                 'store-locator__search-results--open'
             )
         }
