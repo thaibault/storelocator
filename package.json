@@ -103,8 +103,9 @@
     }
   },
   "engines": {
-    "node": ">=18",
-    "npm": ">=9"
+    "node": ">=20",
+    "npm": ">=10",
+    "yarn": ">=4"
   },
   "resolutions": {
     "colors": "1.4.0"
