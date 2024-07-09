@@ -159,6 +159,9 @@ types/*.d.ts
 typings/*.d.ts
 !declarations.d.ts
 
+# MAC OS
+.DS_Store
+
 # Python
 __pycache__
 *.py[cod]
