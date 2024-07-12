@@ -17,24 +17,36 @@
     endregion
 */
 // region imports
-import Tools, {globalContext, Lock, $} from 'clientnode'
 import {
+    $,
+    compile,
+    copy,
+    determineUniqueScopeName,
+    evaluate,
     EvaluationResult,
+    extend,
+    format,
+    getURLParameter,
+    globalContext,
+    identity,
+    KEY_CODES,
+    Lock,
+    lowerCase,
     Mapping,
+    mask,
     PlainObject,
     ProcedureFunction,
+    timeout,
     TimeoutPromise,
     UnknownFunction
-} from 'clientnode/type'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
-import {any, boolean, object} from 'clientnode/property-types'
+} from 'clientnode'
+import {any, boolean, object} from 'clientnode/dist/property-types'
 import {
     Cluster as MapMarkerCluster,
     ClusterStats as MapMarkerClusterStats,
     MarkerClusterer,
     SuperClusterAlgorithm
 } from '@googlemaps/markerclusterer'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 import property from 'web-component-wrapper/decorator'
 import Web from 'web-component-wrapper/Web'
 import {WebComponentAPI} from 'web-component-wrapper/type'
@@ -70,28 +82,23 @@ import {
 /**
  * A store locator component to represent searchable items grouped on an
  * interactive map.
- * @property static:applicationInterfaceLoad - Holds the currently promise to
- * retrieve a new maps application interface.
- * @property static:defaultConfiguration - Holds default extendable
+ * @property applicationInterfaceLoad - Holds the current promise to retrieve a
+ * new maps application interface.
+ * @property defaultConfiguration - Holds default extendable
  * configuration object.
- * @property static:defaultSearchConfiguration - Sets default search box
- * options.
- * @property static:maps - Holds the currently used maps scope.
- *
+ * @property defaultSearchConfiguration - Sets default search box options.
+ * @property maps - Holds the currently used maps scope.
  * @property initialized - Indicates whether map has been initialized yet.
  * Avoids re-initializing due to property updates (would be too expensive).
  * @property loaded - Indicates whether map has been finished to initialize.
- *
  * @property configuration - Holds given configuration object.
  * @property resolvedConfiguration - Holds resolved configuration object.
  * @property urlConfiguration - URL given configurations object.
- *
  * @property filter - Filter function to dynamically sort out some stores.
  * @property items - Holds all recognized stores to represent as marker.
  * @property searchResultsStyleProperties - Dynamically computed CSS properties
  * to append to search result list (derived from search input field).
  * @property seenLocations - Saves all seen locations to recognize duplicates.
- *
  * @property highlightedItem - Holds currently highlighted item.
  * @property openWindow - Holds currently opened window instance.
  * @property searchBoxInitialized - Indicates whether search results have been
@@ -105,7 +112,6 @@ import {
  * @property searchWords - Saves last searched words.
  * @property searchResultsDirty - Indicates whether current search results
  * aren't valid anymore.
- *
  * @property default - Sets default value if not alternate value set yet.
  * @property dirty - Indicates whether this component has been modified input.
  * @property disabled - Indicates whether this component is in editable.
@@ -116,12 +122,10 @@ import {
  * item selected yet.
  * @property valid - Indicates whether this component is in valid state.
  * @property value - Currently selected item (for using as form component).
- *
  * @property map - Holds the currently used map instance.
  * @property markerClusterer - Holds the currently used marker cluster
  * instance.
  * @property resetMarkerCluster - API-method to reset marker cluster.
- *
  * @property lock - Holds instance specific locks.
  */
 export class StoreLocator<
@@ -402,7 +406,7 @@ loading ?
     items:Array<Item> = []
     searchResultsStyleProperties:Mapping<number|string> = {}
     seenLocations:Array<string> = []
-    transformStore:(store:Store) => Store = Tools.identity
+    transformStore:(store:Store) => Store = identity
 
     highlightedItem:Item|null = null
     openWindow:InfoWindow|null = null
@@ -586,7 +590,7 @@ loading ?
             this.openSearchResults()
     }
     onInputKeyDown = (event:KeyboardEvent):void => {
-        if (Tools.keyCode.DOWN === event.keyCode && this.searchText)
+        if (KEY_CODES.DOWN === event.keyCode && this.searchText)
             this.openSearchResults()
     }
     onKeyDown = (event:KeyboardEvent):void => {
@@ -611,7 +615,7 @@ loading ?
             if (this.highlightedItem)
                 currentIndex = this.searchResults.indexOf(this.highlightedItem)
 
-            if (event.keyCode === Tools.keyCode.DOWN)
+            if (event.keyCode === KEY_CODES.DOWN)
                 if (
                     currentIndex === -1 ||
                     this.searchResultRange[1] < currentIndex + 1
@@ -623,7 +627,7 @@ loading ?
                     this.highlightMarker(
                         this.searchResults[currentIndex + 1], event
                     )
-            else if (event.keyCode === Tools.keyCode.UP)
+            else if (event.keyCode === KEY_CODES.UP)
                 if ([this.searchResultRange[0], -1].includes(currentIndex))
                     this.highlightMarker(
                         this.searchResults[this.searchResultRange[1]], event
@@ -633,7 +637,7 @@ loading ?
                         this.searchResults[currentIndex - 1], event
                     )
             else if (
-                event.keyCode === Tools.keyCode.ENTER && this.highlightedItem
+                event.keyCode === KEY_CODES.ENTER && this.highlightedItem
             ) {
                 event.stopPropagation()
 
@@ -658,18 +662,19 @@ loading ?
      * @returns Nothing.
      */
     resolveConfiguration():void {
-        this.resolvedConfiguration = Tools.extend(
+        this.resolvedConfiguration = extend(
             true,
-            Tools.copy(this.self.defaultConfiguration) as
-                unknown as Configuration<Store>,
+            copy(this.self.defaultConfiguration) as
+                unknown as
+                Configuration<Store>,
             this.configuration || {}
         )
 
         this.extendConfigurationByGivenURLParameter()
 
-        this.resolvedConfiguration.search = Tools.extend<SearchConfiguration>(
+        this.resolvedConfiguration.search = extend<SearchConfiguration>(
             true,
-            Tools.copy(this.self.defaultSearchConfiguration),
+            copy(this.self.defaultSearchConfiguration),
             this.resolvedConfiguration.search as SearchConfiguration
         )
 
@@ -679,7 +684,7 @@ loading ?
         if (typeof this.resolvedConfiguration.transformStore === 'function')
             this.transformStore = this.resolvedConfiguration.transformStore
         else if (this.resolvedConfiguration.transformStore) {
-            const {error, templateFunction} = Tools.stringCompile<Store>(
+            const {error, templateFunction} = compile<Store>(
                 this.resolvedConfiguration.transformStore, ['store']
             )
 
@@ -696,7 +701,7 @@ loading ?
         if (typeof this.resolvedConfiguration.filter === 'function')
             this.filter = this.resolvedConfiguration.filter
         else if (this.resolvedConfiguration.filter) {
-            const {error, templateFunction} = Tools.stringCompile<boolean>(
+            const {error, templateFunction} = compile<boolean>(
                 this.resolvedConfiguration.filter, ['store']
             )
 
@@ -712,18 +717,15 @@ loading ?
     /**
      * Extends current configuration object by given url parameter.
      * @param name - URL parameter name to interpret.
-     *
-     * @returns Nothing.
      */
     extendConfigurationByGivenURLParameter(name?:string):void {
         if (!name)
             name = this.resolvedConfiguration.name
 
         const parameter:Array<string>|null|string =
-            Tools.stringGetURLParameter(name) as Array<string>|null|string
+            getURLParameter(name) as Array<string>|null|string
         if (typeof parameter === 'string') {
-            const evaluated:EvaluationResult =
-                Tools.stringEvaluate(decodeURI(parameter))
+            const evaluated:EvaluationResult = evaluate(decodeURI(parameter))
             if (evaluated.error) {
                 console.warn(
                     'Error occurred during processing given url parameter "' +
@@ -735,12 +737,10 @@ loading ?
                 evaluated.result !== null &&
                 typeof evaluated.result === 'object'
             ) {
-                this.urlConfiguration = Tools.mask(
+                this.urlConfiguration = mask(
                     evaluated.result, this.resolvedConfiguration.urlModelMask
                 ) as PlainObject
-                Tools.extend(
-                    true, this.resolvedConfiguration, this.urlConfiguration
-                )
+                extend(true, this.resolvedConfiguration, this.urlConfiguration)
             }
         }
     }
@@ -758,15 +758,15 @@ loading ?
             resolve:ProcedureFunction
             resolved:boolean
         } = {
-            reject: Tools.noop,
-            resolve: Tools.noop,
+            reject: NOOP,
+            resolve: NOOP,
             resolved: false
         }
         if (typeof this.self.applicationInterfaceLoad !== 'object') {
             loadInitialized = false
             this.self.applicationInterfaceLoad = new Promise<void>((
                 resolve:() => void, reject:() => void
-            ):void => {
+            ) => {
                 applicationInterfaceLoadCallbacks.resolve = ():void => {
                     applicationInterfaceLoadCallbacks.resolved = true
                     resolve()
@@ -777,7 +777,7 @@ loading ?
 
         const result:Promise<void> = this.self.applicationInterfaceLoad
             .then(this.bootstrap)
-            .then(():void => {
+            .then(() => {
                 if (this.dispatchEvent(new CustomEvent('loaded')))
                     void this.onLoaded()
             })
@@ -786,7 +786,7 @@ loading ?
             this.self.maps = globalContext.window.google.maps
 
             if (!applicationInterfaceLoadCallbacks.resolved)
-                void Tools.timeout(():Promise<void>|void =>
+                void timeout(():Promise<void>|void =>
                     applicationInterfaceLoadCallbacks.resolve()
                 )
         } else if (!loadInitialized) {
@@ -794,7 +794,7 @@ loading ?
                 this.resolvedConfiguration.applicationInterface.callbackName ?
                     this.resolvedConfiguration
                         .applicationInterface.callbackName :
-                    Tools.determineUniqueScopeName()
+                    determineUniqueScopeName()
 
             const callback:ProcedureFunction = ():void => {
                 if (!applicationInterfaceLoadCallbacks.resolved)
@@ -810,7 +810,7 @@ loading ?
             ;(globalContext as unknown as Mapping<() => void>)[callbackName] =
                 callback
 
-            void $.getScript(Tools.stringFormat(
+            void $.getScript(format(
                 this.resolvedConfiguration.applicationInterface.url,
                 this.resolvedConfiguration.applicationInterface.key ?
                     'key=' +
@@ -827,7 +827,7 @@ loading ?
                 .fail((
                     response:JQuery.jqXHR<string|undefined>,
                     error:JQuery.Ajax.ErrorTextStatus
-                ):void => {
+                ) => {
                     void applicationInterfaceLoadCallbacks.reject(error)
                 })
         }
@@ -861,7 +861,7 @@ loading ?
                 'ipToLocationApplicationInterface'
             ] = this.resolvedConfiguration.ipToLocationApplicationInterface
 
-            const fallbackTimeout:TimeoutPromise = Tools.timeout(
+            const fallbackTimeout:TimeoutPromise = timeout(
                 async ():Promise<void> => {
                     loaded = true
                     await this.initializeMap()
@@ -873,7 +873,7 @@ loading ?
             void $.ajax({
                 cache: true,
                 dataType: 'jsonp',
-                url: Tools.stringFormat(
+                url: format(
                     ipToLocationAPIConfiguration.url,
                     (
                         ipToLocationAPIConfiguration.protocol &&
@@ -929,14 +929,11 @@ loading ?
     /**
      * Adds given store as marker to the map.
      * @param store - Store to add as marker.
-     *
-     * @returns Nothing.
+     * @returns the currently marked store.
      */
     transformMarker(store:Store):Store {
-        Tools.extend(
-            true,
-            store,
-            this.resolvedConfiguration.additionalStoreProperties
+        extend(
+            true, store, this.resolvedConfiguration.additionalStoreProperties
         )
 
         if (!store.streetAndStreetnumber)
@@ -959,7 +956,6 @@ loading ?
      * corresponding marker. Normalizes from id, data item or item to internal
      * item representation.
      * @param value - Value to initialize.
-     *
      * @returns Determined value.
      */
     mapValue(value?:Item|null|number|Store|string):Item|null {
@@ -1079,7 +1075,7 @@ loading ?
         this.applyBindings(
             this.slots.input,
             {
-                [Tools.stringLowerCase(this.self._name) || 'instance']: this,
+                [lowerCase(this.self._name) || 'instance']: this,
                 configuration: this.resolvedConfiguration,
                 Tools
             }
@@ -2374,7 +2370,3 @@ export const api:WebComponentAPI<typeof StoreLocator> = {
         customElements.define(tagName, StoreLocator)
 }
 export default api
-// region vim modline
-// vim: set tabstop=4 shiftwidth=4 expandtab:
-// vim: foldmethod=marker foldmarker=region,endregion:
-// endregion

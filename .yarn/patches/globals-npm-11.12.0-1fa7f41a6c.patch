@@ -1,0 +1,13 @@
+diff --git a/globals.json b/globals.json
+index 6f5ac02f1eace7b20930e76bcf3f59c09e0e2749..296710aeb0049cd78565145752b8035b37188d13 100644
+--- a/globals.json
++++ b/globals.json
+@@ -252,7 +252,7 @@
+ 		"AudioParam": false,
+ 		"AudioProcessingEvent": false,
+ 		"AudioScheduledSourceNode": false,
+-		"AudioWorkletGlobalScope ": false,
++		"AudioWorkletGlobalScope": false,
+ 		"AudioWorkletNode": false,
+ 		"AudioWorkletProcessor": false,
+ 		"BarProp": false,

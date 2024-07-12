@@ -15,8 +15,9 @@
 */
 // region imports
 import {beforeAll, describe, expect, test} from '@jest/globals'
-import Tools, {globalContext} from 'clientnode'
-import {RecursivePartial, $Global} from 'clientnode/type'
+import {
+    $Global, extend, globalContext, NOOP, RecursivePartial
+} from 'clientnode'
 import nodeFetch from 'node-fetch'
 
 import api, {StoreLocator} from './index'
@@ -27,10 +28,10 @@ globalContext.fetch = nodeFetch as unknown as typeof fetch
 ;(globalContext as $Global & {google:typeof google}).google = {
     maps: {
         ControlPosition: {TOP_LEFT: 0},
-        event: {addListener: Tools.noop},
+        event: {addListener: NOOP},
         InfoWindow: class {
-            open:() => void = Tools.noop
-            setContent:() => void = Tools.noop
+            open:() => void = NOOP
+            setContent:() => void = NOOP
         },
         LatLng: class {
             lat = ():number => 1
@@ -42,21 +43,22 @@ globalContext.fetch = nodeFetch as unknown as typeof fetch
         Map: class {
             controls:Array<Array<number>> = [[]]
             getCenter = ():Record<string, never> => ({})
-            panBy:() => void = Tools.noop
-            panTo:() => void = Tools.noop
+            panBy:() => void = NOOP
+            panTo:() => void = NOOP
         },
         Marker: class {
-            setAnimation:() => void = Tools.noop
+            setAnimation:() => void = NOOP
         },
         mockup: true,
         places: {
             PlacesService: class {
                 textSearch = (
                     options:object, callback:(_words:Array<string>) => void
-                ):void =>
+                ) => {
                     callback([])
+                }
             },
-            SearchBox: Tools.noop
+            SearchBox: NOOP
         }
     }
 } as unknown as typeof google
@@ -83,7 +85,7 @@ const defaultConfiguration:RecursivePartial<Configuration> = {
         phoneNumber: '+49 721 9600'
     }]
 }
-Tools.extend(true, StoreLocator.defaultConfiguration, defaultConfiguration)
+extend(true, StoreLocator.defaultConfiguration, defaultConfiguration)
 
 const name = 'test-store-locator'
 api.register(name)
@@ -141,8 +143,4 @@ describe('StoreLocator', ():void => {
     })
     // endregion
 })
-// endregion
-// region vim modline
-// vim: set tabstop=4 shiftwidth=4 expandtab:
-// vim: foldmethod=marker foldmarker=region,endregion:
 // endregion
