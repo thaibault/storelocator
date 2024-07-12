@@ -21,6 +21,7 @@ import {
     $,
     compile,
     copy,
+    debounce,
     determineUniqueScopeName,
     evaluate,
     EvaluationResult,
@@ -34,11 +35,13 @@ import {
     lowerCase,
     Mapping,
     mask,
+    NOOP,
     PlainObject,
     ProcedureFunction,
     timeout,
     TimeoutPromise,
-    UnknownFunction
+    UnknownFunction,
+    UTILITY_SCOPE
 } from 'clientnode'
 import {any, boolean, object} from 'clientnode/dist/property-types'
 import {
@@ -461,7 +464,6 @@ loading ?
     /**
      * Converts given declarative icon configuration to marker needed format.
      * @param options - Icon configuration.
-     *
      * @returns Icon configuration.
      */
     transformIconConfiguration(options:Icon):Icon {
@@ -486,21 +488,18 @@ loading ?
      * @param name - Attribute name which was updates.
      * @param oldValue - Old attribute value.
      * @param newValue - New updated value.
-     *
-     * @returns Nothing.
      */
     attributeChangedCallback(
         name:string, oldValue:string, newValue:string
-    ):void {
+    ) {
         super.attributeChangedCallback(name, oldValue, newValue)
 
         this.resolveConfiguration()
     }
     /**
      * De-registers all needed event listener.
-     * @returns Nothing.
      */
-    disconnectedCallback():void {
+    disconnectedCallback() {
         super.disconnectedCallback()
 
         this.root.removeEventListener(
@@ -519,8 +518,6 @@ loading ?
      * Generic internal property setter. Forwards field writes into internal.
      * @param name - Property name to write.
      * @param value - New value to write.
-     *
-     * @returns Nothing.
      */
     setInternalPropertyValue(name:string, value:unknown):void {
         if (!this.initialized && name === 'default') {
@@ -554,7 +551,6 @@ loading ?
      * Triggered when content projected and nested dom nodes are ready to be
      * traversed / injected.
      * @param reason - Description why rendering is necessary.
-     *
      * @returns A promise resolving to nothing.
      */
     async render(reason = 'unknown'):Promise<void> {
@@ -659,7 +655,6 @@ loading ?
     // / region  configuration
     /**
      * Merges configuration sources into final object.
-     * @returns Nothing.
      */
     resolveConfiguration():void {
         this.resolvedConfiguration = extend(
@@ -929,7 +924,7 @@ loading ?
     /**
      * Adds given store as marker to the map.
      * @param store - Store to add as marker.
-     * @returns the currently marked store.
+     * @returns The currently marked store.
      */
     transformMarker(store:Store):Store {
         extend(
@@ -1077,7 +1072,7 @@ loading ?
             {
                 [lowerCase(this.self._name) || 'instance']: this,
                 configuration: this.resolvedConfiguration,
-                Tools
+                UTILITY_SCOPE
             }
         )
         this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
@@ -1092,10 +1087,9 @@ loading ?
                 this.evaluateDomNodeTemplate(
                     domNode,
                     {
-                        [Tools.stringLowerCase(this.self._name) || 'instance']:
-                            this,
+                        [lowerCase(this.self._name) || 'instance']: this,
                         configuration: this.resolvedConfiguration,
-                        Tools
+                        UTILITY_SCOPE
                     }
                 )
                 this.root.appendChild(domNode)
@@ -1274,7 +1268,7 @@ loading ?
                                         selectedOptions.icon as Icon
                                     )
 
-                                return new this.self.maps.Marker(Tools.extend(
+                                return new this.self.maps.Marker(extend(
                                     true, defaultOptions, selectedOptions
                                 ))
                             }
@@ -1295,7 +1289,7 @@ loading ?
             "infoWindow.additionalMoveToBottomInPixel" configuration to take
             effect.
         */
-        await Tools.timeout(3000)
+        await timeout(3000)
         if (
             this.value?.infoWindow?.isOpen &&
             this.resolvedConfiguration.infoWindow
@@ -1309,7 +1303,6 @@ loading ?
     }
     /**
      * Position search results right below the search input field.
-     * @returns Nothing.
      */
     initializeSearchResultsBox():void {
         this.searchBoxInitialized = true
@@ -1345,9 +1338,8 @@ loading ?
     /**
      * Initializes a data source based search box to open and focus them
      * matching marker.
-     * @returns Nothing.
      */
-    initializeDataSourceSearch():void {
+    initializeDataSourceSearch() {
         this.root.addEventListener('keydown', this.onKeyDown as EventListener)
         this.slots.input.addEventListener('click', this.onInputClick)
         this.slots.input.addEventListener('focus', this.onInputFocus)
@@ -1364,7 +1356,6 @@ loading ?
     // / endregion
     /**
      * Update input state.
-     * @returns Nothing.
      */
     updateValueState():void {
         this.valid =
@@ -1412,12 +1403,12 @@ loading ?
         const searchOptions:SearchConfiguration =
             this.resolvedConfiguration.search as SearchConfiguration
 
-        return Tools.debounce<void>(
+        return debounce<void>(
             (async (event?:KeyboardEvent):Promise<void> => {
-                for (const name in Tools.keyCode)
+                for (const [name, value] of Object.entries(KEY_CODES))
                     if (
                         event &&
-                        event.keyCode === Tools.keyCode[name] &&
+                        event.keyCode === value &&
                         ![
                             'BACKSPACE',
                             'COMMA',
@@ -1488,18 +1479,15 @@ loading ?
                     this.evaluateDomNodeTemplate(
                         this.slots.searchResults,
                         {
-                            [
-                            Tools.stringLowerCase(this.self._name) ||
-                            'instance'
-                            ]: this,
+                            ...UTILITY_SCOPE,
+                            [lowerCase(this.self._name) || 'instance']: this,
                             configuration: this.resolvedConfiguration,
                             limitReached: false,
                             loading: true,
                             results: [],
                             searchSegments: this.searchSegments,
                             searchText: this.searchText,
-                            searchWords: this.searchWords,
-                            Tools
+                            searchWords: this.searchWords
                         }
                     )
                 }
@@ -1507,7 +1495,7 @@ loading ?
                 if (searchOptions.generic.number)
                     /*
                         NOTE: Google searches for more items than exists in the
-                        specified radius. However the radius is a string in the
+                        specified radius. However, the radius is a string in the
                         examples provided by google.
                     */
                     placesService.textSearch(
@@ -1536,8 +1524,6 @@ loading ?
      * Sorts and filters search results given by google's application
      * interface.
      * @param places - List of place objects.
-     *
-     * @returns Nothing.
      */
     handleGenericSearchResults(places:Array<MapPlaceResult>):void {
         const results:Array<Item> = []
@@ -1620,8 +1606,6 @@ loading ?
     /**
      * Performs a search on locally given store data.
      * @param results - A list if generic search results.
-     *
-     * @returns Nothing.
      */
     performLocalSearch(results:Array<Item> = []):void {
         const searchOptions:SearchConfiguration =
@@ -1747,25 +1731,22 @@ loading ?
             this.evaluateDomNodeTemplate(
                 this.slots.searchResults,
                 {
-                    [Tools.stringLowerCase(this.self._name) || 'instance']:
-                        this,
+                    ...UTILITY_SCOPE,
+                    [lowerCase(this.self._name) || 'instance']: this,
                     configuration: this.resolvedConfiguration,
                     limitReached,
                     loading: false,
                     results: this.searchResults,
                     searchSegments: this.searchSegments,
                     searchText: this.searchText,
-                    searchWords: this.searchWords,
-                    Tools
+                    searchWords: this.searchWords
                 }
             )
     }
     /**
      * Opens current search results.
-     * @param event - Object with meta data for current event which has
+     * @param event - Object with metadata for current event which has
      * triggered to show search results.
-     *
-     * @returns Nothing.
      */
     openSearchResults(event?:Event):void {
         if (event)
@@ -1800,10 +1781,8 @@ loading ?
     }
     /**
      * Closes current search results.
-     * @param event - Object with meta data for current event which has
+     * @param event - Object with metadata for current event which has
      * triggered to close search results.
-     *
-     * @returns Nothing.
      */
     closeSearchResults(event?:Event):void {
         if (event)
@@ -1828,7 +1807,6 @@ loading ?
     /**
      * Initializes googles generic search box and tries to match to open and
      * focus them.
-     * @returns Nothing.
      */
     initializeGenericSearch():void {
         const searchBox:MapSearchBox = new this.self.maps.places.SearchBox(
@@ -1940,9 +1918,8 @@ loading ?
     }
     /**
      * Closes current window if opened.
-     * @returns Nothing.
      */
-    closeCurrentWindow():void {
+    closeCurrentWindow() {
         if (this.openWindow) {
             this.openWindow.isOpen = false
             if (this.openWindow.close)
@@ -1952,7 +1929,6 @@ loading ?
     /**
      * Ensures that every given place have a location property.
      * @param places - Places to check for.
-     *
      * @returns A promise which will be resolved if all places are ensured.
      */
     ensurePlaceLocations(
@@ -1978,7 +1954,6 @@ loading ?
 
                     runningGeocodes += 1
 
-                    /* eslint-disable no-loop-func */
                     void geocoder.geocode(
                         {address: place.name},
                         (
@@ -2007,7 +1982,6 @@ loading ?
                                 resolve(places)
                         }
                     )
-                    /* eslint-enable no-loop-func */
                 }
 
             // Resolve directly if we don't have to wait for any geocoding.
@@ -2017,9 +1991,8 @@ loading ?
     }
     /**
      * Determines the best search result from given list of candidates.
-     * Currently the nearest result to current viewport will be preferred.
+     * The currently nearest result to current viewport will be preferred.
      * @param candidates - List of search results to determine best from.
-     *
      * @returns The determined best result.
      */
     determineBestSearchResult(
@@ -2063,7 +2036,7 @@ loading ?
         $(this.root.firstElementChild!)
             .animate(...this.resolvedConfiguration.root.showAnimation)
 
-        await Tools.timeout(
+        await timeout(
             this.resolvedConfiguration.showInputAfterLoadedDelayInMilliseconds
         )
 
@@ -2071,9 +2044,8 @@ loading ?
             .animate(...this.resolvedConfiguration.input.showAnimation)
     }
     /**
-     * Registers given store to the google maps canvas.
+     * Registers given store to the googlemaps canvas.
      * @param store - Store object to create a marker for.
-     *
      * @returns The created marker.
      */
     createMarker(store?:Store):MapMarker {
@@ -2099,9 +2071,9 @@ loading ?
         const item:Item = {
             data: store || null,
             foundWords: [],
-            highlight: Tools.noop,
+            highlight: NOOP,
             isHighlighted: false,
-            open: Tools.noop,
+            open: NOOP,
             position: (store && store.latitude && store.longitude) ?
                 new this.self.maps.LatLng(store.latitude, store.longitude) :
                 null
@@ -2111,7 +2083,7 @@ loading ?
             this.resolvedConfiguration.defaultMarkerIconFileName
         ) {
             item.icon = this.resolvedConfiguration.marker.icon ?
-                Tools.copy(
+                copy(
                     this.resolvedConfiguration.marker.icon as unknown as Icon
                 ) :
                 {} as Icon
@@ -2144,7 +2116,6 @@ loading ?
     /**
      * Create marker configuration from given item.
      * @param item - Marker to derive a configuration from.
-     *
      * @returns Configuration object.
      */
     createMarkerConfiguration(item:Item):MapMarkerOptions {
@@ -2171,8 +2142,6 @@ loading ?
     /**
      * Adds needed event listener to given item marker.
      * @param item - Marker to attach event listener to.
-     *
-     * @returns Nothing.
      */
     attachMarkerEventListener(item:Item):void {
         this.self.maps.event.addListener(
@@ -2216,8 +2185,6 @@ loading ?
      * windows.
      * @param item - Item's marker to open.
      * @param event - Event which has triggered the marker opening call.
-     *
-     * @returns Nothing.
      */
     openMarker(item:Item, event?:Event):void {
         if (event && !event.stopPropagation)
@@ -2258,13 +2225,12 @@ loading ?
             this.evaluateDomNodeTemplate(
                 this.slots.infoWindow,
                 {
+                    ...UTILITY_SCOPE,
                     ...item,
-                    [Tools.stringLowerCase(this.self._name) || 'instance']:
-                        this,
+                    [lowerCase(this.self._name) || 'instance']: this,
                     configuration: this.resolvedConfiguration,
                     item,
-                    instance: this,
-                    Tools
+                    instance: this
                 }
             )
             infoWindow.setContent(this.slots.infoWindow.outerHTML)
@@ -2291,10 +2257,8 @@ loading ?
      * Focuses given place on map.
      * @param place - Place to open.
      * @param event - Event object which has triggered requested place opening.
-     *
-     * @returns Nothing.
      */
-    focusPlace(place:Item, event?:Event):void {
+    focusPlace(place:Item, event?:Event) {
         if (event)
             event.stopPropagation()
 
@@ -2312,8 +2276,6 @@ loading ?
      * @param event - Event object for corresponding event that has the
      * highlighting requested.
      * @param type - Type of highlighting.
-     *
-     * @returns Nothing.
      */
     highlightMarker(item:Item, event?:Event, type = 'bounce'):void {
         if (event)

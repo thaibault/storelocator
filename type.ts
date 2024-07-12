@@ -25,10 +25,10 @@
 /// <reference path="googlemaps/places-service" />
 /// <reference path="googlemaps/places-widget" />
 
-import PropertyTypes from 'clientnode/property-types'
 import {
     Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf
-} from 'clientnode/type'
+} from 'clientnode'
+import PropertyTypes from 'clientnode/dist/property-types'
 import {
     Cluster as MapMarkerCluster,
     ClusterStats as MapMarkerClusterStats,
@@ -245,8 +245,4 @@ export type Configuration<StoreItem = Store> = {
 
     urlModelMask:ObjectMaskConfiguration
 }
-// endregion
-// region vim modline
-// vim: set tabstop=4 shiftwidth=4 expandtab:
-// vim: foldmethod=marker foldmarker=region,endregion:
 // endregion
