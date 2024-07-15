@@ -34,6 +34,7 @@ import {
     Lock,
     lowerCase,
     Mapping,
+    mark,
     mask,
     NOOP,
     PlainObject,
@@ -183,7 +184,7 @@ loading ?
                             return (
                                 name +
                                 ": " +
-                                Tools.stringMark(
+                                mark(
                                     result.data[name],
                                     searchWords,
                                     {
