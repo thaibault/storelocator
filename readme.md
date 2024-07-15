@@ -349,8 +349,3 @@ Download, register component and use new component.
     >Legal notes example</a>
 </store-locator>
 ```
-
-<!-- region modline
-vim: set tabstop=4 shiftwidth=4 expandtab:
-vim: foldmethod=marker foldmarker=region,endregion:
-endregion -->
