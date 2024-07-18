@@ -30,11 +30,10 @@ import {
     getURLParameter,
     globalContext,
     identity,
-    KEY_CODES,
+    KEYBOARD_CODES,
     Lock,
     lowerCase,
     Mapping,
-    mark,
     mask,
     NOOP,
     PlainObject,
@@ -573,21 +572,21 @@ loading ?
     }
     // endregion
     // region event handler
-    onMapCenterChanged = ():void => {
+    onMapCenterChanged = () => {
         // NOTE: Search results depends on current position.
         if (this.searchText && this.slots.searchResults)
             this.searchResultsDirty = true
     }
-    onInputClick = ():void => {
+    onInputClick = () => {
         if (this.searchText)
             this.openSearchResults()
     }
-    onInputFocus = ():void => {
+    onInputFocus = () => {
         if (this.searchText)
             this.openSearchResults()
     }
-    onInputKeyDown = (event:KeyboardEvent):void => {
-        if (KEY_CODES.DOWN === event.keyCode && this.searchText)
+    onInputKeyDown = (event:KeyboardEvent) => {
+        if (KEYBOARD_CODES.DOWN === event.code && this.searchText)
             this.openSearchResults()
     }
     onKeyDown = (event:KeyboardEvent):void => {
@@ -612,7 +611,7 @@ loading ?
             if (this.highlightedItem)
                 currentIndex = this.searchResults.indexOf(this.highlightedItem)
 
-            if (event.keyCode === KEY_CODES.DOWN)
+            if (event.code === KEYBOARD_CODES.DOWN)
                 if (
                     currentIndex === -1 ||
                     this.searchResultRange[1] < currentIndex + 1
@@ -624,7 +623,7 @@ loading ?
                     this.highlightMarker(
                         this.searchResults[currentIndex + 1], event
                     )
-            else if (event.keyCode === KEY_CODES.UP)
+            else if (event.code === KEYBOARD_CODES.UP)
                 if ([this.searchResultRange[0], -1].includes(currentIndex))
                     this.highlightMarker(
                         this.searchResults[this.searchResultRange[1]], event
@@ -634,7 +633,7 @@ loading ?
                         this.searchResults[currentIndex - 1], event
                     )
             else if (
-                event.keyCode === KEY_CODES.ENTER && this.highlightedItem
+                event.code === KEYBOARD_CODES.ENTER && this.highlightedItem
             ) {
                 event.stopPropagation()
 
@@ -1406,10 +1405,10 @@ loading ?
 
         return debounce<void>(
             (async (event?:KeyboardEvent):Promise<void> => {
-                for (const [name, value] of Object.entries(KEY_CODES))
+                for (const [name, value] of Object.entries(KEYBOARD_CODES))
                     if (
                         event &&
-                        event.keyCode === value &&
+                        event.code === value &&
                         ![
                             'BACKSPACE',
                             'COMMA',
