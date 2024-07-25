@@ -109,12 +109,15 @@ nosetests.xml
 
 # JetBrain's idea, PHPStorm and other IDE Files
 .externalToolBuilders
-.idea
+
+.idea/tasks.xml
+.idea/workspace.xml
+.idea/**/*.iws
+
 .project
 .pydevproject
 .settings
 *.iml
-**/.idea
 
 # Gedit autosave backups.
 *~
