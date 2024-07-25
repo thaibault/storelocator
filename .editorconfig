@@ -1,0 +1,19 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+# UNIX standard
+# If the last line in a file doesn't end with a newline then addition of next
+# line affects two lines instead of one. This also pollutes diff on multiple
+# files, so reader may wonder what has changed in a line whereas no significant
+# change has occured.
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.ts]
+quote_type = single
