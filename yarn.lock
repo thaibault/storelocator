@@ -2405,6 +2405,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stylistic/eslint-plugin-ts@npm:^2.8.0":
+  version: 2.8.0
+  resolution: "@stylistic/eslint-plugin-ts@npm:2.8.0"
+  dependencies:
+    "@typescript-eslint/utils": "npm:^8.4.0"
+    eslint-visitor-keys: "npm:^4.0.0"
+    espree: "npm:^10.1.0"
+  peerDependencies:
+    eslint: ">=8.40.0"
+  checksum: 10c0/74cfa44933ca39431d96cb6e7d13e5277c2aabbfeb49c017757feaf78827327f34d6047021c8ad258d89bf756922b3bcc4563b3040a3859c44044269aecc25a8
+  languageName: node
+  linkType: hard
+
 "@tootallnate/once@npm:2":
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
@@ -2970,7 +2983,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:8.8.0":
+"@typescript-eslint/utils@npm:8.8.0, @typescript-eslint/utils@npm:^8.4.0":
   version: 8.8.0
   resolution: "@typescript-eslint/utils@npm:8.8.0"
   dependencies:
@@ -10413,6 +10426,7 @@ __metadata:
     "@babel/eslint-parser": "npm:^7.25.7"
     "@babel/runtime": "npm:^7.25.7"
     "@googlemaps/markerclusterer": "npm:^2.5.3"
+    "@stylistic/eslint-plugin-ts": "npm:^2.8.0"
     "@types/ejs": "npm:^3.1.5"
     "@types/google-maps": "npm:^3.2.6"
     "@types/html-minifier": "npm:^4.0.5"

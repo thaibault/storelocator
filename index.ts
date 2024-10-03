@@ -137,7 +137,7 @@ export class StoreLocator<
     InternalProperties extends Mapping<unknown> = Mapping<unknown>,
     Store extends BaseStore = BaseStore
 > extends Web<TElement, ExternalProperties, InternalProperties> {
-    static applicationInterfaceLoad:Promise<void>
+    static applicationInterfaceLoad: Promise<void>
     static cloneSlots = true
     /*
         Nested quotes in code can work in IE 11 if only one type of quote is
@@ -225,7 +225,7 @@ loading ?
             </textarea>
         </ul></slot>
     `
-    static defaultConfiguration:Configuration<BaseStore> = {
+    static defaultConfiguration: Configuration<BaseStore> = {
         additionalStoreProperties: {},
         defaultMarkerIconFileName: null,
         filter: null,
@@ -328,9 +328,9 @@ loading ?
             }
         }
     }
-    static defaultSearchConfiguration:SearchConfiguration = {
+    static defaultSearchConfiguration: SearchConfiguration = {
         generic: {
-            filter: (place:MapPlaceResult):boolean =>
+            filter: (place: MapPlaceResult): boolean =>
                 /(?:^| )(?:Deutschland|Germany)( |$)/i.test(
                     place.formatted_address as string
                 ),
@@ -345,7 +345,7 @@ loading ?
             location: 5,
             query: 50
         },
-        normalizer: (value:string):string =>
+        normalizer: (value: string): string =>
             `${value}`
                 .toLowerCase()
                 .replace(/[-_]+/g, '')
@@ -376,7 +376,7 @@ loading ?
             'width'
         ]
     }
-    static maps:Maps
+    static maps: Maps
     /*
        Renders component given slot contents into given dom node. We avoid that
        since all slots will be injected dynamically triggered through google
@@ -401,31 +401,31 @@ loading ?
     loaded = false
 
     @property({type: object})
-        configuration:Partial<Configuration<Store>>|undefined
-    resolvedConfiguration:Configuration<Store> = {} as Configuration<Store>
-    urlConfiguration:null|PlainObject = null
+        configuration: Partial<Configuration<Store>>|undefined
+    resolvedConfiguration: Configuration<Store> = {} as Configuration<Store>
+    urlConfiguration: null|PlainObject = null
 
-    filter = (_store:Store):boolean => true
-    items:Array<Item> = []
-    searchResultsStyleProperties:Mapping<number|string> = {}
-    seenLocations:Array<string> = []
-    transformStore:(store:Store) => Store = identity
+    filter = (_store: Store): boolean => true
+    items: Array<Item> = []
+    searchResultsStyleProperties: Mapping<number|string> = {}
+    seenLocations: Array<string> = []
+    transformStore: (store: Store) => Store = identity
 
-    highlightedItem:Item|null = null
-    openWindow:InfoWindow|null = null
+    highlightedItem: Item|null = null
+    openWindow: InfoWindow|null = null
     searchBoxInitialized = false
-    searchResultRange:Array<number>|null = null
-    searchResults:Array<Item> = []
-    searchSegments:Array<string> = []
-    searchText:null|string = null
-    searchWords:Array<string> = []
+    searchResultRange: Array<number>|null = null
+    searchResults: Array<Item> = []
+    searchSegments: Array<string> = []
+    searchText: null|string = null
+    searchWords: Array<string> = []
     searchResultsDirty = false
 
     @property()
         name = 'storeLocator'
 
     @property({type: any})
-        default:Item|null = null
+        default: Item|null = null
     dirty = false
     @property({type: boolean, writeAttribute: true})
         disabled = false
@@ -435,16 +435,16 @@ loading ?
         required = false
     valid = true
     @property({type: any})
-        value:Item|null = null
+        value: Item|null = null
 
     // NOTE: Will be initialized during bootstrapping.
-    map:MapImpl = null as unknown as MapImpl
-    markerClusterer:MarkerClusterer|null = null
-    resetMarkerCluster:null|(() => void) = null
+    map = null as unknown as MapImpl
+    markerClusterer: MarkerClusterer|null = null
+    resetMarkerCluster: null|(() => void) = null
 
-    readonly self:typeof StoreLocator = StoreLocator
+    readonly self = StoreLocator
 
-    readonly lock:Lock = new Lock()
+    readonly lock = new Lock()
     // region live cycle hooks
     /**
      * Defines dynamic getter and setter interface and resolves configuration
@@ -466,16 +466,16 @@ loading ?
      * @param options - Icon configuration.
      * @returns Icon configuration.
      */
-    transformIconConfiguration(options:Icon):Icon {
+    transformIconConfiguration(options: Icon): Icon {
         if (options.scaledSize) {
-            const square:Square = options.scaledSize as Square
+            const square = options.scaledSize as Square
             options.scaledSize = new this.self.maps.Size(
                 square.width, square.height, square.unit, square.unit
             )
         }
 
         if (options.size) {
-            const square:Square = options.size as Square
+            const square = options.size as Square
             options.size = new this.self.maps.Size(
                 square.width, square.height, square.unit, square.unit
             )
@@ -490,7 +490,7 @@ loading ?
      * @param newValue - New updated value.
      */
     attributeChangedCallback(
-        name:string, oldValue:string, newValue:string
+        name: string, oldValue: string, newValue: string
     ) {
         super.attributeChangedCallback(name, oldValue, newValue)
 
@@ -519,7 +519,7 @@ loading ?
      * @param name - Property name to write.
      * @param value - New value to write.
      */
-    setInternalPropertyValue(name:string, value:unknown):void {
+    setInternalPropertyValue(name: string, value: unknown): void {
         if (!this.initialized && name === 'default') {
             this.setPropertyValue('value', value)
 
@@ -527,7 +527,7 @@ loading ?
         }
 
         if (this.loaded && name === 'value') {
-            const givenValue:unknown = value
+            const givenValue: unknown = value
             value = this.mapValue(value as Item|null|number|string|Store)
             if (givenValue !== value) {
                 this.setPropertyValue(name, value)
@@ -553,7 +553,7 @@ loading ?
      * @param reason - Description why rendering is necessary.
      * @returns A promise resolving to nothing.
      */
-    async render(reason = 'unknown'):Promise<void> {
+    async render(reason = 'unknown'): Promise<void> {
         if (this.initialized && reason === 'propertyChanged')
             return
 
@@ -585,11 +585,11 @@ loading ?
         if (this.searchText)
             this.openSearchResults()
     }
-    onInputKeyDown = (event:KeyboardEvent) => {
+    onInputKeyDown = (event: KeyboardEvent) => {
         if (KEYBOARD_CODES.DOWN === event.code && this.searchText)
             this.openSearchResults()
     }
-    onKeyDown = (event:KeyboardEvent):void => {
+    onKeyDown = (event: KeyboardEvent): void => {
         /*
             NOTE: Events that doesn't occurs in search context are handled by
             the native map implementation and won't be propagated so we doesn't
@@ -656,7 +656,7 @@ loading ?
     /**
      * Merges configuration sources into final object.
      */
-    resolveConfiguration():void {
+    resolveConfiguration(): void {
         this.resolvedConfiguration = extend(
             true,
             copy(this.self.defaultConfiguration) as
@@ -713,14 +713,14 @@ loading ?
      * Extends current configuration object by given url parameter.
      * @param name - URL parameter name to interpret.
      */
-    extendConfigurationByGivenURLParameter(name?:string):void {
+    extendConfigurationByGivenURLParameter(name?: string): void {
         if (!name)
             name = this.resolvedConfiguration.name
 
-        const parameter:Array<string>|null|string =
+        const parameter: Array<string>|null|string =
             getURLParameter(name) as Array<string>|null|string
         if (typeof parameter === 'string') {
-            const evaluated:EvaluationResult = evaluate(decodeURI(parameter))
+            const evaluated: EvaluationResult = evaluate(decodeURI(parameter))
             if (evaluated.error) {
                 console.warn(
                     'Error occurred during processing given url parameter "' +
@@ -746,12 +746,12 @@ loading ?
      * Initializes map instances.
      * @returns Promise resolving when everything is loaded and initialized.
      */
-    loadMapEnvironmentIfNotAvailableAndInitializeMap():Promise<void> {
+    loadMapEnvironmentIfNotAvailableAndInitializeMap(): Promise<void> {
         let loadInitialized = true
-        const applicationInterfaceLoadCallbacks:{
-            reject:ProcedureFunction
-            resolve:ProcedureFunction
-            resolved:boolean
+        const applicationInterfaceLoadCallbacks: {
+            reject: ProcedureFunction
+            resolve: ProcedureFunction
+            resolved: boolean
         } = {
             reject: NOOP,
             resolve: NOOP,
@@ -760,9 +760,9 @@ loading ?
         if (typeof this.self.applicationInterfaceLoad !== 'object') {
             loadInitialized = false
             this.self.applicationInterfaceLoad = new Promise<void>((
-                resolve:() => void, reject:() => void
+                resolve: () => void, reject: () => void
             ) => {
-                applicationInterfaceLoadCallbacks.resolve = ():void => {
+                applicationInterfaceLoadCallbacks.resolve = () => {
                     applicationInterfaceLoadCallbacks.resolved = true
                     resolve()
                 }
@@ -770,7 +770,7 @@ loading ?
             })
         }
 
-        const result:Promise<void> = this.self.applicationInterfaceLoad
+        const result: Promise<void> = this.self.applicationInterfaceLoad
             .then(this.bootstrap)
             .then(() => {
                 if (this.dispatchEvent(new CustomEvent('loaded')))
