@@ -25,35 +25,35 @@ import {Configuration} from './type'
 // endregion
 // region prepare environment
 globalContext.fetch = nodeFetch as unknown as typeof fetch
-;(globalContext as $Global & {google:typeof google}).google = {
+;(globalContext as $Global & {google: typeof google}).google = {
     maps: {
         ControlPosition: {TOP_LEFT: 0},
         event: {addListener: NOOP},
         InfoWindow: class {
-            open:() => void = NOOP
-            setContent:() => void = NOOP
+            open: () => void = NOOP
+            setContent: () => void = NOOP
         },
         LatLng: class {
-            lat = ():number => 1
-            lng = ():number => 1
+            lat = () => 1
+            lng = () => 1
         },
         LatLngBounds: class {
-            contains:() => true = ():true => true
+            contains: () => true = () => true
         },
         Map: class {
-            controls:Array<Array<number>> = [[]]
-            getCenter = ():Record<string, never> => ({})
-            panBy:() => void = NOOP
-            panTo:() => void = NOOP
+            controls: Array<Array<number>> = [[]]
+            getCenter = (): Record<string, never> => ({})
+            panBy: () => void = NOOP
+            panTo: () => void = NOOP
         },
         Marker: class {
-            setAnimation:() => void = NOOP
+            setAnimation: () => void = NOOP
         },
         mockup: true,
         places: {
             PlacesService: class {
                 textSearch = (
-                    options:object, callback:(_words:Array<string>) => void
+                    options: object, callback: (words: Array<string>) => void
                 ) => {
                     callback([])
                 }
@@ -63,7 +63,7 @@ globalContext.fetch = nodeFetch as unknown as typeof fetch
     }
 } as unknown as typeof google
 
-const defaultConfiguration:RecursivePartial<Configuration> = {
+const defaultConfiguration: RecursivePartial<Configuration> = {
     applicationInterface: {
         key: 'AIzaSyBAoKgqF4XaDblkRP4-94BITpUKzB767LQ'
     },
@@ -91,26 +91,26 @@ const name = 'test-store-locator'
 api.register(name)
 // endregion
 // region tests
-describe('api', ():void => {
-    test('api definitions', ():void => {
+describe('api', () => {
+    test('api definitions', () => {
         expect(api).toBeDefined()
         expect(api).toHaveProperty('component', StoreLocator)
 
         expect(document.createElement(name)).toBeInstanceOf(StoreLocator)
     })
 })
-describe('StoreLocator', ():void => {
-    beforeAll(():Promise<void> => StoreLocator.applicationInterfaceLoad)
+describe('StoreLocator', (): void => {
+    beforeAll((): Promise<void> => StoreLocator.applicationInterfaceLoad)
     // region tests
-    test('custom element definition', ():void => {
-        const storeLocator:StoreLocator =
+    test('custom element definition', () => {
+        const storeLocator: StoreLocator =
             document.createElement(name) as StoreLocator
         document.body.appendChild(storeLocator)
 
         expect(storeLocator).toBeDefined()
     })
-    test('attribute configuration', ():void => {
-        const storeLocator:StoreLocator =
+    test('attribute configuration', () => {
+        const storeLocator: StoreLocator =
             document.createElement(name) as StoreLocator
         document.body.appendChild(storeLocator)
 
@@ -119,19 +119,18 @@ describe('StoreLocator', ():void => {
         expect(storeLocator).toHaveProperty('configuration.value', 2)
         expect(storeLocator).toHaveProperty('resolvedConfiguration.value', 2)
     })
-    test('search results', async ():Promise<void> => {
-        const storeLocator:StoreLocator =
-            document.createElement(name) as StoreLocator
+    test('search results', async (): Promise<void> => {
+        const storeLocator = document.createElement(name) as StoreLocator
         document.body.appendChild(storeLocator)
 
-        await new Promise((resolve:(_value:unknown) => void):void =>
+        await new Promise((resolve: (value: unknown) => void) => {
             storeLocator.addEventListener('loaded', resolve)
-        )
+        })
 
         expect(Array.from(storeLocator.querySelectorAll('div')).length)
             .toBeGreaterThan(0)
 
-        const inputDomNode:HTMLInputElement =
+        const inputDomNode =
             storeLocator.querySelector('input') as HTMLInputElement
         expect(inputDomNode).toBeDefined()
 

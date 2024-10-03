@@ -56,193 +56,193 @@ export type MapPlacesService = google.maps.places.PlacesService
 export type MapSearchBox = google.maps.places.SearchBox
 export type MapSearchBoxOptions = google.maps.places.SearchBoxOptions
 export type MapSize = google.maps.Size
-export type Maps = {
-    Animation:typeof google.maps.Animation
-    ControlPosition:typeof google.maps.ControlPosition
-    event:{
-        addListener:(
-            instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
-            eventName:string,
-            handler:(event:Event) => void
+export interface Maps {
+    Animation: typeof google.maps.Animation
+    ControlPosition: typeof google.maps.ControlPosition
+    event: {
+        addListener: (
+            instance: InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
+            eventName: string,
+            handler: (event: Event) => void
         ) => MapEventListener
-        addListenerOnce:(
-            instance:InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
-            eventName:string,
-            handler:(event:Event) => void
+        addListenerOnce: (
+            instance: InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
+            eventName: string,
+            handler: (event: Event) => void
         ) => MapEventListener
     }
-    Geocoder:typeof google.maps.Geocoder
-    GeocoderStatus:typeof google.maps.GeocoderStatus
-    geometry:{
-        spherical:{
-            computeDistanceBetween:(
-                from:MapPosition, to:MapPosition, radius?:number
+    Geocoder: typeof google.maps.Geocoder
+    GeocoderStatus: typeof google.maps.GeocoderStatus
+    geometry: {
+        spherical: {
+            computeDistanceBetween: (
+                from: MapPosition, to: MapPosition, radius?: number
             ) => number
         }
     }
-    InfoWindow:typeof google.maps.InfoWindow
-    LatLng:typeof google.maps.LatLng
-    LatLngBounds:typeof google.maps.LatLngBounds
-    Map:typeof google.maps.Map
-    Marker:typeof google.maps.Marker
-    mockup?:boolean
-    places:{
-        PlacesService:typeof google.maps.places.PlacesService
-        SearchBox:typeof google.maps.places.SearchBox
+    InfoWindow: typeof google.maps.InfoWindow
+    LatLng: typeof google.maps.LatLng
+    LatLngBounds: typeof google.maps.LatLngBounds
+    Map: typeof google.maps.Map
+    Marker: typeof google.maps.Marker
+    mockup?: boolean
+    places: {
+        PlacesService: typeof google.maps.places.PlacesService
+        SearchBox: typeof google.maps.places.SearchBox
     }
-    Size:typeof google.maps.Size
+    Size: typeof google.maps.Size
 }
 export type MapTextSearchRequest = google.maps.places.TextSearchRequest
 /// endregion
-export type PropertyTypes = {
-    baseConfiguration:ValueOf<typeof PropertyTypes>
-    configuration:ValueOf<typeof PropertyTypes>
-    dynamicConfiguration:ValueOf<typeof PropertyTypes>
+export interface PropertyTypes {
+    baseConfiguration: ValueOf<typeof PropertyTypes>
+    configuration: ValueOf<typeof PropertyTypes>
+    dynamicConfiguration: ValueOf<typeof PropertyTypes>
 }
 export type Store = Mapping<unknown> & {
-    address?:string
-    city?:string
-    id?:number|string
-    latitude?:number
-    longitude?:number
-    markerIconFileName?:string
-    street?:string
-    streetAndStreetnumber?:string
-    streetnumber?:string
-    title?:string
-    zipCode?:string
-    zipCodeAndCity?:string
+    address?: string
+    city?: string
+    id?: number|string
+    latitude?: number
+    longitude?: number
+    markerIconFileName?: string
+    street?: string
+    streetAndStreetnumber?: string
+    streetnumber?: string
+    title?: string
+    zipCode?: string
+    zipCodeAndCity?: string
 }
-export type Square = {
-    height:number
-    unit:string
-    width:number
+export interface Square {
+    height: number
+    unit: string
+    width: number
 }
-export type Icon = {
-    scaledSize?:MapSize|Square
-    size?:MapSize|Square
-    url:string
+export interface Icon {
+    scaledSize?: MapSize|Square
+    size?: MapSize|Square
+    url: string
 }
-export type InfoWindow = MapInfoWindow & {isOpen:boolean}
-export type Item<StoreType extends Store = Store> = {
-    close?:() => void
-    data:null|StoreType
-    foundWords:Array<string>
-    highlight:(event?:Event, type?:string) => void
-    icon?:Icon
-    infoWindow?:InfoWindow
-    isHighlighted:boolean
-    marker?:MapMarker
-    open:(event?:Event) => void
-    position:MapPosition|null
-    refreshSize?:ProcedureFunction
-    title?:string
+export type InfoWindow = MapInfoWindow & {isOpen: boolean}
+export interface Item<StoreType extends Store = Store> {
+    close?: () => void
+    data: null|StoreType
+    foundWords: Array<string>
+    highlight: (event?: Event, type?: string) => void
+    icon?: Icon
+    infoWindow?: InfoWindow
+    isHighlighted: boolean
+    marker?: MapMarker
+    open: (event?: Event) => void
+    position: MapPosition|null
+    refreshSize?: ProcedureFunction
+    title?: string
 }
-export type Position = {
-    latitude:number
-    longitude:number
+export interface Position {
+    latitude: number
+    longitude: number
 }
-export type SearchConfiguration = {
-    generic:{
-        filter:(place:MapPlaceResult) => boolean
-        maximalDistanceInMeter:number
-        minimumNumberOfSymbols:number
-        number:Array<number>
-        prefer:boolean
-        retrieveOptions:MapTextSearchRequest
-        searchDebounceTimeInMilliseconds:number
+export interface SearchConfiguration {
+    generic: {
+        filter: (place: MapPlaceResult) => boolean
+        maximalDistanceInMeter: number
+        minimumNumberOfSymbols: number
+        number: Array<number>
+        prefer: boolean
+        retrieveOptions: MapTextSearchRequest
+        searchDebounceTimeInMilliseconds: number
     }
-    maximumNumberOfResults:{
-        location:number
-        query:number
+    maximumNumberOfResults: {
+        location: number
+        query: number
     }
-    normalizer:(value:string) => string
-    properties:Array<string>
-    resultAggregation:'cut'|'union'
-    resultsBarAlwaysVisible:boolean
-    stylePropertiesToDeriveFromInputField:Array<string>
+    normalizer: (value: string) => string
+    properties: Array<string>
+    resultAggregation: 'cut'|'union'
+    resultsBarAlwaysVisible: boolean
+    stylePropertiesToDeriveFromInputField: Array<string>
 }
-export type AppearanceConfiguration = {
-    hide:Mapping<number|string>
-    showAnimation:[Mapping<number|string>, Mapping<number|string>]
+export interface AppearanceConfiguration {
+    hide: Mapping<number|string>
+    showAnimation: [Mapping<number|string>, Mapping<number|string>]
 }
-export type ClusterOptions = MapMarkerOptions & {count:number}
+export type ClusterOptions = MapMarkerOptions & {count: number}
 export type RendererConfiguration =
     Array<ClusterOptions> |
     MapMarkerOptions |
     null |
     ((
-        defaultOptions:MapMarkerOptions,
-        cluster:MapMarkerCluster,
-        stats:MapMarkerClusterStats
+        defaultOptions: MapMarkerOptions,
+        cluster: MapMarkerCluster,
+        stats: MapMarkerClusterStats
     ) => MapMarkerOptions)
-export type Configuration<StoreItem = Store> = {
-    additionalStoreProperties:object
-    defaultMarkerIconFileName?:null|string
-    filter:null|string|((store:StoreItem) => boolean)
-    boundaries:{
-        northEast:Position
-        southWest:Position
+export interface Configuration<StoreItem = Store> {
+    additionalStoreProperties: object
+    defaultMarkerIconFileName?: null|string
+    filter: null|string|((store: StoreItem) => boolean)
+    boundaries: {
+        northEast: Position
+        southWest: Position
     }
-    numberOfStoresToGenerate:number
-    stores:Array<StoreItem>
-    storesAPIURL:string
-    transformStore:null|string|((store:StoreItem) => StoreItem)
+    numberOfStoresToGenerate: number
+    stores: Array<StoreItem>
+    storesAPIURL: string
+    transformStore: null|string|((store: StoreItem) => StoreItem)
 
-    applicationInterface:{
-        callbackName?:null|string
-        key?:null|string
-        url:string
+    applicationInterface: {
+        callbackName?: null|string
+        key?: null|string
+        url: string
     }
 
-    debug:boolean
+    debug: boolean
 
-    distanceToMoveByDuplicatedEntries:number
+    distanceToMoveByDuplicatedEntries: number
 
-    fallbackLocation:Position
-    ip:string
-    ipToLocationApplicationInterface:{
-        bounds:{
-            northEast:Position
-            southWest:Position
+    fallbackLocation: Position
+    ip: string
+    ipToLocationApplicationInterface: {
+        bounds: {
+            northEast: Position
+            southWest: Position
         }
-        key?:null|string
-        protocol:string
-        timeoutInMilliseconds:number
-        url:string
+        key?: null|string
+        protocol: string
+        timeoutInMilliseconds: number
+        url: string
     }
-    startLocation?:null|Position
+    startLocation?: null|Position
 
-    iconPath:string
-    infoWindow:{additionalMoveToBottomInPixel:number}
-    input:AppearanceConfiguration
-    root:AppearanceConfiguration
-    loadingHideAnimation:[Mapping<number|string>, Mapping<number|string>]
-    showInputAfterLoadedDelayInMilliseconds:number
+    iconPath: string
+    infoWindow: {additionalMoveToBottomInPixel: number}
+    input: AppearanceConfiguration
+    root: AppearanceConfiguration
+    loadingHideAnimation: [Mapping<number|string>, Mapping<number|string>]
+    showInputAfterLoadedDelayInMilliseconds: number
 
-    limit:{
-        northEast:Position
-        southWest:Position
+    limit: {
+        northEast: Position
+        southWest: Position
     }
 
-    map:MapOptions
+    map: MapOptions
 
-    marker:{
-        cluster?:MapMarkerClustererOptions|null
-        icon:{
-            scaledSize:Square
-            size:Square
+    marker: {
+        cluster?: MapMarkerClustererOptions|null
+        icon: {
+            scaledSize: Square
+            size: Square
         }
-        renderer?:RendererConfiguration
+        renderer?: RendererConfiguration
     }
 
-    name:string
+    name: string
 
-    search:number|SearchConfiguration
-    successfulSearchZoomLevel:number
+    search: number|SearchConfiguration
+    successfulSearchZoomLevel: number
 
-    securityResponsePrefix:string
+    securityResponsePrefix: string
 
-    urlModelMask:ObjectMaskConfiguration
+    urlModelMask: ObjectMaskConfiguration
 }
 // endregion

@@ -72,7 +72,7 @@
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "@typescript-eslint/parser": "^8.8.0",
     "@webcomponents/webcomponentsjs": "^2.8.0",
-    "clientnode": "^3.0.1194",
+    "clientnode": "^3.0.1195",
     "documentation-website": "^1.0.334",
     "eslint": "^9.11.1",
     "eslint-config-google": "^0.14.0",
@@ -83,7 +83,7 @@
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
     "typescript-eslint": "^8.8.0",
-    "web-component-wrapper": "^0.0.495",
+    "web-component-wrapper": "^0.0.496",
     "weboptimizer": "^2.0.1518",
     "webpack-dev-server": "^5.1.0"
   },

@@ -4976,9 +4976,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clientnode@npm:^3.0.1194":
-  version: 3.0.1194
-  resolution: "clientnode@npm:3.0.1194"
+"clientnode@npm:^3.0.1195":
+  version: 3.0.1195
+  resolution: "clientnode@npm:3.0.1195"
   peerDependencies:
     "@babel/runtime": "*"
     "@types/prop-types": "*"
@@ -4996,7 +4996,7 @@ __metadata:
       optional: true
     prop-types:
       optional: true
-  checksum: 10c0/b700837ed9f92526b51c6518380f44a3f55d8859cc9280a045662ea344995891af9eaaca21054a56d1f70edd3d22430696db46893bdd0e00a92da71b3abdb2e9
+  checksum: 10c0/58aa183338ef00ee317b7d8221f11177395c61133b50e289aff431bcdf06b44f872585a180a8a4d528403eaee0d122902cd2e9e4e2976ab3ad90128e4901a945
   languageName: node
   linkType: hard
 
@@ -10438,7 +10438,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.8.0"
     "@typescript-eslint/parser": "npm:^8.8.0"
     "@webcomponents/webcomponentsjs": "npm:^2.8.0"
-    clientnode: "npm:^3.0.1194"
+    clientnode: "npm:^3.0.1195"
     documentation-website: "npm:^1.0.334"
     eslint: "npm:^9.11.1"
     eslint-config-google: "npm:^0.14.0"
@@ -10449,7 +10449,7 @@ __metadata:
     node-fetch: "npm:^3.3.2"
     prop-types: "npm:^15.8.1"
     typescript-eslint: "npm:^8.8.0"
-    web-component-wrapper: "npm:^0.0.495"
+    web-component-wrapper: "npm:^0.0.496"
     weboptimizer: "npm:^2.0.1518"
     webpack-dev-server: "npm:^5.1.0"
   peerDependencies:
@@ -11152,9 +11152,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web-component-wrapper@npm:^0.0.495":
-  version: 0.0.495
-  resolution: "web-component-wrapper@npm:0.0.495"
+"web-component-wrapper@npm:^0.0.496":
+  version: 0.0.496
+  resolution: "web-component-wrapper@npm:0.0.496"
   peerDependencies:
     "@babel/runtime": "*"
     "@types/react": "*"
@@ -11173,7 +11173,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 10c0/340fcc24bf5403a9060850ba08c91066cc72c440f9aeb973cacf8c4f71181b292d18a1f414fd9556b0d6b614985cff4b0e15e3f48d87d120a0965dd3c2b86def
+  checksum: 10c0/5a9daff58e345d3e417a5ce2bb5d517bd17dad0fed2f3eed7403efa3d4d19ca33ff0f232d7b76c0d4eef7de86c5ead41b8ef345caf6be48fc818d5ed1d8a2bb4
   languageName: node
   linkType: hard
 
