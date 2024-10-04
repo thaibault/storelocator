@@ -541,7 +541,11 @@ loading ?
             NOTE: Since we avoid re-rendering an already initialized map (to
             improve performance) we have to adapt already rendered state here.
         */
-        if (this.initialized && name === 'disabled')
+        if (
+            this.initialized &&
+            this.slots.disabledOverlay &&
+            name === 'disabled'
+        )
             this.slots.disabledOverlay.style.display = value ? 'block' : 'none'
 
         this.updateValueState()
@@ -550,9 +554,8 @@ loading ?
      * Triggered when content projected and nested dom nodes are ready to be
      * traversed / injected.
      * @param reason - Description why rendering is necessary.
-     * @returns A promise resolving to nothing.
      */
-    async render(reason = 'unknown'): Promise<void> {
+    render(reason = 'unknown'): void {
         if (this.initialized && reason === 'propertyChanged')
             return
 
@@ -563,11 +566,13 @@ loading ?
 
         super.render(reason)
 
-        $(this.slots.input).css(this.resolvedConfiguration.input.hide)
-        this.slots.disabledOverlay.style.display =
-            this.disabled ? 'block' : 'none'
+        if (this.slots.input)
+            $(this.slots.input).css(this.resolvedConfiguration.input.hide)
+        if (this.slots.disabledOverlay)
+            this.slots.disabledOverlay.style.display =
+                this.disabled ? 'block' : 'none'
 
-        await this.loadMapEnvironmentIfNotAvailableAndInitializeMap()
+        void this.loadMapEnvironmentIfNotAvailableAndInitializeMap()
     }
     // endregion
     // region event handler
@@ -719,7 +724,9 @@ loading ?
         const parameter: Array<string>|null|string =
             getURLParameter(name) as Array<string>|null|string
         if (typeof parameter === 'string') {
-            const evaluated: EvaluationResult = evaluate(decodeURI(parameter))
+            const evaluated: EvaluationResult<null|PlainObject> =
+                evaluate<null|PlainObject>(decodeURI(parameter))
+
             if (evaluated.error) {
                 console.warn(
                     'Error occurred during processing given url parameter "' +
@@ -727,13 +734,14 @@ loading ?
                 )
                 return
             }
+
             if (
                 evaluated.result !== null &&
                 typeof evaluated.result === 'object'
             ) {
                 this.urlConfiguration = mask(
                     evaluated.result, this.resolvedConfiguration.urlModelMask
-                ) as PlainObject
+                )
                 extend(true, this.resolvedConfiguration, this.urlConfiguration)
             }
         }
@@ -776,7 +784,10 @@ loading ?
                     void this.onLoaded()
             })
 
-        if (globalContext.window?.google?.maps) {
+        if (
+            globalContext.window &&
+            (globalContext.window.google as {maps: unknown}|undefined)?.maps
+        ) {
             this.self.maps = globalContext.window.google.maps
 
             if (!applicationInterfaceLoadCallbacks.resolved)

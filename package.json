@@ -72,8 +72,8 @@
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "@typescript-eslint/parser": "^8.8.0",
     "@webcomponents/webcomponentsjs": "^2.8.0",
-    "clientnode": "^3.0.1195",
-    "documentation-website": "^1.0.334",
+    "clientnode": "^3.0.1201",
+    "documentation-website": "^1.0.335",
     "eslint": "^9.11.1",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-jsdoc": "^50.3.1",
@@ -83,8 +83,8 @@
     "node-fetch": "^3.3.2",
     "prop-types": "^15.8.1",
     "typescript-eslint": "^8.8.0",
-    "web-component-wrapper": "^0.0.496",
-    "weboptimizer": "^2.0.1518",
+    "web-component-wrapper": "^0.0.498",
+    "weboptimizer": "^2.0.1519",
     "webpack-dev-server": "^5.1.0"
   },
   "peerDependencies": {
