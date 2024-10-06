@@ -38,6 +38,7 @@ import {
     NOOP,
     PlainObject,
     ProcedureFunction,
+    represent,
     timeout,
     TimeoutPromise,
     UnknownFunction,
@@ -74,7 +75,6 @@ import {
     MapPosition,
     Maps,
     MapSearchBox,
-    RendererConfiguration,
     SearchConfiguration,
     Square,
     Store as BaseStore,
@@ -411,7 +411,7 @@ loading ?
     transformStore: (store: Store) => Store = identity
 
     highlightedItem: Item|null = null
-    openWindow: InfoWindow|null = null
+    openWindow: Partial<InfoWindow>|null = null
     searchBoxInitialized = false
     searchResultRange: Array<number>|null = null
     searchResults: Array<Item> = []
@@ -554,17 +554,18 @@ loading ?
      * Triggered when content projected and nested dom nodes are ready to be
      * traversed / injected.
      * @param reason - Description why rendering is necessary.
+     * @returns A promise resolving when rendering has finished.
      */
-    render(reason = 'unknown'): void {
+    async render(reason = 'unknown'): Promise<void> {
         if (this.initialized && reason === 'propertyChanged')
-            return
+            return Promise.resolve()
 
         // NOTE: We have to reset open window state first.
         this.closeCurrentWindow()
 
         this.initialized = true
 
-        super.render(reason)
+        await super.render(reason)
 
         if (this.slots.input)
             $(this.slots.input).css(this.resolvedConfiguration.input.hide)
@@ -572,7 +573,7 @@ loading ?
             this.slots.disabledOverlay.style.display =
                 this.disabled ? 'block' : 'none'
 
-        void this.loadMapEnvironmentIfNotAvailableAndInitializeMap()
+        await this.loadMapEnvironmentIfNotAvailableAndInitializeMap()
     }
     // endregion
     // region event handler
@@ -803,7 +804,13 @@ loading ?
 
             const callback: ProcedureFunction = (): void => {
                 if (!applicationInterfaceLoadCallbacks.resolved)
-                    if (globalContext.window?.google?.maps) {
+                    if (
+                        globalContext.window &&
+                        (
+                            globalContext.window.google as
+                                {maps: unknown}|undefined
+                        )?.maps
+                    ) {
                         this.self.maps = globalContext.window.google.maps
 
                         void applicationInterfaceLoadCallbacks.resolve()
@@ -1002,8 +1009,9 @@ loading ?
         this.map = new this.self.maps.Map(
             this.root as HTMLElement, this.resolvedConfiguration.map
         )
-        $(this.root.firstElementChild!)
-            .css(this.resolvedConfiguration.root.hide)
+        if (this.root.firstElementChild)
+            $(this.root.firstElementChild)
+                .css(this.resolvedConfiguration.root.hide)
 
         this.self.maps.event.addListener(this.map, 'tilesloaded', () => {
             // Adapt rendered html in map.
@@ -1023,44 +1031,47 @@ loading ?
                     shortcutsButtons[0].setAttribute('tabindex', '-1')
 
                 if (this.slots.link) {
-                    const wrapper: HTMLDivElement =
+                    const wrapper: HTMLDivElement|null =
                         shortcutsButtons[shortcutsButtons.length - 1]
-                            .closest('.gmnoprint')!
+                            .closest('.gmnoprint')
                     if (wrapper) {
-                        const sibling: HTMLDivElement =
+                        const sibling =
                             wrapper.cloneNode(true) as HTMLDivElement
-                        const button: HTMLButtonElement =
-                            sibling.querySelector('button')!
-                        button.before(this.slots.link)
-                        button.remove()
+                        const button: HTMLButtonElement|null =
+                            sibling.querySelector('button')
+                        if (button) {
+                            button.before(this.slots.link)
+                            button.remove()
+                        }
                         wrapper.before(sibling)
                     }
                 }
             }
         })
 
-        if (this.resolvedConfiguration.limit)
+        if (this.resolvedConfiguration.limit) {
+            const limit = this.resolvedConfiguration.limit
+
             this.self.maps.event.addListener(
                 this.map,
                 'dragend',
                 (): void => {
                     const area: MapArea = new StoreLocator.maps.LatLngBounds(
                         new StoreLocator.maps.LatLng(
-                            this.resolvedConfiguration.limit.southWest.latitude,
-                            this.resolvedConfiguration.limit.southWest.longitude
+                            limit.southWest.latitude, limit.southWest.longitude
                         ),
                         new StoreLocator.maps.LatLng(
-                            this.resolvedConfiguration.limit.northEast.latitude,
-                            this.resolvedConfiguration.limit.northEast.longitude
+                            limit.northEast.latitude, limit.northEast.longitude
                         )
                     )
-                    const currentCenter: MapPosition|undefined =
+                    const currentCenter: MapPosition | undefined =
                         this.map.getCenter()
                     if (currentCenter && !area.contains(currentCenter)) {
                         const newCenter: Position = {
                             latitude: currentCenter.lat(),
                             longitude: currentCenter.lng()
                         }
+
                         if (currentCenter.lng() < area.getSouthWest().lng())
                             newCenter.longitude = area.getSouthWest().lng()
                         if (currentCenter.lng() > area.getNorthEast().lng())
@@ -1069,24 +1080,28 @@ loading ?
                             newCenter.latitude = area.getSouthWest().lat()
                         if (currentCenter.lat() > area.getNorthEast().lat())
                             newCenter.latitude = area.getNorthEast().lat()
+
                         this.map.panTo(new this.self.maps.LatLng(
                             newCenter.latitude, newCenter.longitude
                         ))
                     }
                 }
             )
+        }
 
         // Create the search box and link it to the UI element.
-        this.applyBindings(
-            this.slots.input,
-            {
-                [lowerCase(this.self._name) || 'instance']: this,
-                configuration: this.resolvedConfiguration,
-                UTILITY_SCOPE
-            }
-        )
-        this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
-            .push(this.slots.input)
+        if (this.slots.input) {
+            this.applyBindings(
+                this.slots.input,
+                {
+                    [lowerCase(this.self._name) || 'instance']: this,
+                    configuration: this.resolvedConfiguration,
+                    UTILITY_SCOPE
+                }
+            )
+            this.map.controls[this.self.maps.ControlPosition.TOP_LEFT]
+                .push(this.slots.input)
+        }
 
         for (const domNode of [
             this.slots.disabledOverlay,
@@ -1129,7 +1144,7 @@ loading ?
         }
         const markerClusterZoomLevel: number =
             this.markerClusterer &&
-            this.resolvedConfiguration.marker.cluster!.maxZoom ||
+            this.resolvedConfiguration.marker.cluster?.maxZoom ||
             0
         if (markerClusterZoomLevel > 0)
             // Close marker if zoom level is bigger than the aggregation.
@@ -1139,7 +1154,8 @@ loading ?
                 () => {
                     if (
                         typeof this.map.getZoom() !== 'number' ||
-                        this.map.getZoom()! <= markerClusterZoomLevel
+                        (this.map.getZoom() as number) <=
+                            markerClusterZoomLevel
                     )
                         this.closeCurrentWindow()
                 }
@@ -1163,6 +1179,9 @@ loading ?
                         this.transformMarker(this.transformStore(store))
                     )
         } else if (this.resolvedConfiguration.storesAPIURL.length > 7) {
+            if (!globalContext.fetch)
+                throw new Error('Missing fetch implementation.')
+
             const result: Response = await globalContext.fetch(
                 this.resolvedConfiguration.storesAPIURL
             )
@@ -1206,6 +1225,8 @@ loading ?
         }
 
         if (this.resolvedConfiguration.marker.cluster) {
+            const cluster = this.resolvedConfiguration.marker.cluster
+
             this.resetMarkerCluster = (): void => {
                 const markers: Array<MapMarker> = []
 
@@ -1223,9 +1244,7 @@ loading ?
                     markers.push(item.marker)
                 }
 
-                const algorithm = new SuperClusterAlgorithm(
-                    this.resolvedConfiguration.marker.cluster!
-                )
+                const algorithm = new SuperClusterAlgorithm(cluster)
 
                 this.markerClusterer = new MarkerClusterer({
                     algorithm,
@@ -1251,8 +1270,8 @@ loading ?
                                         cluster.count
                                 }
 
-                                const givenOptions: RendererConfiguration =
-                                    this.resolvedConfiguration.marker.renderer!
+                                const givenOptions =
+                                    this.resolvedConfiguration.marker.renderer
 
                                 if (typeof givenOptions === 'function')
                                     return new this.self.maps.Marker(
@@ -1329,6 +1348,12 @@ loading ?
     initializeSearchResultsBox(): void {
         this.searchBoxInitialized = true
 
+        if (!this.slots.input?.parentNode)
+            throw new Error('Missing input field slot.')
+
+        if (!this.slots.searchResults)
+            throw new Error('Missing search results slot.')
+
         this.searchResultsStyleProperties = {}
         const allStyleProperties: Mapping<number|string> =
             $(this.slots.input).Tools('style')
@@ -1353,7 +1378,7 @@ loading ?
             Inject the final search results into the dom tree next to the input
             node.
         */
-        this.slots.input.parentNode!.insertBefore(
+        this.slots.input.parentNode.insertBefore(
             this.slots.searchResults, this.slots.input.nextSibling
         )
     }
@@ -1362,6 +1387,9 @@ loading ?
      * matching marker.
      */
     initializeDataSourceSearch() {
+        if (!this.slots.input)
+            throw new Error('Missing input field slot.')
+
         this.root.addEventListener('keydown', this.onKeyDown as EventListener)
         this.slots.input.addEventListener('click', this.onInputClick)
         this.slots.input.addEventListener('focus', this.onInputFocus)
@@ -1394,13 +1422,15 @@ loading ?
         this.dirty = true
         this.pristine = !this.dirty
 
-        if (this.dirty) {
-            this.removeAttribute('pristine')
-            this.setAttribute('dirty', '')
+        // if (this.dirty) {
+        this.removeAttribute('pristine')
+        this.setAttribute('dirty', '')
+        /*
         } else {
             this.removeAttribute('dirty')
             this.setAttribute('pristine', '')
         }
+        */
 
         if (this.disabled)
             this.setAttribute('disabled', '')
@@ -1422,10 +1452,10 @@ loading ?
     get updateSearchResultsHandler(): EventListener {
         const placesService: MapPlacesService =
             new this.self.maps.places.PlacesService(this.map)
-        const searchOptions: SearchConfiguration =
+        const searchOptions =
             this.resolvedConfiguration.search as SearchConfiguration
 
-        return debounce<void>(
+        return debounce<undefined>(
             (async (event?: KeyboardEvent): Promise<void> => {
                 for (const [name, value] of Object.entries(KEYBOARD_CODES))
                     if (
@@ -1463,10 +1493,7 @@ loading ?
                     searchText.length <
                         searchOptions.generic.minimumNumberOfSymbols
                 ) {
-                    if ((
-                        this.resolvedConfiguration.search as
-                            SearchConfiguration
-                    ).resultsBarAlwaysVisible)
+                    if (searchOptions.resultsBarAlwaysVisible)
                         this.performLocalSearch()
                     else if (this.searchResults.length) {
                         this.searchResults = []
@@ -1517,8 +1544,8 @@ loading ?
                 if (searchOptions.generic.number)
                     /*
                         NOTE: Google searches for more items than exists in the
-                        specified radius. However, the radius is a string in the
-                        examples provided by google.
+                        specified radius. However, the radius is a string in
+                        the examples provided by google.
                     */
                     placesService.textSearch(
                         {
@@ -1588,6 +1615,9 @@ loading ?
                 break
 
             if (searchOptions.generic.filter(place)) {
+                if (!globalContext.location)
+                    throw new Error('Missing location.')
+
                 const result: Item = {
                     data: {
                         ...place,
@@ -1619,7 +1649,10 @@ loading ?
                 }
                 results.push(result)
 
-                if (searchOptions.generic.number[1] < index)
+                if (
+                    searchOptions.generic.number &&
+                    searchOptions.generic.number[1] < index
+                )
                     break
             }
         }
@@ -1658,7 +1691,7 @@ loading ?
                             item.data[key] &&
                             typeof item.data[key] === 'string' &&
                             searchOptions
-                                .normalizer(item.data[key] as string)
+                                .normalizer(item.data[key])
                                 .includes(searchWord)
                         ) {
                             item.foundWords.push(searchWord)
@@ -1749,9 +1782,12 @@ loading ?
 
         this.searchResults = results.slice()
 
-        if (this.dispatchEvent(new CustomEvent(
-            'addSearchResults', {detail: {results}}
-        )))
+        if (
+            this.slots.searchResults &&
+            this.dispatchEvent(new CustomEvent(
+                'addSearchResults', {detail: {results}}
+            ))
+        )
             this.evaluateDomNodeTemplate(
                 this.slots.searchResults,
                 {
@@ -1778,7 +1814,7 @@ loading ?
 
         if (
             this.slots.searchResults &&
-            !this.slots.searchResults.classList?.contains(
+            !this.slots.searchResults.classList.contains(
                 'store-locator__search-results--open'
             ) &&
             this.dispatchEvent(new CustomEvent(
@@ -1796,9 +1832,9 @@ loading ?
                 this.searchResultsStyleProperties
             ))
                 this.slots.searchResults.style[propertyName as 'display'] =
-                    `${value}`
+                    String(value)
 
-            this.slots.searchResults.classList?.add(
+            this.slots.searchResults.classList.add(
                 'store-locator__search-results--open'
             )
         }
@@ -1813,7 +1849,7 @@ loading ?
             event.stopPropagation()
 
         if (
-            this.slots.searchResults?.classList?.contains(
+            this.slots.searchResults?.classList.contains(
                 'store-locator__search-results--open'
             ) &&
             this.dispatchEvent(new CustomEvent('closeSearchResults'))
@@ -1823,7 +1859,7 @@ loading ?
             ))
                 this.slots.searchResults.style[propertyName as 'display'] = ''
 
-            this.slots.searchResults.classList?.remove(
+            this.slots.searchResults.classList.remove(
                 'store-locator__search-results--open'
             )
         }
@@ -1835,16 +1871,18 @@ loading ?
     initializeGenericSearch(): void {
         const searchBox: MapSearchBox = new this.self.maps.places.SearchBox(
             this.slots.input as HTMLInputElement,
-            {bounds: new this.self.maps.LatLngBounds(
-                new this.self.maps.LatLng(
-                    this.resolvedConfiguration.limit.southWest.latitude,
-                    this.resolvedConfiguration.limit.southWest.longitude
-                ),
-                new this.self.maps.LatLng(
-                    this.resolvedConfiguration.limit.northEast.latitude,
-                    this.resolvedConfiguration.limit.northEast.longitude
-                )
-            )}
+            this.resolvedConfiguration.limit ?
+                {bounds: new this.self.maps.LatLngBounds(
+                    new this.self.maps.LatLng(
+                        this.resolvedConfiguration.limit.southWest.latitude,
+                        this.resolvedConfiguration.limit.southWest.longitude
+                    ),
+                    new this.self.maps.LatLng(
+                        this.resolvedConfiguration.limit.northEast.latitude,
+                        this.resolvedConfiguration.limit.northEast.longitude
+                    )
+                )} :
+                {}
         )
         /*
             Bias the search box results towards places that are within the
@@ -1936,7 +1974,9 @@ loading ?
                                 )
                         }
                     })
-                    .catch(console.warn)
+                    .catch((error: unknown) => {
+                        console.warn(error)
+                    })
             }
         )
     }
@@ -1964,24 +2004,32 @@ loading ?
         return new Promise<Array<MapPlaceResult>>((
             resolve: (value: Array<MapPlaceResult>) => void
         ): void => {
-            for (const place of places)
+            for (const place of places) {
+                if (!place.name)
+                    throw new Error(
+                        'Missing name property in provided place: "' +
+                        represent(place)
+                    )
+
+                const name = place.name
+
                 if (!place.geometry?.location) {
                     console.warn(
-                        `Found place "${place.name!}" doesn't have a ` +
+                        `Found place "${name}" doesn't have a ` +
                         'location. Full object:'
                     )
                     console.warn(place)
                     console.info(
                         'Geocode will be determined separately. With address' +
-                        ` "${place.name!}".`
+                        ` "${name}".`
                     )
 
                     runningGeocodes += 1
 
                     void geocoder.geocode(
-                        {address: place.name},
+                        {address: name},
                         (
-                            results: Array<MapGeocoderResult>|null,
+                            results: Array<MapGeocoderResult> | null,
                             status: MapGeocoderStatus
                         ): void => {
                             runningGeocodes -= 1
@@ -1992,12 +2040,12 @@ loading ?
                             )
                                 place.geometry = results[0].geometry
                             else {
-                                delete places[places.indexOf(place)]
+                                places.splice(places.indexOf(place), 1)
 
                                 console.warn(
-                                    `Found place "${place.name!}" couldn't ` +
-                                    'be geocoded by google. Removing it from' +
-                                    ' the places list.'
+                                    `Found place "${name}" couldn't be ` +
+                                    'geocoded by google. Removing it from ' +
+                                    'the places list.'
                                 )
                             }
 
@@ -2007,6 +2055,7 @@ loading ?
                         }
                     )
                 }
+            }
 
             // Resolve directly if we don't have to wait for any geocoding.
             if (runningGeocodes === 0)
@@ -2050,22 +2099,27 @@ loading ?
      * @returns Promise resolving when start up animation has been completed.
      */
     async onLoaded(): Promise<void> {
-        void $(this.slots.loadingOverlay)
-            .animate(...this.resolvedConfiguration.loadingHideAnimation)
-            .promise()
-            .then(() => {
-                this.slots.loadingOverlay.style.display = 'none'
-            })
+        if (this.slots.loadingOverlay) {
+            const loadingOverlay = this.slots.loadingOverlay
+            void $(loadingOverlay)
+                .animate(...this.resolvedConfiguration.loadingHideAnimation)
+                .promise()
+                .then(() => {
+                    loadingOverlay.style.display = 'none'
+                })
+        }
 
-        $(this.root.firstElementChild!)
-            .animate(...this.resolvedConfiguration.root.showAnimation)
+        if (this.root.firstElementChild)
+            $(this.root.firstElementChild)
+                .animate(...this.resolvedConfiguration.root.showAnimation)
 
         await timeout(
             this.resolvedConfiguration.showInputAfterLoadedDelayInMilliseconds
         )
 
-        $(this.slots.input)
-            .animate(...this.resolvedConfiguration.input.showAnimation)
+        if (this.slots.input)
+            $(this.slots.input)
+                .animate(...this.resolvedConfiguration.input.showAnimation)
     }
     /**
      * Registers given store to the googlemaps canvas.
@@ -2076,7 +2130,7 @@ loading ?
         let index = 0
         if (store && store.latitude && store.longitude) {
             while (this.seenLocations.includes(
-                `${store.latitude}-${store.longitude}`
+                `${String(store.latitude)}-${String(store.longitude)}`
             )) {
                 if (index % 2)
                     store.latitude +=
@@ -2089,7 +2143,9 @@ loading ?
                 index += 1
             }
 
-            this.seenLocations.push(`${store.latitude}-${store.longitude}`)
+            this.seenLocations.push(
+                `${String(store.latitude)}-${String(store.longitude)}`
+            )
         }
 
         const item: Item = {
@@ -2117,7 +2173,7 @@ loading ?
             item.icon.url = this.resolvedConfiguration.iconPath
             if (store?.markerIconFileName)
                 item.icon.url += store.markerIconFileName
-            else
+            else if (this.resolvedConfiguration.defaultMarkerIconFileName)
                 item.icon.url +=
                     this.resolvedConfiguration.defaultMarkerIconFileName
         }
@@ -2168,8 +2224,13 @@ loading ?
      * @param item - Marker to attach event listener to.
      */
     attachMarkerEventListener(item: Item): void {
+        if (!item.infoWindow)
+            return
+
+        const infoWindow = item.infoWindow
+
         this.self.maps.event.addListener(
-            item.infoWindow!,
+            infoWindow,
             'closeclick',
             (event: Event): void => {
                 if (
@@ -2180,7 +2241,7 @@ loading ?
                         'change', {detail: {value: null}}
                     ))
                 ) {
-                    item.infoWindow!.isOpen = false
+                    infoWindow.isOpen = false
 
                     this.setPropertyValue('value', null)
 
@@ -2211,7 +2272,7 @@ loading ?
      * @param event - Event which has triggered the marker opening call.
      */
     openMarker(item: Item, event?: Event): void {
-        if (event && !event.stopPropagation)
+        if (event)
             event = undefined
 
         if (this.dispatchEvent(new CustomEvent(
@@ -2247,18 +2308,20 @@ loading ?
                 infoWindow.setContent(infoWindow.getContent())
             }
 
-            this.evaluateDomNodeTemplate(
-                this.slots.infoWindow,
-                {
-                    ...UTILITY_SCOPE,
-                    ...item,
-                    [lowerCase(this.self._name) || 'instance']: this,
-                    configuration: this.resolvedConfiguration,
-                    item,
-                    instance: this
-                }
-            )
-            infoWindow.setContent(this.slots.infoWindow.outerHTML)
+            if (this.slots.infoWindow) {
+                this.evaluateDomNodeTemplate(
+                    this.slots.infoWindow,
+                    {
+                        ...UTILITY_SCOPE,
+                        ...item,
+                        [lowerCase(this.self._name) || 'instance']: this,
+                        configuration: this.resolvedConfiguration,
+                        item,
+                        instance: this
+                    }
+                )
+                infoWindow.setContent(this.slots.infoWindow.outerHTML)
+            }
 
             this.closeCurrentWindow()
 
@@ -2319,7 +2382,7 @@ loading ?
             else {
                 /*
                     We have to ensure that the minimum zoom level has one more
-                    then the clustering can appear. Since a cluster hides an
+                    than the clustering can appear. Since a cluster hides an
                     open window.
                 */
                 if (
@@ -2327,22 +2390,22 @@ loading ?
                     (this.map.getZoom() ?? 0) <=
                         this.resolvedConfiguration.marker.cluster.maxZoom &&
                     item.position &&
-                    this.map.getBounds()!.contains(item.position)
+                    this.map.getBounds()?.contains(item.position)
                 ) {
                     this.map.setCenter(item.position)
                     this.map.setZoom(
                         this.resolvedConfiguration.marker.cluster.maxZoom + 1
                     )
                 }
-                if (item !== this.highlightedItem && item.marker) {
-                    item.marker.setAnimation(
-                        this.self.maps.Animation[
-                            type.toUpperCase() as keyof MapAnimation
-                        ]
-                    )
-                    this.highlightedItem = item
-                    item.isHighlighted = true
-                }
+
+                item.marker.setAnimation(
+                    this.self.maps.Animation[
+                        type.toUpperCase() as keyof MapAnimation
+                    ]
+                )
+                this.highlightedItem = item
+                item.isHighlighted = true
+
                 this.dispatchEvent(new CustomEvent(
                     'markerHighlighted', {detail: {event, item}}
                 ))

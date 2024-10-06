@@ -147,7 +147,7 @@ export interface SearchConfiguration {
         filter: (place: MapPlaceResult) => boolean
         maximalDistanceInMeter: number
         minimumNumberOfSymbols: number
-        number: Array<number>
+        number?: Array<number>
         prefer: boolean
         retrieveOptions: MapTextSearchRequest
         searchDebounceTimeInMilliseconds: number
@@ -202,7 +202,7 @@ export interface Configuration<StoreItem = Store> {
     fallbackLocation: Position
     ip: string
     ipToLocationApplicationInterface: {
-        bounds: {
+        bounds?: {
             northEast: Position
             southWest: Position
         }
@@ -220,7 +220,7 @@ export interface Configuration<StoreItem = Store> {
     loadingHideAnimation: [Mapping<number|string>, Mapping<number|string>]
     showInputAfterLoadedDelayInMilliseconds: number
 
-    limit: {
+    limit?: {
         northEast: Position
         southWest: Position
     }
@@ -229,7 +229,7 @@ export interface Configuration<StoreItem = Store> {
 
     marker: {
         cluster?: MapMarkerClustererOptions|null
-        icon: {
+        icon?: {
             scaledSize: Square
             size: Square
         }
