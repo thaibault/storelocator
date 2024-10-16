@@ -56,17 +56,23 @@ export type MapPlacesService = google.maps.places.PlacesService
 export type MapSearchBox = google.maps.places.SearchBox
 export type MapSearchBoxOptions = google.maps.places.SearchBoxOptions
 export type MapSize = google.maps.Size
+export type MapItem =
+    InfoWindow |
+    MapImpl |
+    MapInfoWindow |
+    MapMarker |
+    MapSearchBox
 export interface Maps {
     Animation: typeof google.maps.Animation
     ControlPosition: typeof google.maps.ControlPosition
     event: {
         addListener: (
-            instance: InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
+            instance: MapItem,
             eventName: string,
             handler: (event: Event) => void
         ) => MapEventListener
         addListenerOnce: (
-            instance: InfoWindow|MapImpl|MapInfoWindow|MapMarker|MapSearchBox,
+            instance: MapItem,
             eventName: string,
             handler: (event: Event) => void
         ) => MapEventListener
@@ -102,7 +108,7 @@ export interface PropertyTypes {
 export type Store = Mapping<unknown> & {
     address?: string
     city?: string
-    id?: number|string
+    id?: number | string
     latitude?: number
     longitude?: number
     markerIconFileName?: string
@@ -119,14 +125,14 @@ export interface Square {
     width: number
 }
 export interface Icon {
-    scaledSize?: MapSize|Square
-    size?: MapSize|Square
+    scaledSize?: MapSize | Square
+    size?: MapSize | Square
     url: string
 }
 export type InfoWindow = MapInfoWindow & {isOpen: boolean}
 export interface Item<StoreType extends Store = Store> {
     close?: () => void
-    data: null|StoreType
+    data: null | StoreType
     foundWords: Array<string>
     highlight: (event?: Event, type?: string) => void
     icon?: Icon
@@ -134,7 +140,7 @@ export interface Item<StoreType extends Store = Store> {
     isHighlighted: boolean
     marker?: MapMarker
     open: (event?: Event) => void
-    position: MapPosition|null
+    position: MapPosition | null
     refreshSize?: ProcedureFunction
     title?: string
 }
@@ -158,13 +164,13 @@ export interface SearchConfiguration {
     }
     normalizer: (value: string) => string
     properties: Array<string>
-    resultAggregation: 'cut'|'union'
+    resultAggregation: 'cut' | 'union'
     resultsBarAlwaysVisible: boolean
     stylePropertiesToDeriveFromInputField: Array<string>
 }
 export interface AppearanceConfiguration {
-    hide: Mapping<number|string>
-    showAnimation: [Mapping<number|string>, Mapping<number|string>]
+    hide: Mapping<number | string>
+    showAnimation: [Mapping<number | string>, Mapping<number | string>]
 }
 export type ClusterOptions = MapMarkerOptions & {count: number}
 export type RendererConfiguration =
@@ -178,8 +184,8 @@ export type RendererConfiguration =
     ) => MapMarkerOptions)
 export interface Configuration<StoreItem = Store> {
     additionalStoreProperties: object
-    defaultMarkerIconFileName?: null|string
-    filter: null|string|((store: StoreItem) => boolean)
+    defaultMarkerIconFileName?: null | string
+    filter: null | string | ((store: StoreItem) => boolean)
     boundaries: {
         northEast: Position
         southWest: Position
@@ -187,11 +193,11 @@ export interface Configuration<StoreItem = Store> {
     numberOfStoresToGenerate: number
     stores: Array<StoreItem>
     storesAPIURL: string
-    transformStore: null|string|((store: StoreItem) => StoreItem)
+    transformStore: null | string | ((store: StoreItem) => StoreItem)
 
     applicationInterface: {
-        callbackName?: null|string
-        key?: null|string
+        callbackName?: null | string
+        key?: null | string
         url: string
     }
 
@@ -206,18 +212,18 @@ export interface Configuration<StoreItem = Store> {
             northEast: Position
             southWest: Position
         }
-        key?: null|string
+        key?: null | string
         protocol: string
         timeoutInMilliseconds: number
         url: string
     }
-    startLocation?: null|Position
+    startLocation?: null | Position
 
     iconPath: string
     infoWindow: {additionalMoveToBottomInPixel: number}
     input: AppearanceConfiguration
     root: AppearanceConfiguration
-    loadingHideAnimation: [Mapping<number|string>, Mapping<number|string>]
+    loadingHideAnimation: [Mapping<number | string>, Mapping<number | string>]
     showInputAfterLoadedDelayInMilliseconds: number
 
     limit?: {
@@ -228,7 +234,7 @@ export interface Configuration<StoreItem = Store> {
     map: MapOptions
 
     marker: {
-        cluster?: MapMarkerClustererOptions|null
+        cluster?: MapMarkerClustererOptions | null
         icon?: {
             scaledSize: Square
             size: Square
@@ -238,7 +244,7 @@ export interface Configuration<StoreItem = Store> {
 
     name: string
 
-    search: number|SearchConfiguration
+    search: number | SearchConfiguration
     successfulSearchZoomLevel: number
 
     securityResponsePrefix: string

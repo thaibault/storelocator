@@ -390,7 +390,7 @@ loading ?
             experiencing a compiler bug.
         */
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        (globalContext.window?.google?.maps as Maps|undefined)?.mockup
+        (globalContext.window?.google?.maps as Maps | undefined)?.mockup
     )
     static renderUnsafe = true
     static _name = 'StoreLocator'
@@ -399,24 +399,24 @@ loading ?
     loaded = false
 
     @property({type: object})
-        configuration: Partial<Configuration<Store>>|undefined
+        configuration: Partial<Configuration<Store>> | undefined
     resolvedConfiguration: Configuration<Store> = {} as Configuration<Store>
-    urlConfiguration: null|PlainObject = null
+    urlConfiguration: null | PlainObject = null
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     filter = (_store: Store): boolean => true
     items: Array<Item> = []
-    searchResultsStyleProperties: Mapping<number|string> = {}
+    searchResultsStyleProperties: Mapping<number | string> = {}
     seenLocations: Array<string> = []
     transformStore: (store: Store) => Store = identity
 
-    highlightedItem: Item|null = null
-    openWindow: Partial<InfoWindow>|null = null
+    highlightedItem: Item | null = null
+    openWindow: Partial<InfoWindow> | null = null
     searchBoxInitialized = false
-    searchResultRange: Array<number>|null = null
+    searchResultRange: Array<number> | null = null
     searchResults: Array<Item> = []
     searchSegments: Array<string> = []
-    searchText: null|string = null
+    searchText: null | string = null
     searchWords: Array<string> = []
     searchResultsDirty = false
 
@@ -424,7 +424,7 @@ loading ?
         name = 'storeLocator'
 
     @property({type: any})
-        default: Item|null = null
+        default: Item | null = null
     dirty = false
     @property({type: boolean, writeAttribute: true})
         disabled = false
@@ -434,12 +434,12 @@ loading ?
         required = false
     valid = true
     @property({type: any})
-        value: Item|null = null
+        value: Item | null = null
 
     // NOTE: Will be initialized during bootstrapping.
     map = null as unknown as MapImpl
-    markerClusterer: MarkerClusterer|null = null
-    resetMarkerCluster: null|(() => void) = null
+    markerClusterer: MarkerClusterer | null = null
+    resetMarkerCluster: null | (() => void) = null
 
     readonly self = StoreLocator
 
@@ -527,7 +527,8 @@ loading ?
 
         if (this.loaded && name === 'value') {
             const givenValue: unknown = value
-            value = this.mapValue(value as Item|null|number|string|Store)
+            value =
+                this.mapValue(value as Item | null | number | string | Store)
             if (givenValue !== value) {
                 this.setPropertyValue(name, value)
 
@@ -722,11 +723,11 @@ loading ?
         if (!name)
             name = this.resolvedConfiguration.name
 
-        const parameter: Array<string>|null|string =
-            getURLParameter(name) as Array<string>|null|string
+        const parameter: Array<string> | null | string =
+            getURLParameter(name) as Array<string> | null | string
         if (typeof parameter === 'string') {
-            const evaluated: EvaluationResult<null|PlainObject> =
-                evaluate<null|PlainObject>(decodeURI(parameter))
+            const evaluated: EvaluationResult<null | PlainObject> =
+                evaluate<null | PlainObject>(decodeURI(parameter))
 
             if (evaluated.error) {
                 console.warn(
@@ -787,12 +788,12 @@ loading ?
 
         if (
             globalContext.window &&
-            (globalContext.window.google as {maps: unknown}|undefined)?.maps
+            (globalContext.window.google as {maps: unknown} | undefined)?.maps
         ) {
             this.self.maps = globalContext.window.google.maps
 
             if (!applicationInterfaceLoadCallbacks.resolved)
-                void timeout((): Promise<void>|void =>
+                void timeout((): Promise<void> | void =>
                     applicationInterfaceLoadCallbacks.resolve()
                 )
         } else if (!loadInitialized) {
@@ -808,7 +809,7 @@ loading ?
                         globalContext.window &&
                         (
                             globalContext.window.google as
-                                {maps: unknown}|undefined
+                                {maps: unknown} | undefined
                         )?.maps
                     ) {
                         this.self.maps = globalContext.window.google.maps
@@ -837,7 +838,7 @@ loading ?
             ))
                 .done(callback)
                 .fail((
-                    response: JQuery.jqXHR<string|undefined>,
+                    response: JQuery.jqXHR<string | undefined>,
                     error: JQuery.Ajax.ErrorTextStatus
                 ) => {
                     void applicationInterfaceLoadCallbacks.reject(error)
@@ -970,7 +971,7 @@ loading ?
      * @param value - Value to initialize.
      * @returns Determined value.
      */
-    mapValue(value?: Item|null|number|Store|string): Item|null {
+    mapValue(value?: Item | null | number | Store | string): Item | null {
         if (![null, undefined].includes(value as null)) {
             const hasID: boolean =
                 typeof value === 'object' &&
@@ -1017,7 +1018,7 @@ loading ?
             // Adapt rendered html in map.
             if (this.slots.input) {
                 // Focus input instead of whole locator.
-                const wrapper: HTMLDivElement|null =
+                const wrapper: HTMLDivElement | null =
                     this.root.querySelector('div[tabindex]')
                 if (wrapper)
                     wrapper.removeAttribute('tabindex')
@@ -1031,13 +1032,13 @@ loading ?
                     shortcutsButtons[0].setAttribute('tabindex', '-1')
 
                 if (this.slots.link) {
-                    const wrapper: HTMLDivElement|null =
+                    const wrapper: HTMLDivElement | null =
                         shortcutsButtons[shortcutsButtons.length - 1]
                             .closest('.gmnoprint')
                     if (wrapper) {
                         const sibling =
                             wrapper.cloneNode(true) as HTMLDivElement
-                        const button: HTMLButtonElement|null =
+                        const button: HTMLButtonElement | null =
                             sibling.querySelector('button')
                         if (button) {
                             button.before(this.slots.link)
@@ -1355,7 +1356,7 @@ loading ?
             throw new Error('Missing search results slot.')
 
         this.searchResultsStyleProperties = {}
-        const allStyleProperties: Mapping<number|string> =
+        const allStyleProperties: Mapping<number | string> =
             $(this.slots.input).Tools('style')
         for (const propertyName in allStyleProperties)
             if (
@@ -1366,7 +1367,7 @@ loading ?
                 this.searchResultsStyleProperties[propertyName] =
                     allStyleProperties[propertyName]
 
-        const outerHeight: number|undefined =
+        const outerHeight: number | undefined =
             $(this.slots.input).outerHeight(true)
         if (outerHeight)
             this.searchResultsStyleProperties.marginTop = outerHeight
@@ -1553,7 +1554,7 @@ loading ?
                             location: this.map.getCenter(),
                             query: this.searchText
                         },
-                        (places: Array<MapPlaceResult>|null): void => {
+                        (places: Array<MapPlaceResult> | null): void => {
                             if (places)
                                 this.handleGenericSearchResults(places)
 
@@ -1579,7 +1580,7 @@ loading ?
         const searchOptions: SearchConfiguration =
             this.resolvedConfiguration.search as SearchConfiguration
 
-        const center: MapPosition|undefined = this.map.getCenter()
+        const center: MapPosition | undefined = this.map.getCenter()
         /*
             NOTE: Since google text search doesn't support sorting by distance
             we have to sort by our own.
@@ -1667,7 +1668,7 @@ loading ?
         const searchOptions: SearchConfiguration =
             this.resolvedConfiguration.search as SearchConfiguration
         const numberOfGenericSearchResults: number = results.length
-        const defaultProperties: Array<string>|null =
+        const defaultProperties: Array<string> | null =
             Object.prototype.hasOwnProperty.call(searchOptions, 'properties') ?
                 searchOptions.properties :
                 null
@@ -1756,7 +1757,7 @@ loading ?
             if (second.foundWords.length < first.foundWords.length)
                 return -1
 
-            const center: MapPosition|undefined = this.map.getCenter()
+            const center: MapPosition | undefined = this.map.getCenter()
 
             let firstDistance = 0
             let secondDistance = 0
@@ -1905,7 +1906,7 @@ loading ?
             searchBox,
             'places_changed',
             (): void => {
-                const givenPlaces: Array<MapPlaceResult>|undefined =
+                const givenPlaces: Array<MapPlaceResult> | undefined =
                     searchBox.getPlaces()
 
                 if (!Array.isArray(givenPlaces))
@@ -1913,13 +1914,13 @@ loading ?
 
                 this.ensurePlaceLocations(givenPlaces)
                     .then((places: Array<MapPlaceResult>): void => {
-                        const foundPlace: MapPlaceResult|null =
+                        const foundPlace: MapPlaceResult | null =
                             this.determineBestSearchResult(places)
 
                         if (foundPlace) {
                             let shortestDistanceInMeter: number =
                                 Number.MAX_VALUE
-                            let matchingItem: Item|undefined
+                            let matchingItem: Item | undefined
                             for (const item of this.items) {
                                 let distanceInMeter = 0
                                 if (
@@ -2070,10 +2071,10 @@ loading ?
      */
     determineBestSearchResult(
         candidates: Array<MapPlaceResult>
-    ): MapPlaceResult|null {
-        const center: MapPosition|undefined = this.map.getCenter()
+    ): MapPlaceResult | null {
+        const center: MapPosition | undefined = this.map.getCenter()
 
-        let result: null|MapPlaceResult = null
+        let result: null | MapPlaceResult = null
         if (center && candidates.length) {
             let shortestDistanceInMeter: number = Number.MAX_VALUE
             for (const candidate of candidates) {
