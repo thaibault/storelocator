@@ -30,6 +30,7 @@ import {
     getURLParameter,
     globalContext,
     identity,
+    isObject,
     KEYBOARD_CODES,
     Lock,
     lowerCase,
@@ -737,10 +738,7 @@ loading ?
                 return
             }
 
-            if (
-                evaluated.result !== null &&
-                typeof evaluated.result === 'object'
-            ) {
+            if (isObject(evaluated.result)) {
                 this.urlConfiguration = mask(
                     evaluated.result, this.resolvedConfiguration.urlModelMask
                 )
