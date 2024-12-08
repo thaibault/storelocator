@@ -26,8 +26,9 @@
 /// <reference path="googlemaps/places-widget" />
 
 import {
-    Mapping, ObjectMaskConfiguration, ProcedureFunction, PropertyTypes, ValueOf
+    Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf
 } from 'clientnode'
+import PropertyTypes from 'clientnode/property-types'
 import {
     Cluster as MapMarkerCluster,
     ClusterStats as MapMarkerClusterStats,
@@ -45,9 +46,9 @@ export type MapGeocoderStatus = google.maps.GeocoderStatus
 export type MapIcon = google.maps.Icon
 export type MapImpl = google.maps.Map
 export type MapInfoWindow = google.maps.InfoWindow
-export type MapMarker = google.maps.Marker
+export type MapMarker = google.maps.marker.AdvancedMarkerElement
 export type MapMarkerClustererOptions = SuperClusterOptions
-export type MapMarkerOptions = google.maps.MarkerOptions
+export type MapMarkerOptions = google.maps.marker.AdvancedMarkerElementOptions
 export type MapOptions = google.maps.MapOptions
 export type MapPosition = google.maps.LatLng
 export type MapPlaceResult = google.maps.places.PlaceResult
@@ -89,7 +90,9 @@ export interface Maps {
     LatLng: typeof google.maps.LatLng
     LatLngBounds: typeof google.maps.LatLngBounds
     Map: typeof google.maps.Map
-    Marker: typeof google.maps.Marker
+    marker: {
+        AdvancedMarkerElement: typeof google.maps.marker.AdvancedMarkerElement
+    }
     mockup?: boolean
     places: {
         PlacesService: typeof google.maps.places.PlacesService

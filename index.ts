@@ -19,8 +19,6 @@
 // region imports
 import {
     $,
-    any,
-    boolean,
     compile,
     copy,
     debounce,
@@ -39,7 +37,6 @@ import {
     Mapping,
     mask,
     NOOP,
-    object,
     PlainObject,
     ProcedureFunction,
     represent,
@@ -48,6 +45,7 @@ import {
     UnknownFunction,
     UTILITY_SCOPE
 } from 'clientnode'
+import {any, boolean, object} from 'clientnode/property-types'
 import {
     Cluster as MapMarkerCluster,
     ClusterStats as MapMarkerClusterStats,
@@ -1236,9 +1234,10 @@ loading ?
                         item.marker.setMap(null)
                         delete item.marker
                     }
-                    item.marker = new this.self.maps.Marker(
-                        this.createMarkerConfiguration(item)
-                    )
+                    item.marker =
+                        new this.self.maps.marker.AdvancedMarkerElement(
+                            this.createMarkerConfiguration(item)
+                        )
 
                     this.attachMarkerEventListener(item)
 
