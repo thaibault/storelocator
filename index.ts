@@ -19,6 +19,8 @@
 // region imports
 import {
     $,
+    any,
+    boolean,
     compile,
     copy,
     debounce,
@@ -37,6 +39,7 @@ import {
     Mapping,
     mask,
     NOOP,
+    object,
     PlainObject,
     ProcedureFunction,
     represent,
@@ -45,7 +48,6 @@ import {
     UnknownFunction,
     UTILITY_SCOPE
 } from 'clientnode'
-import {any, boolean, object} from 'clientnode/dist/property-types'
 import {
     Cluster as MapMarkerCluster,
     ClusterStats as MapMarkerClusterStats,

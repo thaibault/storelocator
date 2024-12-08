@@ -26,9 +26,8 @@
 /// <reference path="googlemaps/places-widget" />
 
 import {
-    Mapping, ObjectMaskConfiguration, ProcedureFunction, ValueOf
+    Mapping, ObjectMaskConfiguration, ProcedureFunction, PropertyTypes, ValueOf
 } from 'clientnode'
-import PropertyTypes from 'clientnode/dist/property-types'
 import {
     Cluster as MapMarkerCluster,
     ClusterStats as MapMarkerClusterStats,
