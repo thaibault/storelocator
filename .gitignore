@@ -162,6 +162,12 @@ types/*.d.ts
 typings/*.d.ts
 !declarations.d.ts
 
+## playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # MAC OS
 .DS_Store
 
