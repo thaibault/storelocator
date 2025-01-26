@@ -50,7 +50,6 @@
     "test:browser": "yarn clear && weboptimizer test:browser",
     "test:coverage": "yarn clear && weboptimizer test:coverage",
     "test:coverage:report": "yarn clear && weboptimizer test:coverage:report",
-    "update": "yarn version patch && yarn npm publish",
     "update:documentation": "documentation-website",
     "watch": "weboptimizer build --watch"
   },

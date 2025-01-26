@@ -1,0 +1,39 @@
+name: Build package and push
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: Sets "NODE_ENV" to "debug".
+        default: false
+        type: boolean
+      type:
+        description: Sets semantic version update type.
+        default: patch
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  build-package-and-push:
+    runs-on: ubuntu-latest
+    container: node:lts
+    steps:
+      - uses: thaibault/build-package-push-action@main
+        id: build-package-and-push
+        with:
+          debug: ${{ inputs.debug || '' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
+          type: ${{ inputs.type || 'patch' }}
+
+      - name: Print determined version.
+        run: echo Newly determined version is \"${{ steps.build-package-and-push.outputs.version }}\".
+        shell: bash
