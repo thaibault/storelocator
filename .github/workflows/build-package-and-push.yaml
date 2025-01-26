@@ -17,10 +17,6 @@ on:
           - minor
           - patch
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.event.repository.name }}
-
 jobs:
   build-package-and-push:
     runs-on: ubuntu-latest
