@@ -18,7 +18,7 @@ on:
           - patch
 
 jobs:
-  build-package-and-push:
+  main:
     runs-on: ubuntu-latest
     container: node:lts
     steps:

@@ -14,7 +14,7 @@ on:
         type: boolean
 
 jobs:
-  lint:
+  main:
     runs-on: ubuntu-latest
     container: node:lts
     steps:
