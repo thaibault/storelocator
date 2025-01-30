@@ -16,6 +16,7 @@ on:
           - major
           - minor
           - patch
+          - candidate
 
 jobs:
   main:
