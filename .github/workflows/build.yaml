@@ -1,10 +1,14 @@
 name: Build
 
 on:
-  # NOTE: Runs on branch to tag creation.
+  # NOTE: Runs on branch or tag creation.
   create:
     branches:
       - main
+  # Runs when a new pre-release version was prepared.
+  repository_dispatch:
+    types:
+      - prepare-pre-release-event
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
