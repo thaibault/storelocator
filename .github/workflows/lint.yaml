@@ -1,4 +1,5 @@
 name: Lint
+run-name: Lint
 
 on:
   # NOTE: Runs on branch or tag creation.

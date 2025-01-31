@@ -1,4 +1,5 @@
 name: Check types
+run-name: Check types
 
 on:
   # NOTE: Runs on branch or tag creation.
