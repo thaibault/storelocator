@@ -177,7 +177,8 @@ __pycache__
 
 # Project specific
 *.js
-*.mjs
+#*.cjs
+#*.mjs
 # ...
 
 # region vim modline
