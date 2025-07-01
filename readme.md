@@ -25,6 +25,7 @@ Project status
 
 [![code coverage](https://img.shields.io/coverallsCoverage/github/thaibault/storelocator?label=code%20coverage&style=for-the-badge)](https://coveralls.io/github/thaibault/storelocator)
 
+[![deploy documentation website](https://img.shields.io/github/actions/workflow/status/thaibault/storelocator/deploy-documentation-website.yaml?label=deploy%20documentation%20website&style=for-the-badge)](https://github.com/thaibault/storelocator/actions/workflows/deploy-documentation-website.yaml)
 [![documentation website](https://img.shields.io/website-up-down-green-red/https/torben.website/storelocator.svg?label=documentation-website&style=for-the-badge)](https://torben.website/storelocator)
 
 <!--|deDE:Einsatz-->
